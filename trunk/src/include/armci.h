@@ -12,6 +12,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define ARMCI_SUCCESS 0
+#define ARMCI_ERROR   1
+
 /* FIXME: Add doxygen comments here! */
 
 int ARMCI_Init(void);

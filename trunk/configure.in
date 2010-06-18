@@ -16,12 +16,13 @@ AC_CONFIG_HEADER(src/include/armciconf.h)
 ## Some of the autoconf macros automatically edit the CFLAGS and
 ## friends. We save and reset them to avoid this behavior. We want to
 ## control what flags get set.
-PAC_SAVE_FLAGS
+PAC_PUSH_ALL_FLAGS
 AC_PROG_CC
-PAC_RESTORE_FLAGS
+PAC_POP_ALL_FLAGS
 
 AC_PROG_RANLIB
 PAC_CC_FUNCTION_NAME_SYMBOL
+PAC_ARG_STRICT
 
 ## Check if the necessary headers are available
 AC_CHECK_HEADERS(stdio.h stdlib.h string.h unistd.h sys/types.h)

@@ -10,7 +10,7 @@
 
 int ARMCI_Finalize(void)
 {
-    int status;
+    int status = ARMCI_SUCCESS;
 
     ARMCIU_FUNC_ENTER();
 
