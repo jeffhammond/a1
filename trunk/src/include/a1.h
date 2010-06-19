@@ -4,22 +4,22 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#if !defined ARMCI_H_INCLUDED
-#define ARMCI_H_INCLUDED
+#if !defined A1_H_INCLUDED
+#define A1_H_INCLUDED
 
 /* Keep C++ compilers from getting confused */
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus */
 
-#define ARMCI_SUCCESS 0
-#define ARMCI_ERROR   1
+#define A1_SUCCESS 0
+#define A1_ERROR   1
 
 /* FIXME: Add doxygen comments here! */
 
-int ARMCI_Init(void);
+int A1_Init(void);
 
-int ARMCI_Finalize(void);
+int A1_Finalize(void);
 
 /* FIXME: More API functions to come */
 
@@ -27,4 +27,4 @@ int ARMCI_Finalize(void);
 }
 #endif /* __cplusplus */
 
-#endif /* ARMCI_H_INCLUDED */
+#endif /* A1_H_INCLUDED */

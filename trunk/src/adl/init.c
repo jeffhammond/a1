@@ -4,25 +4,25 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "armci.h"
-#include "armcid.h"
-#include "armciu.h"
+#include "a1.h"
+#include "a1d.h"
+#include "a1u.h"
 
-int ARMCI_Init(void)
+int A1_Init(void)
 {
-    int status = ARMCI_SUCCESS;
+    int status = A1_SUCCESS;
 
-    ARMCIU_FUNC_ENTER();
+    A1U_FUNC_ENTER();
 
     /* FIXME: The profiling interface needs to go here */
 
     /* FIXME: Locking functionality needs to go here */
 
-    status = ARMCID_Init();
-    ARMCIU_ERR_POP(status, "device init returned error\n");
+    status = A1D_Init();
+    A1U_ERR_POP(status, "device init returned error\n");
 
 fn_exit:
-    ARMCIU_FUNC_EXIT();
+    A1U_FUNC_EXIT();
     return status;
 
 fn_fail:

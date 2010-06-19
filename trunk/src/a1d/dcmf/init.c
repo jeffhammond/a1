@@ -4,19 +4,19 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "armciu.h"
-#include "armcid.h"
+#include "a1u.h"
+#include "a1d.h"
 
-int ARMCID_Init(void)
+int A1D_Init(void)
 {
-    int status = ARMCI_SUCCESS;
+    int status = A1_SUCCESS;
 
-    ARMCIU_FUNC_ENTER();
+    A1U_FUNC_ENTER();
 
     /* FIXME: Need to do stuff here! */
 
 fn_exit:
-    ARMCIU_FUNC_EXIT();
+    A1U_FUNC_EXIT();
     return status;
 
 fn_fail:

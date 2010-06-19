@@ -4,25 +4,25 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "armci.h"
-#include "armcid.h"
-#include "armciu.h"
+#include "a1.h"
+#include "a1d.h"
+#include "a1u.h"
 
-int ARMCI_Finalize(void)
+int A1_Finalize(void)
 {
-    int status = ARMCI_SUCCESS;
+    int status = A1_SUCCESS;
 
-    ARMCIU_FUNC_ENTER();
+    A1U_FUNC_ENTER();
 
     /* FIXME: The profiling interface needs to go here */
 
     /* FIXME: Locking functionality needs to go here */
 
-    status = ARMCID_Finalize();
-    ARMCIU_ERR_POP(status, "device finalize returned error\n");
+    status = A1D_Finalize();
+    A1U_ERR_POP(status, "device finalize returned error\n");
 
 fn_exit:
-    ARMCIU_FUNC_EXIT();
+    A1U_FUNC_EXIT();
     return status;
 
 fn_fail:

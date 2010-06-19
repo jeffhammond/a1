@@ -4,11 +4,11 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#if !defined ARMCID_H_INCLUDED
-#define ARMCID_H_INCLUDED
+#if !defined A1D_H_INCLUDED
+#define A1D_H_INCLUDED
 
-int ARMCID_Init(void);
+int A1D_Init(void);
 
-int ARMCID_Finalize(void);
+int A1D_Finalize(void);
 
-#endif /* ARMCID_H_INCLUDED */
+#endif /* A1D_H_INCLUDED */

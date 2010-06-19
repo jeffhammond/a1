@@ -10,6 +10,6 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/include -I$(top_builddir)/src/include
 lib_LIBRARIES = liba1.a
 liba1_a_SOURCES =
 
-if a1_dcmf
-include src/armcid/dcmf/Makefile.mk
+if a1_device_dcmf
+include src/a1d/dcmf/Makefile.mk
 endif

@@ -4,15 +4,15 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#if !defined ARMCIU_H_INCLUDED
-#define ARMCIU_H_INCLUDED
+#if !defined A1U_H_INCLUDED
+#define A1U_H_INCLUDED
 
-#include "armciconf.h"
+#include "a1conf.h"
 
 /* FIXME: FUNC_ENTER/EXIT can be used for profiling in the future */
 
-#define ARMCIU_FUNC_ENTER(...)
-#define ARMCIU_FUNC_EXIT(...)
+#define A1U_FUNC_ENTER(...)
+#define A1U_FUNC_EXIT(...)
 
 #if defined HAVE__FUNC__
 #define HYDU_FUNC __func__
@@ -72,4 +72,4 @@
             HYDU_ERR_SETANDJUMP(status, error, __VA_ARGS__);            \
     }
 
-#endif /* ARMCIU_H_INCLUDED */
+#endif /* A1U_H_INCLUDED */
