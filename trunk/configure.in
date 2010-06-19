@@ -11,6 +11,13 @@ AC_CONFIG_AUX_DIR(m4)
 AC_CONFIG_MACRO_DIR(m4)
 AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11])
 
+LT_PREREQ([2.2.6])
+
+# Bug in libtool adds -O2 and -g by default
+PAC_PUSH_VAR(CFLAGS)
+LT_INIT(disable-shared)
+PAC_POP_VAR(CFLAGS)
+
 AC_CONFIG_HEADER(src/include/a1conf.h)
 
 ## Some of the autoconf macros automatically edit the CFLAGS and
@@ -20,7 +27,6 @@ PAC_PUSH_ALL_FLAGS
 AC_PROG_CC
 PAC_POP_ALL_FLAGS
 
-AC_PROG_RANLIB
 PAC_CC_FUNCTION_NAME_SYMBOL
 PAC_ARG_STRICT
 

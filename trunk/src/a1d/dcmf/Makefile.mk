@@ -4,5 +4,5 @@
 # See COPYRIGHT in top-level directory.
 #
 
-liba1_a_SOURCES += $(top_srcdir)/src/a1d/dcmf/init.c \
+liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmf/init.c \
 	$(top_srcdir)/src/a1d/dcmf/finalize.c

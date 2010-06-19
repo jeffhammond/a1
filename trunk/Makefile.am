@@ -7,8 +7,8 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = -I$(top_srcdir)/src/include -I$(top_builddir)/src/include
 
-lib_LIBRARIES = liba1.a
-liba1_a_SOURCES =
+lib_LTLIBRARIES = liba1.la
+liba1_la_SOURCES =
 
 if a1_device_dcmf
 include src/a1d/dcmf/Makefile.mk
