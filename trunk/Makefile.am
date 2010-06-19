@@ -1,7 +1,6 @@
 #
-# Copyright (c) 2009    Pavan Balaji, Argonne National Laboratory.
-#
-# See COPYRIGHT in top-level directory.
+# Copyright (C) 2010 by Argonne National Laboratory.
+#     See COPYRIGHT in top-level directory.
 #
 
 ACLOCAL_AMFLAGS = -I m4

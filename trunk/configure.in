@@ -1,7 +1,8 @@
 dnl
 dnl $Id: configure.in 16 2008-02-05 02:18:30Z balaji $
 dnl
-dnl Copyright (C) 2009, Pavan Balaji (balaji@mcs.anl.gov)
+dnl Copyright (C) 2010 by Argonne National Laboratory.
+dnl     See COPYRIGHT in top-level directory.
 dnl
 
 AC_PREREQ(2.62)
