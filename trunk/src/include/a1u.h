@@ -9,67 +9,108 @@
 
 #include "a1conf.h"
 
+#if defined HAVE_STDIO_H
+#include <stdio.h>
+#endif /* HAVE_STDIO_H */
+
+#if defined HAVE_STDLIB_H
+#include <stdlib.h>
+#endif /* HAVE_STDLIB_H */
+
+#if defined HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
+
+#if defined HAVE_STRINGS_H
+#include <strings.h>
+#endif /* HAVE_STRINGS_H */
+
+#if defined HAVE_UNISTD_H
+#include <unistd.h>
+#endif /* HAVE_UNISTD_H */
+
+#if defined HAVE_STDARG_H
+#include <stdarg.h>
+#endif /* HAVE_STDARG_H */
+
+#if defined HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H */
+
+#if defined HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif /* HAVE_SYS_STAT_H */
+
+#if defined HAVE_TIME_H
+#include <time.h>
+#endif /* HAVE_TIME_H */
+
+#if defined HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif /* HAVE_SYS_TIME_H */
+
+#if defined HAVE_ERRNO_H
+#include <errno.h>
+#endif /* HAVE_ERRNO_H */
+
 /* FIXME: FUNC_ENTER/EXIT can be used for profiling in the future */
 
 #define A1U_FUNC_ENTER(...)
 #define A1U_FUNC_EXIT(...)
 
 #if defined HAVE__FUNC__
-#define HYDU_FUNC __func__
+#define A1U_FUNC __func__
 #elif defined HAVE_CAP__FUNC__
-#define HYDU_FUNC __FUNC__
+#define A1U_FUNC __FUNC__
 #elif defined HAVE__FUNCTION__
-#define HYDU_FUNC __FUNCTION__
+#define A1U_FUNC __FUNCTION__
 #endif
 
-#if defined __FILE__ && defined HYDU_FUNC
-#define HYDU_error_printf(...)                                          \
+#if defined __FILE__ && defined A1U_FUNC
+#define A1U_error_printf(...)                                           \
     {                                                                   \
-        fprintf(stderr, "%s (%s:%d): ", HYDU_FUNC, __FILE__, __LINE__); \
+        fprintf(stderr, "%s (%s:%d): ", A1U_FUNC, __FILE__, __LINE__);  \
         fprintf(stderr, __VA_ARGS__);                                   \
     }
 #elif defined __FILE__
-#define HYDU_error_printf(...)                               \
+#define A1U_error_printf(...)                                \
     {                                                        \
         fprintf(stderr, "%s (%d): ", __FILE__, __LINE__);    \
         fprintf(stderr, __VA_ARGS__);                        \
     }
 #else
-#define HYDU_error_printf(...)                                          \
+#define A1U_error_printf(...)                                           \
     {                                                                   \
         fprintf(stderr, __VA_ARGS__);                                   \
     }
 #endif
 
-#define HYDU_ASSERT(x, status)                                          \
+#define A1U_ASSERT(x, status)                                           \
     {                                                                   \
         if (!(x)) {                                                     \
-            HYDU_ERR_SETANDJUMP(status, HYD_INTERNAL_ERROR,             \
-                                 "assert (%s) failed\n", #x);           \
+            A1U_ERR_SETANDJUMP(status, A1_INTERNAL_ERROR,               \
+                               "assert (%s) failed\n", #x);             \
         }                                                               \
     }
 
-#define HYDU_ERR_POP(status, ...)                                       \
+#define A1U_ERR_POP(status, ...)                                        \
     {                                                                   \
-        if (status && !HYD_SILENT_ERROR(status)) {                      \
-            HYDU_error_printf(__VA_ARGS__);                             \
+        if (status) {                                                   \
+            A1U_error_printf(__VA_ARGS__);                              \
             goto fn_fail;                                               \
         }                                                               \
-        else if (HYD_SILENT_ERROR(status)) {                            \
-            goto fn_exit;                                               \
-        }                                                               \
     }
 
-#define HYDU_ERR_SETANDJUMP(status, error, ...)                         \
+#define A1U_ERR_SETANDJUMP(status, error, ...)                          \
     {                                                                   \
         status = error;                                                 \
-        HYDU_ERR_POP(status, __VA_ARGS__);                              \
+        A1U_ERR_POP(status, __VA_ARGS__);                               \
     }
 
-#define HYDU_ERR_CHKANDJUMP(status, chk, error, ...)                    \
+#define A1U_ERR_CHKANDJUMP(status, chk, error, ...)                     \
     {                                                                   \
         if ((chk))                                                      \
-            HYDU_ERR_SETANDJUMP(status, error, __VA_ARGS__);            \
+            A1U_ERR_SETANDJUMP(status, error, __VA_ARGS__);             \
     }
 
 #endif /* A1U_H_INCLUDED */
