@@ -593,10 +593,12 @@ dnl D*/
 AC_DEFUN([PAC_ARG_STRICT],[
 AC_ARG_ENABLE(strict,
 	AC_HELP_STRING([--enable-strict],[Turn on strict compilation testing]),
-	PAC_CC_STRICT($enable_strict)
-	CFLAGS="$CFLAGS $pac_cc_strict_flags"
-	export CFLAGS
-])
+	[
+		PAC_CC_STRICT($enable_strict)
+		CFLAGS="$CFLAGS $pac_cc_strict_flags"
+		export CFLAGS
+	]
+)])
 
 dnl Return the integer structure alignment in pac_cv_c_max_integer_align
 dnl Possible values include
