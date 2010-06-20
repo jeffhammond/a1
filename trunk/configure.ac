@@ -102,19 +102,24 @@ AC_CHECK_HEADERS(stdio.h stdlib.h string.h strings.h unistd.h stdarg.h sys/types
 		sys/stat.h time.h errno.h)
 
 ## Check what device we want to use
-a1_device_dcmf=false
+a1_device_dcmfd=false
 AC_ARG_WITH(device, AC_HELP_STRING([--with-device],[A1 device to use]),
-	a1_device=$withval, AC_ERROR([No device specified]))
+	a1_device=$withval,a1_device=dcmfd)
+got_device=no
 for dev in `echo $a1_device | sed -e 's/:/ /g' -e 's/,/ /g'` ; do
     case "$dev" in
-    	 pace)
-		a1_device_dcmf=true
+    	 dcmfd)
+		a1_device_dcmfd=true
+		got_device=yes
 		;;
 	 *)
 		;;
     esac
 done
-AM_CONDITIONAL([a1_device_dcmf],[$a1_device_dcmf])
+AM_CONDITIONAL([a1_device_dcmfd],[$a1_device_dcmfd])
+if test "$got_device" = "no" ; then
+   AC_ERROR([no valid device found])
+fi
 
 ## Error checking functionality
 AC_ARG_ENABLE(error-checking,
