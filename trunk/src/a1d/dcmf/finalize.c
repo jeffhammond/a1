@@ -16,10 +16,10 @@ int A1D_Finalize(void)
 
     /* FIXME: Need to do stuff here! */
 
-fn_exit:
+  fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-fn_fail:
+  fn_fail:
     goto fn_exit;
 }

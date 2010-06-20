@@ -21,10 +21,10 @@ int A1_Init(void)
     status = A1D_Init();
     A1U_ERR_POP(status, "device init returned error\n");
 
-fn_exit:
+  fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-fn_fail:
+  fn_fail:
     goto fn_exit;
 }
