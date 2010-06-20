@@ -51,9 +51,9 @@ extern "C" {
 
 typedef enum
 {
-    A1_THREAD_SINGLE   /**< A1 is called from only one thread. */
-    A1_THREAD_MATCHED  /**< Each A1 channel is accessed from only one thread. */
-    A1_THREAD_GENERAL  /**< Any A1 channel can be accessed from any thread. */
+    A1_THREAD_SINGLE,   /**< A1 is called from only one thread. */
+    A1_THREAD_MATCHED,  /**< Each A1 channel is accessed from only one thread. */
+    A1_THREAD_GENERAL   /**< Any A1 channel can be accessed from any thread. */
 }
     A1_thread_level;
 
@@ -95,6 +95,9 @@ typedef enum
   *
   * \ingroup MANAGEMENT
   */
+
+/* FIXME: What is the type for a1_channel_t. Adding a temporary handle here. */
+typedef int a1_channel_t;
 
 int A1_Initialize(int A1_thread_level, 
                   int A1_num_threads, 
