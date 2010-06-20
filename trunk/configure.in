@@ -10,7 +10,7 @@ AC_PREREQ(2.62)
 AC_INIT([a1],[0])
 AC_CONFIG_AUX_DIR(m4)
 AC_CONFIG_MACRO_DIR(m4)
-AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11 silent-rules])
 
 LT_PREREQ([2.2.6])
 
@@ -94,8 +94,8 @@ PAC_PUSH_ALL_FLAGS
 AC_PROG_CC
 PAC_POP_ALL_FLAGS
 
-PAC_CC_FUNCTION_NAME_SYMBOL
 PAC_ARG_STRICT
+PAC_CC_FUNCTION_NAME_SYMBOL
 
 ## Check if the necessary headers are available
 AC_CHECK_HEADERS(stdio.h stdlib.h string.h strings.h unistd.h stdarg.h sys/types.h \
