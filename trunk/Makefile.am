@@ -17,3 +17,6 @@ include src/adl/Makefile.mk
 if a1_device_dcmfd
 include src/a1d/dcmfd/Makefile.mk
 endif
+
+docs:
+	if test "@DOXYGEN@" != "" ; then @DOXYGEN@ a1-doxygen.cfg ; fi

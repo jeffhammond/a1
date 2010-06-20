@@ -165,9 +165,14 @@ if test "$debug" = "yes"; then
    AC_DEFINE(ENABLE_DEBUG,1,[Define if debugging support is enabled])
 fi
 
+## Documentation
+AC_PATH_PROG([DOXYGEN],[doxygen],,$PATH)
+AC_SUBST(DOXYGEN)
+
 AC_SUBST(top_srcdir)
 
 ## Final output
 AC_OUTPUT(Makefile
 	src/include/a1.h
+	a1-doxygen.cfg
 	)
