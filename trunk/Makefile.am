@@ -15,5 +15,5 @@ include_HEADERS = $(top_builddir)/src/include/a1.h $(top_builddir)/src/include/a
 include src/adl/Makefile.mk
 
 if a1_device_dcmf
-include src/a1d/dcmf/Makefile.mk
+include src/a1d/dcmfd/Makefile.mk
 endif
