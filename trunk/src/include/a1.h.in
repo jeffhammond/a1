@@ -17,53 +17,53 @@ extern "C" {
 
 /* FIXME: Add doxygen comments here! */
 
-  /* ********************************************************************* */
-  /*                                                                       */
-  /*               Enumerations                                            */
-  /*                                                                       */
-  /* ********************************************************************* */
+/* ********************************************************************* */
+/*                                                                       */
+/*               Enumerations                                            */
+/*                                                                       */
+/* ********************************************************************* */
 
-  /**
-   * \brief Thread support within A1.
-   *
-   * Implementation details:
-   *
-   * A1_THREAD_SINGLE does not distinguish between single- and multiple-
-   * threaded execution since A1 should not care if multiple threads
-   * are present if the others are not making communication calls.
-   *
-   * A1_THREAD_MATCHED only requires one to lock the generic A1 stack
-   * and not any of the communication channels since they are dedicated.
-   *
-   * A1_THREAD_GENERAL requires locking on the A1 stack as well as the 
-   * communication channel(s).  A1 should internally decide the best way
-   * to implement this protocol.
-   *
-   * \note This is different from MPI, which uses SINGLE, SERIALIZED and 
-   *       FUNNELED support mechanisms.
-   *
-   */
+/**
+ * \brief Thread support within A1.
+ *
+ * Implementation details:
+ *
+ * A1_THREAD_SINGLE does not distinguish between single- and multiple-
+ * threaded execution since A1 should not care if multiple threads are
+ * present if the others are not making communication calls.
+ *
+ * A1_THREAD_MATCHED only requires one to lock the generic A1 stack
+ * and not any of the communication channels since they are dedicated.
+ *
+ * A1_THREAD_GENERAL requires locking on the A1 stack as well as the
+ * communication channel(s).  A1 should internally decide the best way
+ * to implement this protocol.
+ *
+ * \note This is different from MPI, which uses SINGLE, SERIALIZED and
+ *       FUNNELED support mechanisms.
+ *
+ */
 
-  typedef enum
-  {
+typedef enum
+{
     A1_THREAD_SINGLE   /**< A1 is called from only one thread. */
     A1_THREAD_MATCHED  /**< Each A1 channel is accessed from only one thread. */
     A1_THREAD_GENERAL  /**< Any A1 channel can be accessed from any thread. */
-  }
-  A1_thread_level;
+}
+    A1_thread_level;
 
-  /* ********************************************************************* */
-  /*                                                                       */
-  /*               A1 data structures                                      */
-  /*                                                                       */
-  /* ********************************************************************* */
+/* ********************************************************************* */
+/*                                                                       */
+/*               A1 data structures                                      */
+/*                                                                       */
+/* ********************************************************************* */
 
 
-  /* ********************************************************************* */
-  /*                                                                       */
-  /*               A1 external API - management                            */
-  /*                                                                       */
-  /* ********************************************************************* */
+/* ********************************************************************* */
+/*                                                                       */
+/*               A1 external API - management                            */
+/*                                                                       */
+/* ********************************************************************* */
 
 /**
   * \brief Initializes the Al environment.
