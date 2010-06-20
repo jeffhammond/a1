@@ -33,27 +33,29 @@ extern "C" {
  *
  * Implementation details:
  *
- * A1_THREAD_SINGLE does not distinguish between single- and multiple-
- * threaded execution since A1 should not care if multiple threads are
- * present if the others are not making communication calls.
+ * A1_THREAD_SINGLE, A1_THREAD_FUNNELED and A1_THREAD_SERIALIZED have
+ * the same meaning as the MPI descriptors of similar name.
  *
  * A1_THREAD_MATCHED only requires one to lock the generic A1 stack
- * and not any of the communication channels since they are dedicated.
+ * and not any of the memory types since they are dedicated.
  *
  * A1_THREAD_GENERAL requires locking on the A1 stack as well as the
- * communication channel(s).  A1 should internally decide the best way
- * to implement this protocol.
- *
- * \note This is different from MPI, which uses SINGLE, SERIALIZED and
- *       FUNNELED support mechanisms.
+ * memory type(s).  A1 should internally decide the best way to implement 
+ * this protocol.
  *
  */
 
 typedef enum
 {
-    A1_THREAD_SINGLE,   /**< A1 is called from only one thread. */
-    A1_THREAD_MATCHED,  /**< Each A1 channel is accessed from only one thread. */
-    A1_THREAD_GENERAL   /**< Any A1 channel can be accessed from any thread. */
+    A1_THREAD_SINGLE,       /**< There is only one thread present. */
+    A1_THREAD_FUNNELED,     /**< There are multiple threads present but 
+                                 only the main thread makes A1 calls. */
+    A1_THREAD_SERIALIZED,   /**< There are multiple threads present and each 
+                                 can make A1 calls, but never simultaneously. */
+    A1_THREAD_MATCHED,      /**< Each A1 memory type is accessed from only one thread. 
+                                 For example, one thread communicates remotely via 
+                                 the network and another communicates with a GPU. */
+    A1_THREAD_GENERAL       /**< Any A1 memtype can be accessed from any thread. */
 }
     A1_thread_level;
 
@@ -73,7 +75,7 @@ typedef enum
 /**
   * \brief Initializes the Al environment.
   *
-  * This routine initializes one or more communication channels that 
+  * This routine initializes one or more memory types that 
   * may be used in the course of a program.
   *
   *
@@ -85,24 +87,24 @@ typedef enum
   *       certain kinds of efficient locking mechanisms will function better in
   *       the context of limited number of threads.
   *
-  * \param[out] rc              The error code from initalizing A1
-  * \param[in]  A1_thread_level The type of thread support for A1
-  * \param[in]  A1_num_threads  The number of threads A1 supports
-  * \param[in]  A1_num_channels Number of channels to initialize
-  * \param[in]  A1_channels[]   Array of channels to initialize
+  * \param[out] rc               The error code from initalizing A1
+  * \param[in]  A1_thread_level  The type of thread support for A1
+  * \param[in]  A1_num_threads   The number of threads A1 supports
+  * \param[in]  A1_num_memtypes  Number of memory types to initialize
+  * \param[in]  A1_memtypes[]    Array of memory types to initialize
   *
-  * \see A1_thread_level, a1_channel_t
+  * \see A1_thread_level, a1_memtype_t
   *
   * \ingroup MANAGEMENT
   */
 
-/* FIXME: What is the type for a1_channel_t. Adding a temporary handle here. */
-typedef int a1_channel_t;
+/* FIXME: What is the type for a1_memtype_t. Adding a temporary handle here. */
+typedef int a1_memtype_t;
 
 int A1_Initialize(int A1_thread_level, 
                   int A1_num_threads, 
-                  int A1_num_channels, 
-                  a1_channel_t A1_channels[]);
+                  int A1_num_memtypes, 
+                  a1_memtype_t A1_memtypes[]);
 
 /**
   * \brief Terminates the A1 environment normally.
