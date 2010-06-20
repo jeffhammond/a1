@@ -10,6 +10,8 @@ lib_LTLIBRARIES = liba1.la
 liba1_la_SOURCES =
 liba1_la_LDFLAGS = -version-info $(liba1_abi_version)
 
+include_HEADERS = $(top_builddir)/src/include/a1.h $(top_builddir)/src/include/armci.h
+
 if a1_device_dcmf
 include src/a1d/dcmf/Makefile.mk
 endif
