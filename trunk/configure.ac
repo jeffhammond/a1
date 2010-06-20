@@ -109,8 +109,13 @@ got_device=no
 for dev in `echo $a1_device | sed -e 's/:/ /g' -e 's/,/ /g'` ; do
     case "$dev" in
     	 dcmfd)
-		a1_device_dcmfd=true
-		got_device=yes
+		PAC_SET_HEADER_LIB_PATH(dcmf)
+		PAC_CHECK_HEADER_LIB(dcmf,dcmf.h,libdcmf.cnk,DCMF_Messager_initialize,
+				got_dcmf=yes,got_dcmf=no)
+		if test "$got_dcmf" = "yes" ; then
+		   a1_device_dcmfd=true
+		   got_device=yes
+		fi
 		;;
 	 *)
 		;;
