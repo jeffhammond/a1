@@ -9,16 +9,15 @@
 #include "a1d.h"
 #include "dcmfdimpl.h"
 
-A1D_Thread_info_t A1D_Thread_info;
-
-int A1D_Initialize(int thread_level, int num_threads,
-         int num_memtypes, a1_memtype_t memtypes[])
+int A1D_Put(void* src, void* dst, int bytes, int proc)
 {
     int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
     /* FIXME: Need to do stuff here! */
+
+    
 
   fn_exit:
     A1U_FUNC_EXIT();

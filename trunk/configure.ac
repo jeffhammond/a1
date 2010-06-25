@@ -110,12 +110,20 @@ for dev in `echo $a1_device | sed -e 's/:/ /g' -e 's/,/ /g'` ; do
     case "$dev" in
     	 dcmfd)
 		PAC_SET_HEADER_LIB_PATH(dcmf)
-		PAC_CHECK_HEADER_LIB(dcmf,dcmf.h,libdcmf.cnk,DCMF_Messager_initialize,
+                PAC_SET_HEADER_LIB_PATH(spi)
+		PAC_CHECK_HEADER_LIB(spi,DMA_Addressing.h,SPI.cna,DMA_AddressingGetHandle,
+				got_spi=yes,got_spi=no)
+		got_dcmf=no
+		if test "$got_spi" = "yes" ; then
+			PAC_CHECK_HEADER_LIB(dcmf,dcmf.h,dcmf.cnk,DCMF_Messager_initialize,
 				got_dcmf=yes,got_dcmf=no)
-		if test "$got_dcmf" = "yes" ; then
-		   a1_device_dcmfd=true
-		   got_device=yes
 		fi
+		if test "$got_dcmf" = "yes" ; then
+		   got_device=yes
+                   a1_device_dcmfd=true
+		fi
+                got_device=yes
+                a1_device_dcmfd=true
 		;;
 	 *)
 		;;

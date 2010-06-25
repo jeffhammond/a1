@@ -8,8 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Initialize(int thread_level, int num_threads, 
-              int num_memtypes, a1_memtype_t memtypes[])
+int A1_Put(void* src, void* dst, int bytes, int proc)
 {
     int status = A1_SUCCESS;
 
@@ -22,8 +21,7 @@ int A1_Initialize(int thread_level, int num_threads,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Initialize(thread_level, num_threads, 
-                        num_memtypes, memtypes); 
+    status = A1D_Put(src, dst, bytes, proc);
     A1U_ERR_POP(status, "device init returned error\n");
 
   fn_exit:

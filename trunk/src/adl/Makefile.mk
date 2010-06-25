@@ -4,4 +4,7 @@
 #
 
 liba1_la_SOURCES += $(top_srcdir)/src/adl/adl_init.c \
-	$(top_srcdir)/src/adl/adl_finalize.c
+	$(top_srcdir)/src/adl/adl_finalize.c \
+	$(top_srcdir)/src/adl/adl_malloc.c \
+	$(top_srcdir)/src/adl/adl_free.c \
+	$(top_srcdir)/src/adl/adl_put.c
