@@ -143,10 +143,107 @@ int A1_Abort(int error_code, char error_message[]);
   /*                                                                       */
   /* ********************************************************************* */
 
+/**
+  * \brief A collective operation to allocate memory to be used in context of A1 copy operations.
+  *
+  * \note The size specified at each process should be the same.
+  *
+  * \param[out] ptr           Pointer array. Each one points to memory allocated at one process, in order of ranks. 
+  * \param[in]  bytes         The size of memory allocated at each process.
+  *
+  * \see A1_Free
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_Malloc(void* ptr[], int bytes);
+
+/**
+  * \brief A collective operation to free memory allocated by an A1_Malloc call.
+  *
+  * \param[in]  ptr           Pointer to the allocated memory.
+  *
+  * \see A1_Malloc
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_Free(void* ptr);
+
+/* FIXME: More API functions to come */
+
+  /* ********************************************************************** */
+  /*                                                                        */
+  /*               A1 external API - copy operations                        */
+  /*                                                                        */
+  /* ********************************************************************** */
+
+/**
+  * \brief Blocking copy of contiguous data from local memory to remote memory.
+  *
+  * \param[in]  src           Starting address in the local memory.
+  * \param[in]  dst           Starting address in the remote memory.
+  * \param[in]  bytes         Amount of data to transfer, in bytes.
+  * \param[in]  proc          Rank of the remote process.
+  * 
+  * \see A1_Get
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_Put(void* src, void* dst, int bytes, int proc);
+
+/**
+  * \brief Blocking copy of contiguous data from remote memory to local memory.
+  *
+  * \param[in]  src           Starting address in the remote memory.
+  * \param[in]  dst           Starting address in the local memory.
+  * \param[in]  bytes         Amount of data to transfer, in bytes.
+  * \param[in]  proc          Rank of the remote process.
+  * 
+  * \see A1_Put
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_Get(void* src, void* dst, int bytes, int proc);
+
+/* FIXME: More API functions to come */
+
+  /* ********************************************************************** */
+  /*                                                                        */
+  /*               A1 external API - Completion                             */
+  /*                                                                        */
+  /* ********************************************************************** */
+
+/**
+  * \brief On return, this call ensure that all blocking put or accumulate operations
+  *        issued to a particular process are complete remotely.
+  *
+  * \param[in]  proc          Rank of the remote process.
+  *
+  * \see A1_AllFence
+  *
+  * \ingroup COMPLETION 
+  */
+
+void A1_Fence(int proc);
+
+
+/**
+  * \brief On return, this call ensures that all outstanding blocking put or accumulate 
+  *        operations are complete remotely.
+  *
+  * \see A1_Fence
+  *
+  * \ingroup COMPLETION 
+  */
+
+void A1_AllFence();
+
 /* FIXME: More API functions to come */
 
 /*! @} */
-
 
 /* A1_VERSION is the version string. A1_NUMVERSION is the
  * numeric version that can be used in numeric comparisons.

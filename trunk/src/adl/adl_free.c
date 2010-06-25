@@ -22,7 +22,7 @@ int A1_Free(void* ptr)
 #   endif
 
     status = A1D_Free(ptr);
-    A1U_ERR_POP(status, "device init returned error\n");
+    A1U_ERR_POP(status, "free returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

@@ -22,7 +22,7 @@ int A1_Put(void* src, void* dst, int bytes, int proc)
 #   endif
 
     status = A1D_Put(src, dst, bytes, proc);
-    A1U_ERR_POP(status, "device init returned error\n");
+    A1U_ERR_POP(status, "put returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

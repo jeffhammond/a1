@@ -22,7 +22,7 @@ int A1_Malloc(void* ptr[], int bytes)
 #   endif
 
     status = A1D_Malloc(ptr, bytes);
-    A1U_ERR_POP(status, "device init returned error\n");
+    A1U_ERR_POP(status, "malloc returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

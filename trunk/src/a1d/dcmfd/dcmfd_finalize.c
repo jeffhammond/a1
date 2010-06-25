@@ -14,7 +14,7 @@ int A1D_Finalize(void)
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: Need to do stuff here! */
+    A1DI_CRITICAL(DCMF_Messager_finalize());     
 
   fn_exit:
     A1U_FUNC_EXIT();
