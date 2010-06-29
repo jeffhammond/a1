@@ -113,4 +113,12 @@
             A1U_ERR_SETANDJUMP(status, error, __VA_ARGS__);             \
     }
 
+#define A1U_ERR_POPANDSTMT(status, stmt, ... )                          \
+    {                                                                   \
+        if (status) {                                                   \
+            A1U_error_printf(__VA_ARGS__);                              \
+            stmt;                                                       \
+        }                                                               \
+    }
+
 #endif /* A1U_H_INCLUDED */

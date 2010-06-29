@@ -11,17 +11,26 @@
 
 int A1D_Free(void *ptr)
 {
-    int status = A1_SUCCESS;
+    DCMF_Result result = DCMF_SUCCESS;
+    int disp;
+    DCMF_Memregion_t *memregion;
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: Need to do stuff here! */
+    result = A1DI_Find_memregion(&memregion, &disp, ptr, A1D_Process_info.my_rank);
+    A1U_ERR_POP(result,"could not find memoryregion associated with the address \n");
 
-    
+    /*FIXME: We need to free the corresponding memory region structures of all the 
+      processes */ 
+
+    result = DCMF_Memregion_destroy(memregion);
+    A1U_ERR_POP(result,"memory region destroy returned with error \n");
+
+    free(ptr);
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return result;
 
   fn_fail:
     goto fn_exit;
