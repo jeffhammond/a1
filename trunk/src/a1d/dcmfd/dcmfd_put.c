@@ -13,6 +13,8 @@ int A1D_Put(void* src, void* dst, int bytes, int proc)
 {
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
+    DCMF_Callback_t callback;
+    int active;
     DCMF_Memregion_t *src_memregion, *dst_memregion;
     unsigned src_disp, dst_disp;
  
@@ -23,11 +25,13 @@ int A1D_Put(void* src, void* dst, int bytes, int proc)
     result = A1DI_Find_memregion(&dst_memregion, &dst_disp, dst, A1D_Process_info.my_rank);
     A1U_ERR_POP(result,"could not find memoryregion associated with the address \n");    
 
-    A1D_Put_info.done_active += 1;
-    A1D_Put_info.ack_active += 1;
-    result = DCMF_Put(&A1D_Put_info.protocol,
+    callback.function = A1DI_Generic_callback;
+    callback.clientdata = (void *) &active;
+    
+    active = 1;
+    result = DCMF_Put(&A1D_Generic_put_protocol,
                       &request,
-                      A1D_Put_info.done_callback,
+                      callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       proc,  
                       bytes,
@@ -35,9 +39,9 @@ int A1D_Put(void* src, void* dst, int bytes, int proc)
                       dst_memregion,
                       src_disp,
                       dst_disp,
-                      no_callback);
+                      A1D_Nocallback);
     A1U_ERR_POP(result,"Put returned with an error \n");
-    while (A1D_Put_info.done_active) A1DI_CRITICAL(DCMF_Messager_advance()); 
+    while (active) A1DI_CRITICAL(DCMF_Messager_advance()); 
 
   fn_exit:
     A1U_FUNC_EXIT();

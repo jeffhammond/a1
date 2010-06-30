@@ -13,8 +13,6 @@ void A1DI_Insert_memregion(A1D_Memregion_t *newregion, uint32_t rank) {
 
     A1U_FUNC_ENTER();
 
-    A1D_Memregion_count[rank]++;
-
     if(!A1D_Memregion_lists[rank]) { 
          A1D_Memregion_lists[rank] = newregion;
          newregion->next = NULL;
@@ -44,7 +42,7 @@ void A1DI_Insert_memregion(A1D_Memregion_t *newregion, uint32_t rank) {
     goto fn_exit;
 }
 
-int A1DI_Find_memregion(A1D_Memregion_t **memregion, unsigned *disp, void *vaddress, uint32_t rank) {
+int A1DI_Find_memregion(DCMF_Memregion_t **memregion, unsigned *disp, void *vaddress, uint32_t rank) {
 
     int result = A1_SUCCESS;
     size_t bytes; 
@@ -66,7 +64,7 @@ int A1DI_Find_memregion(A1D_Memregion_t **memregion, unsigned *disp, void *vaddr
 
     *memregion = &(head->mregion);
     *disp = (unsigned) vaddress - (unsigned) head->vaddress;
-    A1U_ERR_POP(result = (disp > head->bytes),"address out of range\n");     
+    A1U_ERR_POP(result = (*disp > head->bytes),"address out of range\n");     
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -122,7 +120,9 @@ DCMF_Result A1DI_Memregion_xchange(void **ptr, DCMF_Memregion_t *memregion) {
 
     A1U_FUNC_ENTER();
 
-    A1D_Control_info.addressarray_ptr = ptr;
+    A1D_Barrier();
+
+    A1D_Control_info.exchange_ptr = ptr;
     A1D_Control_info.rcv_active = A1D_Process_info.num_ranks-1;
     for(rank=0; rank<A1D_Process_info.num_ranks; rank++) {
         if(rank != A1D_Process_info.my_rank) {
@@ -131,6 +131,7 @@ DCMF_Result A1DI_Memregion_xchange(void **ptr, DCMF_Memregion_t *memregion) {
         }
     }
     while(A1D_Control_info.rcv_active) A1DI_CRITICAL(DCMF_Messager_advance());
+    A1D_Control_info.exchange_ptr = NULL;
 
   fn_exit:
     A1U_FUNC_EXIT();
