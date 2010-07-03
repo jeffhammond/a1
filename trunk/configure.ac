@@ -160,6 +160,17 @@ if test "$debug" = "yes"; then
    AC_DEFINE(ENABLE_DEBUG,1,[Define if debugging support is enabled])
 fi
 
+## Disable alignment checking
+AC_ARG_ENABLE(alignment-checking,
+	AC_HELP_STRING([--enable-alignment-checking],[Enable alignment checking]),
+                 [ align_check=$enableval ],
+                 [ align_check=yes ])
+AC_MSG_CHECKING(alignment checking)
+AC_MSG_RESULT($align_check)
+if test "$align_check" = "yes"; then
+   AC_DEFINE(ENABLE_ALIGNMENT_CHECKING,1,[Define if alignment checking is enabled])
+fi
+
 ## Documentation
 AC_PATH_PROG([DOXYGEN],[doxygen],,$PATH)
 AC_SUBST(DOXYGEN)
