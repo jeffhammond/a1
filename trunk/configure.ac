@@ -15,9 +15,9 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign 1.11 silent-rules])
 LT_PREREQ([2.2.6])
 
 # Bug in libtool adds -O2 and -g by default
-PAC_PUSH_VAR(CFLAGS)
+PAC_PUSH_FLAG(CFLAGS)
 LT_INIT(disable-shared)
-PAC_POP_VAR(CFLAGS)
+PAC_POP_FLAG(CFLAGS)
 
 if test ! -s "$srcdir/maint/version" ; then
    AC_ERROR([Version information not found])
@@ -144,25 +144,7 @@ if test "$enable_error_checking" = "yes" ; then
 fi
 
 ## Check if __VA_ARGS__ is defined by the compiler
-AC_MSG_CHECKING([whether the compiler allows __VA_ARGS__])
-rm -f conftest.c
-cat > conftest.c <<EOF
-#include <stdio.h>
-#define my_print(...) printf(__VA_ARGS__)
-int main()
-{
-    my_print("woohoo!");
-    return 0;
-}
-EOF
-pac_tmp_compile='$CC $CFLAGS conftest.c -o conftest'
-if AC_TRY_EVAL(pac_tmp_compile) && test -s conftest ; then
-   AC_DEFINE(COMPILER_ACCEPTS_VA_ARGS,1,[Define if compiler supports __VA_ARGS__])
-   AC_MSG_RESULT(yes)
-else
-   AC_MSG_RESULT(no)
-fi
-rm -f conftest*
+PAC_C_MACRO_VA_ARGS
 
 ## Strict compilation
 PAC_ARG_STRICT

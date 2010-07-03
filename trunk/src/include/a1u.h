@@ -53,6 +53,10 @@
 #include <errno.h>
 #endif /* HAVE_ERRNO_H */
 
+#if !defined HAVE_MACRO_VA_ARGS
+#error "VA_ARGS support is required"
+#endif /* HAVE_MACRO_VA_ARGS */
+
 /* FIXME: FUNC_ENTER/EXIT can be used for profiling in the future */
 
 #define A1U_FUNC_ENTER(...)
