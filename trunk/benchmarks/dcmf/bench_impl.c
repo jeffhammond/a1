@@ -1,3 +1,53 @@
+/* 
+* The following is a notice of limited availability of the code, and disclaimer
+* which must be included in the prologue of the code and in all source listings
+* of the code.
+* 
+* Copyright (c) 2010  Argonne Leadership Computing Facility, Argonne National 
+* Laboratory
+* 
+* Permission is hereby granted to use, reproduce, prepare derivative works, and
+* to redistribute to others.
+* 
+* 
+*                          LICENSE
+* 
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are
+* met:
+* 
+* - Redistributions of source code must retain the above copyright
+*   notice, this list of conditions and the following disclaimer.
+* 
+* - Redistributions in binary form must reproduce the above copyright
+*   notice, this list of conditions and the following disclaimer listed
+*   in this license in the documentation and/or other materials
+*   provided with the distribution.
+* 
+* - Neither the name of the copyright holders nor the names of its
+*   contributors may be used to endorse or promote products derived from
+*   this software without specific prior written permission.
+* 
+* The copyright holders provide no reassurances that the source code
+* provided does not infringe any patent, copyright, or any other
+* intellectual property rights of third parties.  The copyright holders
+* disclaim any liability to any recipient for claims brought against
+* recipient by any third party for infringement of that parties
+* intellectual property rights.
+* 
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+* A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+*/
+
 #include "bench.h"
 
 /***************************************
@@ -14,7 +64,46 @@ void init() {
 *  Generic Callback function           *
 ****************************************/
 void done(void *clientdata, DCMF_Error_t *error) {
+
      --(*((unsigned *) clientdata));
+
+//   printf("[%d] In done, clientdata %d \n", myrank, *((unsigned *) clientdata));
+//   fflush(stdout);
+}
+
+/***************************************
+*  Ack Callback  function           *
+****************************************/
+void acked_done(void *clientdata, DCMF_Error_t *error) {
+
+     struct ack_info *temp = (struct ack_info *) clientdata;
+
+     DCMF_Callback_t cb_done;
+     int count;
+     char data;
+     DCMF_Request_t req;
+     DCQuad msginfo;
+ 
+     cb_done.function = done;
+     cb_done.clientdata = (void *) &count;
+
+     count = 1;
+     DCMF_Send(&ack_reg,
+                  &req,
+                  cb_done,
+                  DCMF_SEQUENTIAL_CONSISTENCY,
+                  temp->peer,
+                  (size_t) 1,
+                  &data,
+                  &msginfo,
+                  1);
+      while(count)
+          DCMF_Messager_advance();
+
+      --(*((unsigned *) temp->active_count));
+
+//    printf("[%d] Finished receiving data, clientdata : %d \n", myrank, *((unsigned *) temp->active_count));
+//    fflush(stdout);
 }
 
 /***************************************
@@ -43,6 +132,18 @@ void ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
      --(*((unsigned *) clientdata));
 }
 
+/****************************************
+*  Send Recv Short Callback function    *
+****************************************/
+void ack_rcv(void *clientdata, const DCQuad *msginfo,
+                 unsigned count, size_t peer, const char *src,
+                 size_t bytes) {
+
+     --(*((unsigned *) clientdata));
+
+//   printf("[%d] Received Ack, clientdata : %d \n", myrank, *((unsigned *) clientdata));
+//   fflush(stdout);
+}
 
 /****************************************
 *  Send Recv Short Callback function    *
@@ -74,6 +175,20 @@ void snd_rcv_noncontig_short(void *clientdata, const DCQuad *msginfo,
 
 }
 
+/**************************************************
+*  Send Recv Short Manytomany Callback function    *
+***************************************************/
+void snd_rcv_manytomany_short(void *clientdata, const DCQuad *msginfo,
+                 unsigned count, size_t peer, const char *src,
+                 size_t bytes) {
+
+     m2m_header = (struct noncontig_header *) malloc (sizeof(struct noncontig_header));
+
+     memcpy(m2m_header, src, bytes);
+
+     --(*((unsigned *) clientdata));
+}
+
 /***************************************
 *  Send Recv Callback function           *
 ****************************************/
@@ -88,6 +203,26 @@ DCMF_Request_t* snd_rcv(void *clientdata, const DCQuad *msginfo, unsigned count,
      cb_done->clientdata = (void *) &snd_rcv_active;  
 
      return &snd_rcv_req;
+}
+
+/***************************************
+*  Acked Send Recv Callback function    *
+****************************************/
+DCMF_Request_t* acked_snd_rcv(void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
+          size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
+
+     *rcvlen = sndlen;
+     *rcvbuf = (char *) malloc (sndlen);
+
+     struct ack_info *temp = (struct ack_info *) malloc (sizeof(struct ack_info));
+     temp->active_count = (void *) &acked_snd_rcv_active;
+     temp->peer = peer;
+     temp->target = *rcvbuf;
+
+     cb_done->function = acked_done;
+     cb_done->clientdata = (void *) temp;
+
+     return &acked_snd_rcv_req;
 }
 
 /***************************************
@@ -133,6 +268,41 @@ void mc_done(void *clientdata, DCMF_Error_t *error) {
 }
 
 /***************************************
+*  Manytomany Recv Callback function    *
+****************************************/
+DCMF_Request_t* m2m_recv_callback(unsigned conn_id, void *arg, char **rcvbuf, unsigned **rcvlens,
+             unsigned **rcvdispls, unsigned **rcvcounters, unsigned *nranks, 
+             unsigned *rankIndex, DCMF_Callback_t *cb_done) {
+
+     int i;
+
+     printf("Inside manytomany recv callback \n");
+     fflush(stdout);
+
+     *rcvbuf = (char *) m2m_header->vaddress;
+     *rcvlens = (unsigned *) malloc (sizeof(unsigned) * m2m_header->d1);
+     *rcvdispls = (unsigned *) malloc (sizeof(unsigned) * m2m_header->d1);
+     *rcvcounters = (unsigned *) malloc (sizeof(unsigned) * m2m_header->d1);
+     cb_done = (DCMF_Callback_t *) malloc (sizeof(DCMF_Callback_t));
+      
+     for (i=0; i<m2m_header->d1; i++) {
+        *rcvlens[i] = m2m_header->d2; 
+        *rcvdispls[i] = i*m2m_header->stride;
+     }  
+
+     *nranks = 2;
+     *rankIndex = 0;
+
+     cb_done->function = done;
+     cb_done->clientdata = (void *) &m2m_rcv_active;
+
+     printf("Completed manytomany recv callback \n");
+     fflush(stdout);
+
+     return &m2m_rcv_req;
+}
+
+/***************************************
 *  Configuring and registering Put     *
 ****************************************/
 void put_init (DCMF_Put_Protocol protocol, DCMF_Network network) {
@@ -142,6 +312,24 @@ void put_init (DCMF_Put_Protocol protocol, DCMF_Network network) {
      result = DCMF_Put_register(&put_reg, &put_conf);
      if(result != DCMF_SUCCESS) {
          printf("[%d] Put Registration failed with error %d \n", myrank, result);
+         fflush(stdout);
+     }
+}
+
+/**********************************************
+* Configuring and Registering Get            *
+**********************************************/
+
+void get_init (DCMF_Get_Protocol protocol, DCMF_Network network) {
+     DCMF_Get_Configuration_t get_conf;
+     DCMF_Result result;
+
+     get_conf.protocol = protocol;
+     get_conf.network = network;
+
+     result = DCMF_Get_register(&get_reg, &get_conf);
+     if(result != DCMF_SUCCESS) {
+         printf("[%d] Get Registration failed with error %d \n", myrank, result);
          fflush(stdout);
      }
 }
@@ -168,6 +356,47 @@ void send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
 }
 
 /**********************************************
+* Configuring and Registering Acked Send      *
+**********************************************/
+void acked_send_init() {
+     DCMF_Result result;
+     snd_msginfo = (DCQuad *) malloc (sizeof(DCQuad));
+
+     snd_conf.protocol = DCMF_RZV_SEND_PROTOCOL;
+     snd_conf.network = DCMF_TORUS_NETWORK;
+     snd_conf.cb_recv_short = NULL;
+     snd_conf.cb_recv_short_clientdata = NULL;
+     snd_conf.cb_recv = acked_snd_rcv;
+     snd_conf.cb_recv_clientdata = NULL;
+
+     result = DCMF_Send_register(&acked_snd_reg, &snd_conf);
+     if(result != DCMF_SUCCESS) {
+         printf("[%d] Send registration failed \n", myrank);
+         fflush(stdout);
+     }
+}
+
+/**********************************************
+* Configuring and Registering Ack             *
+**********************************************/
+void ack_init() {
+     DCMF_Result result;
+
+     snd_conf.protocol = DCMF_EAGER_SEND_PROTOCOL;
+     snd_conf.network = DCMF_TORUS_NETWORK;
+     snd_conf.cb_recv_short = ack_rcv;
+     snd_conf.cb_recv_short_clientdata = (void *) &ack_rcv_active;
+     snd_conf.cb_recv = NULL;
+     snd_conf.cb_recv_clientdata = NULL;
+
+     result = DCMF_Send_register(&ack_reg, &snd_conf);
+     if(result != DCMF_SUCCESS) {
+         printf("[%d] Send registration failed \n", myrank);
+         fflush(stdout);
+     }
+}
+
+/**********************************************
 * Configuring and Registering noncontig Send  *
 **********************************************/
 void send_noncontig_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
@@ -183,6 +412,28 @@ void send_noncontig_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
      snd_conf.cb_recv_clientdata = (void *) &snd_rcv_noncontig_active;
 
      result = DCMF_Send_register(&snd_noncontig_reg, &snd_conf);
+     if(result != DCMF_SUCCESS) {
+         printf("[%d] Send registration failed \n", myrank);
+         fflush(stdout);
+     }
+}
+
+/******************************************************
+* Configuring and Registering manytomany header Send  *
+*******************************************************/
+void send_manytomany_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
+
+     DCMF_Result result;
+     snd_msginfo = (DCQuad *) malloc (sizeof(DCQuad));
+
+     snd_conf.protocol = protocol;
+     snd_conf.network = network;
+     snd_conf.cb_recv_short = snd_rcv_manytomany_short;
+     snd_conf.cb_recv_short_clientdata = (void *) &snd_rcv_manytomany_active;
+     snd_conf.cb_recv = NULL;
+     snd_conf.cb_recv_clientdata = NULL;
+
+     result = DCMF_Send_register(&snd_manytomany_reg, &snd_conf);
      if(result != DCMF_SUCCESS) {
          printf("[%d] Send registration failed \n", myrank);
          fflush(stdout);
@@ -280,6 +531,22 @@ void multicast_init(DCMF_Multicast_Protocol protocol, unsigned int size) {
 * Configuring and Registering ManytoMany ops  *
 **********************************************/
 
+void manytomany_init(DCMF_Manytomany_Protocol protocol) {
+
+     DCMF_Result result;
+ 
+     m2m_conf.protocol = protocol;
+     m2m_conf.cb_recv = m2m_recv_callback;
+     m2m_conf.arg = NULL; 
+     m2m_conf.nconnections = 1;    
+       
+     result = DCMF_Manytomany_register(&m2m_reg, &m2m_conf); 
+     if(result != DCMF_SUCCESS) {
+        printf("[%d] Manytomany registration failed with status %d \n",
+                 myrank, result);
+        fflush(stdout);
+      }     
+}
 
 /**********************************************
 * Configuring and Registering Global Barrier *

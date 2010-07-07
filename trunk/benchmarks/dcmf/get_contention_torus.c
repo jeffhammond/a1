@@ -3,7 +3,7 @@
 * which must be included in the prologue of the code and in all source listings
 * of the code.
 * 
-* Copyright (c) 2010  Argonne Leadership Computing Facility, Argonne National 
+* Copyright (c) 2010  Argonne Leadership Comgeting Facility, Argonne National 
 * Laboratory
 * 
 * Permission is hereby granted to use, reproduce, prepare derivative works, and
@@ -51,12 +51,12 @@
 #include "bench.h"
 #include "float.h"
 
-void put_static(int pick) {
+void get_static(int pick) {
 
       unsigned int size, i, dst;
-      DCMF_Request_t put_req[ITERATIONS];
-      DCMF_Callback_t put_done, put_ack;
-      int done_count, ack_count;
+      DCMF_Request_t get_req[ITERATIONS];
+      DCMF_Callback_t get_done;
+      int done_count;
       DCMF_NetworkCoord_t myaddr, dstaddr; 
       DCMF_Network ntwk;
 
@@ -70,10 +70,8 @@ void put_static(int pick) {
  
       DCMF_Messager_network2rank(&dstaddr, &dst, &ntwk);
  
-      put_done.function = done;
-      put_done.clientdata = (void *) &done_count;
-      put_ack.function = done;
-      put_ack.clientdata = (void *) &ack_count;
+      get_done.function = done;
+      get_done.clientdata = (void *) &done_count;
      
       if(myrank == 0) {
         char buffer[50];
@@ -82,7 +80,6 @@ void put_static(int pick) {
         printf("%s \n", buffer);
         fflush(stdout);
       }
-
 
       for(size=1; size<=MAX_MSG_SIZE; size*=2) {
 
@@ -94,22 +91,20 @@ void put_static(int pick) {
            * start timer          *
            ***********************/
            t_start = DCMF_Timebase();
-
-           ack_count = ITERATIONS;
+           done_count = ITERATIONS;
            for(i=0; i<ITERATIONS; i++) {
-               DCMF_Put(&put_reg,
-                  &put_req[i],
-                  put_done,
+               DCMF_Get(&get_reg,
+                  &get_req[i],
+                  get_done,
                   DCMF_SEQUENTIAL_CONSISTENCY,
                   dst,
                   size,
                   memregion[myrank],
                   memregion[dst],
                   i*size,
-                  MAX_MSG_SIZE*ITERATIONS + i*size,
-                  put_ack);
+                  MAX_MSG_SIZE*ITERATIONS + i*size);
             }
-            while(ack_count) DCMF_Messager_advance();
+            while(done_count) DCMF_Messager_advance();
             t_stop = DCMF_Timebase();
 
             /***********************
@@ -151,12 +146,12 @@ void put_static(int pick) {
       }
 }
 
-void put_dynamic(int pick) {
+void get_dynamic(int pick) {
 
       unsigned int size, i, dst;
-      DCMF_Request_t put_req[ITERATIONS];
-      DCMF_Callback_t put_done, put_ack;
-      int done_count, ack_count;
+      DCMF_Request_t get_req[ITERATIONS];
+      DCMF_Callback_t get_done;
+      int done_count;
       DCMF_NetworkCoord_t myaddr, dstaddr;
       DCMF_Network ntwk;
 
@@ -170,10 +165,8 @@ void put_dynamic(int pick) {
 
       DCMF_Messager_network2rank(&dstaddr, &dst, &ntwk);
 
-      put_done.function = done;
-      put_done.clientdata = (void *) &done_count;
-      put_ack.function = done;
-      put_ack.clientdata = (void *) &ack_count;
+      get_done.function = done;
+      get_done.clientdata = (void *) &done_count;
 
       if(myrank == 0) {
         char buffer[50];
@@ -194,21 +187,20 @@ void put_dynamic(int pick) {
            ***********************/
            t_start = DCMF_Timebase();
 
-           ack_count = ITERATIONS;
+           done_count = ITERATIONS;
            for(i=0; i<ITERATIONS; i++) {
-               DCMF_Put(&put_reg,
-                  &put_req[i],
-                  put_done,
+               DCMF_Get(&get_reg,
+                  &get_req[i],
+                  get_done,
                   DCMF_RELAXED_CONSISTENCY,
                   dst,
                   size,
                   memregion[myrank],
                   memregion[dst],
                   i*size,
-                  MAX_MSG_SIZE*ITERATIONS + i*size,
-                  put_ack);
+                  MAX_MSG_SIZE*ITERATIONS + i*size);
            }
-           while(ack_count) DCMF_Messager_advance();
+           while(done_count) DCMF_Messager_advance();
            t_stop = DCMF_Timebase();
 
            /***********************
@@ -271,45 +263,45 @@ int main ()
 
   memregion_init(MAX_MSG_SIZE*ITERATIONS*2);
 
-  put_init(DCMF_DEFAULT_PUT_PROTOCOL, DCMF_TORUS_NETWORK);
+  get_init(DCMF_DEFAULT_GET_PROTOCOL, DCMF_TORUS_NETWORK);
 
   barrier();
   
   if(myrank == 0) {
-     printf("Put Latency (usec) with static routing - 100p sturation \n");
+     printf("Get Latency (usec) with static routing - 100p sturation \n");
      fflush(stdout);
   }
-  put_static(1);
+  get_static(1);
 
   if(myrank == 0) {
-     printf("Put Latency (usec) with static routing - 50p saturation \n");
+     printf("Get Latency (usec) with static routing - 50p saturation \n");
      fflush(stdout);
   }
-  put_static(2);
+  get_static(2);
 
   if(myrank == 0) {
-     printf("Put Latency (usec) with static routing - 25p saturation \n");
+     printf("Get Latency (usec) with static routing - 25p saturation \n");
      fflush(stdout);
   }
-  put_static(4);
+  get_static(4);
 
   if(myrank == 0) {
-     printf("Put Latency (usec) with dynamic routing - 100p saturation\n");
+     printf("Get Latency (usec) with dynamic routing - 100p saturation\n");
      fflush(stdout);
   }
-  put_dynamic(1);
+  get_dynamic(1);
 
   if(myrank == 0) {
-     printf("Put Latency (usec) with dynamic routing - 50p saturation \n");
+     printf("Get Latency (usec) with dynamic routing - 50p saturation \n");
      fflush(stdout);
   }
-  put_dynamic(2);
+  get_dynamic(2);
 
   if(myrank == 0) {
-     printf("Put Latency (usec) with dynamic routing - 25p saturation \n");
+     printf("Get Latency (usec) with dynamic routing - 25p saturation \n");
      fflush(stdout);
   }
-  put_dynamic(4);
+  get_dynamic(4);
 
   barrier();
 

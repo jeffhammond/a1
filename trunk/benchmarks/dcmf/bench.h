@@ -1,3 +1,53 @@
+/* 
+* The following is a notice of limited availability of the code, and disclaimer
+* which must be included in the prologue of the code and in all source listings
+* of the code.
+* 
+* Copyright (c) 2010  Argonne Leadership Computing Facility, Argonne National 
+* Laboratory
+* 
+* Permission is hereby granted to use, reproduce, prepare derivative works, and
+* to redistribute to others.
+* 
+* 
+*                          LICENSE
+* 
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are
+* met:
+* 
+* - Redistributions of source code must retain the above copyright
+*   notice, this list of conditions and the following disclaimer.
+* 
+* - Redistributions in binary form must reproduce the above copyright
+*   notice, this list of conditions and the following disclaimer listed
+*   in this license in the documentation and/or other materials
+*   provided with the distribution.
+* 
+* - Neither the name of the copyright holders nor the names of its
+*   contributors may be used to endorse or promote products derived from
+*   this software without specific prior written permission.
+* 
+* The copyright holders provide no reassurances that the source code
+* provided does not infringe any patent, copyright, or any other
+* intellectual property rights of third parties.  The copyright holders
+* disclaim any liability to any recipient for claims brought against
+* recipient by any third party for infringement of that parties
+* intellectual property rights.
+* 
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+* A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+* OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+* THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+*/
+
 #include "dcmf.h"
 #include "dcmf_globalcollectives.h"
 #include "dcmf_multisend.h"
@@ -6,14 +56,14 @@
 #include "stdio.h"
 #include "string.h"
 
-#define ITERATIONS 100
+#define ITERATIONS 100 
 #define SKIP 10
 #define MAX_MSG_SIZE 1024*1024*1
 #define VECTOR 16 
 #define MAX_BUF_SIZE MAX_MSG_SIZE*(ITERATIONS+SKIP)
 
 #define MAX_DIM 1024
-#define ITERS 100
+#define ITERS 1
 
 /***************************************
 *  Header for noncontig transfers      *
@@ -26,6 +76,12 @@ struct noncontig_header {
    int d1;
    int d2;
    char flag;
+};
+
+struct ack_info {
+   unsigned *active_count;
+   int peer;
+   char *target;
 };
 
 /***************************************
@@ -55,15 +111,55 @@ DCMF_Callback_t put_done, put_ack;
 int put_count, ack_count;
 
 /**********************************************
+* Global DCMF structures for Get              *
+**********************************************/
+DCMF_Put_Configuration_t get_conf;
+DCMF_Protocol_t get_reg;
+DCMF_Callback_t get_done, get_ack;
+int get_count, get_count;
+
+/**********************************************
 * Global DCMF structures for Send      *
 **********************************************/
 DCMF_Send_Configuration_t snd_conf;
 DCMF_Callback_t snd_callback;
-DCMF_Protocol_t snd_reg, snd_noncontig_reg;
-DCMF_Request_t snd_rcv_req, snd_rcv_noncontig_req;
-int snd_rcv_active, snd_active, snd_rcv_noncontig_active;
-char *snd_rcv_buffer, *snd_rcv_noncontig_buffer;
+DCMF_Protocol_t snd_reg;
+DCMF_Request_t snd_rcv_req;
+int snd_rcv_active, snd_active;
+char *snd_rcv_buffer;
 DCQuad *snd_msginfo;
+char *source;
+
+/**********************************************
+* Global DCMF structures for Noncontig Send      *
+**********************************************/
+DCMF_Protocol_t snd_noncontig_reg;
+DCMF_Request_t snd_rcv_noncontig_req;
+int snd_rcv_noncontig_active;
+char *snd_rcv_noncontig_buffer;
+
+/**********************************************
+* Global DCMF structures for Manytomany Send      *
+**********************************************/
+DCMF_Protocol_t snd_manytomany_reg;
+DCMF_Request_t snd_rcv_manytomany_req;
+int snd_rcv_manytomany_active;
+char *snd_rcv_manytomany_buffer;
+
+/**********************************************
+* Global DCMF structures for Acked Send      *
+**********************************************/
+DCMF_Protocol_t acked_snd_reg;
+DCMF_Request_t acked_snd_rcv_req;
+int acked_snd_rcv_active;
+char *acked_snd_rcv_buffer;
+
+/**********************************************
+* Global DCMF structures for Ack              *
+**********************************************/
+DCMF_Protocol_t ack_reg;
+DCMF_Request_t ack_rcv_req;
+int ack_rcv_active;
 
 /**********************************************
 * Global DCMF structures for Multisend      *
@@ -81,6 +177,18 @@ int mc_active, mc_rcv_active;
 void **connectionlist;
 char *mc_rcv_buffer, *mc_snd_buffer;
 DCQuad *mc_msginfo;
+
+/**********************************************
+* Global DCMF structures for Many2Many        *
+**********************************************/
+
+DCMF_Manytomany_Configuration_t m2m_conf;
+DCMF_Request_t m2m_req, m2m_rcv_req;
+DCMF_Protocol_t m2m_reg;
+DCMF_Callback_t m2m_callback, m2m_rcv_callback;
+struct noncontig_header *m2m_header;
+unsigned m2m_rcv_active, m2m_active;
+unsigned rankindex;
 
 /***************************************
 *  Global DCMF structures for Barrier  *
@@ -141,10 +249,21 @@ void mc_done(void *, DCMF_Error_t *);
 ****************************************/
 void put_init (DCMF_Put_Protocol, DCMF_Network);
 
+/***************************************
+*  Configuring and registering Get     *
+****************************************/
+void get_init (DCMF_Get_Protocol, DCMF_Network);
+
 /****************************************
 * Configuring and Registering Send *
 *****************************************/
 void send_init(DCMF_Send_Protocol, DCMF_Network);
+
+/*****************************************
+* Configuring and Registering Acked Send *
+******************************************/
+void acked_send_init();
+void ack_init();
 
 /****************************************
 * Configuring and Registering Send Noncontig *
