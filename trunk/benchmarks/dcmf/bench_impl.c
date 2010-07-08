@@ -67,44 +67,15 @@ void done(void *clientdata, DCMF_Error_t *error) {
 
      --(*((unsigned *) clientdata));
 
-//   printf("[%d] In done, clientdata %d \n", myrank, *((unsigned *) clientdata));
-//   fflush(stdout);
 }
 
 /***************************************
-*  Ack Callback  function           *
+*  Receive Done Callback function           *
 ****************************************/
-void acked_done(void *clientdata, DCMF_Error_t *error) {
+void rcv_done(void *clientdata, DCMF_Error_t *error) {
 
-     struct ack_info *temp = (struct ack_info *) clientdata;
-
-     DCMF_Callback_t cb_done;
-     int count;
-     char data;
-     DCMF_Request_t req;
-     DCQuad msginfo;
- 
-     cb_done.function = done;
-     cb_done.clientdata = (void *) &count;
-
-     count = 1;
-     DCMF_Send(&ack_reg,
-                  &req,
-                  cb_done,
-                  DCMF_SEQUENTIAL_CONSISTENCY,
-                  temp->peer,
-                  (size_t) 1,
-                  &data,
-                  &msginfo,
-                  1);
-      while(count)
-          DCMF_Messager_advance();
-
-      --(*((unsigned *) temp->active_count));
-
-//    printf("[%d] Finished receiving data, clientdata : %d \n", myrank, *((unsigned *) temp->active_count));
-//    fflush(stdout);
-}
+     --(*((unsigned *) clientdata));
+} 
 
 /***************************************
 *  Non-contiguous Callback function           *
@@ -141,8 +112,6 @@ void ack_rcv(void *clientdata, const DCQuad *msginfo,
 
      --(*((unsigned *) clientdata));
 
-//   printf("[%d] Received Ack, clientdata : %d \n", myrank, *((unsigned *) clientdata));
-//   fflush(stdout);
 }
 
 /****************************************
@@ -151,7 +120,30 @@ void ack_rcv(void *clientdata, const DCQuad *msginfo,
 void snd_rcv_short(void *clientdata, const DCQuad *msginfo,
                  unsigned count, size_t peer, const char *src,
                  size_t bytes) {
-     memcpy(&vaddress[peer], src, sizeof(unsigned int));
+
+     memcpy(target + target_index, src, bytes);
+     target_index = target_index + bytes;
+
+     --(*((unsigned *) clientdata));
+
+}
+
+/****************************************
+*  Timed Send Recv Short Callback function    *
+****************************************/
+void timed_snd_rcv_short(void *clientdata, const DCQuad *msginfo,
+                 unsigned count, size_t peer, const char *src,
+                 size_t bytes) {
+
+     t_start = DCMF_Timebase();
+     t_stop = DCMF_Timebase();
+
+     while(((t_stop-t_start)/clockMHz)/1000000 < 1.0) t_stop = DCMF_Timebase();
+
+     printf("[%d] Count = %d Start time : %lld End time : %lld \n", 
+           myrank, *((unsigned *) clientdata), t_start, t_stop); 
+     fflush(stdout);
+
      --(*((unsigned *) clientdata));
 }
 
@@ -195,34 +187,40 @@ void snd_rcv_manytomany_short(void *clientdata, const DCQuad *msginfo,
 DCMF_Request_t* snd_rcv(void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
           size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
 
-     snd_rcv_buffer = (char *) malloc (sndlen);
-
      *rcvlen = sndlen;
-     *rcvbuf = snd_rcv_buffer;
-     cb_done->function = done;
-     cb_done->clientdata = (void *) &snd_rcv_active;  
+     *rcvbuf = target + target_index;
+     target_index = target_index + sndlen;
 
-     return &snd_rcv_req;
+     cb_done->function = rcv_done;
+     cb_done->clientdata = clientdata;  
+
+     rcv_req_index++;
+     return &rcv_req[rcv_req_index-1];
 }
 
 /***************************************
-*  Acked Send Recv Callback function    *
+*  Timed Send Recv Callback function           *
 ****************************************/
-DCMF_Request_t* acked_snd_rcv(void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
+DCMF_Request_t* timed_snd_rcv(void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
           size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
 
+     target = (char *) malloc (sndlen);
+
      *rcvlen = sndlen;
-     *rcvbuf = (char *) malloc (sndlen);
+     *rcvbuf = target;
+     cb_done->function = done;
+     cb_done->clientdata = (void *) &snd_rcv_active;
 
-     struct ack_info *temp = (struct ack_info *) malloc (sizeof(struct ack_info));
-     temp->active_count = (void *) &acked_snd_rcv_active;
-     temp->peer = peer;
-     temp->target = *rcvbuf;
+     t_start = DCMF_Timebase();
+     t_stop = DCMF_Timebase();
 
-     cb_done->function = acked_done;
-     cb_done->clientdata = (void *) temp;
+     while(((t_stop-t_start)/clockMHz)/1000000 < 1.0) t_stop = DCMF_Timebase();
 
-     return &acked_snd_rcv_req;
+     printf("[%d] Count = %d Start time : %lld End time %lld \n",
+           myrank, *((unsigned *) clientdata), t_start, t_stop);
+     fflush(stdout);
+
+     return &snd_rcv_req;
 }
 
 /***************************************
@@ -356,20 +354,22 @@ void send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
 }
 
 /**********************************************
-* Configuring and Registering Acked Send      *
+* Configuring and Registering Send            *
 **********************************************/
-void acked_send_init() {
+void timed_send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
+
      DCMF_Result result;
+     DCMF_Send_Configuration_t timed_snd_conf;
      snd_msginfo = (DCQuad *) malloc (sizeof(DCQuad));
 
-     snd_conf.protocol = DCMF_RZV_SEND_PROTOCOL;
-     snd_conf.network = DCMF_TORUS_NETWORK;
-     snd_conf.cb_recv_short = NULL;
-     snd_conf.cb_recv_short_clientdata = NULL;
-     snd_conf.cb_recv = acked_snd_rcv;
-     snd_conf.cb_recv_clientdata = NULL;
+     timed_snd_conf.protocol = protocol;
+     timed_snd_conf.network = network;
+     timed_snd_conf.cb_recv_short = timed_snd_rcv_short;
+     timed_snd_conf.cb_recv_short_clientdata = (void *) &snd_rcv_active;
+     timed_snd_conf.cb_recv = timed_snd_rcv;
+     timed_snd_conf.cb_recv_clientdata = (void *) &snd_rcv_active;
 
-     result = DCMF_Send_register(&acked_snd_reg, &snd_conf);
+     result = DCMF_Send_register(&timed_snd_reg, &timed_snd_conf);
      if(result != DCMF_SUCCESS) {
          printf("[%d] Send registration failed \n", myrank);
          fflush(stdout);

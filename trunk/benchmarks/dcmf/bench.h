@@ -78,10 +78,9 @@ struct noncontig_header {
    char flag;
 };
 
-struct ack_info {
-   unsigned *active_count;
-   int peer;
-   char *target;
+struct rbuf_info {
+   void *rbuf;
+   void *active;
 };
 
 /***************************************
@@ -124,18 +123,23 @@ int get_count, get_count;
 DCMF_Send_Configuration_t snd_conf;
 DCMF_Callback_t snd_callback;
 DCMF_Protocol_t snd_reg;
-DCMF_Request_t snd_rcv_req;
-int snd_rcv_active, snd_active;
-char *snd_rcv_buffer;
+DCMF_Request_t snd_rcv_req, *rcv_req;
+volatile int snd_rcv_active, snd_active;
+volatile int target_index, rcv_req_index;
 DCQuad *snd_msginfo;
-char *source;
+char *source, *target;
+
+/**********************************************
+* Global DCMF structures for Timed Send      *
+**********************************************/
+DCMF_Protocol_t timed_snd_reg;
 
 /**********************************************
 * Global DCMF structures for Noncontig Send      *
 **********************************************/
 DCMF_Protocol_t snd_noncontig_reg;
 DCMF_Request_t snd_rcv_noncontig_req;
-int snd_rcv_noncontig_active;
+volatile int snd_rcv_noncontig_active;
 char *snd_rcv_noncontig_buffer;
 
 /**********************************************
@@ -143,7 +147,7 @@ char *snd_rcv_noncontig_buffer;
 **********************************************/
 DCMF_Protocol_t snd_manytomany_reg;
 DCMF_Request_t snd_rcv_manytomany_req;
-int snd_rcv_manytomany_active;
+volatile int snd_rcv_manytomany_active;
 char *snd_rcv_manytomany_buffer;
 
 /**********************************************
@@ -151,7 +155,7 @@ char *snd_rcv_manytomany_buffer;
 **********************************************/
 DCMF_Protocol_t acked_snd_reg;
 DCMF_Request_t acked_snd_rcv_req;
-int acked_snd_rcv_active;
+volatile int acked_snd_rcv_active;
 char *acked_snd_rcv_buffer;
 
 /**********************************************
@@ -159,7 +163,7 @@ char *acked_snd_rcv_buffer;
 **********************************************/
 DCMF_Protocol_t ack_reg;
 DCMF_Request_t ack_rcv_req;
-int ack_rcv_active;
+volatile int ack_rcv_active;
 
 /**********************************************
 * Global DCMF structures for Multisend      *
@@ -173,7 +177,7 @@ DCMF_Request_t *mc_req, mc_rcv_req;
 DCMF_Callback_t mc_callback, mc_rcv_callback;
 DCMF_Opcode_t *mc_opcodes;
 unsigned int *mc_ranks;
-int mc_active, mc_rcv_active;
+volatile int mc_active, mc_rcv_active;
 void **connectionlist;
 char *mc_rcv_buffer, *mc_snd_buffer;
 DCQuad *mc_msginfo;
@@ -187,7 +191,7 @@ DCMF_Request_t m2m_req, m2m_rcv_req;
 DCMF_Protocol_t m2m_reg;
 DCMF_Callback_t m2m_callback, m2m_rcv_callback;
 struct noncontig_header *m2m_header;
-unsigned m2m_rcv_active, m2m_active;
+volatile unsigned m2m_rcv_active, m2m_active;
 unsigned rankindex;
 
 /***************************************
@@ -197,7 +201,7 @@ DCMF_GlobalBarrier_Configuration_t gb_conf;
 DCMF_Protocol_t gb_reg;
 DCMF_Request_t *gb_req;
 DCMF_Callback_t gb_callback;
-int gb_active;
+volatile int gb_active;
 
 /***************************************
 *  Global DCMF structures for Allreduce  *
@@ -206,7 +210,7 @@ DCMF_GlobalAllreduce_Configuration_t gar_conf;
 DCMF_Protocol_t gar_reg;
 DCMF_Request_t *gar_req;
 DCMF_Callback_t gar_callback;
-int gar_active;
+volatile int gar_active;
 
 /***************************************
 *  Global DCMF structures for Control  *
@@ -215,7 +219,7 @@ DCMF_Control_Configuration_t ctrl_conf;
 DCMF_Protocol_t ctrl_reg;
 DCMF_Request_t ctrl_req;
 DCMF_Callback_t ctrl_callback;
-int ctrl_active;
+volatile int ctrl_active;
 
 /***************************************
 *  Generic init                        *
@@ -258,6 +262,11 @@ void get_init (DCMF_Get_Protocol, DCMF_Network);
 * Configuring and Registering Send *
 *****************************************/
 void send_init(DCMF_Send_Protocol, DCMF_Network);
+
+/****************************************
+* Configuring and Registering Timed Send *
+*****************************************/
+void timed_send_init(DCMF_Send_Protocol, DCMF_Network);
 
 /*****************************************
 * Configuring and Registering Acked Send *

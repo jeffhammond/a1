@@ -85,8 +85,8 @@ void flush_put() {
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       dest,
                       1,
-                      &memregion[myrank],
-                      &memregion[dest],
+                      memregion[myrank],
+                      memregion[dest],
                       0,
                       0,
                       put_ack);
@@ -114,8 +114,8 @@ void flush_put() {
                      DCMF_SEQUENTIAL_CONSISTENCY,
                      dest,
                      1,
-                     &memregion[myrank],
-                     &memregion[dest],
+                     memregion[myrank],
+                     memregion[dest],
                      0,
                      0,
                      put_ack);
@@ -179,7 +179,7 @@ void flush_multicast() {
    if(myrank == 0) {
 
       char buffer[50];
-      sprintf(buffer,"%20s %20s","Flush Latency (us)","Flush Restart Latency (us)");
+      sprintf(buffer,"%20s","Flush Latency (us)");
       printf("%s \n", buffer);
       fflush(stdout);
 
@@ -203,29 +203,12 @@ void flush_multicast() {
        * stop timer          *
        ***********************/
        t_usec = ((t_stop-t_start)/clockMHz);
-       printf("%20.0f ", t_usec/(ITERATIONS));
-       fflush(stdout);
-
-       t_start = DCMF_Timebase();
-       /***********************
-       * start timer          *
-       ***********************/
-       for(i=SKIP; i<ITERATIONS+SKIP; i++) {
-           mc_active=1;
-           DCMF_Restart (mc_req);
-           while(mc_active) DCMF_Messager_advance();
-       }
-       t_stop = DCMF_Timebase();
-       /***********************
-       * stop timer          *
-       ***********************/
-       t_usec = ((t_stop-t_start)/clockMHz);
        printf("%20.0f \n", t_usec/(ITERATIONS));
        fflush(stdout);
 
    } else {
 
-       mc_rcv_active=SKIP+ITERATIONS*2;
+       mc_rcv_active=SKIP+ITERATIONS;
        while(mc_rcv_active) DCMF_Messager_advance();
 
    }
