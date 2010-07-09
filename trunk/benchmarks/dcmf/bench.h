@@ -90,7 +90,7 @@ int nranks, myrank;
 unsigned long long t_start, t_stop;
 double t_sec, t_usec, t_msec;
 double t_max, t_avg, t_min;
-double clockMHz; 
+double clockMHz, bw, bw_avg; 
 DCMF_Hardware_t hw;
 double clockMHz;
 
@@ -130,6 +130,11 @@ DCQuad *snd_msginfo;
 char *source, *target;
 
 /**********************************************
+* Global DCMF structures for Flush Send      *
+**********************************************/
+DCMF_Protocol_t flush_snd_reg;
+
+/**********************************************
 * Global DCMF structures for Timed Send      *
 **********************************************/
 DCMF_Protocol_t timed_snd_reg;
@@ -157,11 +162,12 @@ DCMF_Protocol_t acked_snd_reg;
 DCMF_Request_t acked_snd_rcv_req;
 volatile int acked_snd_rcv_active;
 char *acked_snd_rcv_buffer;
+char ack;
 
 /**********************************************
 * Global DCMF structures for Ack              *
 **********************************************/
-DCMF_Protocol_t ack_reg;
+DCMF_Protocol_t ack_reg, ack_ctrl_reg;
 DCMF_Request_t ack_rcv_req;
 volatile int ack_rcv_active;
 
@@ -173,7 +179,7 @@ DCMF_Multicast_Configuration_t mc_conf;
 DCMF_Multicast_t mc_info;
 DCMF_MulticastRecv_t mc_rcv_info;
 DCMF_Protocol_t mc_reg;
-DCMF_Request_t *mc_req, mc_rcv_req;
+DCMF_Request_t *mc_req, *mc_rcv_req;
 DCMF_Callback_t mc_callback, mc_rcv_callback;
 DCMF_Opcode_t *mc_opcodes;
 unsigned int *mc_ranks;
@@ -190,7 +196,7 @@ DCMF_Manytomany_Configuration_t m2m_conf;
 DCMF_Request_t m2m_req, m2m_rcv_req;
 DCMF_Protocol_t m2m_reg;
 DCMF_Callback_t m2m_callback, m2m_rcv_callback;
-struct noncontig_header *m2m_header;
+struct noncontig_header m2m_header;
 volatile unsigned m2m_rcv_active, m2m_active;
 unsigned rankindex;
 
@@ -217,6 +223,7 @@ volatile int gar_active;
 ****************************************/
 DCMF_Control_Configuration_t ctrl_conf;
 DCMF_Protocol_t ctrl_reg;
+DCMF_Control_t ctrl_info;
 DCMF_Request_t ctrl_req;
 DCMF_Callback_t ctrl_callback;
 volatile int ctrl_active;
@@ -263,6 +270,11 @@ void get_init (DCMF_Get_Protocol, DCMF_Network);
 *****************************************/
 void send_init(DCMF_Send_Protocol, DCMF_Network);
 
+/**********************************************
+* Configuring and Registering Flush Send      *
+**********************************************/
+void flush_send_init(DCMF_Send_Protocol, DCMF_Network); 
+
 /****************************************
 * Configuring and Registering Timed Send *
 *****************************************/
@@ -274,10 +286,25 @@ void timed_send_init(DCMF_Send_Protocol, DCMF_Network);
 void acked_send_init();
 void ack_init();
 
+/**********************************************
+* Configuring and Registering Ack Ctrl        *
+**********************************************/
+void ack_control_init();
+
 /****************************************
 * Configuring and Registering Send Noncontig *
 *****************************************/
 void send_noncontig_init(DCMF_Send_Protocol, DCMF_Network);
+
+/******************************************************
+* Configuring and Registering manytomany header Send  *
+*******************************************************/
+void send_manytomany_init(DCMF_Send_Protocol, DCMF_Network);
+
+/**********************************************
+* Configuring and Registering ManytoMany ops  *
+**********************************************/
+void manytomany_init(DCMF_Manytomany_Protocol); 
 
 /****************************************
 * Configuring and Registering Multicast *
