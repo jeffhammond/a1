@@ -3,7 +3,7 @@
 * which must be included in the prologue of the code and in all source listings
 * of the code.
 * 
-* Copyright (c) 2010  Argonne Leadership Comgeting Facility, Argonne National 
+* Copyright (c) 2010  Argonne Leadership Computing Facility, Argonne National 
 * Laboratory
 * 
 * Permission is hereby granted to use, reproduce, prepare derivative works, and
@@ -51,21 +51,23 @@
 #include "bench.h"
 #include "float.h"
 
-void get_contention() {
+void put_contention() {
 
       unsigned int iter, size, dst;
       unsigned int i, j, k, s;
       unsigned int xdim, ydim, zdim;
       unsigned int xdisp, ydisp, zdisp;
-      DCMF_Request_t get_req[ITERATIONS];
-      DCMF_Callback_t get_done;
-      unsigned int done_count;
+      DCMF_Request_t put_req[ITERATIONS];
+      DCMF_Callback_t put_done, put_ack;
+      unsigned int ack_count;
       DCMF_NetworkCoord_t myaddr, dstaddr; 
       DCMF_Network ntwk;
       char buf[50];
 
-      get_done.function = done;
-      get_done.clientdata = (void *) &done_count;
+      put_done.function = NULL;
+      put_done.clientdata = NULL;
+      put_ack.function = done;
+      put_ack.clientdata = (void *) &ack_count;
   
       DCMF_Messager_rank2network(nranks-1, DCMF_TORUS_NETWORK, &dstaddr);
       xdim = dstaddr.torus.x+1;
@@ -84,17 +86,17 @@ void get_contention() {
      int size_array[] = {8, 64, 512, 4096, 32768, 262144, 1048576};
      int size_count = sizeof(size_array)/sizeof(int);
 
-     int disp_array[][3] = {{0, 0, 1},
-                            {0, 0, 8},
-                            {0, 8, 8},
-                            {8, 8, 8},
-                            {0, 1, 8},
-                            {1, 1, 8},
-                            {0, 4, 8},
-                            {1, 4, 8},
-                            {4, 4, 8},
-                            {1, 8, 8},
-                            {4, 8, 8}};
+     int disp_array[][3] = {{0, 0, 1}, 
+                            {0, 0, 16},
+                            {0, 8, 16},
+                            {4, 8, 16},
+                            {0, 1, 16},
+                            {1, 1, 16},
+                            {0, 8, 16},
+                            {1, 8, 16},
+                            {8, 8, 16},
+                            {1, 16, 16},
+                            {8, 16, 16} };
      int disp_count = sizeof(disp_array)/(sizeof(int)*3);
 
      for(s=0; s<size_count; s++) {
@@ -125,20 +127,21 @@ void get_contention() {
              ***********************/
              t_start = DCMF_Timebase();
 
-             done_count = ITERATIONS;
+             ack_count = ITERATIONS;
              for(iter=0; iter<ITERATIONS; iter++) {
-                 DCMF_Get(&get_reg,
-                    &get_req[iter],
-                    get_done,
+                 DCMF_Put(&put_reg,
+                    &put_req[iter],
+                    put_done,
                     DCMF_SEQUENTIAL_CONSISTENCY,
                     dst,
                     size,
                     memregion[myrank],
                     memregion[dst],
                     iter*size,
-                    MAX_MSG_SIZE*ITERATIONS + iter*size);
+                    MAX_MSG_SIZE*ITERATIONS + iter*size,
+                    put_ack);
               }
-              while(done_count) DCMF_Messager_advance();
+              while(ack_count) DCMF_Messager_advance();
 
               t_stop = DCMF_Timebase();
               /***********************
@@ -175,13 +178,13 @@ int main ()
 
   memregion_init(MAX_MSG_SIZE*ITERATIONS*2);
 
-  get_init(DCMF_DEFAULT_PUT_PROTOCOL, DCMF_TORUS_NETWORK);
+  put_init(DCMF_DEFAULT_PUT_PROTOCOL, DCMF_TORUS_NETWORK);
 
   if(myrank == 0) {
-     printf("Get Bandwidth - All processes communication in pairs \n");
+     printf("Put Bandwidth - All processes communication in pairs \n");
      fflush(stdout);
   }
-  get_contention();
+  put_contention();
 
   if(myrank == 0) {
      printf("Benchmark Complete \n");

@@ -101,7 +101,7 @@ void put_contention() {
                             {8, 8, 16}, 
                             {1, 16, 16}, 
                             {4, 16, 16}, 
-                            {16, 16, 16} };
+                            {8, 16, 16} }; 
      int disp_count = sizeof(disp_array)/(sizeof(int)*3);
 
      for(s=0; s<size_count; s++) {
