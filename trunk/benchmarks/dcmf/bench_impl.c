@@ -103,15 +103,20 @@ void ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
      --(*((unsigned *) clientdata));
 }
 
+/***************************************
+*  Control Callback function           *
+****************************************/
+void ack_ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
+     --(*((unsigned *) clientdata));
+}
+
 /****************************************
 *  Send Recv Short Callback function    *
 ****************************************/
 void ack_rcv(void *clientdata, const DCQuad *msginfo,
                  unsigned count, size_t peer, const char *src,
                  size_t bytes) {
-
      --(*((unsigned *) clientdata));
-
 }
 
 /****************************************
@@ -125,7 +130,21 @@ void snd_rcv_short(void *clientdata, const DCQuad *msginfo,
      target_index = target_index + bytes;
 
      --(*((unsigned *) clientdata));
+}
 
+/**********************************************
+*  Flush Send Recv Short Callback function    *
+***********************************************/
+void flush_snd_rcv_short(void *clientdata, const DCQuad *msginfo,
+                 unsigned count, size_t peer, const char *src,
+                 size_t bytes) {
+
+     DCMF_Control(&ack_ctrl_reg,
+                 DCMF_SEQUENTIAL_CONSISTENCY,
+                 peer,
+                 &ctrl_info);
+     
+     --(*((unsigned *) clientdata));
 }
 
 /****************************************
@@ -174,11 +193,16 @@ void snd_rcv_manytomany_short(void *clientdata, const DCQuad *msginfo,
                  unsigned count, size_t peer, const char *src,
                  size_t bytes) {
 
-     m2m_header = (struct noncontig_header *) malloc (sizeof(struct noncontig_header));
+     printf("[%d] Entering snd rcv manytomany callback \n", myrank);
+     fflush(stdout);
 
-     memcpy(m2m_header, src, bytes);
+     memcpy(&m2m_header, src, bytes);
 
      --(*((unsigned *) clientdata));
+ 
+     printf("[%d] Finished receiving header information \n", myrank);
+     fflush(stdout);
+
 }
 
 /***************************************
@@ -246,16 +270,14 @@ DCMF_Request_t* mc_recv(const DCQuad *info, unsigned count, unsigned peer, unsig
              unsigned conn_id, void *arg, unsigned *rcvlen, char **rcvbuf, 
              unsigned *pipewidth, DCMF_Callback_t *cb_done) {
 
-     mc_rcv_buffer = (char *) malloc (sndlen);
-
-     *rcvbuf = mc_rcv_buffer;
+     *rcvbuf = mc_rcv_buffer + peer*sndlen;
      *rcvlen = sndlen;
      *pipewidth = sndlen;
 
      cb_done->function = mc_done;
      cb_done->clientdata = (void *) &mc_rcv_active;
 
-     return &mc_rcv_req;     
+     return &mc_rcv_req[peer];     
 }
 
 /***************************************
@@ -274,22 +296,21 @@ DCMF_Request_t* m2m_recv_callback(unsigned conn_id, void *arg, char **rcvbuf, un
 
      int i;
 
-     printf("Inside manytomany recv callback \n");
+     printf("[%d] Inside manytomany recv callback \n", myrank);
      fflush(stdout);
 
-     *rcvbuf = (char *) m2m_header->vaddress;
-     *rcvlens = (unsigned *) malloc (sizeof(unsigned) * m2m_header->d1);
-     *rcvdispls = (unsigned *) malloc (sizeof(unsigned) * m2m_header->d1);
-     *rcvcounters = (unsigned *) malloc (sizeof(unsigned) * m2m_header->d1);
-     cb_done = (DCMF_Callback_t *) malloc (sizeof(DCMF_Callback_t));
+     *rcvbuf = (char *) m2m_header.vaddress;
+     *rcvlens = (unsigned *) malloc (sizeof(unsigned) * m2m_header.d1);
+     *rcvdispls = (unsigned *) malloc (sizeof(unsigned) * m2m_header.d1);
+     *rcvcounters = (unsigned *) malloc (sizeof(unsigned) * m2m_header.d1);
       
-     for (i=0; i<m2m_header->d1; i++) {
-        *rcvlens[i] = m2m_header->d2; 
-        *rcvdispls[i] = i*m2m_header->stride;
+     for (i=0; i<m2m_header.d1; i++) {
+        *rcvlens[i] = m2m_header.d2; 
+        *rcvdispls[i] = i*m2m_header.stride;
      }  
 
      *nranks = 2;
-     *rankIndex = 0;
+     *rankIndex = myrank;
 
      cb_done->function = done;
      cb_done->clientdata = (void *) &m2m_rcv_active;
@@ -354,6 +375,27 @@ void send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
 }
 
 /**********************************************
+* Configuring and Registering Flush Send            *
+**********************************************/
+void flush_send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
+     DCMF_Result result;
+     snd_msginfo = (DCQuad *) malloc (sizeof(DCQuad));
+
+     snd_conf.protocol = protocol;
+     snd_conf.network = network;
+     snd_conf.cb_recv_short = flush_snd_rcv_short;
+     snd_conf.cb_recv_short_clientdata = (void *) &snd_rcv_active;
+     snd_conf.cb_recv = NULL;
+     snd_conf.cb_recv_clientdata = NULL;
+
+     result = DCMF_Send_register(&flush_snd_reg, &snd_conf);
+     if(result != DCMF_SUCCESS) {
+         printf("[%d] Send registration failed \n", myrank);
+         fflush(stdout); 
+     }
+}
+
+/**********************************************
 * Configuring and Registering Send            *
 **********************************************/
 void timed_send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
@@ -394,6 +436,26 @@ void ack_init() {
          printf("[%d] Send registration failed \n", myrank);
          fflush(stdout);
      }
+}
+
+/**********************************************
+* Configuring and Registering Ack Ctrl        *
+**********************************************/
+void ack_control_init() {
+
+     ctrl_conf.protocol = DCMF_DEFAULT_CONTROL_PROTOCOL;
+     ctrl_conf.network = DCMF_DEFAULT_NETWORK;
+     ctrl_conf.cb_recv = ack_ctrl_recv;
+     ctrl_conf.cb_recv_clientdata = (void *) &ack_rcv_active;
+
+     DCMF_Result result;
+     result = DCMF_Control_register(&ack_ctrl_reg, &ctrl_conf);
+     if(result != DCMF_SUCCESS) {
+       printf("[%d] Control registration failed with status %d \n",
+                 myrank, result);
+       fflush(stdout);
+     }
+
 }
 
 /**********************************************
@@ -444,6 +506,7 @@ void send_manytomany_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
 * Configuring and Registering Multiacst       *
 **********************************************/
 void multicast_init(DCMF_Multicast_Protocol protocol, unsigned int size) {
+
      DCMF_Result result;
      connectionlist = (void **) malloc(sizeof(void*)*nranks);
 
@@ -458,73 +521,45 @@ void multicast_init(DCMF_Multicast_Protocol protocol, unsigned int size) {
          fflush(stdout);
      }
 
-     if(myrank == 0) {
+     mc_ranks = (unsigned *) malloc(sizeof(unsigned int) * (nranks-1));
+     mc_opcodes = (DCMF_Opcode_t *) malloc(sizeof(DCMF_Opcode_t) * (nranks-1)); 
+     mc_snd_buffer = (char *) malloc(size);
+     mc_rcv_buffer = (char *) malloc (size*nranks);
+     mc_req = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t));
+     mc_rcv_req = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t)*nranks);
+     mc_msginfo = (DCQuad *) malloc (sizeof(DCQuad));
 
-       mc_ranks = (unsigned *) malloc(sizeof(unsigned int) * (nranks-1));
-       mc_opcodes = (DCMF_Opcode_t *) malloc(sizeof(DCMF_Opcode_t) * (nranks-1)); 
-       mc_snd_buffer = (char *) malloc(size);
-       mc_req = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t));
-       mc_msginfo = (DCQuad *) malloc (sizeof(DCQuad));
+     mc_callback.function  = mc_done;
+     mc_callback.clientdata = (void *) &mc_active;
 
-       mc_callback.function  = mc_done;
-       mc_callback.clientdata = (void *) &mc_active;
+     int i, idx=0;
+     for(i=0; i<size; i++) 
+          mc_snd_buffer[i] = 's'; 
 
-       int i, idx=0;
-       for(i=0; i<size; i++) 
-            mc_snd_buffer[i] = 's'; 
-
-       for(i=0; i<nranks; i++) {
-         if(myrank != i) {
+     for(i=0; i<nranks; i++) {
+       if(myrank != i) {
             mc_ranks[idx] = i;
             mc_opcodes[idx] = DCMF_PT_TO_PT_SEND;
             idx++;
-         }
        }
+     }
 
-       mc_info.registration  = &mc_reg;
-       mc_info.request       = mc_req;
-       mc_info.cb_done       = mc_callback;
-       mc_info.consistency   = DCMF_SEQUENTIAL_CONSISTENCY;
-       mc_info.connection_id = 0;
-       mc_info.bytes         = size;
-       mc_info.src           = mc_snd_buffer;
-       mc_info.nranks        = nranks-1;
-       mc_info.ranks         = mc_ranks;
-       mc_info.opcodes       = mc_opcodes;
-       mc_info.msginfo       = mc_msginfo;
-       mc_info.count         = 1;
-       mc_info.op            = DCMF_UNDEFINED_OP;
-       mc_info.dt            = DCMF_UNDEFINED_DT;
-       mc_info.flags         = 0;   
+     mc_info.registration  = &mc_reg;
+     mc_info.request       = mc_req;
+     mc_info.cb_done       = mc_callback;
+     mc_info.consistency   = DCMF_SEQUENTIAL_CONSISTENCY;
+     mc_info.connection_id = myrank;
+     mc_info.bytes         = size;
+     mc_info.src           = mc_snd_buffer;
+     mc_info.nranks        = nranks-1;
+     mc_info.ranks         = mc_ranks;
+     mc_info.opcodes       = mc_opcodes;
+     mc_info.msginfo       = mc_msginfo;
+     mc_info.count         = 1;
+     mc_info.op            = DCMF_UNDEFINED_OP;
+     mc_info.dt            = DCMF_UNDEFINED_DT;
+     mc_info.flags         = 0;   
  
-     }
-
-     if(protocol == DCMF_DPUT_DMA_MSEND_PROTOCOL && myrank != 0) {
-
-       mc_rcv_buffer = (char *) malloc (size); 
-
-       mc_rcv_callback.function = done;
-       mc_rcv_callback.clientdata = (void *) &mc_rcv_active;
-
-       mc_rcv_info.registration = &mc_reg;
-       mc_rcv_info.request = &mc_rcv_req;
-       mc_rcv_info.cb_done = mc_rcv_callback; 
-       mc_rcv_info.connection_id = 0;
-       mc_rcv_info.bytes = size;
-       mc_rcv_info.dst = mc_rcv_buffer;
-       mc_rcv_info.pwidth = size;
-       mc_rcv_info.op = DCMF_UNDEFINED_OP;
-       mc_rcv_info.dt = DCMF_UNDEFINED_DT;
-
-       result = DCMF_Multicast_postrecv (&mc_rcv_info);
-       if(result != DCMF_SUCCESS) {
-          printf("[%d] Receive pre-post failed \n", myrank);
-          fflush(stdout);
-       } else { 
-          printf("[%d] Receive pre-post successful \n", myrank);
-          fflush(stdout);  
-       }
-     }
 }
 
 /**********************************************
