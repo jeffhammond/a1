@@ -80,8 +80,8 @@ typedef enum
 /* FIXME: What is the type for a1_memtype_t. Adding a temporary handle here. */
 typedef int a1_memtype_t;
 
-/* FIXME: What is the type for a1_group_t. Adding a temporary handle here. */
-typedef int a1_group_t;
+/* FIXME: What is the type for A1_group_t. Adding a temporary handle here. */
+typedef int A1_group_t;
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -223,7 +223,6 @@ int A1_Free_segment(void* pointer);
   *
   * \ingroup MEMORY
   */
-
 int A1_Exchange_segments(A1_group_t* group, void* ptr[], int bytes);
 
 /**
@@ -265,6 +264,26 @@ int A1_Release_segments(A1_group_t* group, void* ptr);
 int A1_Put(int target, void* source_ptr, void* target_ptr, int bytes);
 
 /**
+  * \brief Blocking copy of contiguous data from local memory to remote memory.
+  *
+  * \param[out] rc              The error code.
+  * \param[in]  target          Rank of the remote process.
+  * \param[in]  source_ptr      Starting address in the (local) source memory.
+  * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+  * \param[in]  target_ptr      Starting address in the (remote) target memory.
+  * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
+  * \param[in]  count           Block size in each dimension, in bytes.
+  * \param[in]  stride_levels   The number of levels of stride.
+  *
+  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+         int *trg_stride_ar, int *count, int stride_levels);
+
+/**
   * \brief Blocking accumulate of contiguous data from local memory onto remote memory.
   *
   * \param[out] rc            The error code.
@@ -297,6 +316,26 @@ int A1_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes, A1_data
   */
 
 int A1_Get(int target, void* source_ptr, void* target_ptr, int bytes);
+
+/**
+  * \brief Blocking copy of contiguous data from remote memory to local memory.
+  *
+  * \param[out] rc              The error code.
+  * \param[in]  target          Rank of the remote process.
+  * \param[in]  source_ptr      Starting address in the (remote) source memory.
+  * \param[in]  src_stride_ar   Array of stride distances at (remote process) source, in bytes.
+  * \param[in]  target_ptr      Starting address in the (local) target memory.
+  * \param[in]  trg_stride_ar   Array of stride distances at (local process) target, in bytes.
+  * \param[in]  count           Block size in each dimension, in bytes.
+  * \param[in]  stride_levels   The number of levels of stride.
+  *
+  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_GetS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+         int *trg_stride_ar, int *count, int stride_levels); 
 
 /**
   * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
@@ -373,7 +412,7 @@ int A1_CopyAcc(int source, int target, void* source_ptr, void* target_ptr, int b
   * \ingroup SYNCHRONIZATION
   */
 
-void A1_Barrier(a1_group_t* group);
+void A1_Barrier(A1_group_t* group);
 
 /**
   * \brief On return, this call ensure that all blocking put or accumulate operations
@@ -418,7 +457,7 @@ void A1_Flush_many(int list[]);
   * \ingroup COMPLETION 
   */
 
-void A1_Flush_group(a1_group_t* group);
+void A1_Flush_group(A1_group_t* group);
 
 /**
   * \brief On return, this call ensures that all outstanding blocking put or accumulate
@@ -434,7 +473,7 @@ void A1_Flush_group(a1_group_t* group);
   * \ingroup SYNCHRONIZATION
   */
 
-void A1_Sync(a1_group_t* group);
+void A1_Sync(A1_group_t* group);
 
 /* FIXME: More API functions to come */
 

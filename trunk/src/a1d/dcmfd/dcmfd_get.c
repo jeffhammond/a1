@@ -9,7 +9,7 @@
 #include "a1d.h"
 #include "dcmfdimpl.h"
 
-int A1D_Put(int target, void* src, void* dst, int bytes)
+int A1D_Get(int target, void* src, void* dst, int bytes)
 {
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
@@ -22,8 +22,8 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
     callback.function = A1DI_Generic_callback;
     callback.clientdata = (void *) &active;
 
-    src_disp = (size_t)src - (size_t)A1D_Membase_global[A1D_Process_info.my_rank];    
-    dst_disp = (size_t)dst - (size_t)A1D_Membase_global[target];    
+    src_disp = (size_t)src - (size_t)A1D_Membase_global[target];    
+    dst_disp = (size_t)dst - (size_t)A1D_Membase_global[A1D_Process_info.my_rank];    
  
     active = 1;
     result = DCMF_Put(&A1D_Generic_put_protocol,
@@ -32,11 +32,10 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,  
                       bytes,
-                      &A1D_Memregion_global[A1D_Process_info.my_rank],
                       &A1D_Memregion_global[target],
+                      &A1D_Memregion_global[A1D_Process_info.my_rank],
                       src_disp,
-                      dst_disp,
-                      A1D_Nocallback);
+                      dst_disp);
     A1U_ERR_POP(result,"Put returned with an error \n");
     while (active) A1DI_CRITICAL(DCMF_Messager_advance()); 
 

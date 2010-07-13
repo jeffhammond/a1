@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Put(int proc, void* src, void* dst, int bytes)
+int A1_Get(int proc, void* src, void* dst, int bytes)
 {
     int status = A1_SUCCESS;
 
@@ -21,7 +21,7 @@ int A1_Put(int proc, void* src, void* dst, int bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Put(proc, src, dst, bytes);
+    status = A1D_Get(proc, src, dst, bytes);
     A1U_ERR_POP(status, "put returned error\n");
 
   fn_exit:

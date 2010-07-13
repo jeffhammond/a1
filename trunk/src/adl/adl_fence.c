@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Put(int proc, void* src, void* dst, int bytes)
+int A1_Fence(int proc) 
 {
     int status = A1_SUCCESS;
 
@@ -21,8 +21,8 @@ int A1_Put(int proc, void* src, void* dst, int bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Put(proc, src, dst, bytes);
-    A1U_ERR_POP(status, "put returned error\n");
+    status = A1D_Fence(int proc); 
+    A1U_ERR_POP(status, "fence returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

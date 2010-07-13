@@ -54,8 +54,9 @@
 void put_contention() {
 
       unsigned int iter, size, dst;
-      unsigned int i, j, k;
+      unsigned int i, j, k, s;
       unsigned int xdim, ydim, zdim;
+      unsigned int xdisp, ydisp, zdisp;
       DCMF_Request_t put_req[ITERATIONS];
       DCMF_Callback_t put_done, put_ack;
       unsigned int ack_count;
@@ -82,7 +83,15 @@ void put_contention() {
       dstaddr.network = myaddr.network;
       dstaddr.torus.t = myaddr.torus.t;
 
-     for(size=16384; size<=MAX_MSG_SIZE; size*=4) {
+     int size_array[] = {8, 64, 512, 4096, 32768, 262144, 1048576};
+     int size_count = sizeof(size_array)/sizeof(int);
+
+     int disp_array[][] = { {, , xdim/2},  
+                             }; 
+     int disp_count = sizeof(disp_array)/sizeof(int);
+
+     for(s=0; s<size_count; s++) {
+      size = size_array[s];
 
       if(myrank == 0) {
          printf("Message Size : %20d \n", size);
@@ -90,13 +99,17 @@ void put_contention() {
          fflush(stdout);
       }
 
-      for(i=1; i<xdim; i+=2) {
-        for(j=1; j<ydim; j+=2) {
-          for(k=1; k<zdim; k+=2) {
+      /*Assumes all dimensions are equal*/
+      for(i=0; i<=j; i++) {
+        xdisp = disp_array[i];
+        for(j=0; j<=k; j++) {
+          ydisp = disp_array[j];
+          for(k=0; k<disp_count; k++) {
+             zdisp = disp_array[k];
 
-             dstaddr.torus.x = (myaddr.torus.x+i)%xdim;
-             dstaddr.torus.y = (myaddr.torus.y+j)%ydim;
-             dstaddr.torus.z = (myaddr.torus.z+k)%zdim;
+             dstaddr.torus.x = (myaddr.torus.x+xdisp)%xdim;
+             dstaddr.torus.y = (myaddr.torus.y+ydisp)%ydim;
+             dstaddr.torus.z = (myaddr.torus.z+zdisp)%zdim;
  
              DCMF_Messager_network2rank(&dstaddr, &dst, &ntwk);
  
@@ -135,7 +148,7 @@ void put_contention() {
 
               if(myrank == 0) {
                 bw_avg = bw_avg/nranks;
-                sprintf(buf, "(%d)(%d)(%d)", i, j, k);
+                sprintf(buf, "(%d)(%d)(%d)", xdisp, ydisp, zdisp);
                 printf("%30s %20.0f \n", buf, bw_avg);
                 fflush(stdout);
               }

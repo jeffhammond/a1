@@ -85,16 +85,16 @@ void get_contention() {
      int size_count = sizeof(size_array)/sizeof(int);
 
      int disp_array[][3] = {{0, 0, 1},
-                            {0, 0, 4},
-                            {0, 4, 4},
-                            {4, 4, 4},
-                            {0, 1, 4},
-                            {1, 1, 4},
-                            {0, 2, 4},
-                            {1, 2, 4},
-                            {2, 2, 4},
-                            {1, 4, 4},
-                            {2, 4, 4} };
+                            {0, 0, 3},
+                            {0, 3, 3},
+                            {3, 3, 3},
+                            {0, 1, 3},
+                            {1, 1, 3},
+                            {0, 2, 3},
+                            {1, 2, 3},
+                            {2, 2, 3},
+                            {1, 3, 3},
+                            {2, 3, 3} };
      int disp_count = sizeof(disp_array)/(sizeof(int)*3);
 
      for(s=0; s<size_count; s++) {
@@ -133,10 +133,10 @@ void get_contention() {
                     DCMF_SEQUENTIAL_CONSISTENCY,
                     dst,
                     size,
-                    memregion[myrank],
                     memregion[dst],
-                    iter*size,
-                    MAX_MSG_SIZE*ITERATIONS + iter*size);
+                    memregion[myrank],
+                    MAX_MSG_SIZE*ITERATIONS + iter*size,
+                    iter*size);
               }
               while(done_count) DCMF_Messager_advance();
 

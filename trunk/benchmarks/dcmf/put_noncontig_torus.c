@@ -209,28 +209,20 @@ void send_pack(int dim1, int dim2) {
 
 }
 
-void manytomany(int dim1, int dim2) {
+void manytomany() {
 
-   memregion_init(MAX_DIM*MAX_DIM*sizeof(double));
-
-   if(myrank == 0) {
+       memregion_init(MAX_DIM*MAX_DIM*sizeof(double));
 
        DCMF_Request_t snd_req;
        DCMF_Callback_t snd_done, m2m_done;
        DCQuad msginfo;
        int done_count;
-       unsigned int i, j, k, dst, size;
-       char *pack_buffer;
+       unsigned int dst, size;
        struct noncontig_header pack_header;
-       int useRidxVec = 0;
-       unsigned rindex = 0;
-       unsigned *sndlens, *snddispls, *sndcounters, *ranks, *permutation, *rankIndecVec;
+       unsigned sndlens, snddispls, sndcounters, permutation;
+       unsigned ranks;
 
-       sndlens = (unsigned *) malloc (sizeof(unsigned)*dim1);
-       snddispls = (unsigned *) malloc (sizeof(unsigned)*dim1);
-       sndcounters = (unsigned *) malloc (sizeof(unsigned)*dim1);
-       ranks = (unsigned *) malloc (sizeof(unsigned)*dim1);
-       permutation = (unsigned *) malloc (sizeof(unsigned)*dim1);
+       dst = (myrank+1)%nranks;
 
        snd_done.function = done;
        snd_done.clientdata = (void *) &done_count;
@@ -238,126 +230,73 @@ void manytomany(int dim1, int dim2) {
        m2m_done.function = done;
        m2m_done.clientdata = (void *) &m2m_active;
 
-       for(dst=0; dst<nranks; dst++) {
-
-         barrier();
-
-         if(dst !=  myrank) {
-
-           for(j=0; j<ITERS; j++) {
-
-                 done_count = 1;
-
-                 DCMF_Memregion_query(memregion[dst], &size, &(pack_header.vaddress));   
-                 pack_header.stride = MAX_DIM*sizeof(double);
-                 pack_header.d1 = dim1;
-                 pack_header.d2 = dim2*sizeof(double);
-
-                 DCMF_Send(&snd_manytomany_reg,
-                    &snd_req,
-                    snd_done,
-                    DCMF_SEQUENTIAL_CONSISTENCY,
-                    dst,
-                    sizeof(struct noncontig_header),
-                    (char *) &pack_header,
-                    &msginfo,
-                    1);
-
-                 while(done_count) DCMF_Messager_advance();
-
-                 printf("Done sending header information \n");
-                 fflush(stdout);
-
-                 for(i=0; i<dim1; i++) { 
-                    sndlens[i] = pack_header.d2;
-                    snddispls[i] = i*pack_header.stride;
-                    ranks[i] = dst;
-                    permutation[i] = dst;
-                 }
-
-                 m2m_active = 1;
-
-                 DCMF_Manytomany(&m2m_reg,
-                                 &m2m_req,
-                                 m2m_done,
-                                 DCMF_SEQUENTIAL_CONSISTENCY,
-                                 0,
-                                 0,
-                                 0,
-                                 NULL,
-                                 (const char *) window,
-                                 sndlens,
-                                 snddispls,
-                                 sndcounters,  
-                                 ranks,
-                                 permutation,  
-                                 (unsigned) dim1);
-
-                  while(m2m_active) DCMF_Messager_advance();   
-
-                  printf("done sending manytomany \n");
-                  fflush(stdout);
-
-           }
-
-         }
-
-       }
-
-       free(sndlens);
-       free(snddispls);
-       free(sndcounters);
-       free(ranks);
-       free(permutation);
-
-       t_usec = 0;
-       barrier();
-       allreduce(-1, (char *) &t_usec, (char *) &t_avg, 1, DCMF_DOUBLE, DCMF_SUM);
        barrier();
 
-       t_avg = t_avg/(nranks-1);
-       printf("%20.0f \n", t_avg);
-       fflush(stdout);  
+       done_count = 1;
+       snd_rcv_manytomany_active += 1;
 
-     } else {
+       DCMF_Memregion_query(memregion[dst], &size, &(pack_header.vaddress));   
+       pack_header.stride = MAX_DIM*sizeof(double);
+       pack_header.d1 = 1;
+       pack_header.d2 = 64*sizeof(double);
 
-       int dst; 
+       DCMF_Send(&snd_manytomany_reg,
+                 &snd_req,
+                 snd_done,
+                 DCMF_SEQUENTIAL_CONSISTENCY,
+                 dst,
+                 sizeof(struct noncontig_header),
+                 (char *) &pack_header,
+                  &msginfo,
+                 1);
 
-       t_usec = 0;
-       for(dst=0; dst<nranks; dst++) {
+       while(done_count || snd_rcv_manytomany_active) DCMF_Messager_advance();
 
-         barrier();
+       printf("[%d] Done sending and receiving header information \n", myrank);
+       fflush(stdout);
 
-         if(dst ==  myrank) {
+       sndlens = pack_header.d2;
+       snddispls = 0;
+       ranks = dst;
+       permutation = dst;
 
-            t_start = DCMF_Timebase();
+       m2m_active = 1;
+       m2m_rcv_active = 1;
 
-            snd_rcv_manytomany_active = ITERS;
-            m2m_rcv_active = ITERS;
+       DCMF_Manytomany(&m2m_reg,
+                       &m2m_req,
+                       m2m_done,
+                       DCMF_SEQUENTIAL_CONSISTENCY,
+                       0,
+                       myrank,
+                       window,
+                       &sndlens,
+                       &snddispls,
+                       &sndcounters,  
+                       &ranks,
+                       &permutation,  
+                       1);
 
-            while(snd_rcv_manytomany_active || m2m_rcv_active) DCMF_Messager_advance();
+       printf("[%d] posted manytomany \n", myrank);
+       fflush(stdout);
 
-            t_stop = DCMF_Timebase();    
-            t_usec = ((t_stop-t_start)/clockMHz);
-            t_usec = t_usec/ITERS;
+       while(m2m_active) DCMF_Messager_advance();   
 
-         }
-       }
+       printf("[%d] done sending manytomany \n", myrank);
+       fflush(stdout);
 
-       barrier();
-       allreduce(-1, (char *) &t_usec, (char *) &t_avg, 1, DCMF_DOUBLE, DCMF_SUM);
-       barrier();
-        
-     }
+       while(m2m_rcv_active) DCMF_Messager_advance();
 
-     memregion_finalize();
+       printf("[%d] done sending manytomany \n", myrank);
+       fflush(stdout);
 
+       memregion_finalize();
 }
 
 int main ()
 {
   DCMF_Messager_initialize();
-  int dim1, dim2;
+  /* int dim1, dim2; */
   char buffer[50];
 
   init();
@@ -368,13 +307,13 @@ int main ()
 
   control_init(DCMF_DEFAULT_CONTROL_PROTOCOL, DCMF_DEFAULT_NETWORK);
 
-  put_init(DCMF_DEFAULT_PUT_PROTOCOL, DCMF_TORUS_NETWORK);
+  /* put_init(DCMF_DEFAULT_PUT_PROTOCOL, DCMF_TORUS_NETWORK);
 
-  send_noncontig_init(DCMF_DEFAULT_SEND_PROTOCOL, DCMF_TORUS_NETWORK);
+  send_noncontig_init(DCMF_DEFAULT_SEND_PROTOCOL, DCMF_TORUS_NETWORK); */
 
   send_manytomany_init(DCMF_DEFAULT_SEND_PROTOCOL, DCMF_TORUS_NETWORK);
 
-  manytomany_init(DCMF_DEFAULT_M2M_PROTOCOL);
+  manytomany_init(DCMF_MEMFIFO_DMA_M2M_PROTOCOL);
 
   printf("[%d] Registration complete \n", myrank);
   fflush(stdout);
@@ -388,7 +327,7 @@ int main ()
 
   barrier();
   
-  for(dim1=2; dim1<=512; dim1*=2) {
+/* for(dim1=2; dim1<=512; dim1*=2) {
  
     for(dim2=1; dim2<=512; dim2*=2) {
 
@@ -400,15 +339,17 @@ int main ()
 
        barrier();
 
-//     put_direct(dim1, dim2);
+       put_direct(dim1, dim2);
  
-//     send_pack(dim1, dim2);
+       send_pack(dim1, dim2);
 
        manytomany(dim1, dim2);
 
     }
 
-  }
+  } */
+
+  manytomany();
 
   printf("[%d] Benchmark complete\n", myrank);
   fflush(stdout);

@@ -107,6 +107,10 @@ void ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
 *  Control Callback function           *
 ****************************************/
 void ack_ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
+
+     printf("[%d] Flush ack received \n", myrank);
+     fflush(stdout);
+
      --(*((unsigned *) clientdata));
 }
 
@@ -138,6 +142,9 @@ void snd_rcv_short(void *clientdata, const DCQuad *msginfo,
 void flush_snd_rcv_short(void *clientdata, const DCQuad *msginfo,
                  unsigned count, size_t peer, const char *src,
                  size_t bytes) {
+
+     printf("[%d] Flush message received \n", myrank);
+     fflush(stdout);
 
      DCMF_Control(&ack_ctrl_reg,
                  DCMF_SEQUENTIAL_CONSISTENCY,

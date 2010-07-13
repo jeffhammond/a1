@@ -52,22 +52,22 @@
 
 void flush_put() {
 
-   if(myrank == 0) {
-
       DCMF_Request_t put_req[nranks];
       DCMF_Callback_t put_done, put_ack;
-      int done_count, ack_count;
+      int ack_count;
       int dest, i;
 
-      put_done.function = done;
-      put_done.clientdata = (void *) &done_count;
+      put_done.function = NULL;
+      put_done.clientdata = NULL;
       put_ack.function = done;
       put_ack.clientdata = (void *) &ack_count;
 
-      char buffer[50];
-      sprintf(buffer,"%20s %30s","Flush Latency (us)", "Flush Restart Latency(us)");
-      printf("%s \n", buffer);
-      fflush(stdout);
+      if(myrank == 0) {
+        char buffer[50];
+        sprintf(buffer,"%20s %30s","Flush Latency (us)", "Flush Restart Latency(us)");
+        printf("%s \n", buffer);
+        fflush(stdout);
+      }
 
       barrier();
 
@@ -88,7 +88,7 @@ void flush_put() {
                       memregion[myrank],
                       memregion[dest],
                       0,
-                      0,
+                      1,
                       put_ack);
               
             }
@@ -100,12 +100,11 @@ void flush_put() {
        /***********************
        * start timer          *
        ***********************/
-       ack_count = (nranks-1)*ITERATIONS;
        t_start = DCMF_Timebase();
 
        for(i=SKIP; i<ITERATIONS+SKIP; i++) {
 
-         done_count = nranks-1;
+         ack_count = nranks-1;
          for(dest=0; dest<nranks; dest++) {
             if(dest != myrank) {
                  DCMF_Put(&put_reg,
@@ -117,100 +116,131 @@ void flush_put() {
                      memregion[myrank],
                      memregion[dest],
                      0,
-                     0,
+                     1,
                      put_ack);
 
              }
          }
-         while(done_count) DCMF_Messager_advance();
+         while(ack_count) DCMF_Messager_advance();
 
        }
 
        t_stop = DCMF_Timebase();
-       while(ack_count) DCMF_Messager_advance();
        /***********************
        * stop timer          *
        ***********************/
        t_usec = ((t_stop-t_start)/clockMHz);
-       printf("%20.0f ", t_usec/(ITERATIONS));
+       t_usec = t_usec/(ITERATIONS);
+
+       barrier();    
+  
+       allreduce(-1, (char *) &t_usec, (char *) &t_max, 1, DCMF_DOUBLE, DCMF_MAX);
+
+       barrier(); 
+
+       if(myrank == 0) {
+           printf("%20.0f ", t_max);
+           fflush(stdout);
+       }
 
        /***********************
        * start timer          *
        ***********************/
-       ack_count = (nranks-1)*ITERATIONS;
        t_start = DCMF_Timebase();
 
        for(i=SKIP; i<ITERATIONS+SKIP; i++) {
 
-         done_count = nranks-1;
+         ack_count = nranks-1;
          for(dest=0; dest<nranks; dest++) {
             if(dest != myrank) {
                  DCMF_Restart(&put_req[dest]);
             }
          }
-         while(done_count) DCMF_Messager_advance();
+         while(ack_count) DCMF_Messager_advance();
 
        }
 
        t_stop = DCMF_Timebase();
-       while(ack_count) DCMF_Messager_advance();
        /***********************
        * stop timer          *
        ***********************/
        t_usec = ((t_stop-t_start)/clockMHz);
-       printf("%20.0f \n", t_usec/(ITERATIONS));
-
-       barrier();
- 
-     } else {
- 
-       barrier();
+       t_usec = t_usec/ITERATIONS;
 
        barrier();
 
-     }
+       allreduce(-1, (char *) &t_usec, (char *) &t_max, 1, DCMF_DOUBLE, DCMF_MAX);
+
+       barrier();
+
+       if(myrank == 0) {
+           printf("%20.0f \n", t_max);
+           fflush(stdout);
+       }
+
 }
 
 void flush_multicast() {
 
    int i;
    barrier(); 
-
-   if(myrank == 0) {
-
+ 
+   if(myrank == 0) { 
       char buffer[50];
       sprintf(buffer,"%20s","Flush Latency (us)");
       printf("%s \n", buffer);
       fflush(stdout);
+   }
 
-       for(i=0; i<SKIP; i++) {       
+   for(i=0; i<SKIP; i++) {       
+
            mc_active=1;
+           mc_rcv_active+=(nranks-1);
            DCMF_Multicast (&mc_info);
-           while(mc_active) DCMF_Messager_advance();     
-       }
- 
-       t_start = DCMF_Timebase();
-       /***********************
-       * start timer          *
-       ***********************/
-       for(i=SKIP; i<ITERATIONS+SKIP; i++) {
+           while(mc_active || mc_rcv_active) DCMF_Messager_advance();
+
            mc_active=1;
+           mc_rcv_active+=(nranks-1);
            DCMF_Multicast (&mc_info);
-           while(mc_active) DCMF_Messager_advance();
-       }       
-       t_stop = DCMF_Timebase();
-       /***********************
-       * stop timer          *
-       ***********************/
-       t_usec = ((t_stop-t_start)/clockMHz);
-       printf("%20.0f \n", t_usec/(ITERATIONS));
-       fflush(stdout);
+           while(mc_active || mc_rcv_active) DCMF_Messager_advance();
 
-   } else {
+   }
 
-       mc_rcv_active=SKIP+ITERATIONS;
-       while(mc_rcv_active) DCMF_Messager_advance();
+   t_start = DCMF_Timebase();
+   /***********************
+   * start timer          *
+   ***********************/
+   for(i=SKIP; i<ITERATIONS+SKIP; i++) {
 
+           mc_active=1;
+           mc_rcv_active+=(nranks-1);
+           DCMF_Multicast (&mc_info);
+           while(mc_active || mc_rcv_active) DCMF_Messager_advance();
+
+           mc_active=1;
+           mc_rcv_active+=(nranks-1);
+           DCMF_Multicast (&mc_info);
+           while(mc_active || mc_rcv_active) DCMF_Messager_advance();
+
+   }       
+   t_stop = DCMF_Timebase();
+   /***********************
+   * stop timer          *
+   ***********************/
+
+   t_usec = ((t_stop-t_start)/clockMHz);
+   t_usec = t_usec/(ITERATIONS);
+   fflush(stdout);
+
+   barrier();
+
+   allreduce(-1, (char *) &t_usec, (char *) &t_max, 1, DCMF_DOUBLE, DCMF_MAX);
+
+   barrier();
+
+   if(myrank == 0) {
+        printf("%20.0f \n", t_max);
+        fflush(stdout);
    }
 
 }
@@ -219,77 +249,87 @@ void flush_send(unsigned int size) {
 
   barrier(); 
 
-  if(myrank == 0) {
-    int i,j;
-    DCMF_Request_t snd_req[nranks];
-    DCMF_Callback_t snd_callback;
-    char snd_buffer[size];
-    unsigned int snd_active;
+  int i,j;
+  DCMF_Request_t snd_req[nranks];
+  DCMF_Callback_t snd_callback;
+  char snd_buffer[size];
+  unsigned int snd_active;
 
+  if(myrank == 0) { 
     char buffer[50];
     sprintf(buffer,"%20s","Flush Latency (us)");
     printf("%s \n", buffer);
     fflush(stdout); 
-
-    snd_callback.function = done;
-    snd_callback.clientdata = (void *) &snd_active;
-
-    for(i=0; i<SKIP; i++) {
-       snd_active = nranks-1;
-       for(j=0; j<nranks; j++) {
-           if(j != myrank) {
-               DCMF_Send (&snd_reg,
-                     &snd_req[j],
-                     snd_callback,
-                     DCMF_SEQUENTIAL_CONSISTENCY,
-                     j,
-                     size,
-                     snd_buffer,
-                     snd_msginfo,
-                     1);
-           }
-       }
-       while(snd_active) DCMF_Messager_advance();
-    }
-
-    /***********************
-    * start timer          *
-    ***********************/ 
-    t_start = DCMF_Timebase();
-    for(i=0; i<ITERATIONS; i++) {
-       snd_active = nranks-1;
-       for(j=0; j<nranks; j++) {
-           if(j != myrank) {
-               DCMF_Send (&snd_reg,
-                     &snd_req[j],
-                     snd_callback,
-                     DCMF_SEQUENTIAL_CONSISTENCY,
-                     j,
-                     size,
-                     snd_buffer,
-                     snd_msginfo,
-                     1);
-           }
-       }
-       while(snd_active) DCMF_Messager_advance();
-    }
-    t_stop = DCMF_Timebase();
-    /***********************
-    * stop timer          *
-    ***********************/
-    t_usec = ((t_stop-t_start)/clockMHz);
-    printf("%20.0f \n", t_usec/(ITERATIONS));
-    fflush(stdout);
-
-  } else {
-
-    snd_rcv_active = SKIP+ITERATIONS;
-    while(snd_rcv_active) DCMF_Messager_advance();
-
   }
 
-  barrier();
+  snd_callback.function = done;
+  snd_callback.clientdata = (void *) &snd_active;
 
+  for(i=0; i<SKIP; i++) {
+       snd_active = nranks-1;
+       snd_rcv_active += nranks-1;
+       ack_rcv_active += nranks-1;
+
+       for(j=0; j<nranks; j++) {
+           if(j != myrank) {
+               DCMF_Send (&flush_snd_reg,
+                     &snd_req[j],
+                     snd_callback,
+                     DCMF_SEQUENTIAL_CONSISTENCY,
+                     j,
+                     size,
+                     snd_buffer,
+                     snd_msginfo,
+                     1);
+           }
+      }
+
+      while(snd_active || snd_rcv_active || ack_rcv_active) DCMF_Messager_advance();
+  }
+
+ /***********************
+ * start timer          *
+ ***********************/ 
+ t_start = DCMF_Timebase();
+ for(i=0; i<ITERATIONS; i++) {
+       snd_active = nranks-1;
+       snd_rcv_active += nranks-1;
+       ack_rcv_active += nranks-1;
+
+       for(j=0; j<nranks; j++) {
+           if(j != myrank) {
+               DCMF_Send (&flush_snd_reg,
+                     &snd_req[j],
+                     snd_callback,
+                     DCMF_SEQUENTIAL_CONSISTENCY,
+                     j,
+                     size,
+                     snd_buffer,
+                     snd_msginfo,
+                     1);
+           }
+       }
+
+       while(snd_active || snd_rcv_active || ack_rcv_active) DCMF_Messager_advance();
+ }
+ t_stop = DCMF_Timebase();
+ /***********************
+ * stop timer          *
+ ***********************/
+ t_usec = ((t_stop-t_start)/clockMHz);
+ t_usec = t_usec/ITERATIONS;
+ fflush(stdout);
+
+ barrier();
+
+ allreduce(-1, (char *) &t_usec, (char *) &t_max, 1, DCMF_DOUBLE, DCMF_MAX);
+
+ barrier();
+
+ if(myrank == 0) {
+      printf("%20.0f \n", t_max);
+      fflush(stdout);
+ }
 }
 
 int main ()
@@ -300,9 +340,11 @@ int main ()
 
   barrier_init(DCMF_DEFAULT_GLOBALBARRIER_PROTOCOL);
 
+  allreduce_init(DCMF_DEFAULT_GLOBALALLREDUCE_PROTOCOL);
+
   control_init(DCMF_DEFAULT_CONTROL_PROTOCOL, DCMF_DEFAULT_NETWORK);
 
-  memregion_init(1);
+  memregion_init(2);
 
   put_init(DCMF_DEFAULT_PUT_PROTOCOL, DCMF_TORUS_NETWORK);
 
@@ -327,14 +369,18 @@ int main ()
 
   flush_multicast();
 
-  send_init(DCMF_DEFAULT_SEND_PROTOCOL, DCMF_TORUS_NETWORK);
+  /*
+  flush_send_init(DCMF_EAGER_SEND_PROTOCOL, DCMF_TORUS_NETWORK);
+  ack_init();
+  ack_control_init();
 
   if(myrank == 0) {
      printf("Latency (usec) of Flush with Send\n");
      fflush(stdout);
   }
 
-  flush_send(1);
+  flush_send(1); 
+  */
 
   barrier();
 

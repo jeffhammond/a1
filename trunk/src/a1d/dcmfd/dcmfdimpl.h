@@ -35,14 +35,16 @@ typedef struct
 }
 A1D_Process_info_t;
 
-typedef struct A1D_Memregion_t
+/* TODO: Pack header supports only upto 3D arrays. Need to increase structure or 
+ * find a better way to represent it */
+typedef struct
 {
-   DCMF_Memregion_t mregion;
-   void * vaddress;
-   size_t bytes;
-   struct A1D_Memregion_t *next;
-   struct A1D_Memregion_t *prev;
-} A1D_Memregion_t;
+   void *vaddress;
+   uint32_t stride_levels;
+   uint32_t src_stride_ar[2];
+   uint32_t trg_stride_ar[2];
+   uint32_t count[3];
+} A1D_Pack_header_t;
 
 typedef struct A1D_Request_info_t
 {
@@ -63,16 +65,21 @@ typedef struct
 {
    DCMF_Protocol_t protocol;
    uint32_t rcv_active;
-   void **exchange_ptr;
-   uint32_t exchange_size;
-} A1D_Control_info_t;
+   void **xchange_ptr;
+   uint32_t xchange_size;
+} A1D_Control_xchange_info_t;
 
 typedef struct
 {
    DCMF_Protocol_t protocol;
    uint32_t rcv_active;
-   void *exchange_ptr;
-   uint32_t exchange_size;
+   DCMF_Control_t info;
+} A1D_Control_fenceack_info_t;
+
+typedef struct
+{
+   DCMF_Protocol_t protocol;
+   uint32_t rcv_active;
 } A1D_Send_info_t;
 
 typedef struct
@@ -84,24 +91,22 @@ typedef struct
 
 extern A1D_Thread_info_t A1D_Thread_info;
 extern A1D_Process_info_t A1D_Process_info;
-extern A1D_Control_info_t A1D_Control_info;
-extern A1D_Send_info_t A1D_Send_info;
+extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
+extern A1D_Control_fenceack_info_t A1D_Control_fenceack_info;
+extern A1D_Send_info_t A1D_Send_noncontigput_info;
+extern A1D_Send_info_t A1D_Send_fence_info;
 extern A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
-extern A1D_Memregion_t **A1D_Memregion_lists; 
 extern A1D_Request_pool_t A1D_Request_pool;
 
 extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
-extern DCMF_Memregion_t *A1D_Fencememory;
+extern DCMF_Memregion_t *A1D_Memregion_global;
+
+extern void **A1D_Membase_global;
 
 void A1DI_Generic_callback(void *, DCMF_Error_t *);
 
-void A1DI_Insert_memregion(A1D_Memregion_t *, uint32_t);
-int A1DI_Find_memregion(DCMF_Memregion_t **, unsigned *, void *, uint32_t);
-
 A1D_Request_info_t* A1DI_Get_request();
 void A1DI_Free_request(A1D_Request_info_t *request);
-
-DCMF_Result A1D_GlobalBarrier();
