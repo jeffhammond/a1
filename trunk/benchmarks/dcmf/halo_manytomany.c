@@ -51,7 +51,7 @@
 #include "bench.h"
 
 #define MAXNODES   8192
-#define MAXMSGSIZE 1024
+#define MAXMSGSIZE 4096 
 
 int    send_active[2];
 int    recv_active[2];
@@ -59,19 +59,21 @@ int    recv_active[2];
 DCMF_Request_t send_req[2] __attribute ((__aligned__(16)));
 DCMF_Request_t recv_req[2] __attribute ((__aligned__(16)));
 
-char recv_buf[MAXMSGSIZE*26+1] __attribute ((__aligned__(16)));
+char *recv_buf;
 unsigned recv_len[27];
 unsigned recv_displ[27];
 unsigned recv_counter[2][27];
 
 
-char send_buf[MAXMSGSIZE*26] __attribute ((__aligned__(16)));
+char *send_buf;
 unsigned send_ranks[26];
 unsigned send_len[26];
 unsigned send_displ[26];
 unsigned send_idx[26];
 unsigned send_counter[2][26];
 unsigned permutation[26];
+
+DCQuad msginfo[26];
 
 unsigned  rank, size;
 
@@ -112,18 +114,31 @@ DCMF_Request_t* cb_recv_Manytomany (unsigned              connid,
 int main()
 {
   unsigned sendlen;
-  unsigned i,j,k,idx;
+  int i,j,k,idx;
   DCMF_Protocol_t  protocol;
   DCMF_Manytomany_Configuration_t mconfig;
   DCMF_Callback_t cb_done[2];
   DCMF_NetworkCoord_t myaddr, dstaddr; 
   DCMF_Network ntwk, temp;
+  DCMF_Request_t sreq[26];
+  DCMF_Callback_t snd_done;
+
+  posix_memalign((void **) &recv_buf, 16, MAXMSGSIZE*26*1024 + 1);
+  posix_memalign((void **) &send_buf, 16, MAXMSGSIZE*26*1024);
+
+  if (recv_buf == NULL || send_buf == NULL) {
+       printf("Memory allocation failed \n");
+       fflush(stdout);
+       return -1;
+  }
 
   DCMF_Messager_initialize();
 
   init();
     
   barrier_init(DCMF_DEFAULT_GLOBALBARRIER_PROTOCOL);
+
+  send_init(DCMF_DEFAULT_SEND_PROTOCOL, DCMF_TORUS_NETWORK);
 
   if(nranks != 512) {
      if(myrank == 0) {
@@ -132,6 +147,11 @@ int main()
      }
      return -1; 
   }
+
+  snd_active = 0;
+  snd_rcv_active = 0;
+  snd_done.function = done;
+  snd_done.clientdata = (void *) &snd_active;
 
   mconfig.protocol       = DCMF_MEMFIFO_DMA_M2M_PROTOCOL;
   mconfig.cb_recv        = cb_recv_Manytomany;
@@ -145,7 +165,7 @@ int main()
   cb_done[1].function = cb_Manytomany_senddone;
   cb_done[1].clientdata = (void *) 1;
 
-  for (i=0; i<MAXMSGSIZE; i++) {
+  for (i=0; i<MAXMSGSIZE*26; i++) {
       send_buf[i] = '*';
   }
 
@@ -162,7 +182,7 @@ int main()
 	  dstaddr.torus.z = (myaddr.torus.z+k+8)%8;  
           DCMF_Messager_network2rank(&dstaddr, &temp, &ntwk); 
           if(temp != myrank) {
-               send_ranks[idx] = myrank;
+               send_ranks[idx] = temp;
                send_idx[idx] = (-i + 1) + (-j + 1)*3 + (-k + 1)*9;
                idx++;
           }
@@ -171,7 +191,7 @@ int main()
   }
 
   if(idx != 26) {
-    if(rank == 0) {
+    if(myrank == 0) {
         printf("rank calculation is erroneous \n");
         fflush(stdout);
     }
@@ -181,9 +201,6 @@ int main()
   for(i=0; i<26; i++)  
     permutation[i] = i;
 
-  recv_len[26] = 1;
-  recv_displ[26] = MAXMSGSIZE*26;
-
   for (sendlen=1; sendlen<=MAXMSGSIZE; sendlen*=2) {
 
   for(i=0; i<26; i++) {
@@ -191,9 +208,12 @@ int main()
     send_displ[i] = i*sendlen;
     recv_len[i] = sendlen;
     recv_displ[i] = i*sendlen;
-  }  
+  }
+
+  recv_len[26] = 1;
+  recv_displ[26] = 0;  
   
-  for (i=0; i<MAXMSGSIZE*26; i++) {
+  for (i=0; i<sendlen*26; i++) {
       recv_buf[i] = '_';   
   }
   
@@ -207,9 +227,6 @@ int main()
   
   while (send_active[0] > 0 || recv_active[0] > 0) DCMF_Messager_advance();
 
-  printf("[%d] After manytomany 1 \n", myrank);
-  fflush(stdout);
-
   barrier();
 
   send_active[1] = 1;
@@ -222,12 +239,9 @@ int main()
 
   while (send_active[1] > 0 || recv_active[1] > 0) DCMF_Messager_advance();
 
-  printf("[%d] After manytomany 2 \n", myrank);
-  fflush(stdout);
-
   barrier();
 
-  int niter = 2;
+  int niter = 10;
   unsigned long long start, time;  
 
   start = DCMF_Timebase();
@@ -246,9 +260,73 @@ int main()
 
   time = DCMF_Timebase() - start;
   if(myrank == 0) {
-    printf ("Time For Many-to-many with size %d = %d cycles, buffer = %s \n", sendlen, (unsigned)(time / niter), recv_buf);
+    printf ("Time For Many-to-many with size %d, peers 27 = %d cycles \n", sendlen, (unsigned)(time / niter));
     fflush(stdout);
   }
+
+  barrier();
+ 
+  if(myrank == 1) { 
+    printf("Now using sends \n");
+    fflush(stdout);
+
+  }
+
+  snd_active += 26;
+  snd_rcv_active += 26;
+  target = recv_buf;
+
+  for(j=0; j<26; j++) {
+            DCMF_Send(&snd_reg,
+                    &sreq[j],
+                    snd_done,
+                    DCMF_SEQUENTIAL_CONSISTENCY,
+                    send_ranks[j],
+                    sendlen,
+                    (char *) send_buf + j*sendlen,
+                    &msginfo[j],
+                    1);
+  }
+
+  while(snd_active > 0 || snd_rcv_active > 0) DCMF_Messager_advance();
+
+  barrier();
+
+  if(myrank == 0) {
+    printf("After first multi sends \n");
+    fflush(stdout); 
+  }
+ 
+  start = DCMF_Timebase();
+
+  for (i = 0; i < niter; i++) {
+
+   snd_active += 26;
+   snd_rcv_active += 26;
+   target = recv_buf;
+   for(j=0; j<26; j++) {
+
+          DCMF_Send(&snd_reg,
+                  &sreq[j],
+                  snd_done,
+                  DCMF_SEQUENTIAL_CONSISTENCY,
+                  send_ranks[j],
+                  sendlen,
+                  (char *) send_buf + j*sendlen,
+                  &msginfo[j],
+                  1); 
+
+    }
+    while(snd_active > 0 || snd_rcv_active > 0) DCMF_Messager_advance();
+
+   }
+
+   time = DCMF_Timebase() - start;
+
+   if(myrank == 0) {
+     printf ("Time For Many sends with size %d, peers 27 = %d cycles \n", sendlen, (unsigned)(time / niter));
+     fflush(stdout);
+   }
 
   }
 
