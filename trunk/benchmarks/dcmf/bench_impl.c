@@ -88,7 +88,7 @@ void done_noncontig(void *clientdata, DCMF_Error_t *error) {
 
      data = (char *) clientdata + sizeof(struct noncontig_header);  
      for(i=0; i<header->d1; i++) {
-         memcpy(header->vaddress + i*header->stride, data + i*header->d2, header->d2);
+         memcpy((char *) header->vaddress + i*header->stride, data + i*header->d2, header->d2);
      }    
          
      --snd_rcv_noncontig_active;
@@ -186,7 +186,7 @@ void snd_rcv_noncontig_short(void *clientdata, const DCQuad *msginfo,
 
      data = (char *) src + sizeof(struct noncontig_header);
      for(i=0; i<header->d1; i++) {
-         memcpy(header->vaddress + i*header->stride, data + i*header->d2, header->d2);
+         memcpy((char *) header->vaddress + i*header->stride, data + i*header->d2, header->d2);
      }
 
      --(*((unsigned *) clientdata));
@@ -539,7 +539,7 @@ void multicast_init(DCMF_Multicast_Protocol protocol, unsigned int size) {
      mc_callback.function  = mc_done;
      mc_callback.clientdata = (void *) &mc_active;
 
-     int i, idx=0;
+     unsigned int i, idx=0;
      for(i=0; i<size; i++) 
           mc_snd_buffer[i] = 's'; 
 

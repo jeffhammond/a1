@@ -92,7 +92,6 @@ double t_sec, t_usec, t_msec;
 double t_max, t_avg, t_min;
 double clockMHz, bw, bw_avg; 
 DCMF_Hardware_t hw;
-double clockMHz;
 
 /***************************************
 *  Global DCMF structures for Window   *
@@ -115,7 +114,7 @@ int put_count, ack_count;
 DCMF_Put_Configuration_t get_conf;
 DCMF_Protocol_t get_reg;
 DCMF_Callback_t get_done, get_ack;
-int get_count, get_count;
+int get_count;
 
 /**********************************************
 * Global DCMF structures for Send      *
