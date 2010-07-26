@@ -64,17 +64,48 @@ void init() {
 *  Generic Callback function           *
 ****************************************/
 void done(void *clientdata, DCMF_Error_t *error) {
-
-     --(*((unsigned *) clientdata));
-
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
 }
 
 /***************************************
 *  Receive Done Callback function           *
 ****************************************/
 void rcv_done(void *clientdata, DCMF_Error_t *error) {
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
+}
 
-     --(*((unsigned *) clientdata));
+/***************************************
+*  Accumulate Done Callback function   *
+****************************************/
+void rcv_accumulate_done(void *clientdata, DCMF_Error_t *error) {
+
+     int i, bytes;
+     
+     double *s = (double *) (stagebuf + target_index);
+     double *t = (double *) (target + target_index);
+
+     if(ispipelined == 1) 
+        bytes = CHUNK_SIZE;
+     else
+        bytes = datasize;
+
+     for(i=0; i<bytes/(sizeof(double)); i++)
+        t[i] *= s[i];
+
+     target_index = target_index + bytes;
+
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
+}
+
+
+/***************************************
+*  RCB Receive Done Callback function           *
+****************************************/
+void rcb_snd_rcv_done(void *clientdata, DCMF_Error_t *error) {
+     DCMF_Control(&ack_ctrl_reg,
+                 DCMF_SEQUENTIAL_CONSISTENCY,
+                 *((size_t*) clientdata),
+                 &ctrl_info);
 } 
 
 /***************************************
@@ -100,7 +131,8 @@ void done_noncontig(void *clientdata, DCMF_Error_t *error) {
 void ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
      memregion[peer] = (DCMF_Memregion_t *) malloc (sizeof(DCMF_Memregion_t));
      memcpy(memregion[peer], info, sizeof(DCMF_Memregion_t));
-     --(*((unsigned *) clientdata));
+
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
 }
 
 /***************************************
@@ -108,10 +140,7 @@ void ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
 ****************************************/
 void ack_ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
 
-     printf("[%d] Flush ack received \n", myrank);
-     fflush(stdout);
-
-     --(*((unsigned *) clientdata));
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
 }
 
 /****************************************
@@ -120,7 +149,7 @@ void ack_ctrl_recv(void *clientdata, const DCMF_Control_t *info, size_t peer) {
 void ack_rcv(void *clientdata, const DCQuad *msginfo,
                  unsigned count, size_t peer, const char *src,
                  size_t bytes) {
-     --(*((unsigned *) clientdata));
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
 }
 
 /****************************************
@@ -133,7 +162,43 @@ void snd_rcv_short(void *clientdata, const DCQuad *msginfo,
      memcpy(target + target_index, src, bytes);
      target_index = target_index + bytes;
 
-     --(*((unsigned *) clientdata));
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
+
+}
+
+/****************************************
+*  Send Recv Short Callback function    *
+****************************************/
+void snd_rcv_accumulate_short(void *clientdata, const DCQuad *msginfo,
+                 unsigned count, size_t peer, const char *src,
+                 size_t bytes) {
+
+     int i;
+
+     double *s = (double *) src;
+     double *t = (double *) (target + target_index);
+     for(i=0; i<bytes/(sizeof(double)); i++)
+        t[i] *= s[i];
+     target_index = target_index + bytes;
+
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
+}
+
+/**********************************************
+*  Flush Send Recv Short Callback function    *
+***********************************************/
+void rcb_snd_rcv_short(void *clientdata, const DCQuad *msginfo,
+                 unsigned count, size_t peer, const char *src,
+                 size_t bytes) {
+
+     memcpy(target + target_index, src, bytes);
+     target_index = target_index + bytes;
+
+     DCMF_Control(&ack_ctrl_reg,
+                 DCMF_SEQUENTIAL_CONSISTENCY,
+                 peer,
+                 &ctrl_info);
+
 }
 
 /**********************************************
@@ -143,15 +208,12 @@ void flush_snd_rcv_short(void *clientdata, const DCQuad *msginfo,
                  unsigned count, size_t peer, const char *src,
                  size_t bytes) {
 
-     printf("[%d] Flush message received \n", myrank);
-     fflush(stdout);
-
      DCMF_Control(&ack_ctrl_reg,
                  DCMF_SEQUENTIAL_CONSISTENCY,
                  peer,
                  &ctrl_info);
-     
-     --(*((unsigned *) clientdata));
+    
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1; 
 }
 
 /****************************************
@@ -170,7 +232,7 @@ void timed_snd_rcv_short(void *clientdata, const DCQuad *msginfo,
            myrank, *((unsigned *) clientdata), t_start, t_stop); 
      fflush(stdout);
 
-     --(*((unsigned *) clientdata));
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
 }
 
 /**************************************************
@@ -189,8 +251,7 @@ void snd_rcv_noncontig_short(void *clientdata, const DCQuad *msginfo,
          memcpy((char *) header->vaddress + i*header->stride, data + i*header->d2, header->d2);
      }
 
-     --(*((unsigned *) clientdata));
-
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
 }
 
 /**************************************************
@@ -205,7 +266,7 @@ void snd_rcv_manytomany_short(void *clientdata, const DCQuad *msginfo,
 
      memcpy(&m2m_header, src, bytes);
 
-     --(*((unsigned *) clientdata));
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
  
      printf("[%d] Finished receiving header information \n", myrank);
      fflush(stdout);
@@ -213,7 +274,7 @@ void snd_rcv_manytomany_short(void *clientdata, const DCQuad *msginfo,
 }
 
 /***************************************
-*  Send Recv Callback function           *
+*  Send Recv Callback function         *
 ****************************************/
 DCMF_Request_t* snd_rcv(void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
           size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
@@ -225,8 +286,46 @@ DCMF_Request_t* snd_rcv(void *clientdata, const DCQuad *msginfo, unsigned count,
      cb_done->function = rcv_done;
      cb_done->clientdata = clientdata;  
 
-     rcv_req_index++;
-     return &rcv_req[rcv_req_index-1];
+     /*assuming there will not be more than ITERATIONS+SKIP-1 outstanding requests*/
+     rcv_req_index = (rcv_req_index+1)%(ITERATIONS+SKIP);
+     return &rcv_req[rcv_req_index];
+}
+
+/***************************************
+*  Accumulate Recv Callback function           *
+****************************************/
+DCMF_Request_t* snd_rcv_accumulate(void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
+          size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
+
+     *rcvlen = sndlen;
+     *rcvbuf = stagebuf + stage_index;
+     stage_index = stage_index + sndlen;
+
+     cb_done->function = rcv_accumulate_done;
+     cb_done->clientdata = clientdata;
+
+     rcv_req_index = (rcv_req_index+1)%(ITERATIONS+SKIP);
+     return &rcv_req[rcv_req_index];
+}
+
+/***************************************
+*  Send Recv Callback function           *
+****************************************/
+DCMF_Request_t* rcb_snd_rcv(void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
+          size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
+
+     *rcvlen = sndlen;
+     *rcvbuf = target + target_index;
+     target_index = target_index + sndlen;
+
+     size_t *peerinfo = (size_t *) malloc(sizeof(size_t));
+     *peerinfo = peer;
+     cb_done->function = rcb_snd_rcv_done;
+     cb_done->clientdata = (void *) peerinfo;
+
+     /*assuming there will not be more than ITERATIONS+SKIP-1 outstanding requests*/ 
+     rcv_req_index = (rcv_req_index+1)%(ITERATIONS+SKIP);
+     return &rcv_req[rcv_req_index];
 }
 
 /***************************************
@@ -291,7 +390,7 @@ DCMF_Request_t* mc_recv(const DCQuad *info, unsigned count, unsigned peer, unsig
 *  Multicast Done Callback function    *
 ****************************************/
 void mc_done(void *clientdata, DCMF_Error_t *error) {
-     --(*((unsigned *) clientdata));
+     (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
 }
 
 /***************************************
@@ -381,6 +480,29 @@ void send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
      }
 }
 
+
+/**********************************************
+* Configuring and Registering noncontig Send  *
+**********************************************/
+void accumulate_send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
+
+     DCMF_Result result;
+
+     snd_conf.protocol = protocol;
+     snd_conf.network = network;
+     snd_conf.cb_recv_short = snd_rcv_accumulate_short;
+     snd_conf.cb_recv_short_clientdata = (void *) &snd_rcv_active;
+     snd_conf.cb_recv = snd_rcv_accumulate;
+     snd_conf.cb_recv_clientdata = (void *) &snd_rcv_active;
+
+     result = DCMF_Send_register(&accumulate_snd_reg, &snd_conf);
+     if(result != DCMF_SUCCESS) {
+         printf("[%d] Send registration failed \n", myrank);
+         fflush(stdout);
+     }
+}
+
+
 /**********************************************
 * Configuring and Registering Flush Send            *
 **********************************************/
@@ -399,6 +521,26 @@ void flush_send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
      if(result != DCMF_SUCCESS) {
          printf("[%d] Send registration failed \n", myrank);
          fflush(stdout); 
+     }
+}
+
+/**********************************************
+* Configuring and Registering remote callback Send            *
+**********************************************/
+void rcb_send_init(DCMF_Send_Protocol protocol, DCMF_Network network) {
+     DCMF_Result result;
+
+     snd_conf.protocol = protocol;
+     snd_conf.network = network;
+     snd_conf.cb_recv_short = rcb_snd_rcv_short;
+     snd_conf.cb_recv_short_clientdata = NULL;
+     snd_conf.cb_recv = rcb_snd_rcv;
+     snd_conf.cb_recv_clientdata = NULL;
+
+     result = DCMF_Send_register(&rcb_snd_reg, &snd_conf);
+     if(result != DCMF_SUCCESS) {
+         printf("[%d] Send registration failed \n", myrank);
+         fflush(stdout);
      }
 }
 
@@ -645,7 +787,7 @@ void control_init(DCMF_Control_Protocol protocol, DCMF_Network network) {
 * Creating memory region                      *
 **********************************************/
 void memregion_init(unsigned long long size) {
-  window = (char *) malloc (size);
+  posix_memalign((void **) &window, 16, size);
   memregion = (DCMF_Memregion_t **) malloc (sizeof(DCMF_Memregion_t*)*nranks);
   memregion[myrank] = (DCMF_Memregion_t *) malloc (sizeof(DCMF_Memregion_t));
   DCMF_Result result;
@@ -714,14 +856,12 @@ void address_xchange() {
 * Global Barrier                              *
 **********************************************/
 void barrier() {
+
   gb_active = 1;
-  if(!gb_req) {
-     gb_req = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t));
-     DCMF_GlobalBarrier(&gb_reg, gb_req, gb_callback);
-  } else {
-     DCMF_Restart(gb_req);
-  }
+  gb_req = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t));
+  DCMF_GlobalBarrier(&gb_reg, gb_req, gb_callback);
   while(gb_active) DCMF_Messager_advance();
+
 }
 
 /**********************************************

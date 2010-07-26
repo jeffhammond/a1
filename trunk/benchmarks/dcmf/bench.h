@@ -58,7 +58,8 @@
 
 #define ITERATIONS 100 
 #define SKIP 10
-#define MAX_MSG_SIZE 1024*1024*1
+#define CHUNK_SIZE 4*1024 
+#define MAX_MSG_SIZE 1024*1024
 #define VECTOR 16 
 #define MAX_BUF_SIZE MAX_MSG_SIZE*(ITERATIONS+SKIP)
 
@@ -87,10 +88,16 @@ struct rbuf_info {
 *  Global Helper variables             *
 ***************************************/
 int nranks, myrank;
-unsigned long long t_start, t_stop;
-double t_sec, t_usec, t_msec;
-double t_max, t_avg, t_min;
-double clockMHz, bw, bw_avg; 
+volatile unsigned long long t_start, t_stop;
+volatile double t_sec, t_usec, t_msec;
+volatile double t_sec1, t_usec1, t_msec1;
+volatile double t_sec2, t_usec2, t_msec2;
+volatile double t_max, t_avg, t_min;
+volatile double t_max1, t_avg1, t_min1;
+volatile double t_max2, t_avg2, t_min2;
+volatile unsigned long long t_cycles, t_cycles1, t_avg_cycles, t_avg_cycles1;
+volatile unsigned long long t_cycles2, t_avg_cycles2;
+volatile double clockMHz, bw, bw_avg; 
 DCMF_Hardware_t hw;
 
 /***************************************
@@ -122,11 +129,23 @@ int get_count;
 DCMF_Send_Configuration_t snd_conf;
 DCMF_Callback_t snd_callback;
 DCMF_Protocol_t snd_reg;
-DCMF_Request_t snd_rcv_req, *rcv_req;
+DCMF_Request_t snd_rcv_req, rcv_req[ITERATIONS+SKIP];
 volatile int snd_rcv_active, snd_active;
-volatile int target_index, rcv_req_index;
+volatile int target_index, stage_index, rcv_req_index;
+volatile int ispipelined;
 DCQuad *snd_msginfo;
-char *source, *target;
+char *source, *target, *stagebuf;
+
+/**********************************************************
+* Global DCMF structures for Send with remote callback     *
+***********************************************************/
+DCMF_Protocol_t accumulate_snd_reg;
+int datasize;
+
+/**********************************************************
+* Global DCMF structures for Send with remote callback     *
+***********************************************************/
+DCMF_Protocol_t rcb_snd_reg;
 
 /**********************************************
 * Global DCMF structures for Flush Send      *
@@ -196,7 +215,7 @@ DCMF_Request_t m2m_req, m2m_rcv_req;
 DCMF_Protocol_t m2m_reg;
 DCMF_Callback_t m2m_callback, m2m_rcv_callback;
 struct noncontig_header m2m_header;
-volatile unsigned m2m_rcv_active, m2m_active;
+volatile int m2m_rcv_active, m2m_active;
 unsigned rankindex;
 
 /***************************************
@@ -268,6 +287,16 @@ void get_init (DCMF_Get_Protocol, DCMF_Network);
 * Configuring and Registering Send *
 *****************************************/
 void send_init(DCMF_Send_Protocol, DCMF_Network);
+
+/****************************************
+* Configuring and Registering Send *
+*****************************************/
+void accumulate_send_init(DCMF_Send_Protocol, DCMF_Network);
+
+/****************************************
+* Configuring and Registering Send with Remote Callback*
+*****************************************/
+void rcb_send_init(DCMF_Send_Protocol, DCMF_Network);
 
 /**********************************************
 * Configuring and Registering Flush Send      *
