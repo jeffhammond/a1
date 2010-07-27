@@ -26,7 +26,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
     dst_disp = (size_t)dst - (size_t)A1D_Membase_global[A1D_Process_info.my_rank];    
  
     active = 1;
-    result = DCMF_Put(&A1D_Generic_put_protocol,
+    result = DCMF_Get(&A1D_Generic_put_protocol,
                       &request,
                       callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
@@ -36,7 +36,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
                       &A1D_Memregion_global[A1D_Process_info.my_rank],
                       src_disp,
                       dst_disp);
-    A1U_ERR_POP(result,"Put returned with an error \n");
+    A1U_ERR_POP(result,"Get returned with an error \n");
     while (active) A1DI_CRITICAL(DCMF_Messager_advance()); 
 
   fn_exit:

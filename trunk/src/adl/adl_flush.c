@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_AllFence() 
+void A1_Flush(int proc) 
 {
     int status = A1_SUCCESS;
 
@@ -21,12 +21,12 @@ int A1_AllFence()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_AllFence(); 
-    A1U_ERR_POP(status, "allfence returned error\n");
+    status = A1D_Flush(proc); 
+    A1U_ERR_POP(status, "flush returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return;
 
   fn_fail:
     goto fn_exit;

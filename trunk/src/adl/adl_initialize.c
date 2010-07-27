@@ -8,7 +8,8 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Fence(int proc) 
+int A1_Initialize(int thread_level, int num_threads, 
+              int num_memtypes, A1_memtype_t memtypes[])
 {
     int status = A1_SUCCESS;
 
@@ -21,8 +22,9 @@ int A1_Fence(int proc)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Fence(int proc); 
-    A1U_ERR_POP(status, "fence returned error\n");
+    status = A1D_Initialize(thread_level, num_threads, 
+                        num_memtypes, memtypes); 
+    A1U_ERR_POP(status, "device init returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

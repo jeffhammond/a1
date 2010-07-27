@@ -21,19 +21,19 @@
       }                                                           \
     } while (0)                                                   \
 
-typedef struct 
-{
-   int thread_level;
-   int num_threads;
-} 
-A1D_Thread_info_t; 
-
 typedef struct
 {
    uint32_t my_rank;
    uint32_t num_ranks;
 }
 A1D_Process_info_t;
+
+typedef struct 
+{
+   int thread_level;
+   int num_threads;
+} 
+A1D_Thread_info_t; 
 
 /* TODO: Pack header supports only upto 3D arrays. Need to increase structure or 
  * find a better way to represent it */

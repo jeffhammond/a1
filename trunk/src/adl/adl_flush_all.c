@@ -8,8 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Initialize(int thread_level, int num_threads, 
-              int num_memtypes, a1_memtype_t memtypes[])
+void A1_Flush_all() 
 {
     int status = A1_SUCCESS;
 
@@ -22,13 +21,12 @@ int A1_Initialize(int thread_level, int num_threads,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Initialize(thread_level, num_threads, 
-                        num_memtypes, memtypes); 
-    A1U_ERR_POP(status, "device init returned error\n");
+    status = A1D_Flush_all(); 
+    A1U_ERR_POP(status, "flush all returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return;
 
   fn_fail:
     goto fn_exit;

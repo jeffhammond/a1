@@ -16,7 +16,7 @@ A1D_Control_xchange_info_t A1D_Control_xchange_info;
 A1D_Control_fenceack_info_t A1D_Control_fenceack_info;
 A1D_Send_info_t A1D_Send_noncontigput_info;
 A1D_Send_info_t A1D_Send_fence_info;
-A1D_GlobalBarrier_info_t A1D_GlobablBarrier_info;
+A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
 A1D_Request_pool_t A1D_Request_pool;
 
 DCMF_Protocol_t A1D_Generic_put_protocol;
@@ -65,7 +65,7 @@ void A1DI_Unpack(char *packet)
 
      /*Unpacking and Copying data*/
      temp = data;
-     A1D_Unpack_data(temp, header->vaddress, header->trg_stride_ar, header->count,\
+     A1DI_Unpack_data(temp, header->vaddress, header->trg_stride_ar, header->count,\
                  header->stride_levels);  
 
      A1U_FUNC_EXIT();
@@ -321,13 +321,15 @@ int A1DI_Memregion_Global_initialize() {
 DCMF_Result A1DI_Memregion_Global_xchange() {
 
     DCMF_Result result = DCMF_SUCCESS;
-    int rank, bytes;
+    int rank;
 
     A1U_FUNC_ENTER();
 
     A1D_GlobalBarrier();
 
-    A1D_Control_xchange_info.xchange_ptr = &A1D_Memregion_global;
+    /*TODO: Use DCMF_Send operations instead to exploit TORUS network */
+
+    A1D_Control_xchange_info.xchange_ptr = (void *) &A1D_Memregion_global;
     A1D_Control_xchange_info.xchange_size = (uint32_t) sizeof(DCMF_Memregion_t);
     A1D_Control_xchange_info.rcv_active = A1D_Process_info.num_ranks-1; 
     for(rank=0; rank<A1D_Process_info.num_ranks; rank++) {
@@ -336,7 +338,7 @@ DCMF_Result A1DI_Memregion_Global_xchange() {
                      rank, (DCMF_Control_t *) &A1D_Memregion_global[A1D_Process_info.my_rank]);
         }
     }
-    while(A1D_Control_xchange_info.rcv_active) A1DI_CRITICAL(DCMF_Messager_advance());
+    while(A1D_Control_xchange_info.rcv_active) DCMF_Messager_advance();
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -480,13 +482,15 @@ DCMF_Result A1D_Barrier() {
 }
 
 int A1D_Initialize(int thread_level, int num_threads,
-         int num_memtypes, a1_memtype_t memtypes[]) {
+         int num_memtypes, A1_memtype_t memtypes[]) {
 
     DCMF_Result result = DCMF_SUCCESS;
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL(DCMF_Messager_initialize());
+    DCMF_CriticalSection_enter (0);
+
+    DCMF_Messager_initialize();
 
     A1D_Thread_info.thread_level = thread_level;
     A1D_Thread_info.num_threads  = num_threads;
@@ -494,7 +498,7 @@ int A1D_Initialize(int thread_level, int num_threads,
     A1D_Messager_info.thread_level = thread_level;
     A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
 
-    A1D_Process_info.my_rank   = DCMF_Messger_rank();
+    A1D_Process_info.my_rank   = DCMF_Messager_rank();
     A1D_Process_info.num_ranks = DCMF_Messager_size();
 
     result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
@@ -530,6 +534,7 @@ int A1D_Initialize(int thread_level, int num_threads,
     /* FIXME: Need to do stuff here! */
 
   fn_exit:
+    DCMF_CriticalSection_exit (0);
     A1U_FUNC_EXIT();
     return result;
 
