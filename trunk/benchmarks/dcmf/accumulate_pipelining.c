@@ -51,7 +51,7 @@
 #include "bench.h"
 
 #define ITERATIONS_LOCAL 50
-#define MAX_MSG_SIZE_LOCAL 1*1024*1024
+#define MAX_MSG_SIZE_LOCAL 4*1024*1024
 
 void accumulate_pipelining() {
 
