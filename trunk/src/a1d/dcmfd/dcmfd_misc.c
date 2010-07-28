@@ -4,9 +4,6 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "a1.h"
-#include "a1u.h"
-#include "a1d.h"
 #include "dcmfdimpl.h"
 
 void A1D_Rank(int* rank)
@@ -22,3 +19,29 @@ void A1D_Rank(int* rank)
   fn_fail:
     goto fn_exit;
 }
+
+void A1D_Size(int* size)
+{
+    A1U_FUNC_ENTER();
+
+    *size = A1D_Process_info.num_ranks;
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+unsigned long long A1D_Time()
+{
+    A1U_FUNC_ENTER();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return DCMF_Timebase();
+
+  fn_fail:
+    goto fn_exit;
+} 

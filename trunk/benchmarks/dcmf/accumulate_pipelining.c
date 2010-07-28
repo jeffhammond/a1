@@ -50,8 +50,8 @@
 
 #include "bench.h"
 
-#define ITERATIONS_LOCAL 50
-#define MAX_MSG_SIZE_LOCAL 4*1024*1024
+#define ITERATIONS_LOCAL 100
+#define MAX_MSG_SIZE_LOCAL 1*1024*1024
 
 void accumulate_pipelining() {
 
@@ -77,7 +77,7 @@ void accumulate_pipelining() {
            exit(-1);
        }
 
-       /*DCMF_Messager_rank2network(myrank, DCMF_TORUS_NETWORK, &myaddr);
+       DCMF_Messager_rank2network(myrank, DCMF_TORUS_NETWORK, &myaddr);
 
        dstaddr.network = myaddr.network;
        dstaddr.torus.x = (myaddr.torus.x+3)%8;
@@ -85,7 +85,7 @@ void accumulate_pipelining() {
        dstaddr.torus.z = (myaddr.torus.z+3)%8;
        dstaddr.torus.t = myaddr.torus.t;
 
-       DCMF_Messager_network2rank(&dstaddr, &dst, &ntwk);*/
+       DCMF_Messager_network2rank(&dstaddr, &dst, &ntwk);
 
        if(myrank == 0) {
           char buffer[100];
@@ -104,7 +104,6 @@ void accumulate_pipelining() {
            ispipelined = 0;
            barrier();
 
-           /*
            t_start = DCMF_Timebase();
 
            for(j=0; j<ITERATIONS_LOCAL; j++) {
@@ -189,7 +188,7 @@ void accumulate_pipelining() {
               fflush(stdout);
            } 
 
-           barrier();*/ 
+           barrier(); 
 
            t_start = DCMF_Timebase();
 

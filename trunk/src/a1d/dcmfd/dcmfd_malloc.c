@@ -4,9 +4,6 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "a1.h"
-#include "a1u.h"
-#include "a1d.h"
 #include "dcmfdimpl.h"
 
 DCMF_Result A1DI_Memaddress_xchange(void **ptr) {
@@ -16,20 +13,26 @@ DCMF_Result A1DI_Memaddress_xchange(void **ptr) {
 
     A1U_FUNC_ENTER();
 
-    A1D_GlobalBarrier();
+    DCMF_CriticalSection_enter (0);
+
+    /* TODO: Send can be used instead of control messages to take advantage of the TORUS network */
 
     A1D_Control_xchange_info.xchange_ptr = ptr;
     A1D_Control_xchange_info.xchange_size = sizeof(void *);
-    A1D_Control_xchange_info.rcv_active = A1D_Process_info.num_ranks-1;
+    A1D_Control_xchange_info.rcv_active += A1D_Process_info.num_ranks-1;
+
+    A1DI_GlobalBarrier();
+
     for(rank=0; rank<A1D_Process_info.num_ranks; rank++) {
         if(rank != A1D_Process_info.my_rank) {
             DCMF_Control(&A1D_Control_xchange_info.protocol, DCMF_SEQUENTIAL_CONSISTENCY,
                      rank, (DCMF_Control_t *) ptr[A1D_Process_info.my_rank]);
         }
     }
-    while(A1D_Control_xchange_info.rcv_active) A1DI_CRITICAL(DCMF_Messager_advance());
+    while(A1D_Control_xchange_info.rcv_active > 0) A1DI_CRITICAL(DCMF_Messager_advance());
 
   fn_exit:
+    DCMF_CriticalSection_exit (0);
     A1U_FUNC_EXIT();
     return result;
 

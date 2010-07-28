@@ -4,9 +4,6 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "a1.h"
-#include "a1u.h"
-#include "a1d.h"
 #include "dcmfdimpl.h"
 
 DCMF_Configure_t A1D_Messager_info;
@@ -82,7 +79,8 @@ void A1DI_Control_fenceack_callback (void *clientdata, const DCMF_Control_t *inf
 
 
 void A1DI_Control_xchange_callback (void *clientdata, const DCMF_Control_t *info, size_t peer) {
-     memcpy(A1D_Control_xchange_info.xchange_ptr[peer], info, A1D_Control_xchange_info.xchange_size); 
+     memcpy(A1D_Control_xchange_info.xchange_ptr + peer*A1D_Control_xchange_info.xchange_size,\
+         (void *) info, A1D_Control_xchange_info.xchange_size); 
      --(*((uint32_t *) clientdata));
 }
 
@@ -287,6 +285,38 @@ DCMF_Result A1DI_Send_fence_initialize()
     goto fn_exit;
 }
 
+DCMF_Result A1DI_Memregion_Global_xchange() {
+
+    DCMF_Result result = DCMF_SUCCESS;
+    int rank;
+
+    A1U_FUNC_ENTER();
+
+    /*TODO: Use DCMF_Send operations instead to exploit TORUS network */
+
+    A1D_Control_xchange_info.xchange_ptr = (void *) A1D_Memregion_global;
+    A1D_Control_xchange_info.xchange_size = (uint32_t) sizeof(DCMF_Memregion_t);
+    A1D_Control_xchange_info.rcv_active += A1D_Process_info.num_ranks-1;
+
+    A1DI_GlobalBarrier();
+
+    for(rank=0; rank<A1D_Process_info.num_ranks; rank++) {
+        if(rank != A1D_Process_info.my_rank) {
+            DCMF_Control(&A1D_Control_xchange_info.protocol, DCMF_SEQUENTIAL_CONSISTENCY,
+                     rank, (DCMF_Control_t *) &A1D_Memregion_global[A1D_Process_info.my_rank]);
+        }
+    }
+    while(A1D_Control_xchange_info.rcv_active > 0) DCMF_Messager_advance();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+
+}
+
 int A1DI_Memregion_Global_initialize() {
 
     int result = A1_SUCCESS;
@@ -317,38 +347,6 @@ int A1DI_Memregion_Global_initialize() {
   fn_fail:
     goto fn_exit;
 }
-
-DCMF_Result A1DI_Memregion_Global_xchange() {
-
-    DCMF_Result result = DCMF_SUCCESS;
-    int rank;
-
-    A1U_FUNC_ENTER();
-
-    A1D_GlobalBarrier();
-
-    /*TODO: Use DCMF_Send operations instead to exploit TORUS network */
-
-    A1D_Control_xchange_info.xchange_ptr = (void *) &A1D_Memregion_global;
-    A1D_Control_xchange_info.xchange_size = (uint32_t) sizeof(DCMF_Memregion_t);
-    A1D_Control_xchange_info.rcv_active = A1D_Process_info.num_ranks-1; 
-    for(rank=0; rank<A1D_Process_info.num_ranks; rank++) {
-        if(rank != A1D_Process_info.my_rank) {
-            DCMF_Control(&A1D_Control_xchange_info.protocol, DCMF_SEQUENTIAL_CONSISTENCY,
-                     rank, (DCMF_Control_t *) &A1D_Memregion_global[A1D_Process_info.my_rank]);
-        }
-    }
-    while(A1D_Control_xchange_info.rcv_active) DCMF_Messager_advance();
-
-  fn_exit:
-    A1U_FUNC_EXIT();
-    return result;
-
-  fn_fail:
-    goto fn_exit;
-
-}
-
 
 int A1DI_Request_pool_initialize() {
 
@@ -456,29 +454,6 @@ void A1DI_Free_request(A1D_Request_info_t *request) {
 
   fn_fail:
     goto fn_exit;
-}
-
-DCMF_Result A1D_Barrier() { 
-
-    DCMF_Result result = DCMF_SUCCESS;
-    DCMF_Request_t request; 
-
-    A1U_FUNC_ENTER();
-
-    A1D_GlobalBarrier_info.active = 1;
-
-    result = DCMF_GlobalBarrier(&A1D_GlobalBarrier_info.protocol, &request, A1D_GlobalBarrier_info.callback);  
-    A1U_ERR_POP(result,"dcmf global barrier returned with error \n");
-
-    while(A1D_GlobalBarrier_info.active) A1DI_CRITICAL(DCMF_Messager_advance()); 
-
-  fn_exit:
-    A1U_FUNC_EXIT();
-    return result;
-
-  fn_fail:
-    goto fn_exit;    
-
 }
 
 int A1D_Initialize(int thread_level, int num_threads,

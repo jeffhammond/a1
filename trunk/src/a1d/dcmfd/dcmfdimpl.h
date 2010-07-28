@@ -4,6 +4,9 @@
  *      See COPYRIGHT in top-level directory.
  */
 
+#include "a1.h"
+#include "a1u.h"
+#include "a1d.h"
 #include <dcmf.h>
 #include <dcmf_globalcollectives.h>
 #include <dcmf_collectives.h>
@@ -110,3 +113,4 @@ void A1DI_Generic_callback(void *, DCMF_Error_t *);
 
 A1D_Request_info_t* A1DI_Get_request();
 void A1DI_Free_request(A1D_Request_info_t *request);
+int A1DI_GlobalBarrier();

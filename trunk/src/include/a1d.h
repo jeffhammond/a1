@@ -35,4 +35,8 @@ int A1D_Flush_all();
 
 void A1D_Rank(int* rank);
 
+void A1D_Rank(int* size);
+
+unsigned long long A1D_Time();
+
 #endif /* A1D_H_INCLUDED */

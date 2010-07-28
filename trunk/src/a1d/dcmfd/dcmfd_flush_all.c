@@ -4,9 +4,6 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "a1.h"
-#include "a1u.h"
-#include "a1d.h"
 #include "dcmfdimpl.h"
 
 int A1D_Flush_all()
@@ -17,6 +14,8 @@ int A1D_Flush_all()
     DCQuad msginfo;   
  
     A1U_FUNC_ENTER();
+
+    DCMF_CriticalSection_enter (0);
 
     A1D_Control_fenceack_info.rcv_active = A1D_Process_info.num_ranks - 1;
     for(dst = 0; dst < A1D_Process_info.num_ranks; dst++) {
@@ -36,6 +35,7 @@ int A1D_Flush_all()
     while(A1D_Control_fenceack_info.rcv_active) A1DI_CRITICAL(DCMF_Messager_advance());  
 
   fn_exit:
+    DCMF_CriticalSection_exit (0);
     A1U_FUNC_EXIT();
     return result;
 

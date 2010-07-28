@@ -4,9 +4,6 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "a1.h"
-#include "a1u.h"
-#include "a1d.h"
 #include "dcmfdimpl.h"
 
 char* A1DI_Pack_data(char *pointer, void *source_ptr, int *src_stride_ar,\
@@ -86,6 +83,8 @@ int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
  
     A1U_FUNC_ENTER();
 
+    DCMF_CriticalSection_enter (0);
+
     callback.function = A1DI_Generic_callback;
     callback.clientdata = (void *) &active;
 
@@ -107,6 +106,7 @@ int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
     while (active) A1DI_CRITICAL(DCMF_Messager_advance()); 
 
   fn_exit:
+    DCMF_CriticalSection_exit (0);
     A1U_FUNC_EXIT();
     return result;
 

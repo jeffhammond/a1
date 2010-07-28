@@ -4,9 +4,6 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "a1.h"
-#include "a1u.h"
-#include "a1d.h"
 #include "dcmfdimpl.h"
 
 int A1D_Put(int target, void* src, void* dst, int bytes)
@@ -18,6 +15,8 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
     unsigned src_disp, dst_disp;
  
     A1U_FUNC_ENTER();
+
+    DCMF_CriticalSection_enter (0);
 
     callback.function = A1DI_Generic_callback;
     callback.clientdata = (void *) &active;
@@ -38,9 +37,10 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
                       dst_disp,
                       A1D_Nocallback);
     A1U_ERR_POP(result,"Put returned with an error \n");
-    while (active) A1DI_CRITICAL(DCMF_Messager_advance()); 
+    while (active) DCMF_Messager_advance(); 
 
   fn_exit:
+    DCMF_CriticalSection_exit (0);
     A1U_FUNC_EXIT();
     return result;
 

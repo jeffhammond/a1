@@ -83,6 +83,25 @@ typedef int A1_memtype_t;
 /* FIXME: What is the type for A1_group_t. Adding a temporary handle here. */
 typedef int A1_group_t;
 
+
+/* ********************************************************************* */
+/*                                                                       */
+/*               A1 external API - Helper Functions                      */
+/*                                                                       */
+/* ********************************************************************* */
+
+/**
+  * \brief Returns global rank of the process calling it.
+  *
+  * \param[out] rc          Number of cycles from an arbitrary time in the past.
+  *
+  * \see
+  *
+  * \ingroup INFORMATION
+  */
+
+unsigned long long A1_Time();
+
 /* ********************************************************************* */
 /*                                                                       */
 /*               A1 external API - Process Information                   */

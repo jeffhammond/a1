@@ -80,6 +80,8 @@ void rcv_done(void *clientdata, DCMF_Error_t *error) {
 void rcv_accumulate_done(void *clientdata, DCMF_Error_t *error) {
 
      int i, bytes;
+     double spin_start, spin_end;
+     int spin_time;
      
      double *s = (double *) (stagebuf + target_index);
      double *t = (double *) (target + target_index);
@@ -91,6 +93,16 @@ void rcv_accumulate_done(void *clientdata, DCMF_Error_t *error) {
 
      for(i=0; i<bytes/(sizeof(double)); i++)
         t[i] *= s[i];
+
+     /*if(ispipelined == 1) {
+           spin_time = 100;  
+     } else {
+           spin_time = datasize/CHUNK_SIZE; 
+           spin_time = spin_time*100;
+     }
+     spin_start = DCMF_Timebase();
+     spin_end = DCMF_Timebase();
+     while ((spin_end - spin_start)/(clockMHz) < spin_time) spin_end = DCMF_Timebase();*/
 
      target_index = target_index + bytes;
 
@@ -174,11 +186,24 @@ void snd_rcv_accumulate_short(void *clientdata, const DCQuad *msginfo,
                  size_t bytes) {
 
      int i;
+     double spin_start, spin_end;
+     int spin_time;
 
      double *s = (double *) src;
      double *t = (double *) (target + target_index);
      for(i=0; i<bytes/(sizeof(double)); i++)
         t[i] *= s[i];
+
+     /*if(ispipelined == 1) {
+           spin_time = 100;                                                  
+     } else {
+           spin_time = datasize/CHUNK_SIZE;
+           spin_time = spin_time*100;
+     }
+     spin_start = DCMF_Timebase();
+     spin_end = DCMF_Timebase();
+     while ((spin_end - spin_start)/(clockMHz) < spin_time) spin_end = DCMF_Timebase();*/ 
+
      target_index = target_index + bytes;
 
      (*((int *) clientdata)) = (*((int *) clientdata)) - 1;
