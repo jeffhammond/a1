@@ -16,11 +16,11 @@ int A1D_Initialize(int A1_thread_level,
 
 int A1D_Finalize(void);
 
-int A1D_Malloc(void **ptr, int bytes);
+int A1D_Malloc(void **ptr, long bytes);
 
 int A1D_Free(void *ptr);
 
-int A1D_GlobalBarrier();
+void A1D_GlobalBarrier();
 
 int A1D_Put(int target, void* src, void* dst, int bytes);
 
@@ -37,6 +37,6 @@ void A1D_Rank(int* rank);
 
 void A1D_Rank(int* size);
 
-unsigned long long A1D_Time();
+double A1D_Time();
 
 #endif /* A1D_H_INCLUDED */

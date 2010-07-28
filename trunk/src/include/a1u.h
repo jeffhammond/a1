@@ -97,6 +97,14 @@
         }                                                               \
     }
 
+#define A1U_ERR_ABORT(status, ...)                                      \
+    {                                                                   \
+        if (status) {                                                   \
+            A1U_error_printf(__VA_ARGS__);                              \
+            assert(0);                                                  \
+        }                                                               \
+    }
+
 #define A1U_ERR_POP(status, ...)                                        \
     {                                                                   \
         if (status) {                                                   \

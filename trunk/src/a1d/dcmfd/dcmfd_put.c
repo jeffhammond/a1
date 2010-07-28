@@ -10,24 +10,33 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
 {
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
-    DCMF_Callback_t callback;
-    int active;
-    unsigned src_disp, dst_disp;
+    DCMF_Callback_t done_callback, ack_callback;
+    int done_active, ack_active;
+    size_t src_disp, dst_disp;
  
     A1U_FUNC_ENTER();
 
     DCMF_CriticalSection_enter (0);
 
-    callback.function = A1DI_Generic_callback;
-    callback.clientdata = (void *) &active;
+    done_callback.function = A1DI_Generic_callback;
+    done_callback.clientdata = (void *) &done_active;
+    done_active = 1;
+
+    if(enable_scalefree_flush) { 
+        ack_callback.function = A1DI_Generic_callback; 
+        ack_callback.clientdata = (void *) &ack_active;
+        ack_active = 1;
+    } else {
+        ack_callback = A1D_Nocallback;
+        ack_active = 0;
+    }
 
     src_disp = (size_t)src - (size_t)A1D_Membase_global[A1D_Process_info.my_rank];    
-    dst_disp = (size_t)dst - (size_t)A1D_Membase_global[target];    
- 
-    active = 1;
+    dst_disp = (size_t)dst - (size_t)A1D_Membase_global[target];  
+
     result = DCMF_Put(&A1D_Generic_put_protocol,
                       &request,
-                      callback,
+                      done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,  
                       bytes,
@@ -35,9 +44,9 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
                       &A1D_Memregion_global[target],
                       src_disp,
                       dst_disp,
-                      A1D_Nocallback);
+                      ack_callback);
     A1U_ERR_POP(result,"Put returned with an error \n");
-    while (active) DCMF_Messager_advance(); 
+    while (done_active>0 || ack_active>0) DCMF_Messager_advance(); 
 
   fn_exit:
     DCMF_CriticalSection_exit (0);

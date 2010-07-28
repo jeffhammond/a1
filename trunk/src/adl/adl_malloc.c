@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Malloc(void* ptr[], int bytes)
+int A1_Malloc(void* ptr[], long bytes)
 {
     int status = A1_SUCCESS;
 

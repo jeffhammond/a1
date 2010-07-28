@@ -79,7 +79,7 @@ void A1DI_Control_fenceack_callback (void *clientdata, const DCMF_Control_t *inf
 
 
 void A1DI_Control_xchange_callback (void *clientdata, const DCMF_Control_t *info, size_t peer) {
-     memcpy(A1D_Control_xchange_info.xchange_ptr + peer*A1D_Control_xchange_info.xchange_size,\
+     memcpy((void *) ((size_t) A1D_Control_xchange_info.xchange_ptr + (size_t) (peer*A1D_Control_xchange_info.xchange_size)),\
          (void *) info, A1D_Control_xchange_info.xchange_size); 
      --(*((uint32_t *) clientdata));
 }
@@ -288,6 +288,7 @@ DCMF_Result A1DI_Send_fence_initialize()
 DCMF_Result A1DI_Memregion_Global_xchange() {
 
     DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Control_t cmsg;
     int rank;
 
     A1U_FUNC_ENTER();
@@ -295,15 +296,16 @@ DCMF_Result A1DI_Memregion_Global_xchange() {
     /*TODO: Use DCMF_Send operations instead to exploit TORUS network */
 
     A1D_Control_xchange_info.xchange_ptr = (void *) A1D_Memregion_global;
-    A1D_Control_xchange_info.xchange_size = (uint32_t) sizeof(DCMF_Memregion_t);
+    A1D_Control_xchange_info.xchange_size = sizeof(DCMF_Memregion_t);
     A1D_Control_xchange_info.rcv_active += A1D_Process_info.num_ranks-1;
 
     A1DI_GlobalBarrier();
 
+    memcpy((void *) &cmsg, (void *) &A1D_Memregion_global[A1D_Process_info.my_rank], sizeof(DCMF_Memregion_t)); 
     for(rank=0; rank<A1D_Process_info.num_ranks; rank++) {
         if(rank != A1D_Process_info.my_rank) {
             DCMF_Control(&A1D_Control_xchange_info.protocol, DCMF_SEQUENTIAL_CONSISTENCY,
-                     rank, (DCMF_Control_t *) &A1D_Memregion_global[A1D_Process_info.my_rank]);
+                     rank, &cmsg);
         }
     }
     while(A1D_Control_xchange_info.rcv_active > 0) DCMF_Messager_advance();
@@ -329,7 +331,7 @@ int A1DI_Memregion_Global_initialize() {
     A1U_ERR_POP(result = (!A1D_Memregion_global), "Memregion allocation Failed \n"); 
 
     result = DCMF_Memregion_create (&A1D_Memregion_global[A1D_Process_info.my_rank], &out,
-                 -1, NULL, 0);
+                 (size_t) -1, NULL, 0);
     A1U_ERR_POP(result,"Global Memory Registration Failed \n");
 
     result = A1DI_Memregion_Global_xchange();
@@ -337,8 +339,11 @@ int A1DI_Memregion_Global_initialize() {
 
     A1D_Membase_global = (void **) malloc (sizeof(void *) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(result = (!A1D_Membase_global), "Membase allocation Failed \n");
-    for (i=0; i<A1D_Process_info.num_ranks; i++) 
-        DCMF_Memregion_query(&A1D_Memregion_global[i], &out, (void *) &A1D_Membase_global[i]);
+
+    for (i=0; i<A1D_Process_info.num_ranks; i++) { 
+        result =  DCMF_Memregion_query(&A1D_Memregion_global[i], &out, (void **) &A1D_Membase_global[i]);
+        A1U_ERR_POP(result, "Memregion query failed \n");
+    }
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -475,9 +480,12 @@ int A1D_Initialize(int thread_level, int num_threads,
 
     A1D_Process_info.my_rank   = DCMF_Messager_rank();
     A1D_Process_info.num_ranks = DCMF_Messager_size();
+    DCMF_Hardware(&(A1D_Process_info.hw));
 
     result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
-    A1U_ERR_POP(result,"global barrier initialize returned with error \n");      
+    A1U_ERR_POP(result,"global barrier initialize returned with error \n");     
+
+    A1DI_Read_parameters();
 
     result = A1DI_Control_xchange_initialize();
     A1U_ERR_POP(result,"control xchange initialize returned with error \n");

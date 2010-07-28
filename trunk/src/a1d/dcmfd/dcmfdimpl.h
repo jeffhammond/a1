@@ -10,9 +10,20 @@
 #include <dcmf.h>
 #include <dcmf_globalcollectives.h>
 #include <dcmf_collectives.h>
+#include <assert.h>
+
+/*************************************************
+ *                 Constants                     *
+ ************************************************/
+
+#define A1C_ENABLE_SCALEFREE_FLUSH 0 
 
 #define A1C_REQUEST_POOL_INITIAL 1000
 #define A1C_REQUEST_POOL_INCREMENT 100
+
+/*************************************************
+ *                  Macros                       *
+ *************************************************/
 
 #define A1DI_CRITICAL(call) do {                                  \
       if(A1D_Thread_info.thread_level > A1_THREAD_SERIALIZED) {   \
@@ -24,10 +35,15 @@
       }                                                           \
     } while (0)                                                   \
 
+/*************************************************
+ *             Data Structures                   *
+ *************************************************/
+
 typedef struct
 {
-   uint32_t my_rank;
-   uint32_t num_ranks;
+   size_t my_rank;
+   size_t num_ranks;
+   DCMF_Hardware_t hw;
 }
 A1D_Process_info_t;
 
@@ -67,9 +83,9 @@ typedef struct
 typedef struct
 {
    DCMF_Protocol_t protocol;
-   uint32_t rcv_active;
+   size_t rcv_active;
    void **xchange_ptr;
-   uint32_t xchange_size;
+   size_t xchange_size;
 } A1D_Control_xchange_info_t;
 
 typedef struct
@@ -92,6 +108,10 @@ typedef struct
    uint32_t active;
 } A1D_GlobalBarrier_info_t;
 
+/*************************************************
+ *             Global variables                  *
+ ************************************************/
+
 extern A1D_Thread_info_t A1D_Thread_info;
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
@@ -108,9 +128,18 @@ extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
 
 extern void **A1D_Membase_global;
+extern uint32_t enable_scalefree_flush; 
+
+/************************************************* 
+ *             Function Prototypes               *
+ ************************************************/
 
 void A1DI_Generic_callback(void *, DCMF_Error_t *);
 
 A1D_Request_info_t* A1DI_Get_request();
+
 void A1DI_Free_request(A1D_Request_info_t *request);
-int A1DI_GlobalBarrier();
+
+void A1DI_GlobalBarrier();
+
+void A1DI_Read_parameters();

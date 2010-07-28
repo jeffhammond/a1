@@ -3,7 +3,8 @@
 #     See COPYRIGHT in top-level directory.
 #
 
-liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmfd/dcmfd_initialize.c \
+liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmfd/dcmfd_param.c \
+        $(top_srcdir)/src/a1d/dcmfd/dcmfd_initialize.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_finalize.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_malloc.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_free.c \
@@ -13,4 +14,4 @@ liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmfd/dcmfd_initialize.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_puts.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_get.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_collectives.c \
-	$(top_srcdir)/src/a1d/dcmfd/dcmfd_misc.c
+	$(top_srcdir)/src/a1d/dcmfd/dcmfd_misc.c 

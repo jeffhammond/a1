@@ -6,7 +6,7 @@
 
 #include "dcmfdimpl.h"
 
-int A1DI_GlobalBarrier()
+void A1DI_GlobalBarrier()
 {
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
@@ -17,19 +17,30 @@ int A1DI_GlobalBarrier()
     result = DCMF_GlobalBarrier(&A1D_GlobalBarrier_info.protocol,
                        &request,
                        A1D_GlobalBarrier_info.callback);
-    A1U_ERR_POP(result,"Global Barrier failed \n");
+    A1U_ERR_ABORT(result,"Global Barrier failed \n");
     while(A1D_GlobalBarrier_info.active) A1DI_CRITICAL(DCMF_Messager_advance());
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return result;
+    return;
 
   fn_fail:
     goto fn_exit;
 }
 
-#define A1D_GlobalBarrier() do{                        \\
-      DCMF_CriticalSection_enter (0);                  \\
-      A1DI_GlobalBarrier();                            \\
-      DCMF_CriticalSection_exit (0);                   \\
-} while(0);                                            \\    
+void A1D_GlobalBarrier() { 
+
+    A1U_FUNC_ENTER();
+
+    DCMF_CriticalSection_enter (0);                  
+    A1DI_GlobalBarrier();                            
+    DCMF_CriticalSection_exit (0);                   
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+
+}

@@ -51,7 +51,7 @@ void A1_Size(int* size)
 }
 
 
-unsigned long long A1_Time()
+double A1_Time()
 {
     A1U_FUNC_ENTER();
 

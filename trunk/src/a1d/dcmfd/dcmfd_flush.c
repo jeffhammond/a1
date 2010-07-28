@@ -14,6 +14,10 @@ int A1D_Flush(int proc)
   
     A1U_FUNC_ENTER();
 
+    if(enable_scalefree_flush) {
+       return result;  
+    }
+
     DCMF_CriticalSection_enter (0);
 
     /* FIXME: Need to do stuff here! */

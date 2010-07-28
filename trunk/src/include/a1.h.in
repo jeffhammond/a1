@@ -93,14 +93,14 @@ typedef int A1_group_t;
 /**
   * \brief Returns global rank of the process calling it.
   *
-  * \param[out] rc          Number of cycles from an arbitrary time in the past.
+  * \param[out] rc          Number of secs from an arbitrary time in the past.
   *
   * \see
   *
   * \ingroup INFORMATION
   */
 
-unsigned long long A1_Time();
+double A1_Time();
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -209,7 +209,7 @@ int A1_Abort(int error_code, char error_message[]);
   * \ingroup MEMORY
   */
 
-int A1_Malloc(void* ptr[], int bytes);
+int A1_Malloc(void* ptr[], long bytes);
 
 
 /**
@@ -467,6 +467,21 @@ int A1_CopyAcc(int source, int target, void* source_ptr, void* target_ptr, int b
 /*               A1 external API - completion and synchronization         */
 /*                                                                        */
 /* ********************************************************************** */
+
+/**
+  * \brief On return, this call ensures that all processes have reached this
+  *        point in the program.
+  *
+  *        This operation is collective and blocking.
+  *
+  * \param[in] group          Group of processes to synchronize.
+  *
+  * \see A1_Flush, A1_AllFlush, A1_Sync, A1_Barrier.
+  *
+  * \ingroup SYNCHRONIZATION
+  */
+
+void A1_GlobalBarrier();
 
 /**
   * \brief On return, this call ensures that all processes within the entire group

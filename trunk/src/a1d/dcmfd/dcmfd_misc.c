@@ -34,13 +34,17 @@ void A1D_Size(int* size)
     goto fn_exit;
 }
 
-unsigned long long A1D_Time()
+double A1D_Time()
 {
+    double time;
+
     A1U_FUNC_ENTER();
+
+    time = (double) DCMF_Timebase() / ((double) (A1D_Process_info.hw.clockMHz * 1000000));
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return DCMF_Timebase();
+    return time;
 
   fn_fail:
     goto fn_exit;

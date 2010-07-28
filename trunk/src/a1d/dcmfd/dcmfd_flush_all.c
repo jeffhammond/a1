@@ -15,6 +15,10 @@ int A1D_Flush_all()
  
     A1U_FUNC_ENTER();
 
+    if(enable_scalefree_flush) {
+       return result;
+    }
+
     DCMF_CriticalSection_enter (0);
 
     A1D_Control_fenceack_info.rcv_active = A1D_Process_info.num_ranks - 1;
