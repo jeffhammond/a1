@@ -87,21 +87,21 @@ void put_contention() {
      int size_count = sizeof(size_array)/sizeof(int);
 
      int disp_array[][3] = {{0, 0, 1},
-                            {0, 0, 16},
-                            {0, 16, 16},
-                            {16, 16, 16},
-                            {0, 1, 16},
-                            {1, 1, 16},
-                            {0, 4, 16},
-                            {1, 4, 16},
-                            {4, 4, 16},
-                            {0, 8, 16}, 
-                            {1, 8, 16}, 
-                            {4, 8, 16}, 
-                            {8, 8, 16}, 
-                            {1, 16, 16}, 
-                            {4, 16, 16}, 
-                            {8, 16, 16} }; 
+                            {0, 0, 15},
+                            {0, 15, 15},
+                            {15, 15, 15},
+                            {0, 1, 15},
+                            {1, 1, 15},
+                            {0, 4, 15},
+                            {1, 4, 15},
+                            {4, 4, 15},
+                            {0, 8, 15}, 
+                            {1, 8, 15}, 
+                            {4, 8, 15}, 
+                            {8, 8, 15}, 
+                            {1, 15, 15}, 
+                            {4, 15, 15}, 
+                            {8, 15, 15} }; 
      int disp_count = sizeof(disp_array)/(sizeof(int)*3);
 
      for(s=0; s<size_count; s++) {
@@ -161,7 +161,7 @@ void put_contention() {
               if(myrank == 0) {
                 bw_avg = bw_avg/nranks;
                 sprintf(buf, "(%d)(%d)(%d)", xdisp, ydisp, zdisp);
-                printf("%30s %20.0f \n", buf, bw_avg);
+                printf("%30s %20.2f \n", buf, bw_avg);
                 fflush(stdout);
               }
         }
