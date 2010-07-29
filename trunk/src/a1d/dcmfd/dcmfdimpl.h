@@ -44,15 +44,13 @@ typedef struct
    size_t my_rank;
    size_t num_ranks;
    DCMF_Hardware_t hw;
-}
-A1D_Process_info_t;
+} A1D_Process_info_t;
 
 typedef struct 
 {
-   int thread_level;
-   int num_threads;
-} 
-A1D_Thread_info_t; 
+   size_t thread_level;
+   size_t num_threads;
+} A1D_Thread_info_t; 
 
 /* TODO: Pack header supports only upto 3D arrays. Need to increase structure or 
  * find a better way to represent it */
@@ -128,6 +126,7 @@ extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
 
 extern void **A1D_Membase_global;
+extern uint32_t *A1D_Connection_active;
 extern uint32_t enable_scalefree_flush; 
 
 /************************************************* 

@@ -23,7 +23,7 @@ int A1D_Flush_all()
 
     A1D_Control_fenceack_info.rcv_active = A1D_Process_info.num_ranks - 1;
     for(dst = 0; dst < A1D_Process_info.num_ranks; dst++) {
-      if(dst != A1D_Process_info.my_rank) {
+      if(dst != A1D_Process_info.my_rank && A1D_Connection_active[dst] > 0) {
          result = DCMF_Send(&A1D_Send_fence_info.protocol,
                        &request[dst],
                        A1D_Nocallback,
@@ -36,7 +36,9 @@ int A1D_Flush_all()
       }
     }
     A1U_ERR_POP(result,"Send returned with an error \n");
-    while(A1D_Control_fenceack_info.rcv_active) A1DI_CRITICAL(DCMF_Messager_advance());  
+    while(A1D_Control_fenceack_info.rcv_active>0) DCMF_Messager_advance(); 
+
+    memset(A1D_Connection_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks); 
 
   fn_exit:
     DCMF_CriticalSection_exit (0);

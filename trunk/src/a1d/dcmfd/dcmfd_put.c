@@ -29,6 +29,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
     } else {
         ack_callback = A1D_Nocallback;
         ack_active = 0;
+        A1D_Connection_active[target]++;
     }
 
     src_disp = (size_t)src - (size_t)A1D_Membase_global[A1D_Process_info.my_rank];    

@@ -22,6 +22,7 @@ DCMF_Callback_t A1D_Nocallback;
 DCMF_Memregion_t *A1D_Memregion_global;
 
 void **A1D_Membase_global;
+uint32_t *A1D_Connection_active;
 
 char* A1DI_Unpack_data(char *pointer, void *trg_ptr, int *trg_stride_ar,\
         int *count, int stride_level)
@@ -345,6 +346,10 @@ int A1DI_Memregion_Global_initialize() {
         A1U_ERR_POP(result, "Memregion query failed \n");
     }
 
+    A1D_Connection_active = (uint32_t *) malloc(sizeof(uint32_t) * A1D_Process_info.num_ranks);
+    A1U_ERR_POP(result = (!A1D_Connection_active), "Connection active buffer allocation Failed \n");
+    memset(A1D_Connection_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
+
   fn_exit:
     A1U_FUNC_EXIT();
     return result;
@@ -508,11 +513,11 @@ int A1D_Initialize(int thread_level, int num_threads,
     result = A1DI_Send_fence_initialize();
     A1U_ERR_POP(result,"Send fence initialize returned with error \n");
 
-    result = A1DI_Memregion_Global_initialize();
-    A1U_ERR_POP(result,"Memregion list initialize returned with error \n");    
-
     result = A1DI_Request_pool_initialize();
     A1U_ERR_POP(result,"Request initialization failed \n");
+
+    result = A1DI_Memregion_Global_initialize();
+    A1U_ERR_POP(result,"Memregion list initialize returned with error \n");    
 
     /* FIXME: Need to do stuff here! */
 

@@ -13,6 +13,8 @@ void A1DI_GlobalBarrier()
 
     A1U_FUNC_ENTER();
 
+    DCMF_CriticalSection_enter (0);
+
     A1D_GlobalBarrier_info.active=1;
     result = DCMF_GlobalBarrier(&A1D_GlobalBarrier_info.protocol,
                        &request,
@@ -21,6 +23,7 @@ void A1DI_GlobalBarrier()
     while(A1D_GlobalBarrier_info.active) A1DI_CRITICAL(DCMF_Messager_advance());
 
   fn_exit:
+    DCMF_CriticalSection_exit (0);
     A1U_FUNC_EXIT();
     return;
 

@@ -103,7 +103,7 @@ int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
                       &msginfo,
                       1);
     A1U_ERR_POP(result,"Send returned with an error \n");
-    while (active) A1DI_CRITICAL(DCMF_Messager_advance()); 
+    while (active > 0) DCMF_Messager_advance(); 
 
   fn_exit:
     DCMF_CriticalSection_exit (0);
