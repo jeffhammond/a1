@@ -91,7 +91,7 @@ typedef int A1_group_t;
 /* ********************************************************************* */
 
 /**
-  * \brief Returns global rank of the process calling it.
+  * \brief Timer in units of cycles.
   *
   * \param[out] rc          Number of secs from an arbitrary time in the past.
   *
@@ -100,7 +100,19 @@ typedef int A1_group_t;
   * \ingroup INFORMATION
   */
 
-double A1_Time();
+unsigned long long A1_Time_cycles();
+
+/**
+  * \brief Timer in units of seconds.
+  *
+  * \param[out] rc          Number of secs from an arbitrary time in the past.
+  *
+  * \see
+  *
+  * \ingroup INFORMATION
+  */
+
+double A1_Time_seconds();
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -109,9 +121,9 @@ double A1_Time();
 /* ********************************************************************* */
 
 /**
-  * \brief Returns global rank of the process calling it. 
+  * \brief Returns global process rank of the process calling it.
   *
-  * \param[out] rank          Global rank of the process.
+  * \param[out] rank          Global process rank of the process.
   *
   * \see 
   *
@@ -119,6 +131,18 @@ double A1_Time();
   */
 
 void A1_Rank(int* rank);
+
+/**
+  * \brief Returns global node rank of the process calling it.
+  *
+  * \param[out] rank          Global node rank of the process.
+  *
+  * \see
+  *
+  * \ingroup INFORMATION
+  */
+
+void A1_Node(int* rank);
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -152,9 +176,9 @@ void A1_Rank(int* rank);
   */
 
 int A1_Initialize(int A1_thread_level, 
-                  int A1_num_threads, 
-                  int A1_num_memtypes, 
-                  A1_memtype_t A1_memtypes[]);
+                int A1_num_threads,
+                int A1_num_memtypes,
+                A1_memtype_t A1_memtypes[]);
 
 /**
   * \brief Terminates the A1 environment normally.
@@ -192,38 +216,6 @@ int A1_Abort(int error_code, char error_message[]);
 /*               A1 external API - memory                                */
 /*                                                                       */
 /* ********************************************************************* */
-
-/**
-  * \brief A collective operation to allocate memory to be used in context of A1 copy operations.
-  *
-  * \note Memory allocated with this function will be properly aligned for the architecture.
-  *
-  * \warning Memory allocated with this function must be freed by A1_Free.
-  *
-  * \param[out] rc            The error code.
-  * \param[out] ptr[]         Array of pointers, each representing a region a process.
-  * \param[in]  bytes         The amount of memory requested.
-  *
-  * \see A1_Free
-  *
-  * \ingroup MEMORY
-  */
-
-int A1_Malloc(void* ptr[], long bytes);
-
-
-/**
-  * \brief A collective operation to free memory allocated by an A1_Malloc call.
-  *
-  * \param[out] rc            The error code.
-  * \param[in]  ptr           Pointer to the allocated memory.
-  *
-  * \see A1_Exchange_segments
-  *
-  * \ingroup MEMORY
-  */
-
-int A1_Free(void* ptr);
 
 /**
   * \brief A local operation to allocate memory to be used in context of A1 copy operations.
@@ -349,8 +341,8 @@ int A1_Put(int target, void* source_ptr, void* target_ptr, int bytes);
   * \ingroup MEMORY
   */
 
-int A1_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
-         int *trg_stride_ar, int *count, int stride_levels);
+int A1_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
+                int *trg_stride_ar, int *count, int stride_levels);
 
 /**
   * \brief Blocking accumulate of contiguous data from local memory onto remote memory.
@@ -368,7 +360,8 @@ int A1_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
   * \ingroup MEMORY
   */
 
-int A1_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes, A1_datatype a1_type, void* scaling);
+int A1_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
+                A1_datatype a1_type, void* scaling);
 
 /**
   * \brief Blocking copy of contiguous data from remote memory to local memory.
@@ -403,8 +396,8 @@ int A1_Get(int target, void* source_ptr, void* target_ptr, int bytes);
   * \ingroup MEMORY
   */
 
-int A1_GetS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
-         int *trg_stride_ar, int *count, int stride_levels); 
+int A1_GetS(int target, void* source_ptr, int src_stride_ar[], void* target_ptr,
+                int trg_stride_ar[], int *count, int stride_levels);
 
 /**
   * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
@@ -422,7 +415,8 @@ int A1_GetS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
   * \ingroup MEMORY
   */
 
-int A1_GetAcc(int target, void* source_ptr, void* target_ptr, int bytes, A1_datatype a1_type, void* scaling);
+int A1_GetAcc(int target, void* source_ptr, void* target_ptr, int bytes,
+                A1_datatype a1_type, void* scaling);
 
 /**
   * \brief Blocking copy of contiguous data from remote memory to remote memory.
@@ -458,7 +452,8 @@ int A1_Copy(int source, int target, void* source_ptr, void* target_ptr, int byte
   * \ingroup MEMORY
   */
 
-int A1_CopyAcc(int source, int target, void* source_ptr, void* target_ptr, int bytes, A1_datatype a1_type, void* scaling);
+int A1_CopyAcc(int source, int target, void* source_ptr, void* target_ptr, int bytes,
+                A1_datatype a1_type, void* scaling);
 
 /* FIXME: More API functions to come */
 
