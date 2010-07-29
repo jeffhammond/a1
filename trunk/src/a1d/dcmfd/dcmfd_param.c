@@ -16,8 +16,6 @@ void A1DI_Read_parameters() {
 
     if ((value = getenv("A1_ENABLE_SCALEFREE_FLUSH")) != NULL) {
         enable_scalefree_flush = atoi(value);
-        printf("[%d] value : %d \n", A1D_Process_info.my_rank ,value);
-        fflush(stdout);
     }
 
   fn_exit:

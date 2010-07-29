@@ -61,8 +61,8 @@ int main() {
    int i, rank, nranks, msgsize;
    int memtype = 1;
    long bufsize;
-   char **target;
-   char *source; 
+   char **source;
+   char *target; 
    double t_start, t_stop, t_latency;
    
    A1_Initialize(A1_THREAD_SINGLE, 1, 1, &memtype); 
@@ -70,22 +70,23 @@ int main() {
    A1_Rank(&rank); 
    A1_Size(&nranks);
 
-   target = (char **) malloc (sizeof(char *) * nranks); 
+   source = (char **) malloc (sizeof(char *) * nranks); 
 
    A1_GlobalBarrier();
 
    bufsize = MAX_MSG_SIZE*ITERATIONS;
-   source = (char *) malloc(bufsize);
-   A1_Malloc((void **) target, bufsize); 
+   target = (char *) malloc(bufsize);
+   A1_Malloc((void **) source, bufsize); 
 
    for(i=0; i<bufsize; i++) {
-     *(target[rank] + i) = '*';
-     *(source + i) = '-';
+     *(source[rank] + i) = '*';
+     *(target + i) = '-';
    }
 
    if(rank == 0) {
-     printf("A1_Put Latency - local and remote completions - in usec \n");
-     printf("%20s %22s %22s\n", "Message Size", "Latency-LocalCompelte", "Latency-RemoteComplete");
+
+     printf("A1_Get Latency in usec \n");
+     printf("%20s %22s \n", "Message Size", "Latency");
      fflush(stdout);
 
      for(msgsize=1; msgsize<MAX_MSG_SIZE; msgsize*=2) {
@@ -95,24 +96,11 @@ int main() {
             if(i == SKIP)
                 t_start = A1_Time();              
 
-            A1_Put(1, (void *) ((size_t)source + (size_t)(i*msgsize)), (void *) ((size_t)target[1] + (size_t)(i*msgsize)), msgsize); 
+            A1_Get(1, (void *) ((size_t)source[1] + (size_t)(i*msgsize)), (void *) ((size_t)target + (size_t)(i*msgsize)), msgsize); 
 
         }
         t_stop = A1_Time();
-        printf("%20d %20.2f", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
-        fflush(stdout);
-
-        for(i=0; i<ITERATIONS+SKIP; i++) {
-
-            if(i == SKIP)
-                t_start = A1_Time();
-
-            A1_Put(1, (void *) ((size_t)source + (size_t)(i*msgsize)), (void *) ((size_t)target[1] + (size_t)(i*msgsize)), msgsize);
-            A1_Flush(1);
-
-        }
-        t_stop = A1_Time();
-        printf("%20.2f \n", ((t_stop-t_start)*1000000)/ITERATIONS);
+        printf("%20d %20.2f \n", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
         fflush(stdout);
 
      }
@@ -121,7 +109,7 @@ int main() {
 
    A1_GlobalBarrier();  
 
-   A1_Free(target[rank]); 
+   A1_Free(source[rank]); 
  
    A1_Finalize();
 
