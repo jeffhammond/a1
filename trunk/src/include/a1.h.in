@@ -37,11 +37,13 @@ extern "C" {
  * the same meaning as the MPI descriptors of similar name.
  *
  * A1_THREAD_MATCHED only requires one to lock the generic A1 stack
- * and not any of the memory types since they are dedicated.
+ * and not any of the channels they are dedicated.
  *
  * A1_THREAD_GENERAL requires locking on the A1 stack as well as the
- * memory type(s).  A1 should internally decide the best way to implement 
+ * channel(s).  A1 should internally decide the best way to implement
  * this protocol.
+ *
+ * \ingroup ENUMS
  *
  */
 
@@ -52,12 +54,22 @@ typedef enum
                                  only the main thread makes A1 calls. */
     A1_THREAD_SERIALIZED,   /**< There are multiple threads present and each 
                                  can make A1 calls, but never simultaneously. */
-    A1_THREAD_MATCHED,      /**< Each A1 memory type is accessed from only one thread. 
+    A1_THREAD_MATCHED,      /**< Each A1 channel is accessed from only one thread.
                                  For example, one thread communicates remotely via 
                                  the network and another communicates with a GPU. */
-    A1_THREAD_GENERAL       /**< Any A1 memtype can be accessed from any thread. */
+    A1_THREAD_GENERAL       /**< Any A1 channel can be accessed from any thread. */
 }
-    A1_thread_level;
+A1_thread_level;
+
+/**
+ * \brief Datatype support within A1.
+ *
+ * \note A1 does not support complex numbers yet.  This is okay because
+ *       imaginary numbers don't exist, by definition :-)
+ *
+ * \ingroup ENUMS
+ *
+ */
 
 typedef enum
 {
@@ -68,7 +80,22 @@ typedef enum
     A1_FLOAT,         /**< single-precision */
     A1_DOUBLE,        /**< double-precision */
 }
-    A1_datatype;
+A1_datatype;
+
+/**
+ * \brief Non-blocking status values A1.
+ *
+ * \ingroup ENUMS
+ *
+ */
+
+typedef enum
+{
+    A1_NONE,         /**< no handles are complete  */
+    A1_SOME,         /**< some handles are complete  */
+    A1_ALL,          /**< all handles are complete */
+}
+A1_datatype;
 
 
 /* ********************************************************************* */
@@ -77,12 +104,23 @@ typedef enum
 /*                                                                       */
 /* ********************************************************************* */
 
-/* FIXME: What is the type for A1_memtype_t. Adding a temporary handle here. */
-typedef int A1_memtype_t;
-
 /* FIXME: What is the type for A1_group_t. Adding a temporary handle here. */
 typedef int A1_group_t;
 
+/**
+ * \brief A1 non-blocking handle type.
+ *
+ * \see
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
+typedef struct
+{
+        volatile int active; /**< can use as aggregate handle by incrementing beyond 1 */
+}
+A1_handle_t;
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -93,9 +131,12 @@ typedef int A1_group_t;
 /**
   * \brief Timer in units of cycles.
   *
+  * \warning This function is not guaranteed to produce correct results for
+  *          arbitrarily-long durations.
+  *
   * \param[out] rc          Number of secs from an arbitrary time in the past.
   *
-  * \see
+  * \see A1_Time_seconds
   *
   * \ingroup INFORMATION
   */
@@ -107,7 +148,7 @@ unsigned long long A1_Time_cycles();
   *
   * \param[out] rc          Number of secs from an arbitrary time in the past.
   *
-  * \see
+  * \see A1_Time_cycles
   *
   * \ingroup INFORMATION
   */
@@ -123,6 +164,9 @@ double A1_Time_seconds();
 /**
   * \brief Returns global process rank of the process calling it.
   *
+  * \note Jeff hates MPI-style function style where return value is an argument
+  *       passed by reference for the sake of Fortran compatibility.
+  *
   * \param[out] rank          Global process rank of the process.
   *
   * \see 
@@ -130,10 +174,13 @@ double A1_Time_seconds();
   * \ingroup INFORMATION 
   */
 
-void A1_Rank(int* rank);
+int A1_Rank(void);
 
 /**
   * \brief Returns global node rank of the process calling it.
+  *
+  * \note Jeff hates MPI-style function style where return value is an argument
+  *       passed by reference for the sake of Fortran compatibility.
   *
   * \param[out] rank          Global node rank of the process.
   *
@@ -142,7 +189,7 @@ void A1_Rank(int* rank);
   * \ingroup INFORMATION
   */
 
-void A1_Node(int* rank);
+int A1_Node(void);
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -153,7 +200,7 @@ void A1_Node(int* rank);
 /**
   * \brief Initializes the Al environment.
   *
-  * This routine initializes one or more memory types that 
+  * This routine initializes one or more channels that
   * may be used in the course of a program.
   *
   * \warning This must be the first A1 call made in any code
@@ -167,18 +214,15 @@ void A1_Node(int* rank);
   * \param[out] rc               The error code from initalizing A1
   * \param[in]  A1_thread_level  The type of thread support for A1
   * \param[in]  A1_num_threads   The number of threads A1 supports
-  * \param[in]  A1_num_memtypes  Number of memory types to initialize
-  * \param[in]  A1_memtypes[]    Array of memory types to initialize
+  * \param[in]  A1_num_channel  Number of channels to initialize
+  * \param[in]  A1_channels[]    Array of channels to initialize
   *
   * \see A1_thread_level, A1_memtype_t
   *
   * \ingroup MANAGEMENT
   */
 
-int A1_Initialize(int A1_thread_level, 
-                int A1_num_threads,
-                int A1_num_memtypes,
-                A1_memtype_t A1_memtypes[]);
+int A1_Initialize(int A1_thread_level);
 
 /**
   * \brief Terminates the A1 environment normally.
@@ -236,26 +280,6 @@ int A1_Abort(int error_code, char error_message[]);
 int A1_Alloc_segment(void** pointer, int bytes);
 
 /**
-  * \brief A local operation to register memory to be used in context of A1 copy operations.
-  *
-  * \note Memory allocated with this function will be tested for proper alignment and return
-  *       an error if alignment checking has been disabled and the pointer is not properly aligned.
-  *
-  * \note A1_Register_segment will check for valid allocation of the memory provided,
-  *       potentially by writing "\0" to all bytes.
-  *
-  * \param[out] rc            The error code.
-  * \param[in]  ptr           Pointer to memory.
-  * \param[in]  bytes         The amount of memory provided.
-  *
-  * \see A1_Alloc_segment, A1_Free_segment
-  *
-  * \ingroup MEMORY
-  */
-
-int A1_Register_segment(void** pointer, int bytes);
-
-/**
   * \brief A local operation to free memory allocated by A1_Alloc_segment.
   *
   * \warning It is erroneous to attempt to free memory not allocated by A1_Alloc_segment.
@@ -271,9 +295,35 @@ int A1_Register_segment(void** pointer, int bytes);
 int A1_Free_segment(void* pointer);
 
 /**
+  * \brief A local operation to register memory to be used in context of A1 copy operations.
+  *
+  * \note This call is not necessary for memory allocated with A1_Alloc_segment.
+  *
+  * \note Memory allocated with this function will be tested for proper alignment and return
+  *       an error if alignment checking has been disabled and the pointer is not properly aligned.
+  *
+  * \note A1_Register_segment will check for valid allocation of the memory provided,
+  *       potentially by writing "\0" to all bytes.
+  *
+  * \note This call may not work in all contexts.  For example, CUDA provides no API call to
+  *       register pre-allocated memory.
+  *
+  * \param[out] rc            The error code.
+  * \param[in]  ptr           Pointer to memory.
+  * \param[in]  bytes         The amount of memory provided.
+  *
+  * \see A1_Alloc_segment, A1_Free_segment
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_Register_segment(void** pointer, int bytes);
+
+/**
   * \brief A collective operation to allocate memory to be used in context of A1 copy operations.
   *
-  * \note The size specified at each process should be the same.
+  * \note There is no local de-registration call because that would lead to erroneous programs.
+  *       De-registration can only be effected by a call to A1_Release_segments, which is collective.
   *
   * \param[out] rc            The error code.
   * \param[in]  group         Group of processes within which the pointer list is exchanged.
@@ -287,7 +337,8 @@ int A1_Free_segment(void* pointer);
 int A1_Exchange_segments(A1_group_t* group, void* ptr[], int bytes);
 
 /**
-  * \brief A collective operation to free memory allocated by an A1_Malloc call.
+  * \brief A collective operation to invalidate and de-register memory segments
+  *        associated with an A1_Exchange_segments call.
   *
   * \param[out] rc            The error code.
   * \param[in]  group         Group of processes within which the pointer list was exchanged.
@@ -317,12 +368,28 @@ int A1_Release_segments(A1_group_t* group, void* ptr);
   * \param[in]  target_ptr    Starting address in the (remote) target memory.
   * \param[in]  bytes         Amount of data to transfer, in bytes.
   * 
-  * \see A1_Get, A1_Copy, A1_PutAcc
+  * \see A1_PutS, A1_PutV, A1_MultiPut, A1_MultiPutS, A1_MultiPutV
   *
   * \ingroup MEMORY
   */
 
 int A1_Put(int target, void* source_ptr, void* target_ptr, int bytes);
+
+/**
+  * \brief Blocking copy of contiguous data from local memory to remote memory.
+  *
+  * \param[out] rc            The error code.
+  * \param[in]  target        Vector of remote process ranks.
+  * \param[in]  source_ptr    Vector of starting addresses in the (local) source memory.
+  * \param[in]  target_ptr    Vector of starting addresses in the (remote) target memory.
+  * \param[in]  bytes         Vector of quantity of data to transfer, in bytes.
+  *
+  * \see A1_Put, A1_PutS, A1_PutV, A1_MultiPutS, A1_MultiPutV
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_MultiPut(int target[], void* source_ptr[], void* target_ptr[], int bytes[]);
 
 /**
   * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -336,13 +403,35 @@ int A1_Put(int target, void* source_ptr, void* target_ptr, int bytes);
   * \param[in]  count           Block size in each dimension, in bytes.
   * \param[in]  stride_levels   The number of levels of stride.
   *
+  * \see A1_Put, A1_PutV, A1_MultiPut, A1_MultiPutS, A1_MultiPutV
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_PutS(int target, void* source_ptr, int src_stride_ar[], void* target_ptr,
+                int trg_stride_ar[], int count[], int stride_levels);
+
+/**
+  * \brief Blocking copy of contiguous data from local memory to remote memory.
+  *
+  * \note This call must be use the same stride-level across all targets.
+  *
+  * \param[out] rc              The error code.
+  * \param[in]  target          Vector of remote process ranks.
+  * \param[in]  source_ptr      Vector of starting in the (local) source memory.
+  * \param[in]  src_stride_ar   Vector of arrays of stride distances at source, in bytes.
+  * \param[in]  target_ptr      Vector of starting in the (remote) target memory.
+  * \param[in]  trg_stride_ar   Vector of arrays of stride distances at target, in bytes.
+  * \param[in]  count           Vector of block sizes in each dimension, in bytes.
+  * \param[in]  stride_levels   Number of levels of stride.
+  *
   * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
   *
   * \ingroup MEMORY
   */
 
-int A1_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
-                int *trg_stride_ar, int *count, int stride_levels);
+int A1_MultiPutS(int target[], void* source_ptr[], int src_stride_ar[][], void* target_ptr[],
+                   int trg_stride_ar[][], int count[][], int stride_levels);
 
 /**
   * \brief Blocking accumulate of contiguous data from local memory onto remote memory.
@@ -364,6 +453,27 @@ int A1_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
                 A1_datatype a1_type, void* scaling);
 
 /**
+  * \brief Blocking copy of contiguous data from local memory to remote memory.
+  *
+  * \param[out] rc              The error code.
+  * \param[in]  target          Rank of the remote process.
+  * \param[in]  source_ptr      Starting address in the (local) source memory.
+  * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+  * \param[in]  target_ptr      Starting address in the (remote) target memory.
+  * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
+  * \param[in]  count           Block size in each dimension, in bytes.
+  * \param[in]  stride_levels   The number of levels of stride.
+  *
+  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_PutAccS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
+                 int *trg_stride_ar, int *count, int stride_levels,
+                 A1_datatype a1_type, void* scaling);
+
+/**
   * \brief Blocking copy of contiguous data from remote memory to local memory.
   *
   * \param[out] rc            The error code.
@@ -378,6 +488,24 @@ int A1_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
   */
 
 int A1_Get(int target, void* source_ptr, void* target_ptr, int bytes);
+
+/**
+  * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
+  *
+  * \param[out] rc            The error code.
+  * \param[in]  target        Rank of the remote process.
+  * \param[in]  source_ptr    Starting address in the (remote) source memory.
+  * \param[in]  target_ptr    Starting address in the (local) target memory.
+  * \param[in]  bytes         Amount of data to transfer, in bytes.
+  * \param[in]  a1_type       Amount of data to transfer, in bytes.
+  * \param[in]  scaling       Factor for scaling source
+  *
+  * \see A1_Put, A1_Copy
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_MultiGet(int target[], void* source_ptr[], void* target_ptr[], int bytes[]);
 
 /**
   * \brief Blocking copy of contiguous data from remote memory to local memory.
@@ -397,7 +525,27 @@ int A1_Get(int target, void* source_ptr, void* target_ptr, int bytes);
   */
 
 int A1_GetS(int target, void* source_ptr, int src_stride_ar[], void* target_ptr,
-                int trg_stride_ar[], int *count, int stride_levels);
+             int trg_stride_ar[], int count[], int stride_levels);
+
+/**
+  * \brief Blocking copy of contiguous data from remote memory to local memory.
+  *
+  * \param[out] rc              The error code.
+  * \param[in]  target          Rank of the remote process.
+  * \param[in]  source_ptr      Starting address in the (remote) source memory.
+  * \param[in]  src_stride_ar   Array of stride distances at (remote process) source, in bytes.
+  * \param[in]  target_ptr      Starting address in the (local) target memory.
+  * \param[in]  trg_stride_ar   Array of stride distances at (local process) target, in bytes.
+  * \param[in]  count           Block size in each dimension, in bytes.
+  * \param[in]  stride_levels   The number of levels of stride.
+  *
+  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_MultiGetS(int target[], void* source_ptr[], int src_stride_ar[][], void* target_ptr[],
+             int trg_stride_ar[][], int count[][], int stride_levels);
 
 /**
   * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
@@ -417,6 +565,28 @@ int A1_GetS(int target, void* source_ptr, int src_stride_ar[], void* target_ptr,
 
 int A1_GetAcc(int target, void* source_ptr, void* target_ptr, int bytes,
                 A1_datatype a1_type, void* scaling);
+
+/**
+  * \brief Blocking copy of contiguous data from local memory to remote memory.
+  *
+  * \param[out] rc              The error code.
+  * \param[in]  target          Rank of the remote process.
+  * \param[in]  source_ptr      Starting address in the (local) source memory.
+  * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+  * \param[in]  target_ptr      Starting address in the (remote) target memory.
+  * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
+  * \param[in]  count           Block size in each dimension, in bytes.
+  * \param[in]  stride_levels   The number of levels of stride.
+  *
+  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+  *
+  * \ingroup MEMORY
+  */
+
+int A1_GetAccS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
+                 int *trg_stride_ar, int *count, int stride_levels,
+                 A1_datatype a1_type, void* scaling);
+
 
 /**
   * \brief Blocking copy of contiguous data from remote memory to remote memory.
@@ -459,7 +629,7 @@ int A1_CopyAcc(int source, int target, void* source_ptr, void* target_ptr, int b
 
 /* ********************************************************************** */
 /*                                                                        */
-/*               A1 external API - completion and synchronization         */
+/*               A1 external API - synchronization and completion         */
 /*                                                                        */
 /* ********************************************************************** */
 
@@ -491,7 +661,37 @@ void A1_GlobalBarrier();
   * \ingroup SYNCHRONIZATION
   */
 
-void A1_Barrier(A1_group_t* group);
+void A1_GroupBarrier(A1_group_t* group);
+
+/**
+  * \brief On return, this call ensures that all outstanding blocking put or accumulate
+  *        operations are complete remotely within the entire group.
+  *
+  *        This operation is collective and blocking.  It has the effect of
+  *        A1_Flush_all called from every process in the group followed by A1_GlobalBarrier.
+  *
+  * \see A1_GroupSync, A1_GlobalBarrier, A1_Flush_all.
+  *
+  * \ingroup SYNCHRONIZATION
+  */
+
+void A1_GlobalSync();
+
+/**
+  * \brief On return, this call ensures that all outstanding blocking put or accumulate
+  *        operations are complete remotely within the entire group.
+  *
+  *        This operation is collective and blocking.  It has the effect of
+  *        A1_Flush_group called from every process in the group followed by A1_GroupBarrier.
+  *
+  * \param[in] group          Group of processes to synchronize.
+  *
+  * \see A1_GlobalSync, A1_GroupBarrier, A1_Flush_group.
+  *
+  * \ingroup SYNCHRONIZATION
+  */
+
+void A1_GroupSync(A1_group_t* group);
 
 /**
   * \brief On return, this call ensure that all blocking put or accumulate operations
@@ -552,20 +752,80 @@ void A1_Flush_group(A1_group_t* group);
 void A1_Flush_all();
 
 /**
-  * \brief On return, this call ensures that all outstanding blocking put or accumulate
-  *        operations are complete remotely within the entire group.
+  * \brief Blocks on completion of a non-blocking handle.
   *
-  *        This operation is collective and blocking.  It comes the effect of
-  *        A1_Flush_group called from every process in the group followed by A1_Barrier.
+  * \param[in] handle      Non-blocking handle upon which to be waited.
   *
-  * \param[in] group          Group of processes to synchronize.
-  *
-  * \see A1_Flush, A1_Flush_list, A1_FLush_group, A1_Flush_all.
+  * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
   *
   * \ingroup SYNCHRONIZATION
   */
 
-void A1_Sync(A1_group_t* group);
+int A1_Wait_handle(A1_handle_t* handle);
+
+/**
+  * \brief Blocks on completion of all elements in a vector of non-blocking handles.
+  *
+  * \param[in] count        Number of handles in vector.
+  * \param[in] handles      Vector of non-blocking handles upon which to be waited.
+  *
+  * \see A1_handle_t, A1_Wait_handle, A1_Test_handle_list
+  *
+  * \ingroup SYNCHRONIZATION
+  */
+
+int A1_Wait_handle_list(int count, A1_handle_t* handles[]);
+
+/**
+  * \brief Blocks on completion of a non-blocking handle.
+  *
+  * \param[in] handle      Non-blocking handle upon which to be waited.
+  *
+  * \see A1_handle_t, A1_Wait_handle, A1_Test_handle_list
+  *
+  * \ingroup SYNCHRONIZATION
+  */
+
+int A1_Test_handle(A1_handle_t* handle, int completed);
+
+/**
+  * \brief Blocks on completion of all elements in a vector of non-blocking handles.
+  *
+  * \param[in]  count        Number of handles in vector.
+  * \param[in]  handles      Vector of non-blocking handles upon which to be waited.
+  * \param[out] completed    Number of handles which are completed.
+  *
+  * \see A1_handle_t, A1_Test_handle, A1_Wait_handle_list
+  *
+  * \ingroup SYNCHRONIZATION
+  */
+
+int A1_Test_handle_list(int count, A1_handle_t* handles[], int completed);
+
+/**
+  * \brief Resets a non-blocking handle.
+  *
+  * \param[in] handle      Non-blocking handle to be reset.
+  *
+  * \see A1_handle_t, A1_Reset_handle_list
+  *
+  * \ingroup SYNCHRONIZATION
+  */
+
+int A1_Reset_handle(A1_handle_t* handle);
+
+/**
+  * \brief Resets a non-blocking handle.
+  *
+  * \param[in]  count        Number of handles in vector.
+  * \param[in] handle      Non-blocking handle to be reset.
+  *
+  * \see A1_handle_t, A1_Reset_handle
+  *
+  * \ingroup SYNCHRONIZATION
+  */
+
+int A1_Reset_handle_list(int count, A1_handle_t* handle);
 
 /* FIXME: More API functions to come */
 
