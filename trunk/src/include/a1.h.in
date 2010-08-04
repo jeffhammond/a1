@@ -82,22 +82,6 @@ typedef enum
 }
 A1_datatype;
 
-/**
- * \brief Non-blocking status values A1.
- *
- * \ingroup ENUMS
- *
- */
-
-typedef enum
-{
-    A1_NONE,         /**< no handles are complete  */
-    A1_SOME,         /**< some handles are complete  */
-    A1_ALL,          /**< all handles are complete */
-}
-A1_nbstatus;
-
-
 /* ********************************************************************* */
 /*                                                                       */
 /*               A1 data structures                                      */
