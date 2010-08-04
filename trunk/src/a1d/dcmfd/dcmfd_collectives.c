@@ -31,12 +31,17 @@ void A1DI_GlobalBarrier()
     goto fn_exit;
 }
 
-void A1D_GlobalBarrier() { 
+void A1D_Barrier(A1_group_t* group) { 
 
     A1U_FUNC_ENTER();
 
-    DCMF_CriticalSection_enter (0);                  
-    A1DI_GlobalBarrier();                            
+    DCMF_CriticalSection_enter (0);
+
+    if(group == A1_GROUP_WORLD) {
+      A1DI_GlobalBarrier();                            
+      goto fn_exit;
+    }
+
     DCMF_CriticalSection_exit (0);                   
 
   fn_exit:

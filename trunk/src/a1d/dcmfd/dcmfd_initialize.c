@@ -7,7 +7,6 @@
 #include "dcmfdimpl.h"
 
 DCMF_Configure_t A1D_Messager_info;
-A1D_Thread_info_t A1D_Thread_info;
 A1D_Process_info_t A1D_Process_info;
 A1D_Control_xchange_info_t A1D_Control_xchange_info;
 A1D_Control_fenceack_info_t A1D_Control_fenceack_info;
@@ -24,7 +23,7 @@ DCMF_Memregion_t *A1D_Memregion_global;
 void **A1D_Membase_global;
 uint32_t *A1D_Connection_active;
 
-char* A1DI_Unpack_data(char *pointer, void *trg_ptr, int *trg_stride_ar,\
+char* A1DI_Unpack_data(void *pointer, void *trg_ptr, int *trg_stride_ar,\
         int *count, int stride_level)
 {
      int i, size;
@@ -38,8 +37,8 @@ char* A1DI_Unpack_data(char *pointer, void *trg_ptr, int *trg_stride_ar,\
                                 count, stride_level-1);
          }
      } else {
-         memcpy(trg_ptr, (void *)pointer, count[0]);
-         pointer += count[0];
+         memcpy(trg_ptr, pointer, count[0]);
+         pointer = (void *)((size_t)pointer + count[0]);
      }
 
   fn_exit:
@@ -50,19 +49,18 @@ char* A1DI_Unpack_data(char *pointer, void *trg_ptr, int *trg_stride_ar,\
      goto fn_exit;
 }
 
-void A1DI_Unpack(char *packet)
+void A1DI_Unpack(void *packet)
 {
      int i, size_data;
-     char *data, *temp;
+     void *temp;
      A1D_Pack_header_t *header;
 
      A1U_FUNC_ENTER();
 
      header = (A1D_Pack_header_t *) packet;
-     data = packet + sizeof(A1D_Pack_header_t);
 
      /*Unpacking and Copying data*/
-     temp = data;
+     temp = (void *)((size_t)packet + sizeof(A1D_Pack_header_t));
      A1DI_Unpack_data(temp, header->vaddress, header->trg_stride_ar, header->count,\
                  header->stride_levels);  
 
@@ -86,20 +84,20 @@ void A1DI_Control_xchange_callback (void *clientdata, const DCMF_Control_t *info
 }
 
 void A1DI_RecvDone_noncontigput_callback (void *clientdata, DCMF_Error_t *error) {
-     A1DI_Unpack((char *) clientdata);
+     A1DI_Unpack((void *) clientdata);
      free(clientdata);
 }
 
 void A1DI_RecvSendShort_noncontigput_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
                              const char *src, size_t bytes) {
-     A1DI_Unpack((char *) src); 
+     A1DI_Unpack((void *) src); 
 }
 
 DCMF_Request_t* A1DI_RecvSend_noncontigput_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,\
                              size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
      /*TODO: Need to handle memory allocation failure here*/   
      *rcvlen = sndlen;
-     posix_memalign((void **) &rcvbuf, 64, sndlen);
+     posix_memalign((void **) &rcvbuf, 16, sndlen);
     
      cb_done->function = A1DI_RecvDone_noncontigput_callback;
      cb_done->clientdata = (void *) rcvbuf;
@@ -466,8 +464,7 @@ void A1DI_Free_request(A1D_Request_info_t *request) {
     goto fn_exit;
 }
 
-int A1D_Initialize(int thread_level, int num_threads,
-         int num_memtypes, A1_memtype_t memtypes[]) {
+int A1D_Initialize(int thread_level) {
 
     DCMF_Result result = DCMF_SUCCESS;
 
@@ -476,9 +473,6 @@ int A1D_Initialize(int thread_level, int num_threads,
     DCMF_CriticalSection_enter (0);
 
     DCMF_Messager_initialize();
-
-    A1D_Thread_info.thread_level = thread_level;
-    A1D_Thread_info.num_threads  = num_threads;
 
     A1D_Messager_info.thread_level = thread_level;
     A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;

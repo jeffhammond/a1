@@ -6,11 +6,13 @@
 
 #include "dcmfdimpl.h"
 
-int A1D_Free(void *ptr)
+int A1D_Release_segments(A1_group_t* group, void *ptr)
 {
     DCMF_Result result = DCMF_SUCCESS;
 
     A1U_FUNC_ENTER();
+
+    A1DI_GlobalBarrier();
 
     free(ptr);
 

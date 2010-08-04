@@ -27,7 +27,7 @@
  *************************************************/
 
 #define A1DI_CRITICAL(call) do {                                  \
-      if(A1D_Thread_info.thread_level > A1_THREAD_SERIALIZED) {   \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) {   \
         DCMF_CriticalSection_enter(0);                            \
         call;                                                     \
         DCMF_CriticalSection_exit(0);                             \
@@ -46,12 +46,6 @@ typedef struct
    size_t num_ranks;
    DCMF_Hardware_t hw;
 } A1D_Process_info_t;
-
-typedef struct 
-{
-   size_t thread_level;
-   size_t num_threads;
-} A1D_Thread_info_t; 
 
 /* TODO: Pack header supports only upto 3D arrays. Need to increase structure or 
  * find a better way to represent it */

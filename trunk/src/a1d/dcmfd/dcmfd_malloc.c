@@ -43,7 +43,7 @@ DCMF_Result A1DI_Memaddress_xchange(void **ptr) {
 
 }
 
-int A1D_Malloc(void **ptr, long bytes)
+int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes)
 {
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Memregion_t *memregion;

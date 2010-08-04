@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-void A1_Rank(int* rank) 
+int A1_Rank() 
 {
     A1U_FUNC_ENTER();
 
@@ -19,17 +19,15 @@ void A1_Rank(int* rank)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    A1D_Rank(rank);
-
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
+    return A1D_Rank();
 
   fn_fail:
     goto fn_exit;
 }
 
-void A1_Size(int* size)
+int A1_Size()
 {
     A1U_FUNC_ENTER();
 
@@ -40,18 +38,16 @@ void A1_Size(int* size)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    A1D_Size(size);
-
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
+    return A1D_Size();
 
   fn_fail:
     goto fn_exit;
 }
 
 
-double A1_Time()
+double A1_Time_seconds()
 {
     A1U_FUNC_ENTER();
 
@@ -64,7 +60,27 @@ double A1_Time()
 
   fn_exit:
     A1U_FUNC_EXIT();  
-    return A1D_Time();
+    return A1D_Time_seconds();
+
+  fn_fail:
+    goto fn_exit;
+}
+
+
+unsigned long long A1_Time_cycles()
+{
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return A1D_Time_cycles();
 
   fn_fail:
     goto fn_exit;

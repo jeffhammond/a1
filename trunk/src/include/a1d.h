@@ -9,18 +9,15 @@
 #if !defined A1D_H_INCLUDED
 #define A1D_H_INCLUDED
 
-int A1D_Initialize(int A1_thread_level,
-               int A1_num_threads,
-               int A1_num_memtypes,
-               A1_memtype_t A1_memtypes[]);
+int A1D_Initialize(int A1_thread_level);
 
 int A1D_Finalize(void);
 
-int A1D_Malloc(void **ptr, long bytes);
+int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes);
 
-int A1D_Free(void *ptr);
+int A1D_Release_segments(A1_group_t* group, void *ptr);
 
-void A1D_GlobalBarrier();
+void A1D_Barrier(A1_group_t* group);
 
 int A1D_Put(int target, void* src, void* dst, int bytes);
 
@@ -33,10 +30,12 @@ int A1D_Flush(int proc);
 
 int A1D_Flush_all();
 
-void A1D_Rank(int* rank);
+int A1D_Rank();
 
-void A1D_Rank(int* size);
+int A1D_Size();
 
-double A1D_Time();
+double A1D_Time_seconds();
+
+unsigned long long A1D_Time_cycles();
 
 #endif /* A1D_H_INCLUDED */

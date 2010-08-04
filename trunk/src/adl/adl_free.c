@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Free(void* ptr)
+int A1_Release_segments(A1_group_t* group, void* ptr)
 {
     int status = A1_SUCCESS;
 
@@ -21,8 +21,8 @@ int A1_Free(void* ptr)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Free(ptr);
-    A1U_ERR_POP(status, "free returned error\n");
+    status = A1D_Release_segments(group, ptr);
+    A1U_ERR_POP(status, "Release segements returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

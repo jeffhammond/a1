@@ -6,35 +6,31 @@
 
 #include "dcmfdimpl.h"
 
-void A1D_Rank(int* rank)
+int A1D_Rank()
 {
     A1U_FUNC_ENTER();
 
-    *rank = A1D_Process_info.my_rank;
-
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
+    return A1D_Process_info.my_rank;
 
   fn_fail:
     goto fn_exit;
 }
 
-void A1D_Size(int* size)
+int A1D_Size()
 {
     A1U_FUNC_ENTER();
 
-    *size = A1D_Process_info.num_ranks;
-
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
+    return A1D_Process_info.num_ranks;
 
   fn_fail:
     goto fn_exit;
 }
 
-double A1D_Time()
+double A1D_Time_seconds()
 {
     double time;
 
@@ -49,3 +45,16 @@ double A1D_Time()
   fn_fail:
     goto fn_exit;
 } 
+
+
+unsigned long long A1D_Time_cycles()
+{
+    A1U_FUNC_ENTER();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return DCMF_Timebase(); 
+
+  fn_fail:
+    goto fn_exit;
+}

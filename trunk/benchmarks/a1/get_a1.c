@@ -72,11 +72,11 @@ int main() {
 
    source = (char **) malloc (sizeof(char *) * nranks); 
 
-   A1_GlobalBarrier();
+   A1_Barrier(A1_GROUP_WORLD);
 
    bufsize = MAX_MSG_SIZE*ITERATIONS;
    target = (char *) malloc(bufsize);
-   A1_Malloc((void **) source, bufsize); 
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) source, bufsize); 
 
    for(i=0; i<bufsize; i++) {
      *(source[rank] + i) = '*';
@@ -94,12 +94,12 @@ int main() {
         for(i=0; i<ITERATIONS+SKIP; i++) { 
 
             if(i == SKIP)
-                t_start = A1_Time();              
+                t_start = A1_Time_seconds();              
 
             A1_Get(1, (void *) ((size_t)source[1] + (size_t)(i*msgsize)), (void *) ((size_t)target + (size_t)(i*msgsize)), msgsize); 
 
         }
-        t_stop = A1_Time();
+        t_stop = A1_Time_seconds();
         printf("%20d %20.2f \n", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
         fflush(stdout);
 
@@ -107,9 +107,9 @@ int main() {
 
    }
 
-   A1_GlobalBarrier();  
+   A1_Barrier(A1_GROUP_WORLD); 
 
-   A1_Free(source[rank]); 
+   A1_Release_segments(A1_GROUP_WORLD, source[rank]); 
  
    A1_Finalize();
 

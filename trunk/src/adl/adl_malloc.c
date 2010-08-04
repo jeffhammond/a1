@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Malloc(void* ptr[], long bytes)
+int A1_Exchange_segments(A1_group_t* group, void* ptr[], int bytes)
 {
     int status = A1_SUCCESS;
 
@@ -21,8 +21,8 @@ int A1_Malloc(void* ptr[], long bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Malloc(ptr, bytes);
-    A1U_ERR_POP(status, "malloc returned error\n");
+    status = A1D_Exchange_segments(group, ptr, bytes);
+    A1U_ERR_POP(status, "Exchange segments returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
