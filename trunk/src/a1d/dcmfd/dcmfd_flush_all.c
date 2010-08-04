@@ -23,7 +23,7 @@ int A1D_Flush_all()
     int batched = batches * A1C_FLUSHALL_BATCH_SIZE;
     int remainder = A1D_Process_info.num_ranks - batched;
 
-    DCMF_CriticalSection_enter(0);
+    A1DI_CRITICAL_ENTER();
 
     for(b = 0; b < batches; b++) {
         A1D_Control_fenceack_info.rcv_active = A1C_FLUSHALL_BATCH_SIZE - 1;
@@ -42,8 +42,7 @@ int A1D_Flush_all()
           }
         }
         A1U_ERR_POP(result,"Send returned with an error \n");
-        while(A1D_Control_fenceack_info.rcv_active>0) DCMF_Messager_advance();
-        DCMF_CriticalSection_cycle(0);
+        while(A1D_Control_fenceack_info.rcv_active>0) A1D_Advance();
     }
     if( remainder > 0 ) {
         A1D_Control_fenceack_info.rcv_active = remainder - 1;
@@ -62,12 +61,12 @@ int A1D_Flush_all()
           }
         }
         A1U_ERR_POP(result,"Send returned with an error \n");
-        while(A1D_Control_fenceack_info.rcv_active>0) DCMF_Messager_advance();
+        while(A1D_Control_fenceack_info.rcv_active>0) A1D_Advance();
     }
     memset(A1D_Connection_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
 
   fn_exit:
-    DCMF_CriticalSection_exit(0);
+  A1DI_CRITICAL_EXIT();;
     A1U_FUNC_EXIT();
     return result;
 
