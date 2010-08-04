@@ -95,7 +95,7 @@ typedef enum
     A1_SOME,         /**< some handles are complete  */
     A1_ALL,          /**< all handles are complete */
 }
-A1_datatype;
+A1_nbstatus;
 
 
 /* ********************************************************************* */
@@ -439,8 +439,8 @@ int A1_PutS(int target, void* source_ptr, int src_stride_ar[], void* target_ptr,
   * \ingroup MEMORY
   */
 
-int A1_MultiPutS(int count, int target[], void* source_ptr[], int src_stride_ar[][], void* target_ptr[],
-                   int trg_stride_ar[][], int count[][], int stride_levels);
+int A1_MultiPutS(int target_count, int target[], void* source_ptr[], int **src_stride_ar, void* target_ptr[],
+                   int **trg_stride_ar, int **count, int stride_levels);
 
 /**
   * \brief Blocking accumulate of contiguous data from local memory onto remote memory.
