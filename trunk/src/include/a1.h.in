@@ -104,8 +104,15 @@ A1_datatype;
 /*                                                                       */
 /* ********************************************************************* */
 
-/* FIXME: What is the type for A1_group_t. Adding a temporary handle here. */
-typedef int A1_group_t;
+/* FIXME: What is the type for A1_group_t. Adding a temporary structure here. */
+typedef struct A1_group{
+
+
+} A1_group_t;
+
+A1_group_t a1_group_world;
+
+#define A1_GROUP_WORLD &a1_group_world
 
 /**
  * \brief A1 non-blocking handle type.
@@ -548,8 +555,8 @@ int A1_GetS(int target, void* source_ptr, int src_stride_ar[], void* target_ptr,
   * \ingroup MEMORY
   */
 
-int A1_MultiGetS(int count, int target[], void* source_ptr[], int src_stride_ar[][], void* target_ptr[],
-             int trg_stride_ar[][], int count[][], int stride_levels);
+int A1_MultiGetS(int target_count, int target[], void* source_ptr[], int **src_stride_ar, void* target_ptr[],
+             int **trg_stride_ar, int **count, int stride_levels);
 
 /**
   * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
