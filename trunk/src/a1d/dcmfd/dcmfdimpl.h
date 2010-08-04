@@ -105,7 +105,6 @@ typedef struct
  *             Global variables                  *
  ************************************************/
 
-extern A1D_Thread_info_t A1D_Thread_info;
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
 extern A1D_Control_fenceack_info_t A1D_Control_fenceack_info;
