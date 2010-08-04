@@ -16,6 +16,8 @@
  *                 Constants                     *
  ************************************************/
 
+#define A1C_ALIGNMENT 16
+
 #define A1C_ENABLE_SCALEFREE_FLUSH 0 
 #define A1C_FLUSHALL_BATCH_SIZE 512
 
@@ -26,7 +28,7 @@
  *                  Macros                       *
  *************************************************/
 
-#define A1DI_CRITICAL(call) do {                                  \
+#define A1DI_CRITICAL_CALL(call) do {                             \
       if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) {   \
         DCMF_CriticalSection_enter(0);                            \
         call;                                                     \
@@ -34,7 +36,27 @@
       } else {                                                    \
         call;                                                     \
       }                                                           \
-    } while (0)                                                   \
+    } while (0)
+
+#define A1DI_CRITICAL_ENTER() do {                                  \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) {   \
+        DCMF_CriticalSection_enter(0);                            \
+      }                                                           \
+    } while (0)      \
+
+#define A1DI_CRITICAL_EXIT() do {                                  \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) {   \                                                  \
+        DCMF_CriticalSection_exit(0);                            \
+      }                                                           \
+    } while (0)      \
+
+#define A1D_Advance() do {                                  \
+      if(!A1D_Messager_info.cht_enabled) {   \
+        DCMF_Messager_advance(0);                            \
+      }                                                           \
+    } while (0)      \
+
+
 
 /*************************************************
  *             Data Structures                   *
