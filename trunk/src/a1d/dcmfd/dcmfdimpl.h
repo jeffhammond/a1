@@ -17,6 +17,7 @@
  ************************************************/
 
 #define A1C_ENABLE_SCALEFREE_FLUSH 0 
+#define A1C_FLUSHALL_BATCH_SIZE 512
 
 #define A1C_REQUEST_POOL_INITIAL 1000
 #define A1C_REQUEST_POOL_INCREMENT 100

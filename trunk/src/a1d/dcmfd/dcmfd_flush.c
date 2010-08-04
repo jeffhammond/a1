@@ -24,7 +24,7 @@ int A1D_Flush(int proc)
 
     DCMF_CriticalSection_enter (0);
 
-    /* FIXME: Need to do stuff here! */
+    /* FIXME: Need to do stuff here!  What stuff? */
     A1D_Control_fenceack_info.rcv_active = 1; 
     result = DCMF_Send(&A1D_Send_fence_info.protocol,
                        &request,
