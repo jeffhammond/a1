@@ -18,13 +18,16 @@
 
 #define A1C_ALIGNMENT 16
 
+#define A1C_ENABLE_CHT 1
+
 #define A1C_PACKING_LIMIT 512
 
 #define A1C_ENABLE_SCALEFREE_FLUSH 0 
-#define A1C_FLUSHALL_PENDING_LIMIT 99999 
+#define A1C_FLUSHALL_PENDING_LIMIT 512 
 
-#define A1C_REQUEST_POOL_INITIAL 1000
-#define A1C_REQUEST_POOL_INCREMENT 100
+#define A1C_REQUEST_POOL_INITIAL 200
+#define A1C_REQUEST_POOL_INCREMENT 50
+#define A1C_REQUEST_POOL_LIMIT 500
 
 /*************************************************
  *                  Macros                       *
@@ -53,7 +56,7 @@
     } while (0)                                                   \
 
 #define A1D_Advance() do {                                        \
-      if(!A1D_Messager_info.cht_enabled) {                        \
+      if(!a1_enable_cht) {                                        \
         DCMF_Messager_advance(0);                                 \
       }                                                           \
     } while (0)                                                   \
@@ -85,7 +88,6 @@ typedef struct
 typedef struct A1D_Request_info_t
 {
    DCMF_Request_t request;
-   uint32_t active;
    struct A1D_Request_info_t *next;
    struct A1D_Request_info_t *prev;
 } A1D_Request_info_t;
@@ -93,8 +95,8 @@ typedef struct A1D_Request_info_t
 typedef struct 
 {
    A1D_Request_info_t *head;
-   A1D_Request_info_t *tail;
    A1D_Request_info_t *current;
+   A1D_Request_info_t *tail;
 } A1D_Request_pool_t;
 
 typedef struct
@@ -148,10 +150,15 @@ extern void **A1D_Put_Flushcounter_ptr;
 extern uint32_t *A1D_Connection_send_active;
 extern uint32_t *A1D_Connection_put_active;
 
+extern uint32_t a1_enable_cht;
 extern uint32_t a1_enable_scalefree_flush; 
 extern uint32_t a1_alignment;
 extern uint32_t a1_packing_limit;
 extern uint32_t a1_flushall_pending_limit;
+extern uint32_t a1_request_pool_initial; 
+extern uint32_t a1_request_pool_increment; 
+extern uint32_t a1_request_pool_limit; 
+extern uint32_t a1_request_pool_size; 
 
 /************************************************* 
  *             Function Prototypes               *
@@ -159,7 +166,7 @@ extern uint32_t a1_flushall_pending_limit;
 
 void A1DI_Generic_done(void *, DCMF_Error_t *);
 
-A1D_Request_info_t* A1DI_Get_request();
+DCMF_Request_t* A1DI_Get_request();
 
 void A1DI_Free_request(A1D_Request_info_t *request);
 

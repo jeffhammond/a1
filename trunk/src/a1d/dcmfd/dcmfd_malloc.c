@@ -31,7 +31,7 @@ DCMF_Result A1DI_Memaddress_xchange(void **ptr) {
                      rank, &cmsg);
         }
     }
-    while(A1D_Control_xchange_info.rcv_active > 0) DCMF_Messager_advance();
+    while(A1D_Control_xchange_info.rcv_active > 0) A1D_Advance();
 
   fn_exit:
     A1DI_CRITICAL_EXIT();

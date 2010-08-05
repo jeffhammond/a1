@@ -25,6 +25,8 @@ void **A1D_Put_Flushcounter_ptr;
 uint32_t *A1D_Connection_send_active;
 uint32_t *A1D_Connection_put_active;
 
+uint32_t a1_request_pool_size; 
+
 char* A1DI_Unpack_data(void *pointer, void *trg_ptr, int *trg_stride_ar,\
         int *count, int stride_level)
 {
@@ -321,7 +323,7 @@ DCMF_Result A1DI_Put_flush_initialize()
                      rank, &cmsg);
         }
     }
-    while(A1D_Control_xchange_info.rcv_active > 0) DCMF_Messager_advance();   
+    while(A1D_Control_xchange_info.rcv_active > 0) A1D_Advance();   
 
     /* Allocating memory for vector thats tracks connections with active puts */
     posix_memalign((void **) &A1D_Connection_put_active, 16, sizeof(uint32_t) * A1D_Process_info.num_ranks);
@@ -359,7 +361,7 @@ DCMF_Result A1DI_Memregion_Global_xchange() {
                      rank, &cmsg);
         }
     }
-    while(A1D_Control_xchange_info.rcv_active > 0) DCMF_Messager_advance();
+    while(A1D_Control_xchange_info.rcv_active > 0) A1D_Advance();
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -411,8 +413,9 @@ int A1DI_Request_pool_initialize() {
 
     A1U_FUNC_ENTER();
 
-    posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)*A1C_REQUEST_POOL_INITIAL); 
+    posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)*a1_request_pool_initial); 
     A1U_ERR_POP(result = !request,"memory allocation for request pool failed \n");
+    a1_request_pool_size = a1_request_pool_initial;
 
     A1D_Request_pool.head = request;
     A1D_Request_pool.current = request;
@@ -440,8 +443,9 @@ int A1DI_Request_pool_increment() {
 
     A1U_FUNC_ENTER();
 
-    posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)*A1C_REQUEST_POOL_INCREMENT);
+    posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)*a1_request_pool_increment);
     A1U_ERR_POP(result = !request,"memory allocation for request pool failed \n");
+    a1_request_pool_size = a1_request_pool_size + a1_request_pool_increment;
 
     A1D_Request_pool.current= request;
     A1D_Request_pool.tail->next = request;
@@ -461,47 +465,36 @@ int A1DI_Request_pool_increment() {
     goto fn_exit;
 }
 
-A1D_Request_info_t* A1DI_Get_request() {
+DCMF_Request_t* A1DI_Get_request() {
 
     int index;
-    A1D_Request_info_t *request = NULL;
+    A1D_Request_info_t *a1_request = NULL;
 
     A1U_FUNC_ENTER();
 
-    if(!A1D_Request_pool.current) 
-        A1DI_Request_pool_increment();
-    request = A1D_Request_pool.current;
+    if(!A1D_Request_pool.current) {  
+       if(a1_request_pool_increment < a1_request_pool_limit) {  
+           A1DI_Request_pool_increment();
+       } else {
+           A1DI_Flush_all();
+       }
+    }
+    a1_request = A1D_Request_pool.current;
     A1D_Request_pool.current = A1D_Request_pool.current->next;
-
-    request->active = 1;
-    return request; 
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return request;
+    return a1_request->request;
 
   fn_fail:
     goto fn_exit;
 }
 
-void A1DI_Free_request(A1D_Request_info_t *request) {
+void A1DI_Reset_request_pool() {
 
     A1U_FUNC_ENTER();
- 
-    if(request->next == NULL) { 
-        A1D_Request_pool.current = request; 
-    } else if (request->prev == NULL) {
-        request->next->prev = NULL;
-        request->next = NULL;
-        request->prev = A1D_Request_pool.tail;
-        A1D_Request_pool.tail = request;
-    } else {
-        request->prev->next = request->next;
-        request->next->prev = request->prev;
-        request->next = NULL;
-        request->prev = A1D_Request_pool.tail;
-        A1D_Request_pool.tail = request;
-    }
+
+    A1D_Request_pool.current = A1D_Request_pool.head;  
 
   fn_exit:
     A1U_FUNC_EXIT();

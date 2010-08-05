@@ -52,10 +52,10 @@
 #include <stdlib.h>
 #include <a1.h>
 
-#define MAX_XDIM 512 
-#define MAX_YDIM 512
-#define ITERATIONS 1
-#define SKIP 0
+#define MAX_XDIM 1024 
+#define MAX_YDIM 1024
+#define ITERATIONS 100
+#define SKIP 10
 
 int main() {
 
@@ -100,11 +100,11 @@ int main() {
      trg_stride = MAX_YDIM*sizeof(double);
      stride_levels = 1;
 
-     for(xdim=512; xdim<=MAX_XDIM; xdim*=2) {
+     for(xdim=1; xdim<=MAX_XDIM; xdim*=2) {
 
         count[1] = xdim;
 
-        for(ydim=512; ydim<=MAX_YDIM; ydim*=2) {
+        for(ydim=1; ydim<=MAX_YDIM; ydim*=2) {
 
           count[0] = ydim*sizeof(double); 
 

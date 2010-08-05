@@ -16,8 +16,8 @@ char* A1DI_Pack_data(void *pointer, void *source_ptr, int *src_stride_ar,\
     if(stride_level > 0) {
          for(i=0; i<count[stride_level]; i++)
          {
-            pointer = A1DI_Pack_data(pointer, (void *) ((size_t)source_ptr + i*src_stride_ar[stride_level-1]), src_stride_ar,\
-                                count, stride_level-1);
+            pointer = A1DI_Pack_data(pointer, (void *) ((size_t)source_ptr + i*src_stride_ar[stride_level-1]), 
+                                src_stride_ar, count, stride_level-1);
          }
     } else {
          memcpy( pointer, source_ptr, count[0]);
@@ -32,7 +32,7 @@ char* A1DI_Pack_data(void *pointer, void *source_ptr, int *src_stride_ar,\
     goto fn_exit;
 }
 
-int A1DI_Pack(void **packet, int *size_packet, void *source_ptr, int *src_stride_ar, void *target_ptr,\
+int A1DI_Pack(void **packet, int *size_packet, void *source_ptr, int *src_stride_ar, void *target_ptr,
         int *trg_stride_ar, int *count, int stride_levels)
 {
     int result = A1_SUCCESS;
@@ -72,40 +72,26 @@ int A1DI_Pack(void **packet, int *size_packet, void *source_ptr, int *src_stride
     goto fn_exit;
 } 
 
-int A1DI_Packed_send(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
          int *trg_stride_ar, int *count, int stride_levels) {
 
     DCMF_Result result = DCMF_SUCCESS;
-    DCMF_Request_t request;
-    DCMF_Callback_t callback;
+    DCMF_Request_t *request;
     DCQuad msginfo;
-    int active, size_packet;
     void *packet;
-    unsigned src_disp, dst_disp;
+    unsigned size_packet, src_disp, dst_disp;
  
     A1U_FUNC_ENTER();
-
-    callback.function = A1DI_Generic_done;
-    callback.clientdata = (void *) &active;
-
-    if(a1_enable_scalefree_flush) {
-        callback  = A1D_Nocallback;
-        active = 0;
-    } else {
-        callback.function = A1DI_Generic_done;
-        callback.clientdata = (void *) &active;
-        active = 1;
-        A1D_Connection_send_active[target]++;
-    }
 
     result = A1DI_Pack(&packet, &size_packet, source_ptr, src_stride_ar, target_ptr, trg_stride_ar, count,\
             stride_levels); 
     A1U_ERR_POP(result!=DCMF_SUCCESS,"Pack function returned with an error \n");
 
-    active = 1;
+    request = A1D_Get_request();
+
     result = DCMF_Send(&A1D_Send_noncontigput_info.protocol,
-                      &request,
-                      callback,
+                      request,
+                      A1D_Nocallback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,  
                       size_packet,
@@ -113,11 +99,6 @@ int A1DI_Packed_send(int target, void* source_ptr, int *src_stride_ar, void* tar
                       &msginfo,
                       1);
     A1U_ERR_POP(result,"Send returned with an error \n");
-    while (active > 0) DCMF_Messager_advance(); 
-
-    if(a1_enable_scalefree_flush) {
-         A1DI_Send_flush(target); 
-    }
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -128,7 +109,52 @@ int A1DI_Packed_send(int target, void* source_ptr, int *src_stride_ar, void* tar
 
 }
 
-int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+int A1DI_Direct_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+        int *trg_stride_ar, int* count, int stride_level)  
+{
+    int result = A1_SUCCESS;
+    DCMF_Request_t *request;
+    int i, size;
+    size_t src_disp, dst_disp;
+
+    A1U_FUNC_ENTER();
+
+    if(stride_level > 0) {
+         for(i=0; i<count[stride_level]; i++)
+         {
+            A1DI_Direct_puts(target, (void *) ((size_t)source_ptr + i*src_stride_ar[stride_level-1]), src_stride_ar,\
+                  (void *) ((size_t)target_ptr + i*trg_stride_ar[stride_level-1]), trg_stride_ar, count, stride_level-1);
+         }
+    } else {
+
+         request = A1D_Get_request();
+
+         src_disp = (size_t)source_ptr - (size_t)A1D_Membase_global[A1D_Process_info.my_rank];
+         dst_disp = (size_t)target_ptr - (size_t)A1D_Membase_global[target];
+
+         result = DCMF_Put(&A1D_Generic_put_protocol,
+                      request,
+                      A1D_Nocallback,
+                      DCMF_SEQUENTIAL_CONSISTENCY,
+                      target,
+                      count[0], 
+                      &A1D_Memregion_global[A1D_Process_info.my_rank],
+                      &A1D_Memregion_global[target],
+                      src_disp,
+                      dst_disp,
+                      A1D_Nocallback);
+         A1U_ERR_POP(result,"Put returned with an error \n");
+    }
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
          int *trg_stride_ar, int *count, int stride_levels) 
 {
     DCMF_Result result = DCMF_SUCCESS;
@@ -136,10 +162,32 @@ int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
+ 
+    if(count[0] >= A1C_PACKING_LIMIT) {
 
-    result = A1DI_Packed_send(target, source_ptr, src_stride_ar, target_ptr,\
-         trg_stride_ar, count, stride_levels);
-    A1U_ERR_POP(result,"Packed send function returned with an error \n");   
+      result = A1DI_Direct_puts(target, source_ptr, src_stride_ar, target_ptr,
+          trg_stride_ar, count, stride_levels);
+      A1U_ERR_POP(result,"Packed send function returned with an error \n");
+
+      if(a1_enable_scalefree_flush) { 
+          A1DI_Put_flush(target); 
+      } else {
+          A1DI_Put_flush_local(target);
+      }
+
+    } else {
+
+      result = A1DI_Packed_puts(target, source_ptr, src_stride_ar, target_ptr,
+          trg_stride_ar, count, stride_levels);
+      A1U_ERR_POP(result,"Packed send function returned with an error \n");   
+
+      if(a1_enable_scalefree_flush) {
+          A1DI_Send_flush(target);
+      } else {
+          A1DI_Send_flush_local(target);
+      }
+
+    }
 
   fn_exit:
     A1DI_CRITICAL_EXIT();

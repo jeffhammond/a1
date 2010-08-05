@@ -6,7 +6,7 @@
 
 #include "dcmfdimpl.h"
 
-int A1D_Flush_all()
+int A1DI_Flush_all()
 {
     int result = DCMF_SUCCESS;
     int b,i,dst;
@@ -18,9 +18,7 @@ int A1D_Flush_all()
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();
-
-    request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * A1C_FLUSHALL_PENDING_LIMIT);
+    request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * a1_flushall_pending_limit);
 
     ack_count = 0;
     pending_count = 0;
@@ -72,16 +70,40 @@ int A1D_Flush_all()
 
           }
 
-          if(pending_count >= A1C_FLUSHALL_PENDING_LIMIT) {
+          if(pending_count >= a1_flushall_pending_limit) {
                while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1D_Advance();
                pending_count = 0;
           }
 
         }
     }
-    while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1D_Advance() ;
+    while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1D_Advance();
+
     memset(A1D_Connection_send_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
     memset(A1D_Connection_put_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
+
+    /*Reset the request pool*/
+    A1DI_Reset_request_pool();
+
+  fn_exit:
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int A1D_Flush_all()
+{
+    int result = DCMF_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    result = A1DI_Flush_all();
+    A1U_ERR_POP(result," a1di_flushall returned with an error \n");
 
   fn_exit:
     A1DI_CRITICAL_EXIT();

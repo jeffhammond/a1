@@ -48,7 +48,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
                       dst_disp,
                       ack_callback);
     A1U_ERR_POP(result,"Put returned with an error \n");
-    while (done_active>0 || ack_active>0) DCMF_Messager_advance(); 
+    while (done_active>0 || ack_active>0) A1D_Advance(); 
 
   fn_exit:
     A1DI_CRITICAL_EXIT();
