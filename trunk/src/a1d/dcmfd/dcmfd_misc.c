@@ -36,11 +36,11 @@ double A1D_Time_seconds()
 
     A1U_FUNC_ENTER();
 
-    time = (double) DCMF_Timebase() / ((double) (A1D_Process_info.hw.clockMHz * 1000000));
+//    time = (double) DCMF_Timebase() / ((double) (A1D_Process_info.hw.clockMHz * 1000000));
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return time;
+    return DCMF_Timer();
 
   fn_fail:
     goto fn_exit;
