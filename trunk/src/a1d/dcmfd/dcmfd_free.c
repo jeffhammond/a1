@@ -12,11 +12,14 @@ int A1D_Release_segments(A1_group_t* group, void *ptr)
 
     A1U_FUNC_ENTER();
 
+    A1DI_CRITICAL_ENTER();
+
     A1DI_GlobalBarrier();
 
     free(ptr);
 
   fn_exit:
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 

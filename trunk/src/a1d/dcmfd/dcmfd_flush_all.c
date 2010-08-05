@@ -10,28 +10,35 @@ int A1D_Flush_all()
 {
     int result = DCMF_SUCCESS;
     int b,i,dst;
-    DCMF_Request_t request[A1C_FLUSHALL_BATCH_SIZE];
-    DCQuad msginfo;   
- 
+    DCMF_Request_t *request;
+    DCQuad msginfo;  
+    DCMF_Callback_t ack_callback; 
+    int ack_count, pending_count; 
+    size_t src_disp, dst_disp;
+
     A1U_FUNC_ENTER();
-
-    if(enable_scalefree_flush) {
-       return result;
-    }
-
-    int batches = A1D_Process_info.num_ranks / A1C_FLUSHALL_BATCH_SIZE;
-    int batched = batches * A1C_FLUSHALL_BATCH_SIZE;
-    int remainder = A1D_Process_info.num_ranks - batched;
 
     A1DI_CRITICAL_ENTER();
 
-    for(b = 0; b < batches; b++) {
-        A1D_Control_fenceack_info.rcv_active = A1C_FLUSHALL_BATCH_SIZE - 1;
-        for(i = 0; i < A1C_FLUSHALL_BATCH_SIZE; i++) {
-          dst = i + b * A1C_FLUSHALL_BATCH_SIZE;
-          if(dst != A1D_Process_info.my_rank && A1D_Connection_active[dst] > 0) {
-             result = DCMF_Send(&A1D_Send_fence_info.protocol,
-                           &request[dst],
+    request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * A1C_FLUSHALL_PENDING_LIMIT);
+
+    ack_count = 0;
+    pending_count = 0;
+    ack_callback.function = A1DI_Generic_done;
+    ack_callback.clientdata = (void *) ack_count;
+
+    if(a1_enable_scalefree_flush) {
+       return result;
+    }
+
+    for(dst = 0; dst < A1D_Process_info.num_ranks; dst++) {
+        if(dst != A1D_Process_info.my_rank) { 
+          
+          if(A1D_Connection_send_active[dst] > 0) {
+
+             A1D_Control_flushack_info.rcv_active++;
+             result = DCMF_Send(&A1D_Send_flush_info.protocol,
+                           &request[pending_count],
                            A1D_Nocallback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            dst,
@@ -39,34 +46,45 @@ int A1D_Flush_all()
                            NULL,
                            &msginfo,
                            1);
+             A1U_ERR_POP(result,"Send returned with an error \n");
+             pending_count++;
+
+          } else if (A1D_Connection_put_active[dst] > 0) {
+
+             src_disp = (size_t)A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank] - 
+                                   (size_t)A1D_Membase_global[A1D_Process_info.my_rank];
+             dst_disp = (size_t)A1D_Put_Flushcounter_ptr[dst] - (size_t)A1D_Membase_global[dst] + 1;
+
+             ack_count++;
+             result = DCMF_Put(&A1D_Generic_put_protocol,
+                      &request[pending_count],
+                      A1D_Nocallback,
+                      DCMF_SEQUENTIAL_CONSISTENCY,
+                      dst,
+                      1,
+                      &A1D_Memregion_global[A1D_Process_info.my_rank],
+                      &A1D_Memregion_global[dst],
+                      src_disp,
+                      dst_disp,
+                      ack_callback);
+             A1U_ERR_POP(result,"Send returned with an error \n");
+             pending_count++;
+
           }
-        }
-        A1U_ERR_POP(result,"Send returned with an error \n");
-        while(A1D_Control_fenceack_info.rcv_active>0) A1D_Advance();
-    }
-    if( remainder > 0 ) {
-        A1D_Control_fenceack_info.rcv_active = remainder - 1;
-        for(i = 0; i < remainder; i++) {
-          dst = i + batched;
-          if(dst != A1D_Process_info.my_rank && A1D_Connection_active[dst] > 0) {
-             result = DCMF_Send(&A1D_Send_fence_info.protocol,
-                           &request[dst],
-                           A1D_Nocallback,
-                           DCMF_SEQUENTIAL_CONSISTENCY,
-                           dst,
-                           0,
-                           NULL,
-                           &msginfo,
-                           1);
+
+          if(pending_count >= A1C_FLUSHALL_PENDING_LIMIT) {
+               while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) DCMF_Messager_advance();
+               pending_count = 0;
           }
+
         }
-        A1U_ERR_POP(result,"Send returned with an error \n");
-        while(A1D_Control_fenceack_info.rcv_active>0) A1D_Advance();
     }
-    memset(A1D_Connection_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
+    while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) DCMF_Messager_advance();
+    memset(A1D_Connection_send_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
+    memset(A1D_Connection_put_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
 
   fn_exit:
-  A1DI_CRITICAL_EXIT();;
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 

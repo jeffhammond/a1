@@ -16,9 +16,9 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
  
     A1U_FUNC_ENTER();
 
-    DCMF_CriticalSection_enter (0);
+    A1DI_CRITICAL_ENTER();
 
-    callback.function = A1DI_Generic_callback;
+    callback.function = A1DI_Generic_done;
     callback.clientdata = (void *) &active;
 
     src_disp = (size_t)src - (size_t)A1D_Membase_global[target];    
@@ -39,7 +39,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
     while (active>0) DCMF_Messager_advance(); 
 
   fn_exit:
-    DCMF_CriticalSection_exit (0);
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 

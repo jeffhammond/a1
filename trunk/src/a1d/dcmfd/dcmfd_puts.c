@@ -17,7 +17,7 @@ char* A1DI_Pack_data(void *pointer, void *source_ptr, int *src_stride_ar,\
     if(stride_level > 0) {
          for(i=0; i<count[stride_level]; i++)
          {
-            pointer = A1DI_Pack_data(pointer, (void *) ((size_t)source_ptr + i*src_stride_ar[stride_level]), src_stride_ar,\
+            pointer = A1DI_Pack_data(pointer, (void *) ((size_t)source_ptr + i*src_stride_ar[stride_level-1]), src_stride_ar,\
                                 count, stride_level-1);
          }
     } else {
@@ -73,9 +73,9 @@ int A1DI_Pack(void **packet, int *size_packet, void *source_ptr, int *src_stride
     goto fn_exit;
 } 
 
-int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
-         int *trg_stride_ar, int *count, int stride_levels) 
-{
+int A1DI_Packed_send(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+         int *trg_stride_ar, int *count, int stride_levels) {
+
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t callback;
@@ -86,13 +86,21 @@ int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
  
     A1U_FUNC_ENTER();
 
-    DCMF_CriticalSection_enter (0);
-
-    callback.function = A1DI_Generic_callback;
+    callback.function = A1DI_Generic_done;
     callback.clientdata = (void *) &active;
 
+    if(a1_enable_scalefree_flush) {
+        callback  = A1D_Nocallback;
+        active = 0;
+    } else {
+        callback.function = A1DI_Generic_done;
+        callback.clientdata = (void *) &active;
+        active = 1;
+        A1D_Connection_send_active[target]++;
+    }
+
     result = A1DI_Pack(&packet, &size_packet, source_ptr, src_stride_ar, target_ptr, trg_stride_ar, count,\
-          stride_levels); 
+            stride_levels); 
     A1U_ERR_POP(result,"Pack function returned with an error \n");    
 
     active = 1;
@@ -108,8 +116,34 @@ int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
     A1U_ERR_POP(result,"Send returned with an error \n");
     while (active > 0) DCMF_Messager_advance(); 
 
+    if(a1_enable_scalefree_flush) {
+         A1DI_Send_flush(target); 
+    }
+
   fn_exit:
-    DCMF_CriticalSection_exit (0);
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+
+}
+
+int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+         int *trg_stride_ar, int *count, int stride_levels) 
+{
+    DCMF_Result result = DCMF_SUCCESS;
+ 
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    result = A1DI_Packed_send(target, source_ptr, src_stride_ar, target_ptr,\
+         trg_stride_ar, count, stride_levels);
+    A1U_ERR_POP(result,"Packed send function returned with an error \n");   
+
+  fn_exit:
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 

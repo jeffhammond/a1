@@ -16,20 +16,21 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
  
     A1U_FUNC_ENTER();
 
-    DCMF_CriticalSection_enter (0);
+    A1DI_CRITICAL_ENTER();
 
-    done_callback.function = A1DI_Generic_callback;
-    done_callback.clientdata = (void *) &done_active;
-    done_active = 1;
-
-    if(enable_scalefree_flush) { 
-        ack_callback.function = A1DI_Generic_callback; 
+    if(a1_enable_scalefree_flush) {
+        done_callback  = A1D_Nocallback;
+        done_active = 0; 
+        ack_callback.function = A1DI_Generic_done; 
         ack_callback.clientdata = (void *) &ack_active;
         ack_active = 1;
     } else {
+        done_callback.function = A1DI_Generic_done;
+        done_callback.clientdata = (void *) &done_active;
+        done_active = 1;
         ack_callback = A1D_Nocallback;
         ack_active = 0;
-        A1D_Connection_active[target]++;
+        A1D_Connection_put_active[target]++;
     }
 
     src_disp = (size_t)src - (size_t)A1D_Membase_global[A1D_Process_info.my_rank];    
@@ -50,7 +51,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
     while (done_active>0 || ack_active>0) DCMF_Messager_advance(); 
 
   fn_exit:
-    DCMF_CriticalSection_exit (0);
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 

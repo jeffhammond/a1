@@ -18,8 +18,10 @@
 
 #define A1C_ALIGNMENT 16
 
+#define A1C_PACKING_LIMIT 512
+
 #define A1C_ENABLE_SCALEFREE_FLUSH 0 
-#define A1C_FLUSHALL_BATCH_SIZE 512
+#define A1C_FLUSHALL_PENDING_LIMIT 99999 
 
 #define A1C_REQUEST_POOL_INITIAL 1000
 #define A1C_REQUEST_POOL_INCREMENT 100
@@ -29,7 +31,7 @@
  *************************************************/
 
 #define A1DI_CRITICAL_CALL(call) do {                             \
-      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) {   \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) { \
         DCMF_CriticalSection_enter(0);                            \
         call;                                                     \
         DCMF_CriticalSection_exit(0);                             \
@@ -38,23 +40,23 @@
       }                                                           \
     } while (0)
 
-#define A1DI_CRITICAL_ENTER() do {                                  \
-      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) {   \
+#define A1DI_CRITICAL_ENTER() do {                                \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) { \
         DCMF_CriticalSection_enter(0);                            \
       }                                                           \
-    } while (0)      \
+    } while (0)                                                   \
 
-#define A1DI_CRITICAL_EXIT() do {                                  \
-      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) {   \                                                  \
-        DCMF_CriticalSection_exit(0);                            \
+#define A1DI_CRITICAL_EXIT() do {                                 \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) { \
+        DCMF_CriticalSection_exit(0);                             \
       }                                                           \
-    } while (0)      \
+    } while (0)                                                   \
 
-#define A1D_Advance() do {                                  \
-      if(!A1D_Messager_info.cht_enabled) {   \
-        DCMF_Messager_advance(0);                            \
+#define A1D_Advance() do {                                        \
+      if(!A1D_Messager_info.cht_enabled) {                        \
+        DCMF_Messager_advance(0);                                 \
       }                                                           \
-    } while (0)      \
+    } while (0)                                                   \
 
 
 
@@ -108,7 +110,7 @@ typedef struct
    DCMF_Protocol_t protocol;
    uint32_t rcv_active;
    DCMF_Control_t info;
-} A1D_Control_fenceack_info_t;
+} A1D_Control_flushack_info_t;
 
 typedef struct
 {
@@ -129,9 +131,9 @@ typedef struct
 
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
-extern A1D_Control_fenceack_info_t A1D_Control_fenceack_info;
+extern A1D_Control_flushack_info_t A1D_Control_flushack_info;
 extern A1D_Send_info_t A1D_Send_noncontigput_info;
-extern A1D_Send_info_t A1D_Send_fence_info;
+extern A1D_Send_info_t A1D_Send_flush_info;
 extern A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
 extern A1D_Request_pool_t A1D_Request_pool;
 
@@ -142,14 +144,20 @@ extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
 
 extern void **A1D_Membase_global;
-extern uint32_t *A1D_Connection_active;
-extern uint32_t enable_scalefree_flush; 
+extern void **A1D_Put_Flushcounter_ptr;
+extern uint32_t *A1D_Connection_send_active;
+extern uint32_t *A1D_Connection_put_active;
+
+extern uint32_t a1_enable_scalefree_flush; 
+extern uint32_t a1_alignment;
+extern uint32_t a1_packing_limit;
+extern uint32_t a1_flushall_pending_limit;
 
 /************************************************* 
  *             Function Prototypes               *
  ************************************************/
 
-void A1DI_Generic_callback(void *, DCMF_Error_t *);
+void A1DI_Generic_done(void *, DCMF_Error_t *);
 
 A1D_Request_info_t* A1DI_Get_request();
 
@@ -158,3 +166,5 @@ void A1DI_Free_request(A1D_Request_info_t *request);
 void A1DI_GlobalBarrier();
 
 void A1DI_Read_parameters();
+
+int A1DI_Send_flush(int proc);

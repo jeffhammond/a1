@@ -12,12 +12,12 @@ int A1D_Finalize(void)
 
     A1U_FUNC_ENTER();
 
-    DCMF_CriticalSection_enter (0);
+    A1DI_CRITICAL_ENTER();
 
     DCMF_Messager_finalize();     
 
   fn_exit:
-    DCMF_CriticalSection_exit (0);
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
