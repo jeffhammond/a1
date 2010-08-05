@@ -9,7 +9,6 @@
 char* A1DI_Pack_data(void *pointer, void *source_ptr, int *src_stride_ar,\
         int *count, int stride_level)
 {
-    int result = A1_SUCCESS;
     int i, size;
 
     A1U_FUNC_ENTER();
@@ -48,7 +47,7 @@ int A1DI_Pack(void **packet, int *size_packet, void *source_ptr, int *src_stride
     *size_packet = sizeof(A1D_Pack_header_t) + size_data; 
 
     result = posix_memalign(packet, 64, *size_packet);  
-    A1U_ERR_POP(result,"packet allocation failed \n"); 
+    A1U_ERR_POP(result!=A1_SUCCESS,"packet allocation failed \n");
 
     /*Copying header information*/
     header.vaddress = target_ptr;
@@ -101,7 +100,7 @@ int A1DI_Packed_send(int target, void* source_ptr, int *src_stride_ar, void* tar
 
     result = A1DI_Pack(&packet, &size_packet, source_ptr, src_stride_ar, target_ptr, trg_stride_ar, count,\
             stride_levels); 
-    A1U_ERR_POP(result,"Pack function returned with an error \n");    
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"Pack function returned with an error \n");
 
     active = 1;
     result = DCMF_Send(&A1D_Send_noncontigput_info.protocol,
