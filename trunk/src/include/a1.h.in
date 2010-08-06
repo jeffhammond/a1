@@ -652,21 +652,6 @@ int A1_CopyAcc(int source, int target, void* source_ptr, void* target_ptr, int b
 /* ********************************************************************** */
 
 /**
-  * \brief On return, this call ensures that all processes have reached this
-  *        point in the program.
-  *
-  *        This operation is collective and blocking.
-  *
-  * \param[in] group          Group of processes to synchronize.
-  *
-  * \see A1_Flush, A1_AllFlush, A1_Sync, A1_Barrier.
-  *
-  * \ingroup SYNCHRONIZATION
-  */
-
-void A1_GlobalBarrier();
-
-/**
   * \brief On return, this call ensures that all processes within the entire group
   *        have reached this point in the program.
   *
@@ -679,21 +664,7 @@ void A1_GlobalBarrier();
   * \ingroup SYNCHRONIZATION
   */
 
-void A1_GroupBarrier(A1_group_t* group);
-
-/**
-  * \brief On return, this call ensures that all outstanding blocking put or accumulate
-  *        operations are complete remotely within the entire group.
-  *
-  *        This operation is collective and blocking.  It has the effect of
-  *        A1_Flush_all called from every process in the group followed by A1_GlobalBarrier.
-  *
-  * \see A1_GroupSync, A1_GlobalBarrier, A1_Flush_all.
-  *
-  * \ingroup SYNCHRONIZATION
-  */
-
-void A1_GlobalSync();
+void A1_Barrier_group(A1_group_t* group);
 
 /**
   * \brief On return, this call ensures that all outstanding blocking put or accumulate
@@ -709,7 +680,7 @@ void A1_GlobalSync();
   * \ingroup SYNCHRONIZATION
   */
 
-void A1_GroupSync(A1_group_t* group);
+void A1_Sync_group(A1_group_t* group);
 
 /**
   * \brief On return, this call ensure that all blocking put or accumulate operations
