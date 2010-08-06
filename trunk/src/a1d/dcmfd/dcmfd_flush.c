@@ -26,7 +26,7 @@ int A1DI_Send_flush(int proc)
                        &msginfo,
                        1);
     A1U_ERR_POP(result,"Send returned with an error \n");
-    while(A1D_Control_flushack_info.rcv_active > 0) A1D_Advance();
+    while(A1D_Control_flushack_info.rcv_active > 0) A1DI_Advance();
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -63,7 +63,7 @@ int A1DI_Send_flush_local(int proc)
                        &msginfo,
                        1);
     A1U_ERR_POP(result,"Send returned with an error \n");
-    while(active > 0) A1D_Advance();
+    while(active > 0) A1DI_Advance();
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -101,7 +101,7 @@ int A1DI_Put_flush(int proc)
                       dst_disp,
                       callback);                       
     A1U_ERR_POP(result,"Send returned with an error \n");
-    while(active > 0) A1D_Advance();
+    while(active > 0) A1DI_Advance();
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -139,7 +139,7 @@ int A1DI_Put_flush_local(int proc)
                       dst_disp,
                       A1D_Nocallback);                       
     A1U_ERR_POP(result,"Send returned with an error \n");
-    while(active > 0) A1D_Advance();
+    while(active > 0) A1DI_Advance();
 
   fn_exit:
     A1U_FUNC_EXIT();

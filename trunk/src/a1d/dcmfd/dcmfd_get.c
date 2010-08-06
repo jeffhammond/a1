@@ -36,7 +36,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
                       src_disp,
                       dst_disp);
     A1U_ERR_POP(result,"Get returned with an error \n");
-    while (active>0) A1D_Advance(); 
+    while (active>0) A1DI_Advance(); 
 
   fn_exit:
     A1DI_CRITICAL_EXIT();

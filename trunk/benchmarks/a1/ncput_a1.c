@@ -75,7 +75,7 @@ int main() {
 
    target = (char **) malloc (sizeof(char *) * nranks); 
 
-   A1_Barrier(A1_GROUP_WORLD);
+   A1_GlobalBarrier();
 
    bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
    source = (char *) malloc(bufsize);
@@ -84,11 +84,6 @@ int main() {
    for(i=0; i<bufsize; i++) {
      *(target[rank] + i) = '*';
      *(source + i) = '-';
-   }
-
-   if(rank == 1) {
-      printf("Target buffer before transfer : \n %s \n", target[rank]);
-      fflush(stdout);
    }
 
    if(rank == 0) {
@@ -141,7 +136,7 @@ int main() {
 
    }
 
-   A1_Barrier(A1_GROUP_WORLD);
+   A1_GlobalBarrier();
 
    A1_Release_segments(A1_GROUP_WORLD, (void *) target[rank]); 
  

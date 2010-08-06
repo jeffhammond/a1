@@ -71,13 +71,13 @@ int A1DI_Flush_all()
           }
 
           if(pending_count >= a1_flushall_pending_limit) {
-               while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1D_Advance();
+               while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1DI_Advance();
                pending_count = 0;
           }
 
         }
     }
-    while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1D_Advance();
+    while(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1DI_Advance();
 
     memset(A1D_Connection_send_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
     memset(A1D_Connection_put_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);

@@ -17,7 +17,9 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes);
 
 int A1D_Release_segments(A1_group_t* group, void *ptr);
 
-void A1D_Barrier(A1_group_t* group);
+void A1D_GroupBarrier(A1_group_t* group);
+
+void A1D_GlobalBarrier();
 
 int A1D_Put(int target, void* src, void* dst, int bytes);
 

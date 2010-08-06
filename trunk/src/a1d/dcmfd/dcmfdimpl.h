@@ -18,15 +18,16 @@
 
 #define A1C_ALIGNMENT 16
 
-#define A1C_ENABLE_CHT 1
+#define A1C_ENABLE_CHT 0
 
-#define A1C_PACKING_LIMIT 512
+#define A1C_DIRECT_NONCONTIG_THRESHOLD 512
+#define A1C_PACKED_NONCONTIG_LIMIT 4096 
 
 #define A1C_ENABLE_SCALEFREE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
 #define A1C_REQUEST_POOL_INITIAL 200
-#define A1C_REQUEST_POOL_INCREMENT 50
+#define A1C_REQUEST_POOL_INCREMENT 100
 #define A1C_REQUEST_POOL_LIMIT 500
 
 /*************************************************
@@ -55,7 +56,7 @@
       }                                                           \
     } while (0)                                                   \
 
-#define A1D_Advance() do {                                        \
+#define A1DI_Advance() do {                                       \
       if(!a1_enable_cht) {                                        \
         DCMF_Messager_advance(0);                                 \
       }                                                           \
@@ -97,6 +98,8 @@ typedef struct
    A1D_Request_info_t *head;
    A1D_Request_info_t *current;
    A1D_Request_info_t *tail;
+   void** region_ptr;
+   uint32_t region_count;
 } A1D_Request_pool_t;
 
 typedef struct
@@ -153,7 +156,8 @@ extern uint32_t *A1D_Connection_put_active;
 extern uint32_t a1_enable_cht;
 extern uint32_t a1_enable_scalefree_flush; 
 extern uint32_t a1_alignment;
-extern uint32_t a1_packing_limit;
+extern uint32_t a1_direct_noncontig_threshold;
+extern uint32_t a1_packed_noncontig_limit;
 extern uint32_t a1_flushall_pending_limit;
 extern uint32_t a1_request_pool_initial; 
 extern uint32_t a1_request_pool_increment; 
