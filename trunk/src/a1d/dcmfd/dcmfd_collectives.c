@@ -6,7 +6,7 @@
 
 #include "dcmfdimpl.h"
 
-void A1DI_Barrier_global() {
+void A1DI_GlobalBarrier() {
 
     int result = DCMF_SUCCESS;
     DCMF_Request_t request;
@@ -38,7 +38,7 @@ void A1D_Barrier_group(A1_group_t* group) {
     A1DI_CRITICAL_ENTER();
 
     if(group == A1_GROUP_WORLD) {
-      A1DI_Barrier_global();
+      A1DI_GlobalBarrier();
       goto fn_exit;
     }
 
