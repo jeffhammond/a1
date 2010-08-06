@@ -153,34 +153,57 @@ double A1_Time_seconds();
 /* ********************************************************************* */
 
 /**
-  * \brief Returns global process rank of the process calling it.
+  * \brief Returns process rank relative to the group base of the process calling it.
   *
   * \note Jeff hates MPI-style function style where return value is an argument
   *       passed by reference for the sake of Fortran compatibility.
   *
-  * \param[out] rank          Global process rank of the process.
-  *
-  * \see 
+  * \see A1_Node_id, A1_Process_total
   *
   * \ingroup INFORMATION 
   */
 
-int A1_Rank(void);
+int A1_Process_id(A1_group_t group);
 
 /**
-  * \brief Returns global node rank of the process calling it.
+  * \brief Returns total number of processes in a group.
   *
   * \note Jeff hates MPI-style function style where return value is an argument
   *       passed by reference for the sake of Fortran compatibility.
   *
-  * \param[out] rank          Global node rank of the process.
-  *
-  * \see
+  * \see A1_Process_id, A1_Node_total
   *
   * \ingroup INFORMATION
   */
 
-int A1_Node(void);
+int A1_Process_total(A1_group_t group);
+
+/**
+  * \brief Returns node rank relative to the group base of the process calling it.
+  *
+  * \note Jeff hates MPI-style function style where return value is an argument
+  *       passed by reference for the sake of Fortran compatibility.
+  *
+  * \see A1_Process_id, A1_Node_total
+  *
+  * \ingroup INFORMATION
+  */
+
+int A1_Node_id(A1_group_t group);
+
+/**
+  * \brief Returns total number of nodes in a group.
+  *
+  * \note Jeff hates MPI-style function style where return value is an argument
+  *       passed by reference for the sake of Fortran compatibility.
+  *
+  * \see A1_Node_id, A1_Process_total
+  *
+  * \ingroup INFORMATION
+  */
+
+int A1_Node_total(A1_group_t group);
+
 
 /* ********************************************************************* */
 /*                                                                       */
