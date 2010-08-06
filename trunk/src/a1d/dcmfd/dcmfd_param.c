@@ -22,18 +22,6 @@ void A1DI_Read_parameters() {
 
     A1U_FUNC_ENTER();
 
-    if ((value = getenv("A1_ENABLE_SCALEFREE_FLUSH")) != NULL) {
-        a1_enable_scalefree_flush = atoi(value);
-    }
-
-    if ((value = getenv("A1_ALIGNMENT")) != NULL) {
-        a1_alignment = atoi(value);
-    }
-
-    if ((value = getenv("A1_ENABLE_SCALEFREE_FLUSH")) != NULL) {
-        a1_enable_scalefree_flush = atoi(value);
-    }
-
     if ((value = getenv("A1_FLUSHALL_PENDING_LIMIT")) != NULL) {
         a1_flushall_pending_limit = atoi(value);
     }
