@@ -6,7 +6,7 @@
 
 #include "dcmfdimpl.h"
 
-int A1D_Process_id(a1_group_t group)
+int A1D_Process_id(A1_group_t* group)
 {
     int id;
 
@@ -29,7 +29,7 @@ int A1D_Process_id(a1_group_t group)
     goto fn_exit;
 }
 
-int A1D_Process_total(a1_group_t group)
+int A1D_Process_total(A1_group_t* group)
 {
     int total;
 
@@ -52,7 +52,7 @@ int A1D_Process_total(a1_group_t group)
     goto fn_exit;
 }
 
-int A1D_Node_id(a1_group_t group)
+int A1D_Node_id(A1_group_t* group)
 {
     int id;
 
@@ -75,7 +75,7 @@ int A1D_Node_id(a1_group_t group)
     goto fn_exit;
 }
 
-int A1D_Node_total(a1_group_t group)
+int A1D_Node_total(A1_group_t* group)
 {
     int total;
 
@@ -103,8 +103,6 @@ double A1D_Time_seconds()
     double time;
 
     A1U_FUNC_ENTER();
-
-//    time = (double) DCMF_Timebase() / ((double) (A1D_Process_info.hw.clockMHz * 1000000));
 
   fn_exit:
     A1U_FUNC_EXIT();

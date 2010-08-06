@@ -10,7 +10,8 @@ DCMF_Configure_t A1D_Messager_info;
 A1D_Process_info_t A1D_Process_info;
 A1D_Control_xchange_info_t A1D_Control_xchange_info;
 A1D_Control_flushack_info_t A1D_Control_flushack_info;
-A1D_Send_info_t A1D_Send_noncontigput_info;
+A1D_Send_info_t A1D_Packed_puts_info;
+A1D_Send_info_t A1D_Packed_gets_info;
 A1D_Send_info_t A1D_Send_flush_info;
 A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
 A1D_Request_pool_t A1D_Request_pool;
@@ -27,62 +28,17 @@ uint32_t *A1D_Connection_put_active;
 
 uint32_t a1_request_pool_size; 
 
-char* A1DI_Unpack_data(void *pointer, void *trg_ptr, int *trg_stride_ar,\
-        int *count, int stride_level)
-{
-     int i;
-
-     A1U_FUNC_ENTER();
-
-     if(stride_level > 0) {
-         for(i=0; i<count[stride_level]; i++)
-         {
-            pointer = A1DI_Unpack_data(pointer, (void *) ((size_t)trg_ptr + i*trg_stride_ar[stride_level-1]), trg_stride_ar,\
-                                count, stride_level-1);
-         }
-     } else {
-         memcpy(trg_ptr, pointer, count[0]);
-         pointer = (void *)((size_t)pointer + count[0]);
-     }
-
-  fn_exit:
-     A1U_FUNC_EXIT();
-     return pointer;
-
-  fn_fail:
-     goto fn_exit;
-}
-
-void A1DI_Unpack(void *packet)
-{
-     void *temp;
-     A1D_Pack_header_t *header;
-
-     A1U_FUNC_ENTER();
-
-     header = (A1D_Pack_header_t *) packet;
-
-     /*Unpacking and Copying data*/
-     temp = (void *)((size_t)packet + sizeof(A1D_Pack_header_t));
-     A1DI_Unpack_data(temp, header->vaddress, header->trg_stride_ar, header->count,\
-                 header->stride_levels);  
-
-  fn_exit:
-     A1U_FUNC_EXIT();
-     return;
-
-  fn_fail:
-     goto fn_exit;
-}
-
 void A1DI_Generic_done (void *clientdata, DCMF_Error_t *error) {
      --(*((uint32_t *) clientdata));
+}
+
+void A1DI_Free_done (void *clientdata, DCMF_Error_t *error) {
+     free(clientdata);
 }
 
 void A1DI_Control_flushack_callback (void *clientdata, const DCMF_Control_t *info, size_t peer) {
      --(*((uint32_t *) clientdata));
 }
-
 
 void A1DI_Control_xchange_callback (void *clientdata, const DCMF_Control_t *info, size_t peer) {
      memcpy((void *) ((size_t) A1D_Control_xchange_info.xchange_ptr + (size_t) (peer*A1D_Control_xchange_info.xchange_size)),\
@@ -90,23 +46,34 @@ void A1DI_Control_xchange_callback (void *clientdata, const DCMF_Control_t *info
      --(*((uint32_t *) clientdata));
 }
 
-void A1DI_RecvDone_noncontigput_callback (void *clientdata, DCMF_Error_t *error) {
-     A1DI_Unpack((void *) clientdata);
+void A1DI_RecvDone_packedputs_callback (void *clientdata, DCMF_Error_t *error) {
+     A1DI_Unpack_strided((void *) clientdata);
      free(clientdata);
 }
 
-void A1DI_RecvSendShort_noncontigput_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
+void A1DI_RecvSendShort_packedputs_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
                              const char *src, size_t bytes) {
-     A1DI_Unpack((void *) src); 
+     A1DI_Unpack_strided((void *) src); 
 }
 
-DCMF_Request_t* A1DI_RecvSend_noncontigput_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,\
+void A1DI_RecvSendShort_packedgets_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
+                             const char *src, size_t bytes) {
+
+     A1D_Packed_gets_header_t *packet = (A1D_Packed_gets_header_t *) src; 
+     int is_getresponse = 1;
+
+     A1DI_Packed_puts(packet->target, packet->source_ptr, packet->src_stride_ar, packet->target_ptr,
+         packet->trg_stride_ar, packet->count, packet->stride_levels, is_getresponse);
+ 
+}
+
+DCMF_Request_t* A1DI_RecvSend_packedputs_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,\
                              size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
      /*TODO: Need to handle memory allocation failure here*/   
      *rcvlen = sndlen;
      posix_memalign((void **) rcvbuf, 16, sndlen);
     
-     cb_done->function = A1DI_RecvDone_noncontigput_callback;
+     cb_done->function = A1DI_RecvDone_packedputs_callback;
      cb_done->clientdata = (void *) *rcvbuf;
 
      return ((DCMF_Request_t *) malloc (sizeof(DCMF_Request_t)));
@@ -235,7 +202,7 @@ DCMF_Result A1DI_Get_initialize()
     goto fn_exit;
 }
 
-DCMF_Result A1DI_Send_noncontigput_initialize()
+DCMF_Result A1DI_Packed_puts_initialize()
 {
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Send_Configuration_t conf;
@@ -247,13 +214,41 @@ DCMF_Result A1DI_Send_noncontigput_initialize()
 
     conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
-    conf.cb_recv_short = A1DI_RecvSendShort_noncontigput_callback;
+    conf.cb_recv_short = A1DI_RecvSendShort_packedputs_callback;
     conf.cb_recv_short_clientdata = NULL;
-    conf.cb_recv = A1DI_RecvSend_noncontigput_callback;
+    conf.cb_recv = A1DI_RecvSend_packedputs_callback;
     conf.cb_recv_clientdata = NULL;
 
-    result = DCMF_Send_register(&A1D_Send_noncontigput_info.protocol, &conf);
-    A1U_ERR_POP(result,"send noncontigput registartion returned with error %d \n",result);
+    result = DCMF_Send_register(&A1D_Packed_puts_info.protocol, &conf);
+    A1U_ERR_POP(result,"packed puts registartion returned with error %d \n",result);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+DCMF_Result A1DI_Packed_gets_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Send_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The recv callback should be implemented when Send might be used *
+     * with large messages */
+
+    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    conf.cb_recv_short = A1DI_RecvSendShort_packedgets_callback;
+    conf.cb_recv_short_clientdata = NULL;
+    conf.cb_recv = NULL;
+    conf.cb_recv_clientdata = NULL;
+
+    result = DCMF_Send_register(&A1D_Packed_gets_info.protocol, &conf);
+    A1U_ERR_POP(result,"packed gets registartion returned with error %d \n",result);
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -551,8 +546,11 @@ int A1D_Initialize(int thread_level) {
     result = A1DI_Get_initialize();
     A1U_ERR_POP(result,"Get initialize returned with error \n"); 
 
-    result = A1DI_Send_noncontigput_initialize();
-    A1U_ERR_POP(result,"Send noncontigput initialize returned with error \n");
+    result = A1DI_Packed_puts_initialize();
+    A1U_ERR_POP(result,"Packed puts initialize returned with error \n");
+
+    result = A1DI_Packed_gets_initialize();
+    A1U_ERR_POP(result,"Packed puts initialize returned with error \n");
 
     result = A1DI_Send_flush_initialize();
     A1U_ERR_POP(result,"Send flush initialize returned with error \n");

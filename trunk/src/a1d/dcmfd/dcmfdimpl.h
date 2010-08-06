@@ -82,11 +82,22 @@ typedef struct
 typedef struct
 {
    void *vaddress;
-   uint32_t stride_levels;
-   uint32_t src_stride_ar[2];
-   uint32_t trg_stride_ar[2];
-   uint32_t count[3];
-} A1D_Pack_header_t;
+   int stride_levels;
+   int trg_stride_ar[2];
+   int count[3];
+   int is_getresponse;
+} A1D_Packed_puts_header_t;
+
+typedef struct
+{
+   uint32_t target;
+   void* source_ptr;
+   int src_stride_ar[2];
+   void* target_ptr; 
+   int trg_stride_ar[2];
+   int count[3];
+   int stride_levels;
+} A1D_Packed_gets_header_t;
 
 typedef struct A1D_Request_info_t
 {
@@ -139,7 +150,8 @@ typedef struct
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
 extern A1D_Control_flushack_info_t A1D_Control_flushack_info;
-extern A1D_Send_info_t A1D_Send_noncontigput_info;
+extern A1D_Send_info_t A1D_Packed_puts_info;
+extern A1D_Send_info_t A1D_Packed_gets_info;
 extern A1D_Send_info_t A1D_Send_flush_info;
 extern A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
 extern A1D_Request_pool_t A1D_Request_pool;
@@ -154,6 +166,7 @@ extern void **A1D_Membase_global;
 extern void **A1D_Put_Flushcounter_ptr;
 extern uint32_t *A1D_Connection_send_active;
 extern uint32_t *A1D_Connection_put_active;
+extern uint32_t A1D_Expecting_getresponse;
 
 extern uint32_t a1_enable_cht;
 extern uint32_t a1_enable_scalefree_flush; 
@@ -172,6 +185,8 @@ extern uint32_t a1_request_pool_size;
 
 void A1DI_Generic_done(void *, DCMF_Error_t *);
 
+void A1DI_Free_done(void *, DCMF_Error_t *);
+
 DCMF_Request_t* A1DI_Get_request();
 
 void A1DI_Free_request(A1D_Request_info_t *request);
@@ -181,3 +196,20 @@ void A1DI_GlobalBarrier();
 void A1DI_Read_parameters();
 
 int A1DI_Send_flush(int proc);
+
+int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+         int *trg_stride_ar, int *count, int stride_levels, int is_getresponse); 
+
+int A1DI_Pack_strided(void **packet, int *size_packet, void *source_ptr, int *src_stride_ar, 
+        void *target_ptr, int *trg_stride_ar, int *count, int stride_levels, int is_getresponse);
+
+void* A1DI_Pack_data_strided(void *pointer, void *source_ptr, int *src_stride_ar,\
+        int *count, int stride_level);
+
+int A1DI_Unpack_strided(void *packet);
+
+void* A1DI_Unpack_data_strided(void *pointer, void *trg_ptr, int *trg_stride_ar,\
+        int *count, int stride_level);
+
+
+
