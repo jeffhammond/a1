@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-void A1_GlobalBarrier()
+void A1_Barrier_group(A1_group_t* group)
 {
     int status = A1_SUCCESS;
 
@@ -21,7 +21,7 @@ void A1_GlobalBarrier()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    A1D_GlobalBarrier();
+    A1D_Barrier_group(group);
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -31,7 +31,7 @@ void A1_GlobalBarrier()
     goto fn_exit;
 }
 
-void A1_GroupBarrier(A1_group_t* group)
+void A1_Sync_group(A1_group_t* group)
 {
     int status = A1_SUCCESS;
 
@@ -44,7 +44,7 @@ void A1_GroupBarrier(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    A1D_GroupBarrier(group);
+    A1D_Sync_group(group);
 
   fn_exit:
     A1U_FUNC_EXIT();
