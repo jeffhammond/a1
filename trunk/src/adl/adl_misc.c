@@ -27,6 +27,25 @@ int A1_Rank()
     goto fn_exit;
 }
 
+int A1_Node()
+{
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return A1D_Node();
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1_Size()
 {
     A1U_FUNC_ENTER();
