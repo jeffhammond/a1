@@ -71,7 +71,9 @@
 typedef struct
 {
    size_t my_rank;
+   size_t my_node;
    size_t num_ranks;
+   size_t num_nodes;
    DCMF_Hardware_t hw;
 } A1D_Process_info_t;
 
