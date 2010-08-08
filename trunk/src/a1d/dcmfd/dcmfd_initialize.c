@@ -69,10 +69,14 @@ void A1DI_RecvSendShort_packedgets_callback (void *clientdata, const DCQuad *msg
 
 DCMF_Request_t* A1DI_RecvSend_packedputs_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,\
                              size_t sndlen, size_t *rcvlen, char **rcvbuf, DCMF_Callback_t *cb_done) {
+
+     int result = 0;
+
      /*TODO: Need to handle memory allocation failure here*/   
      *rcvlen = sndlen;
-     posix_memalign((void **) rcvbuf, 16, sndlen);
-    
+     result = posix_memalign((void **) rcvbuf, 16, sndlen);
+     A1U_ERR_POP(result!=0,"posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+
      cb_done->function = A1DI_RecvDone_packedputs_callback;
      cb_done->clientdata = (void *) *rcvbuf;
 
@@ -81,11 +85,11 @@ DCMF_Request_t* A1DI_RecvSend_packedputs_callback (void *clientdata, const DCQua
 
 void A1DI_RecvSendShort_flush_callback (void *clientdata, const DCQuad *msginfo, unsigned count, size_t peer,
                              const char *src, size_t bytes) {
-     DCMF_Control(&A1D_Control_flushack_info.protocol, 
-                 DCMF_SEQUENTIAL_CONSISTENCY,
-                 peer,
-                 &A1D_Control_flushack_info.info);    
-
+     result = DCMF_Control(&A1D_Control_flushack_info.protocol,
+                           DCMF_SEQUENTIAL_CONSISTENCY,
+                           peer,
+                           &A1D_Control_flushack_info.info);
+     A1U_ERR_POP(result!=DCMF_SUCCESS,"DCMF_Control failed in A1DI_RecvSendShort_flush_callback\n");
      --(*((uint32_t *) clientdata));
 }
 
@@ -102,7 +106,7 @@ DCMF_Result A1DI_Control_xchange_initialize()
     conf.cb_recv_clientdata = (void *) &A1D_Control_xchange_info.rcv_active;
 
     result = DCMF_Control_register(&A1D_Control_xchange_info.protocol, &conf);
-    A1U_ERR_POP(result,"Control xchange registartion returned with error %d \n",result);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"Control xchange registartion returned with error %d \n",result);
 
 
   fn_exit:
@@ -126,7 +130,7 @@ DCMF_Result A1DI_Control_flushack_initialize()
     conf.cb_recv_clientdata = (void *) &A1D_Control_flushack_info.rcv_active;
 
     result = DCMF_Control_register(&A1D_Control_flushack_info.protocol, &conf);
-    A1U_ERR_POP(result,"Control flushack registartion returned with error %d \n",result);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"Control flushack registartion returned with error %d \n",result);
 
 
   fn_exit:
@@ -146,7 +150,7 @@ DCMF_Result A1DI_GlobalBarrier_initialize()
 
     conf.protocol = DCMF_DEFAULT_GLOBALBARRIER_PROTOCOL;
     result = DCMF_GlobalBarrier_register(&A1D_GlobalBarrier_info.protocol, &conf);
-    A1U_ERR_POP(result,"global barrier registartion returned with error %d \n",result);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"global barrier registartion returned with error %d \n",result);
 
     A1D_GlobalBarrier_info.callback.function = A1DI_Generic_done;
     A1D_GlobalBarrier_info.callback.clientdata = (void *) &A1D_GlobalBarrier_info.active;
@@ -169,7 +173,7 @@ DCMF_Result A1DI_Put_initialize()
     conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
     result = DCMF_Put_register(&A1D_Generic_put_protocol, &conf);
-    A1U_ERR_POP(result,"put registartion returned with error %d \n",result);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"put registartion returned with error %d \n",result);
 
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
@@ -192,7 +196,7 @@ DCMF_Result A1DI_Get_initialize()
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
     result = DCMF_Get_register(&A1D_Generic_get_protocol, &conf);
-    A1U_ERR_POP(result,"get registartion returned with error %d \n",result);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"get registartion returned with error %d \n",result);
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -220,7 +224,7 @@ DCMF_Result A1DI_Packed_puts_initialize()
     conf.cb_recv_clientdata = NULL;
 
     result = DCMF_Send_register(&A1D_Packed_puts_info.protocol, &conf);
-    A1U_ERR_POP(result,"packed puts registartion returned with error %d \n",result);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"packed puts registartion returned with error %d \n",result);
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -248,7 +252,7 @@ DCMF_Result A1DI_Packed_gets_initialize()
     conf.cb_recv_clientdata = NULL;
 
     result = DCMF_Send_register(&A1D_Packed_gets_info.protocol, &conf);
-    A1U_ERR_POP(result,"packed gets registartion returned with error %d \n",result);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"packed gets registartion returned with error %d \n",result);
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -276,11 +280,11 @@ DCMF_Result A1DI_Send_flush_initialize()
     conf.cb_recv_clientdata = NULL;
  
     result = DCMF_Send_register(&A1D_Send_flush_info.protocol, &conf);
-    A1U_ERR_POP(result,"send flush registartion returned with error %d \n",result);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"send flush registartion returned with error %d \n",result);
 
     /* Allocating memory for vector that tracks connections with active sends */
-    posix_memalign((void **) &A1D_Connection_send_active, 16, sizeof(uint32_t) * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(result = (!A1D_Connection_send_active), "Connection send active buffer allocation Failed \n");
+    result = posix_memalign((void **) &A1D_Connection_send_active, 16, sizeof(uint32_t) * A1D_Process_info.num_ranks);
+    A1U_ERR_POP(result!=0, "Connection send active buffer allocation Failed \n");
     memset(A1D_Connection_send_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
 
   fn_exit:
@@ -293,16 +297,16 @@ DCMF_Result A1DI_Send_flush_initialize()
 
 DCMF_Result A1DI_Put_flush_initialize()
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Result result = A1_SUCCESS;
     DCMF_Control_t cmsg;
     int rank;
 
     A1U_FUNC_ENTER();
 
-    posix_memalign((void **) &A1D_Put_Flushcounter_ptr, 16, sizeof(void *) * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(result = (!A1D_Put_Flushcounter_ptr), "put flush ptr buffer allocation Failed \n");
-    posix_memalign((void **) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]), 16, 2);
-    A1U_ERR_POP(result = (!(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank])), "put flush buffer allocation Failed \n");
+    result = posix_memalign((void **) &A1D_Put_Flushcounter_ptr, 16, sizeof(void *) * A1D_Process_info.num_ranks);
+    A1U_ERR_POP(result!=0, "put flush ptr buffer allocation Failed \n");
+    result = posix_memalign((void **) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]), 16, 2);
+    A1U_ERR_POP(result!=0, "put flush buffer allocation Failed \n");
 
     /*TODO: Use DCMF_Send operations instead to exploit TORUS network */
     A1D_Control_xchange_info.xchange_ptr = (void *) A1D_Put_Flushcounter_ptr;
@@ -314,15 +318,17 @@ DCMF_Result A1DI_Put_flush_initialize()
     memcpy((void *) &cmsg, (void *) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]), sizeof(void *));
     for(rank=0; rank<A1D_Process_info.num_ranks; rank++) {
         if(rank != A1D_Process_info.my_rank) {
-            DCMF_Control(&A1D_Control_xchange_info.protocol, DCMF_SEQUENTIAL_CONSISTENCY,
-                     rank, &cmsg);
+            result = DCMF_Control(&A1D_Control_xchange_info.protocol,
+                                  DCMF_SEQUENTIAL_CONSISTENCY,
+                                  rank, &cmsg);
+            A1U_ERR_POP(result!=DCMF_SUCCESS,"DCMF_Control failed in A1DI_Put_flush_initialize\n");
         }
     }
     while(A1D_Control_xchange_info.rcv_active > 0) A1DI_Advance();   
 
     /* Allocating memory for vector thats tracks connections with active puts */
-    posix_memalign((void **) &A1D_Connection_put_active, 16, sizeof(uint32_t) * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(result = (!A1D_Connection_put_active), "Connection put active buffer allocation Failed \n");
+    result = posix_memalign((void **) &A1D_Connection_put_active, 16, sizeof(uint32_t) * A1D_Process_info.num_ranks);
+    A1U_ERR_POP(result!=0, "Connection put active buffer allocation Failed \n");
     memset(A1D_Connection_put_active, 0, sizeof(uint32_t)*A1D_Process_info.num_ranks);
 
   fn_exit:
@@ -352,8 +358,10 @@ DCMF_Result A1DI_Memregion_Global_xchange() {
     memcpy((void *) &cmsg, (void *) &A1D_Memregion_global[A1D_Process_info.my_rank], sizeof(DCMF_Memregion_t)); 
     for(rank=0; rank<A1D_Process_info.num_ranks; rank++) {
         if(rank != A1D_Process_info.my_rank) {
-            DCMF_Control(&A1D_Control_xchange_info.protocol, DCMF_SEQUENTIAL_CONSISTENCY,
-                     rank, &cmsg);
+            result = DCMF_Control(&A1D_Control_xchange_info.protocol,
+                                  DCMF_SEQUENTIAL_CONSISTENCY,
+                                  rank, &cmsg);
+            A1U_ERR_POP(result!=DCMF_SUCCESS,"DCMF_Control failed in A1DI_Memregion_Global_xchange\n");
         }
     }
     while(A1D_Control_xchange_info.rcv_active > 0) A1DI_Advance();
@@ -374,22 +382,22 @@ int A1DI_Memregion_Global_initialize() {
 
     A1U_FUNC_ENTER();
 
-    posix_memalign((void **) &A1D_Memregion_global, 16, sizeof(DCMF_Memregion_t)*A1D_Process_info.num_ranks);
-    A1U_ERR_POP(result = (!A1D_Memregion_global), "Memregion allocation Failed \n"); 
+    result = posix_memalign((void **) &A1D_Memregion_global, 16, sizeof(DCMF_Memregion_t)*A1D_Process_info.num_ranks);
+    A1U_ERR_POP(result!=0, "Memregion allocation Failed \n");
 
     result = DCMF_Memregion_create (&A1D_Memregion_global[A1D_Process_info.my_rank], &out,
                  (size_t) -1, NULL, 0);
-    A1U_ERR_POP(result,"Global Memory Registration Failed \n");
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"Global Memory Registration Failed \n");
 
     result = A1DI_Memregion_Global_xchange();
-    A1U_ERR_POP(result,"Memory Region Xchange Failed \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"Memory Region Xchange Failed \n");
 
-    posix_memalign((void **) &A1D_Membase_global, 16, sizeof(void *) * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(result = (!A1D_Membase_global), "Membase allocation Failed \n");
+    result = posix_memalign((void **) &A1D_Membase_global, 16, sizeof(void *) * A1D_Process_info.num_ranks);
+    A1U_ERR_POP(result!=0, "Membase allocation Failed \n");
 
     for (i=0; i<A1D_Process_info.num_ranks; i++) { 
         result =  DCMF_Memregion_query(&A1D_Memregion_global[i], &out, (void **) &A1D_Membase_global[i]);
-        A1U_ERR_POP(result, "Memregion query failed \n");
+        A1U_ERR_POP(result!=DCMF_SUCCESS, "Memregion query failed \n");
     }
 
   fn_exit:
@@ -409,11 +417,11 @@ int A1DI_Request_pool_initialize() {
     A1U_FUNC_ENTER();
 
     max_regions = (a1_request_pool_limit - a1_request_pool_initial)/a1_request_pool_increment + 1;
-    posix_memalign((void **) &(A1D_Request_pool.region_ptr), 16, sizeof(void *)*max_regions);
-    A1U_ERR_POP(result = !(A1D_Request_pool.region_ptr),"memory region list allocation failed \n");
+    result = posix_memalign((void **) &(A1D_Request_pool.region_ptr), 16, sizeof(void *)*max_regions);
+    A1U_ERR_POP(result!=0,"memory region list allocation failed \n");
 
-    posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)*a1_request_pool_initial); 
-    A1U_ERR_POP(result = !request,"memory allocation for request pool failed \n");
+    result = posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)*a1_request_pool_initial);
+    A1U_ERR_POP(result!=0,"memory allocation for request pool failed \n");
     a1_request_pool_size = a1_request_pool_initial;
 
     A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *)request;
@@ -527,42 +535,42 @@ int A1D_Initialize(int thread_level) {
     DCMF_Hardware(&(A1D_Process_info.hw));
 
     result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
-    A1U_ERR_POP(result,"global barrier initialize returned with error \n");     
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"global barrier initialize returned with error \n");
 
     A1DI_Read_parameters();
 
     result = A1DI_Control_xchange_initialize();
-    A1U_ERR_POP(result,"control xchange initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"control xchange initialize returned with error \n");
 
     result = A1DI_Control_flushack_initialize();
-    A1U_ERR_POP(result,"control flushack initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"control flushack initialize returned with error \n");
 
     result = A1DI_GlobalBarrier_initialize();
-    A1U_ERR_POP(result,"global barrier initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"global barrier initialize returned with error \n");
 
     result = A1DI_Put_initialize(); 
-    A1U_ERR_POP(result,"Put initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"Put initialize returned with error \n");
 
     result = A1DI_Get_initialize();
-    A1U_ERR_POP(result,"Get initialize returned with error \n"); 
+    A1U_ERR_POP(result!=A1_SUCCESS,"Get initialize returned with error \n");
 
     result = A1DI_Packed_puts_initialize();
-    A1U_ERR_POP(result,"Packed puts initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"Packed puts initialize returned with error \n");
 
     result = A1DI_Packed_gets_initialize();
-    A1U_ERR_POP(result,"Packed puts initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"Packed puts initialize returned with error \n");
 
     result = A1DI_Send_flush_initialize();
-    A1U_ERR_POP(result,"Send flush initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"Send flush initialize returned with error \n");
 
     result = A1DI_Put_flush_initialize();
-    A1U_ERR_POP(result,"Put flush initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"Put flush initialize returned with error \n");
 
     result = A1DI_Request_pool_initialize();
-    A1U_ERR_POP(result,"Request initialization failed \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"Request initialization failed \n");
 
     result = A1DI_Memregion_Global_initialize();
-    A1U_ERR_POP(result,"Memregion list initialize returned with error \n");    
+    A1U_ERR_POP(result!=A1_SUCCESS,"Memregion list initialize returned with error \n");
 
     /* FIXME: Need to do stuff here! */
 
