@@ -1,5 +1,5 @@
 /* -*- Mode: C; c-basic-offset:4 ; -*- */
-/*
+/D*
  *  Copyright (C) 2010 by Argonne National Laboratory.
  *      See COPYRIGHT in top-level directory.
  */
@@ -386,7 +386,7 @@ DCMF_Result A1DI_Get_initialize()
     fn_fail: goto fn_exit;
 }
 
-DCMF_Result A1DI_Packed_putacc_initialize()
+DCMF_Result A1DI_Putacc_initialize()
 {
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Send_Configuration_t conf;
@@ -843,6 +843,9 @@ int A1D_Initialize(int thread_level)
     result = A1DI_Packed_gets_initialize();
     A1U_ERR_POP(result != A1_SUCCESS,
                 "Packed puts initialize returned with error \n");
+
+    result = A1DI_Packed_putaccs_initialize();
+    A1U_ERR_POP(result!=A1_SUCCESS,"Get initialize returned with error \n");
 
     result = A1DI_Send_flush_initialize();
     A1U_ERR_POP(result != A1_SUCCESS,

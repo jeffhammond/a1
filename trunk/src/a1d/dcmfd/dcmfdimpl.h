@@ -326,3 +326,7 @@ void* A1DI_Unpack_data_strided_acc(void *pointer,
                                    int stride_level,
                                    A1_datatype_t a1_type,
                                    void* scaling);
+
+int A1D_Acc_process(void *src, 
+                    int bytes, 
+                    A1D_Putacc_header_t *header);
