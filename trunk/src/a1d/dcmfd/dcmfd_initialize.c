@@ -807,7 +807,9 @@ int A1D_Initialize(int thread_level)
 
     A1D_Process_info.my_rank = DCMF_Messager_rank();
     A1D_Process_info.num_ranks = DCMF_Messager_size();
-    DCMF_Hardware(&(A1D_Process_info.hw));
+    /* TODO: initialize node rank/size properly on BGP */
+    A1D_Process_info.my_node = DCMF_Messager_rank();
+    A1D_Process_info.num_nodes = DCMF_Messager_size();
 
     result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
     A1U_ERR_POP(result != DCMF_SUCCESS,
