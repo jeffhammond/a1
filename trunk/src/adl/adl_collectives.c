@@ -43,7 +43,8 @@ void A1_Sync_group(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    /*Do nothing. A1D_Sync_group(group) to be implemented*/
+    status = A1D_Sync_group(group);
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Sync_group returned an error\n");
 
     fn_exit: A1U_FUNC_EXIT();
     return;
