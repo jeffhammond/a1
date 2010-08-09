@@ -15,6 +15,7 @@ liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmfd/dcmfd_param.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_get.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_gets.c \
         $(top_srcdir)/src/a1d/dcmfd/dcmfd_putacc.c \
+        $(top_srcdir)/src/a1d/dcmfd/dcmfd_putaccs.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_collectives.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_misc.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_util.c 

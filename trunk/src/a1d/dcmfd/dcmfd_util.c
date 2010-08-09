@@ -38,7 +38,7 @@ int A1DI_Unpack_strided(void *packet)
 
      /*Unpacking and Copying data*/
      temp = (void *)((size_t)packet + sizeof(A1D_Packed_puts_header_t));
-     A1DI_Unpack_data_strided(temp, header->vaddress, header->trg_stride_ar, header->count,\
+     A1DI_Unpack_data_strided(temp, header->target_ptr, header->trg_stride_ar, header->count,\
                  header->stride_levels);
 
      if(header->is_getresponse) {
@@ -97,7 +97,7 @@ int A1DI_Pack_strided(void **packet, int *size_packet, void *source_ptr, int *sr
     A1U_ERR_POP(result!=A1_SUCCESS,"packet allocation failed \n");
 
     /*Copying header information*/
-    header.vaddress = target_ptr;
+    header.target_ptr = target_ptr;
     header.stride_levels = stride_levels;
     memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels*sizeof(uint32_t));
     memcpy(header.count, count, (stride_levels+1)*sizeof(uint32_t));
@@ -116,4 +116,148 @@ int A1DI_Pack_strided(void **packet, int *size_packet, void *source_ptr, int *sr
     goto fn_exit;
 }
 
+void* A1DI_Unpack_data_strided_acc(void *pointer, void *trg_ptr, int *trg_stride_ar,
+        int *count, int stride_level, A1_datatype_t a1_type, void* scaling)
+{
+     int i;
 
+     A1U_FUNC_ENTER();
+
+     if(stride_level > 0) {
+         for(i=0; i<count[stride_level]; i++)
+         {
+            pointer = A1DI_Unpack_data_strided_acc(pointer, 
+                          (void *) ((size_t)trg_ptr + i*trg_stride_ar[stride_level-1]), 
+                          trg_stride_ar,
+                          count, 
+                          stride_level-1, 
+                          a1_type, 
+                          scaling);
+         }
+     } else {
+         switch(a1_type)
+         {
+             case A1_INT32:
+                    A1DI_ACC_EXECUTE(int32_t, pointer, trg_ptr, *((int32_t *) scaling),
+                         count[0]/sizeof(int32_t));
+                    break;
+             case A1_INT64:
+                    A1DI_ACC_EXECUTE(int64_t, pointer, trg_ptr, *((int64_t *) scaling),
+                         count[0]/sizeof(int64_t));
+                    break;
+             case A1_UINT32:
+                    A1DI_ACC_EXECUTE(uint32_t, pointer, trg_ptr, *((uint32_t *) scaling),
+                         count[0]/sizeof(uint32_t));
+                    break;
+             case A1_UINT64:
+                    A1DI_ACC_EXECUTE(uint64_t, pointer, trg_ptr, *((uint64_t *) scaling),
+                         count[0]/sizeof(uint64_t));
+                    break;
+             case A1_FLOAT:
+                    A1DI_ACC_EXECUTE(float, pointer, trg_ptr, *((float *) scaling),
+                         count[0]/sizeof(float));
+                    break;
+             case A1_DOUBLE:
+                    A1DI_ACC_EXECUTE(double, pointer, trg_ptr, *((double *) scaling),
+                         count[0]/sizeof(double));
+                    break;
+             default:
+                    A1U_ERR_ABORT(A1_ERROR,
+                         "Invalid datatype received in Putacc operation \n");
+                    break;
+         }
+         pointer = (void *)((size_t)pointer + count[0]);
+     }
+
+  fn_exit:
+     A1U_FUNC_EXIT();
+     return pointer;
+
+  fn_fail:
+     goto fn_exit;
+}
+
+int A1DI_Unpack_strided_putaccs(void *packet)
+{
+     int result = A1_SUCCESS;
+     void *temp;
+     A1D_Packed_putaccs_header_t *header;
+
+     A1U_FUNC_ENTER();
+
+     header = (A1D_Packed_putaccs_header_t *) packet;
+
+     /*Unpacking and Copying data*/
+     temp = (void *)((size_t)packet + sizeof(A1D_Packed_putaccs_header_t));
+     A1DI_Unpack_data_strided_acc(temp, header->target_ptr, header->trg_stride_ar, header->count,\
+                 header->stride_levels, header->datatype, (void *) &(header->scaling));
+
+  fn_exit:
+     A1U_FUNC_EXIT();
+     return result;
+
+  fn_fail:
+     goto fn_exit;
+}
+
+int A1DI_Pack_strided_putaccs(void **packet, int *size_packet, void *source_ptr, int *src_stride_ar, 
+        void *target_ptr, int *trg_stride_ar, int *count, int stride_levels, A1_datatype_t a1_type, 
+        void *scaling)
+{
+    int result = A1_SUCCESS;
+    int i, size_data;
+    void *temp;
+    A1D_Packed_putaccs_header_t header;
+
+    A1U_FUNC_ENTER();
+
+    size_data = count[0];
+    for(i=1; i<=stride_levels; i++)  size_data *= count[i];
+    *size_packet = sizeof(A1D_Packed_putaccs_header_t) + size_data;
+
+    result = posix_memalign(packet, 64, *size_packet);
+    A1U_ERR_POP(result!=A1_SUCCESS,"packet allocation failed \n");
+
+    /*Copying header information*/
+    header.target_ptr = target_ptr;
+    header.stride_levels = stride_levels;
+    memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels*sizeof(uint32_t));
+    memcpy(header.count, count, (stride_levels+1)*sizeof(uint32_t));
+    header.datatype = a1_type;
+    switch(a1_type) {
+       case A1_INT32:
+              memcpy((void *) &(header.scaling), scaling, sizeof(int32_t));
+              break;
+       case A1_INT64:
+              memcpy((void *) &(header.scaling), scaling, sizeof(int64_t));
+              break;
+       case A1_UINT32:
+              memcpy((void *) &(header.scaling), scaling, sizeof(uint32_t));
+              break;
+       case A1_UINT64:
+              memcpy((void *) &(header.scaling), scaling, sizeof(uint64_t));
+              break;
+       case A1_FLOAT:
+              memcpy((void *) &(header.scaling), scaling, sizeof(float));
+              break;
+       case A1_DOUBLE:
+              memcpy((void *) &(header.scaling), scaling, sizeof(double));
+              break;
+       default:
+              A1U_ERR_POP(result,
+                    "Invalid a1_type received in Putacc operation \n");
+              break;
+    }
+    memcpy(*packet, &header, sizeof(A1D_Packed_putaccs_header_t));
+
+    /*Copying data*/
+    temp = (void *) ((size_t)(*packet) + sizeof(A1D_Packed_putaccs_header_t));
+    A1DI_Pack_data_strided(temp, source_ptr, src_stride_ar, count, stride_levels);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}

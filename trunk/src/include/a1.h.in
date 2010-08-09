@@ -80,7 +80,7 @@ typedef enum
     A1_FLOAT,         /**< single-precision */
     A1_DOUBLE,        /**< double-precision */
 }
-A1_datatype;
+A1_datatype_t;
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -466,7 +466,7 @@ int A1_MultiPutS(int target_count, int target[], void* source_ptr[], int **src_s
   */
 
 int A1_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
-                A1_datatype a1_type, void* scaling);
+                A1_datatype_t a1_type, void* scaling);
 
 /**
   * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -487,7 +487,7 @@ int A1_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
 
 int A1_PutAccS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
                  int *trg_stride_ar, int *count, int stride_levels,
-                 A1_datatype a1_type, void* scaling);
+                 A1_datatype_t a1_type, void* scaling);
 
 /**
   * \brief Blocking copy of contiguous data from remote memory to local memory.
@@ -582,7 +582,7 @@ int A1_MultiGetS(int target_count, int target[], void* source_ptr[], int **src_s
   */
 
 int A1_GetAcc(int target, void* source_ptr, void* target_ptr, int bytes,
-                A1_datatype a1_type, void* scaling);
+                A1_datatype_t a1_type, void* scaling);
 
 /**
   * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -603,7 +603,7 @@ int A1_GetAcc(int target, void* source_ptr, void* target_ptr, int bytes,
 
 int A1_GetAccS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
                  int *trg_stride_ar, int *count, int stride_levels,
-                 A1_datatype a1_type, void* scaling);
+                 A1_datatype_t a1_type, void* scaling);
 
 
 /**
@@ -641,7 +641,7 @@ int A1_Copy(int source, int target, void* source_ptr, void* target_ptr, int byte
   */
 
 int A1_CopyAcc(int source, int target, void* source_ptr, void* target_ptr, int bytes,
-                A1_datatype a1_type, void* scaling);
+                A1_datatype_t a1_type, void* scaling);
 
 /* FIXME: More API functions to come */
 

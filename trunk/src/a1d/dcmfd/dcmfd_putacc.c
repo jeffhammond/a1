@@ -6,15 +6,6 @@
 
 #include "dcmfdimpl.h"
 
-#define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count) do {    \
-    int i;                                                                 \
-    datatype *a = (datatype *) source;                                     \
-    datatype *b = (datatype *) target;                                     \
-    datatype c = (datatype *) scaling;                                     \
-    for(i=0; i<count; i++)                                                 \
-          a[i] = a[i] + b[i]*c;                                            \
-} while(0)                                                                 \
-
 int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header) 
 {
     int result = A1_SUCCESS;
@@ -24,27 +15,27 @@ int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header)
     switch(header->datatype)
     {
         case A1_INT32:
-               A1DI_ACC_EXECUTE(int32_t, src, header->target_ptr, header->int32_value,
+               A1DI_ACC_EXECUTE(int32_t, src, header->target_ptr, header->scaling.int32_value,
                     bytes/sizeof(int32_t));
                break;
         case A1_INT64:
-               A1DI_ACC_EXECUTE(int64_t, src, header->target_ptr, header->int64_value,
+               A1DI_ACC_EXECUTE(int64_t, src, header->target_ptr, header->scaling.int64_value,
                     bytes/sizeof(int64_t));
                break;
         case A1_UINT32:
-               A1DI_ACC_EXECUTE(uint32_t, src, header->target_ptr, header->uint32_value,
+               A1DI_ACC_EXECUTE(uint32_t, src, header->target_ptr, header->scaling.uint32_value,
                     bytes/sizeof(uint32_t));
                break;
         case A1_UINT64:
-               A1DI_ACC_EXECUTE(uint64_t, src, header->target_ptr, header->uint64_value,
+               A1DI_ACC_EXECUTE(uint64_t, src, header->target_ptr, header->scaling.uint64_value,
                     bytes/sizeof(uint64_t));
                break;
         case A1_FLOAT:
-               A1DI_ACC_EXECUTE(float, src, header->target_ptr, header->float_value,
+               A1DI_ACC_EXECUTE(float, src, header->target_ptr, header->scaling.float_value,
                     bytes/sizeof(float));
                break;
         case A1_DOUBLE:
-               A1DI_ACC_EXECUTE(double, src, header->target_ptr, header->double_value,
+               A1DI_ACC_EXECUTE(double, src, header->target_ptr, header->scaling.double_value,
                     bytes/sizeof(double));
                break;
         default:
@@ -62,7 +53,7 @@ int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header)
 }
 
 int A1D_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
-                A1_datatype a1_type, void* scaling)
+                A1_datatype_t a1_type, void* scaling)
 {
     DCMF_Result result = A1_SUCCESS;
     DCMF_Request_t request;
@@ -83,22 +74,22 @@ int A1D_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
     switch(a1_type) 
     {
        case A1_INT32: 
-             header.int32_value = *((int32_t *) scaling);
+             header.scaling.int32_value = *((int32_t *) scaling);
              break;
        case A1_INT64: 
-             header.int64_value = *((int64_t *) scaling);
+             header.scaling.int64_value = *((int64_t *) scaling);
              break;
        case A1_UINT32:
-             header.uint32_value = *((uint32_t *) scaling);
+             header.scaling.uint32_value = *((uint32_t *) scaling);
              break;
        case A1_UINT64:
-             header.uint64_value = *((uint64_t *) scaling);
+             header.scaling.uint64_value = *((uint64_t *) scaling);
              break;
        case A1_FLOAT:
-             header.float_value = *((float *) scaling);
+             header.scaling.float_value = *((float *) scaling);
              break;
        case A1_DOUBLE: 
-             header.double_value = *((double *) scaling); 
+             header.scaling.double_value = *((double *) scaling); 
              break;
        default:
              result = A1_ERROR;

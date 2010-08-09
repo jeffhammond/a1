@@ -32,7 +32,7 @@ int A1D_GetS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
          int *trg_stride_ar, int *count, int stride_levels);
 
 int A1D_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
-                A1_datatype a1_type, void* scaling);
+                A1_datatype_t a1_type, void* scaling);
 
 int A1D_Flush(int proc);
 

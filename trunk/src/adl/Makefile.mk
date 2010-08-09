@@ -14,5 +14,6 @@ liba1_la_SOURCES += $(top_srcdir)/src/adl/adl_initialize.c \
 	$(top_srcdir)/src/adl/adl_get.c \
 	$(top_srcdir)/src/adl/adl_gets.c \
         $(top_srcdir)/src/adl/adl_putacc.c \
+        $(top_srcdir)/src/adl/adl_putaccs.c \
 	$(top_srcdir)/src/adl/adl_collectives.c \
 	$(top_srcdir)/src/adl/adl_misc.c

@@ -61,7 +61,14 @@
       }                                                           \
     } while (0)                                                   \
 
-
+#define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count) do {    \
+    int i;                                                                 \
+    datatype *a = (datatype *) source;                                     \
+    datatype *b = (datatype *) target;                                     \
+    datatype c = (datatype) scaling;                                       \
+    for(i=0; i<count; i++)                                                 \
+          b[i] = b[i] + a[i]*c;                                            \
+} while(0)                                                                 \
 
 /*************************************************
  *             Data Structures                   *
@@ -83,14 +90,33 @@ typedef struct
    int bytes;
 } A1D_Buffer_info_t;
 
+typedef union
+{
+   DCQuad    info[2];
+   struct
+   {
+     void* target_ptr;
+     A1_datatype_t datatype;
+     union
+     {
+       int32_t int32_value;
+       int64_t int64_value;
+       uint32_t uint32_value;
+       uint64_t uint64_value;
+       float float_value;
+       double double_value;
+     }scaling;
+   };
+} A1D_Putacc_header_t;
+
 /* TODO: Pack header supports only upto 3D arrays. Need to increase structure or 
  * find a better way to represent it */
 typedef struct
 {
-   void *vaddress;
-   int stride_levels;
+   void *target_ptr;
    int trg_stride_ar[2];
    int count[3];
+   int stride_levels;
    int is_getresponse;
 } A1D_Packed_puts_header_t;
 
@@ -105,24 +131,23 @@ typedef struct
    int stride_levels;
 } A1D_Packed_gets_header_t;
 
-typedef union 
+typedef struct
 {
-   DCQuad    info[2];
-   struct
+   void *target_ptr;
+   int trg_stride_ar[2];
+   int count[3];
+   int stride_levels;
+   A1_datatype_t datatype;
+   union
    {
-     void* target_ptr;
-     A1_datatype datatype;
-     union 
-     {
-       int32_t int32_value;
-       int64_t int64_value;
-       uint32_t uint32_value;
-       uint64_t uint64_value;
-       float float_value;
-       double double_value;
-     }; 
-   }; 
-} A1D_Putacc_header_t;
+     int32_t int32_value;
+     int64_t int64_value;
+     uint32_t uint32_value;
+     uint64_t uint64_value;
+     float float_value;
+     double double_value;
+   } scaling;
+} A1D_Packed_putaccs_header_t;
 
 typedef struct
 {
@@ -181,8 +206,6 @@ typedef struct
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
 extern A1D_Control_flushack_info_t A1D_Control_flushack_info;
-extern A1D_Send_info_t A1D_Packed_puts_info;
-extern A1D_Send_info_t A1D_Packed_gets_info;
 extern A1D_Send_info_t A1D_Send_flush_info;
 extern A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
 extern A1D_Request_pool_t A1D_Request_pool;
@@ -191,6 +214,9 @@ extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
 extern DCMF_Protocol_t A1D_Generic_putacc_protocol;
+extern DCMF_Protocol_t A1D_Packed_puts_protocol;
+extern DCMF_Protocol_t A1D_Packed_gets_protocol;
+extern DCMF_Protocol_t A1D_Packed_putaccs_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
 
@@ -228,19 +254,25 @@ void A1DI_Read_parameters();
 
 int A1DI_Send_flush(int proc);
 
-int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
          int *trg_stride_ar, int *count, int stride_levels, int is_getresponse); 
 
 int A1DI_Pack_strided(void **packet, int *size_packet, void *source_ptr, int *src_stride_ar, 
         void *target_ptr, int *trg_stride_ar, int *count, int stride_levels, int is_getresponse);
 
-void* A1DI_Pack_data_strided(void *pointer, void *source_ptr, int *src_stride_ar,\
+int A1DI_Pack_strided_putaccs(void **packet, int *size_packet, void *source_ptr, int *src_stride_ar,
+        void *target_ptr, int *trg_stride_ar, int *count, int stride_levels, A1_datatype_t a1_type,
+        void *scaling);
+
+void* A1DI_Pack_data_strided(void *pointer, void *source_ptr, int *src_stride_ar,
         int *count, int stride_level);
 
 int A1DI_Unpack_strided(void *packet);
 
-void* A1DI_Unpack_data_strided(void *pointer, void *trg_ptr, int *trg_stride_ar,\
+int A1DI_Unpack_strided_putaccs(void *packet);
+
+void* A1DI_Unpack_data_strided(void *pointer, void *trg_ptr, int *trg_stride_ar,
         int *count, int stride_level);
 
-
-
+void* A1DI_Unpack_data_strided_acc(void *pointer, void *trg_ptr, int *trg_stride_ar,
+        int *count, int stride_level, A1_datatype_t a1_type, void* scaling);

@@ -15,7 +15,6 @@ int A1DI_Packed_gets(int target, void* source_ptr, int *src_stride_ar, void* tar
 
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t *request;
-    DCQuad msginfo;
     A1D_Packed_gets_header_t packet;
     int active;
  
@@ -32,15 +31,15 @@ int A1DI_Packed_gets(int target, void* source_ptr, int *src_stride_ar, void* tar
 
     request = A1DI_Get_request();
   
-    result = DCMF_Send(&A1D_Packed_gets_info.protocol,
+    result = DCMF_Send(&A1D_Packed_gets_protocol,
                       request,
                       A1D_Nocallback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,  
                       sizeof(A1D_Packed_gets_header_t),
                       (void *) &packet,
-                      &msginfo,
-                      1);
+                      NULL,
+                      0);
     A1U_ERR_POP(result,"Send returned with an error \n");
 
     A1D_Connection_send_active[target]++;

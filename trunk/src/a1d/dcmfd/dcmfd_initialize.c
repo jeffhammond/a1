@@ -10,8 +10,6 @@ DCMF_Configure_t A1D_Messager_info;
 A1D_Process_info_t A1D_Process_info;
 A1D_Control_xchange_info_t A1D_Control_xchange_info;
 A1D_Control_flushack_info_t A1D_Control_flushack_info;
-A1D_Send_info_t A1D_Packed_puts_info;
-A1D_Send_info_t A1D_Packed_gets_info;
 A1D_Send_info_t A1D_Send_flush_info;
 A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
 A1D_Request_pool_t A1D_Request_pool;
@@ -19,6 +17,9 @@ A1D_Request_pool_t A1D_Request_pool;
 DCMF_Protocol_t A1D_Generic_put_protocol;
 DCMF_Protocol_t A1D_Generic_get_protocol;
 DCMF_Protocol_t A1D_Generic_putacc_protocol;
+DCMF_Protocol_t A1D_Packed_puts_protocol;
+DCMF_Protocol_t A1D_Packed_gets_protocol;
+DCMF_Protocol_t A1D_Packed_putaccs_protocol;
 DCMF_Callback_t A1D_Nocallback;
 DCMF_Memregion_t *A1D_Memregion_global;
 
@@ -70,6 +71,16 @@ void A1DI_RecvDone_packedputs_callback(void *clientdata, DCMF_Error_t *error)
     free((void *)buffer_info);
 }
 
+void A1DI_RecvDone_packedputaccs_callback(void *clientdata, DCMF_Error_t *error)
+{
+    A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
+
+    A1DI_Unpack_strided_putaccs(buffer_info->buffer_ptr);
+
+    free(buffer_info->buffer_ptr);
+    free((void *)buffer_info);
+}
+
 void A1DI_RecvDone_putacc_callback(void *clientdata, DCMF_Error_t *error)
 {
     int result = A1_SUCCESS; 
@@ -116,6 +127,17 @@ void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
                      header->stride_levels,
                      is_getresponse);
 
+}
+
+
+void A1DI_RecvSendShort_packedputaccs_callback(void *clientdata,
+                                                   const DCQuad *msginfo,
+                                                   unsigned count,
+                                                   size_t peer,
+                                                   const char *src,
+                                                   size_t bytes)
+{
+    A1DI_Unpack_strided_putaccs((void *) src);
 }
 
 void A1DI_RecvSendShort_putacc_callback(void *clientdata,
@@ -191,6 +213,35 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
     cb_done->clientdata = (void *) putacc_recv_info;
 
     return &((putacc_recv_info->buffer_info).request);
+}
+
+DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
+                                                       const DCQuad *msginfo,
+                                                       unsigned count,
+                                                       size_t peer,
+                                                       size_t sndlen,
+                                                       size_t *rcvlen,
+                                                       char **rcvbuf,
+                                                       DCMF_Callback_t *cb_done)
+{
+    int result = 0;
+    A1D_Buffer_info_t *buffer_info;
+
+    result = posix_memalign((void **) &buffer_info, 16, sizeof(A1D_Buffer_info_t));
+    A1U_ERR_ABORT(result != 0,
+                "posix_memalign failed in A1DI_RecvSend_packedputaccs_callback\n");
+
+    *rcvlen = sndlen;
+    result = posix_memalign((void **) rcvbuf, 16, sndlen);
+    A1U_ERR_ABORT(result != 0,
+                "posix_memalign failed in A1DI_RecvSend_packedputaccs_callback\n");
+
+    buffer_info->buffer_ptr = (void *) *rcvbuf;
+
+    cb_done->function = A1DI_RecvDone_packedputaccs_callback;
+    cb_done->clientdata = (void *) buffer_info;
+
+    return &(buffer_info->request);
 }
 
 void A1DI_RecvSendShort_flush_callback(void *clientdata,
@@ -365,7 +416,7 @@ DCMF_Result A1DI_Packed_puts_initialize()
     conf.cb_recv = A1DI_RecvSend_packedputs_callback;
     conf.cb_recv_clientdata = NULL;
 
-    result = DCMF_Send_register(&A1D_Packed_puts_info.protocol, &conf);
+    result = DCMF_Send_register(&A1D_Packed_puts_protocol, &conf);
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "packed puts registartion returned with error %d \n",
                 result);
@@ -393,7 +444,7 @@ DCMF_Result A1DI_Packed_gets_initialize()
     conf.cb_recv = NULL;
     conf.cb_recv_clientdata = NULL;
 
-    result = DCMF_Send_register(&A1D_Packed_gets_info.protocol, &conf);
+    result = DCMF_Send_register(&A1D_Packed_gets_protocol, &conf);
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "packed gets registartion returned with error %d \n",
                 result);
@@ -402,6 +453,31 @@ DCMF_Result A1DI_Packed_gets_initialize()
     return result;
 
     fn_fail: goto fn_exit;
+}
+
+DCMF_Result A1DI_Packed_putaccs_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Send_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    conf.cb_recv_short = A1DI_RecvSendShort_packedputaccs_callback;
+    conf.cb_recv_short_clientdata = NULL;
+    conf.cb_recv = A1DI_RecvSend_packedputaccs_callback;
+    conf.cb_recv_clientdata = NULL;
+
+    result = DCMF_Send_register(&A1D_Packed_putaccs_protocol, &conf);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"packed putaccs registartion returned with error %d \n",result);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Send_flush_initialize()

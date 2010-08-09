@@ -6,13 +6,12 @@
 
 #include "dcmfdimpl.h"
 
-int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
          int *trg_stride_ar, int *count, int stride_levels, int is_getresponse) {
 
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t *request;
     DCMF_Callback_t callback;
-    DCQuad msginfo;
     void *packet;
     unsigned size_packet, active;
  
@@ -39,15 +38,15 @@ int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* tar
       active = 1;
     }
 
-    result = DCMF_Send(&A1D_Packed_puts_info.protocol,
+    result = DCMF_Send(&A1D_Packed_puts_protocol,
                       request,
                       callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,  
                       size_packet,
                       packet,
-                      &msginfo,
-                      1);
+                      NULL,
+                      0);
     A1U_ERR_POP(result,"Send returned with an error \n");
    
     if(!is_getresponse) {
@@ -65,7 +64,7 @@ int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* tar
 
 }
 
-int A1DI_Direct_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,\
+int A1DI_Direct_puts(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
         int *trg_stride_ar, int* count, int stride_level)  
 {
     int result = A1_SUCCESS;
@@ -79,8 +78,9 @@ int A1DI_Direct_puts(int target, void* source_ptr, int *src_stride_ar, void* tar
 
          for(i=0; i<count[stride_level]; i++)
          {
-            A1DI_Direct_puts(target, (void *) ((size_t)source_ptr + i*src_stride_ar[stride_level-1]), src_stride_ar,\
-                  (void *) ((size_t)target_ptr + i*trg_stride_ar[stride_level-1]), trg_stride_ar, count, stride_level-1);
+            A1DI_Direct_puts(target, (void *) ((size_t)source_ptr + i*src_stride_ar[stride_level-1]), 
+                  src_stride_ar, (void *) ((size_t)target_ptr + i*trg_stride_ar[stride_level-1]), 
+                  trg_stride_ar, count, stride_level-1);
          }
 
     } else {
