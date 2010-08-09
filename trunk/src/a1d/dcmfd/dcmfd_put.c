@@ -18,7 +18,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
 
     A1DI_CRITICAL_ENTER();
 
-    if(a1_enable_scalefree_flush) {
+    if(a1_enable_immediate_flush) {
         done_callback  = A1D_Nocallback;
         done_active = 0; 
         ack_callback.function = A1DI_Generic_done; 

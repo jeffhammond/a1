@@ -21,9 +21,8 @@
 #define A1C_ENABLE_CHT 0
 
 #define A1C_DIRECT_NONCONTIG_THRESHOLD 512
-#define A1C_PACKED_NONCONTIG_LIMIT 4096 
 
-#define A1C_ENABLE_SCALEFREE_FLUSH 0 
+#define A1C_ENABLE_IMMEDIATE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
 #define A1C_REQUEST_POOL_INITIAL 200
@@ -77,6 +76,13 @@ typedef struct
    DCMF_Hardware_t hw;
 } A1D_Process_info_t;
 
+typedef struct
+{
+   DCMF_Request_t request;
+   void *buffer_ptr;
+   int bytes;
+} A1D_Buffer_info_t;
+
 /* TODO: Pack header supports only upto 3D arrays. Need to increase structure or 
  * find a better way to represent it */
 typedef struct
@@ -99,6 +105,31 @@ typedef struct
    int stride_levels;
 } A1D_Packed_gets_header_t;
 
+typedef union 
+{
+   DCQuad    info[2];
+   struct
+   {
+     void* target_ptr;
+     A1_datatype datatype;
+     union 
+     {
+       int32_t int32_value;
+       int64_t int64_value;
+       uint32_t uint32_value;
+       uint64_t uint64_value;
+       float float_value;
+       double double_value;
+     }; 
+   }; 
+} A1D_Putacc_header_t;
+
+typedef struct
+{
+  A1D_Buffer_info_t buffer_info;
+  A1D_Putacc_header_t header;
+} A1D_Putacc_recv_info_t;
+ 
 typedef struct A1D_Request_info_t
 {
    DCMF_Request_t request;
@@ -159,6 +190,7 @@ extern A1D_Request_pool_t A1D_Request_pool;
 extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
+extern DCMF_Protocol_t A1D_Generic_putacc_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
 
@@ -169,10 +201,9 @@ extern uint32_t *A1D_Connection_put_active;
 extern uint32_t A1D_Expecting_getresponse;
 
 extern uint32_t a1_enable_cht;
-extern uint32_t a1_enable_scalefree_flush; 
+extern uint32_t a1_enable_immediate_flush; 
 extern uint32_t a1_alignment;
 extern uint32_t a1_direct_noncontig_threshold;
-extern uint32_t a1_packed_noncontig_limit;
 extern uint32_t a1_flushall_pending_limit;
 extern uint32_t a1_request_pool_initial; 
 extern uint32_t a1_request_pool_increment; 

@@ -22,16 +22,18 @@ int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* tar
             stride_levels, is_getresponse); 
     A1U_ERR_POP(result!=DCMF_SUCCESS,"Pack function returned with an error \n");
 
-    request = A1DI_Get_request();
-    
     /* If this put is in response to a get, we are in a callback, so we should not 
-      hit advance. We set buffer address in the callback which frees it when 
-      invoked */ 
+      hit advance. We set buffer and requesst pointers in the callback which frees it 
+      when invoked */
     if(is_getresponse) {
+      A1D_Buffer_info_t *response_info;
+      posix_memalign((void **) &response_info, 16, sizeof(A1D_Buffer_info_t));
+      response_info->buffer_ptr = packet;
+      request = &(response_info->request); 
       callback.function = A1DI_Free_done;
-      callback.clientdata = (void *) packet;
-      active = 0; 
+      callback.clientdata = (void *) response_info;
     } else {
+      request = A1DI_Get_request();
       callback.function = A1DI_Generic_done;
       callback.clientdata = (void *) &active;
       active = 1;
@@ -48,7 +50,8 @@ int A1DI_Packed_puts(int target, void* source_ptr, int *src_stride_ar, void* tar
                       1);
     A1U_ERR_POP(result,"Send returned with an error \n");
    
-    if(!is_getresponse) { 
+    if(!is_getresponse) {
+      A1D_Connection_send_active[target]++; 
       while(active > 0) A1DI_Advance();
       free(packet);
     }
@@ -99,6 +102,9 @@ int A1DI_Direct_puts(int target, void* source_ptr, int *src_stride_ar, void* tar
                       dst_disp,
                       A1D_Nocallback);
          A1U_ERR_POP(result,"Put returned with an error \n");
+
+         A1D_Connection_put_active[target]++;
+
     }
 
   fn_exit:
@@ -124,7 +130,7 @@ int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
           trg_stride_ar, count, stride_levels);
       A1U_ERR_POP(result,"Direct puts function returned with an error \n");
 
-      if(a1_enable_scalefree_flush) { 
+      if(a1_enable_immediate_flush) { 
           A1DI_Put_flush(target); 
       } else {
           A1DI_Put_flush_local(target);
@@ -136,7 +142,7 @@ int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
           trg_stride_ar, count, stride_levels, 0);
       A1U_ERR_POP(result,"Packed puts function returned with an error \n");   
 
-      if(a1_enable_scalefree_flush) {
+      if(a1_enable_immediate_flush) {
           A1DI_Send_flush(target);
       } 
 

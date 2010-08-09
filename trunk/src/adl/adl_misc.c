@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Rank() 
+int A1_Process_id(A1_group_t* group) 
 {
     A1U_FUNC_ENTER();
 
@@ -21,13 +21,13 @@ int A1_Rank()
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return A1D_Rank();
+    return A1D_Process_id(group);
 
   fn_fail:
     goto fn_exit;
 }
 
-int A1_Node()
+int A1_Process_total(A1_group_t* group)
 {
     A1U_FUNC_ENTER();
 
@@ -40,13 +40,13 @@ int A1_Node()
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return A1D_Node();
+    return A1D_Process_total(group);
 
   fn_fail:
     goto fn_exit;
 }
 
-int A1_Size()
+int A1_Node_id(A1_group_t* group)
 {
     A1U_FUNC_ENTER();
 
@@ -59,12 +59,31 @@ int A1_Size()
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return A1D_Size();
+    return A1D_Node_id(group);
 
   fn_fail:
     goto fn_exit;
 }
 
+
+int A1_Node_total(A1_group_t* group)
+{
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return A1D_Node_total(group);
+
+  fn_fail:
+    goto fn_exit;
+}
 
 double A1_Time_seconds()
 {

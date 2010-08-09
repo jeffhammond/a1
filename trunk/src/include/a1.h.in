@@ -163,7 +163,7 @@ double A1_Time_seconds();
   * \ingroup INFORMATION 
   */
 
-int A1_Process_id(A1_group_t group);
+int A1_Process_id(A1_group_t* group);
 
 /**
   * \brief Returns total number of processes in a group.
@@ -176,7 +176,7 @@ int A1_Process_id(A1_group_t group);
   * \ingroup INFORMATION
   */
 
-int A1_Process_total(A1_group_t group);
+int A1_Process_total(A1_group_t* group);
 
 /**
   * \brief Returns node rank relative to the group base of the process calling it.
@@ -189,7 +189,7 @@ int A1_Process_total(A1_group_t group);
   * \ingroup INFORMATION
   */
 
-int A1_Node_id(A1_group_t group);
+int A1_Node_id(A1_group_t* group);
 
 /**
   * \brief Returns total number of nodes in a group.
@@ -202,7 +202,7 @@ int A1_Node_id(A1_group_t group);
   * \ingroup INFORMATION
   */
 
-int A1_Node_total(A1_group_t group);
+int A1_Node_total(A1_group_t* group);
 
 
 /* ********************************************************************* */

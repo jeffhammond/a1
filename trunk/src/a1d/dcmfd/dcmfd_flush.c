@@ -157,7 +157,7 @@ int A1D_Flush(int proc)
 
     A1DI_CRITICAL_ENTER();
 
-    if(a1_enable_scalefree_flush) {
+    if(a1_enable_immediate_flush) {
        return result;  
     }
 

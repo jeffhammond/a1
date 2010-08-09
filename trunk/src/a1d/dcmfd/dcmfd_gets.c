@@ -43,6 +43,8 @@ int A1DI_Packed_gets(int target, void* source_ptr, int *src_stride_ar, void* tar
                       1);
     A1U_ERR_POP(result,"Send returned with an error \n");
 
+    A1D_Connection_send_active[target]++;
+
   fn_exit:
     A1U_FUNC_EXIT();
     return result;
@@ -89,6 +91,8 @@ int A1DI_Direct_gets(int target, void* source_ptr, int *src_stride_ar, void* tar
                       src_disp,
                       dst_disp);
          A1U_ERR_POP(result,"Get returned with an error \n");
+
+         A1D_Connection_send_active[target]++;
     }
 
   fn_exit:
@@ -107,7 +111,7 @@ int A1D_GetS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
- 
+  
     if(count[0] >= a1_direct_noncontig_threshold) {
 
       get_active = 0;

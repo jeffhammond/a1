@@ -18,6 +18,7 @@ A1D_Request_pool_t A1D_Request_pool;
 
 DCMF_Protocol_t A1D_Generic_put_protocol;
 DCMF_Protocol_t A1D_Generic_get_protocol;
+DCMF_Protocol_t A1D_Generic_putacc_protocol;
 DCMF_Callback_t A1D_Nocallback;
 DCMF_Memregion_t *A1D_Memregion_global;
 
@@ -33,9 +34,11 @@ void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
     --(*((uint32_t *) clientdata));
 }
 
-void A1DI_Free_done(void *clientdata, DCMF_Error_t *error)
+void A1DI_Free_done (void *clientdata, DCMF_Error_t *error) 
 {
-    free(clientdata);
+     A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
+     free(buffer_info->buffer_ptr);
+     free((void *) buffer_info);
 }
 
 void A1DI_Control_flushack_callback(void *clientdata,
@@ -59,8 +62,28 @@ void A1DI_Control_xchange_callback(void *clientdata,
 
 void A1DI_RecvDone_packedputs_callback(void *clientdata, DCMF_Error_t *error)
 {
-    A1DI_Unpack_strided((void *) clientdata);
-    free(clientdata);
+    A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
+
+    A1DI_Unpack_strided(buffer_info->buffer_ptr);
+
+    free(buffer_info->buffer_ptr);
+    free((void *)buffer_info);
+}
+
+void A1DI_RecvDone_putacc_callback(void *clientdata, DCMF_Error_t *error)
+{
+    int result = A1_SUCCESS; 
+
+    A1D_Putacc_recv_info_t *putacc_recv_info = (A1D_Putacc_recv_info_t *) clientdata;
+    A1D_Putacc_header_t *header = &(putacc_recv_info->header);
+    A1D_Buffer_info_t *buffer_info = &(putacc_recv_info->buffer_info); 
+
+    result = A1D_Acc_process(buffer_info->buffer_ptr, buffer_info->bytes, header);  
+    A1U_ERR_ABORT(result,
+                "A1D_Acc_process failed in A1DI_RecvDone_putacc_callback\n");
+
+    free(buffer_info->buffer_ptr);
+    free((void *) putacc_recv_info);
 }
 
 void A1DI_RecvSendShort_packedputs_callback(void *clientdata,
@@ -81,18 +104,32 @@ void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
                                                    size_t bytes)
 {
 
-    A1D_Packed_gets_header_t *packet = (A1D_Packed_gets_header_t *) src;
+    A1D_Packed_gets_header_t *header = (A1D_Packed_gets_header_t *) src;
     int is_getresponse = 1;
 
-    A1DI_Packed_puts(packet->target,
-                     packet->source_ptr,
-                     packet->src_stride_ar,
-                     packet->target_ptr,
-                     packet->trg_stride_ar,
-                     packet->count,
-                     packet->stride_levels,
+    A1DI_Packed_puts(header->target,
+                     header->source_ptr,
+                     header->src_stride_ar,
+                     header->target_ptr,
+                     header->trg_stride_ar,
+                     header->count,
+                     header->stride_levels,
                      is_getresponse);
 
+}
+
+void A1DI_RecvSendShort_putacc_callback(void *clientdata,
+                                               const DCQuad *msginfo,
+                                               unsigned count,
+                                               size_t peer,
+                                               const char *src,
+                                               size_t bytes)
+{
+    int result = A1_SUCCESS;
+
+    result = A1D_Acc_process((void *) src, bytes, (A1D_Putacc_header_t *) msginfo);
+    A1U_ERR_ABORT(result,
+                "A1D_Acc_process failed in A1DI_RecvSendShort_putacc_callback\n");
 }
 
 DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
@@ -104,19 +141,56 @@ DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
                                                        char **rcvbuf,
                                                        DCMF_Callback_t *cb_done)
 {
-
     int result = 0;
+    A1D_Buffer_info_t *buffer_info;
 
-    /*TODO: Need to handle memory allocation failure here*/
-    *rcvlen = sndlen;
-    result = posix_memalign((void **) rcvbuf, 16, sndlen);
-    A1U_ERR_POP(result != 0,
+    result = posix_memalign((void **) &buffer_info, 16, sizeof(A1D_Buffer_info_t));
+    A1U_ERR_ABORT(result != 0,
                 "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
 
-    cb_done->function = A1DI_RecvDone_packedputs_callback;
-    cb_done->clientdata = (void *) *rcvbuf;
+    *rcvlen = sndlen;
+    result = posix_memalign((void **) rcvbuf, 16, sndlen);
+    A1U_ERR_ABORT(result != 0,
+                "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
 
-    return ((DCMF_Request_t *) malloc(sizeof(DCMF_Request_t)));
+    buffer_info->buffer_ptr = (void *) *rcvbuf;
+
+    cb_done->function = A1DI_RecvDone_packedputs_callback;
+    cb_done->clientdata = (void *) buffer_info;
+
+    return &(buffer_info->request);
+}
+
+DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
+                                                     const DCQuad *msginfo,
+                                                     unsigned count,
+                                                     size_t peer,
+                                                     size_t sndlen,
+                                                     size_t *rcvlen,
+                                                     char **rcvbuf,
+                                                     DCMF_Callback_t *cb_done)
+{
+    int result = 0;
+    A1D_Putacc_recv_info_t *putacc_recv_info;
+
+    result = posix_memalign((void **) &putacc_recv_info, 16, sizeof(A1D_Putacc_recv_info_t));
+    A1U_ERR_ABORT(result != 0,
+                "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+
+    memcpy((void *) &(putacc_recv_info->header), (void *) msginfo, count*sizeof(DCQuad));
+
+    *rcvlen = sndlen;
+    result = posix_memalign((void **) rcvbuf, 16, sndlen);
+    A1U_ERR_ABORT(result != 0,
+                "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+
+    (putacc_recv_info->buffer_info).buffer_ptr = (void *) *rcvbuf;
+    (putacc_recv_info->buffer_info).bytes = sndlen;
+
+    cb_done->function = A1DI_RecvDone_putacc_callback;
+    cb_done->clientdata = (void *) putacc_recv_info;
+
+    return &((putacc_recv_info->buffer_info).request);
 }
 
 void A1DI_RecvSendShort_flush_callback(void *clientdata,
@@ -126,11 +200,13 @@ void A1DI_RecvSendShort_flush_callback(void *clientdata,
                                              const char *src,
                                              size_t bytes)
 {
+    int result = A1_SUCCESS;
+
     result = DCMF_Control(&A1D_Control_flushack_info.protocol,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           peer,
                           &A1D_Control_flushack_info.info);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    A1U_ERR_ABORT(result != DCMF_SUCCESS,
                 "DCMF_Control failed in A1DI_RecvSendShort_flush_callback\n");
     --(*((uint32_t *) clientdata));
 }
@@ -245,6 +321,31 @@ DCMF_Result A1DI_Get_initialize()
     return result;
 
     fn_fail: goto fn_exit;
+}
+
+DCMF_Result A1DI_Packed_putacc_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Send_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    conf.cb_recv_short = A1DI_RecvSendShort_putacc_callback;
+    conf.cb_recv_short_clientdata = NULL;
+    conf.cb_recv = A1DI_RecvSend_putacc_callback;
+    conf.cb_recv_clientdata = NULL;
+
+    result = DCMF_Send_register(&A1D_Generic_putacc_protocol, &conf);
+    A1U_ERR_POP(result!=DCMF_SUCCESS,"putacc registartion returned with error %d \n",result);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Packed_puts_initialize()
@@ -643,6 +744,9 @@ int A1D_Initialize(int thread_level)
 
     result = A1DI_Get_initialize();
     A1U_ERR_POP(result != A1_SUCCESS, "Get initialize returned with error \n");
+
+    result = A1DI_Putacc_initialize();
+    A1U_ERR_POP(result!=A1_SUCCESS,"Get initialize returned with error \n");
 
     result = A1DI_Packed_puts_initialize();
     A1U_ERR_POP(result != A1_SUCCESS,

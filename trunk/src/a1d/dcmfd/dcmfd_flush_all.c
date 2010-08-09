@@ -25,7 +25,7 @@ int A1DI_Flush_all()
     ack_callback.function = A1DI_Generic_done;
     ack_callback.clientdata = (void *) ack_count;
 
-    if(a1_enable_scalefree_flush) {
+    if(a1_enable_immediate_flush) {
        return result;
     }
 

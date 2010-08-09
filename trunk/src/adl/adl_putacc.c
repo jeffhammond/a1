@@ -8,7 +8,8 @@
 #include "a1d.h"
 #include "a1u.h"
 
-void A1_Barrier_group(A1_group_t* group)
+int A1_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
+                A1_datatype a1_type, void* scaling);
 {
     int status = A1_SUCCESS;
 
@@ -21,35 +22,13 @@ void A1_Barrier_group(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    A1D_Barrier_group(group);
+    status = A1D_PutAcc(target, source_ptr, target_ptr, bytes,
+                a1_type, scaling)
+    A1U_ERR_POP(status, "putacc returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
-
-  fn_fail:
-    goto fn_exit;
-}
-
-void A1_Sync_group(A1_group_t* group)
-{
-    int status = A1_SUCCESS;
-
-    A1U_FUNC_ENTER();
-
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
-#   ifdef HAVE_ERROR_CHECKING
-#   endif
-
-    /*Do nothing. A1D_Sync_group(group) to be implemented*/
-     
-
-  fn_exit:
-    A1U_FUNC_EXIT();
-    return;
+    return status;
 
   fn_fail:
     goto fn_exit;
