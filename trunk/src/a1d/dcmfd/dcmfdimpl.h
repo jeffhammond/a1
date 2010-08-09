@@ -241,8 +241,8 @@ extern DCMF_Memregion_t *A1D_Memregion_global;
 
 extern void **A1D_Membase_global;
 extern void **A1D_Put_Flushcounter_ptr;
-extern uint32_t *A1D_Connection_send_active;
-extern uint32_t *A1D_Connection_put_active;
+extern volatile uint32_t *A1D_Connection_send_active;
+extern volatile uint32_t *A1D_Connection_put_active;
 extern uint32_t A1D_Expecting_getresponse;
 
 extern uint32_t a1_enable_cht;

@@ -82,8 +82,8 @@ void A1DI_Flush_all()
     }
     while (A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1DI_Advance();
 
-    memset(A1D_Connection_send_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
-    memset(A1D_Connection_put_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
+    memset((void *) A1D_Connection_send_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
+    memset((void *) A1D_Connection_put_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
 
     /*Reset the request pool*/
     A1DI_Reset_request_pool();

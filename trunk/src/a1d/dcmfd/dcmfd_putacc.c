@@ -15,45 +15,45 @@ int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header)
     switch (header->datatype)
     {
     case A1_INT32:
-        A1DI_ACC_EXECUTE(int32_t,
+         A1DI_ACC_EXECUTE(int32_t,
                          src,
                          header->target_ptr,
-                         header->scaling.int32_value,
+                         (header->scaling).int32_value,
                          bytes / sizeof(int32_t));
         break;
     case A1_INT64:
         A1DI_ACC_EXECUTE(int64_t,
                          src,
                          header->target_ptr,
-                         header->scaling.int64_value,
+                         (header->scaling).int64_value,
                          bytes / sizeof(int64_t));
         break;
     case A1_UINT32:
         A1DI_ACC_EXECUTE(uint32_t,
                          src,
                          header->target_ptr,
-                         header->scaling.uint32_value,
+                         (header->scaling).uint32_value,
                          bytes / sizeof(uint32_t));
         break;
     case A1_UINT64:
         A1DI_ACC_EXECUTE(uint64_t,
                          src,
                          header->target_ptr,
-                         header->scaling.uint64_value,
+                         (header->scaling).uint64_value,
                          bytes / sizeof(uint64_t));
         break;
     case A1_FLOAT:
         A1DI_ACC_EXECUTE(float,
                          src,
                          header->target_ptr,
-                         header->scaling.float_value,
+                         (header->scaling).float_value,
                          bytes/sizeof(float));
         break;
     case A1_DOUBLE:
         A1DI_ACC_EXECUTE(double,
                          src,
                          header->target_ptr,
-                         header->scaling.double_value,
+                         (header->scaling).double_value,
                          bytes/sizeof(double));
         break;
     default:
@@ -61,10 +61,12 @@ int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header)
         break;
     }
 
-    fn_exit: A1U_FUNC_EXIT();
-    return result;
+  fn_exit:
+     A1U_FUNC_EXIT();
+     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_PutAcc(int target,
@@ -93,26 +95,26 @@ int A1D_PutAcc(int target,
     switch (a1_type)
     {
     case A1_INT32:
-        header.scaling.int32_value = *((int32_t *) scaling);
+        (header.scaling).int32_value = *((int32_t *) scaling);
         break;
     case A1_INT64:
-        header.scaling.int64_value = *((int64_t *) scaling);
+        (header.scaling).int64_value = *((int64_t *) scaling);
         break;
     case A1_UINT32:
-        header.scaling.uint32_value = *((uint32_t *) scaling);
+        (header.scaling).uint32_value = *((uint32_t *) scaling);
         break;
     case A1_UINT64:
-        header.scaling.uint64_value = *((uint64_t *) scaling);
+        (header.scaling).uint64_value = *((uint64_t *) scaling);
         break;
     case A1_FLOAT:
-        header.scaling.float_value = *((float *) scaling);
+        (header.scaling).float_value = *((float *) scaling);
         break;
     case A1_DOUBLE:
-        header.scaling.double_value = *((double *) scaling);
+        (header.scaling).double_value = *((double *) scaling);
         break;
     default:
         result = A1_ERROR;
-        A1_ERR_POP("Invalid data type in putacc \n");
+        A1U_ERR_POP((result != A1_SUCCESS), "Invalid data type in putacc \n");
         break;
     }
 
@@ -123,16 +125,19 @@ int A1D_PutAcc(int target,
                        target,
                        bytes,
                        source_ptr,
-                       &header,
+                       (DCQuad *) &header,
                        (unsigned) 2);
     A1U_ERR_POP((result != A1_SUCCESS), "Putacc returned with an error \n");
 
+    A1D_Connection_send_active[target]++;
     while (active > 0)
         A1DI_Advance();
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

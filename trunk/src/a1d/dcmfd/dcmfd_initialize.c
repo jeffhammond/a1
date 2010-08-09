@@ -25,8 +25,8 @@ DCMF_Memregion_t *A1D_Memregion_global;
 
 void **A1D_Membase_global;
 void **A1D_Put_Flushcounter_ptr;
-uint32_t *A1D_Connection_send_active;
-uint32_t *A1D_Connection_put_active;
+volatile uint32_t *A1D_Connection_send_active;
+volatile uint32_t *A1D_Connection_put_active;
 
 uint32_t a1_request_pool_size;
 
@@ -520,7 +520,7 @@ DCMF_Result A1DI_Send_flush_initialize()
                             sizeof(uint32_t) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(result != 0,
                 "Connection send active buffer allocation Failed \n");
-    memset(A1D_Connection_send_active, 0, sizeof(uint32_t)
+    memset((void *) A1D_Connection_send_active, 0, sizeof(uint32_t)
             * A1D_Process_info.num_ranks);
 
     fn_exit: A1U_FUNC_EXIT();
@@ -578,7 +578,7 @@ DCMF_Result A1DI_Put_flush_initialize()
                             sizeof(uint32_t) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(result != 0,
                 "Connection put active buffer allocation Failed \n");
-    memset(A1D_Connection_put_active, 0, sizeof(uint32_t)
+    memset((void *) A1D_Connection_put_active, 0, sizeof(uint32_t)
             * A1D_Process_info.num_ranks);
 
     fn_exit: A1U_FUNC_EXIT();

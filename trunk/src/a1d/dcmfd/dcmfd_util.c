@@ -213,12 +213,18 @@ void* A1DI_Unpack_data_strided_acc(void *pointer,
                              count[0] / sizeof(uint64_t));
             break;
         case A1_FLOAT:
-            A1DI_ACC_EXECUTE(float, pointer, trg_ptr, *((float *) scaling),
-                    count[0]/sizeof(float));
+            A1DI_ACC_EXECUTE(float, 
+                             pointer, 
+                             trg_ptr, 
+                             *((float *) scaling),
+                             count[0]/sizeof(float));
             break;
         case A1_DOUBLE:
-            A1DI_ACC_EXECUTE(double, pointer, trg_ptr, *((double *) scaling),
-                    count[0]/sizeof(double));
+            A1DI_ACC_EXECUTE(double, 
+                             pointer, 
+                             trg_ptr, 
+                             *((double *) scaling),
+                             count[0]/sizeof(double));
             break;
         default:
             A1U_ERR_ABORT(A1_ERROR,
@@ -327,8 +333,10 @@ int A1DI_Pack_strided_putaccs(void **packet,
                            count,
                            stride_levels);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
