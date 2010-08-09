@@ -32,7 +32,6 @@ void A1DI_GlobalBarrier()
 
 void A1D_Barrier_group(A1_group_t* group)
 {
-
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
@@ -45,6 +44,35 @@ void A1D_Barrier_group(A1_group_t* group)
     else
     {
         A1U_ERR_POP(1, "A1D_Barrier_group not implemented for non-world groups!");
+        goto fn_fail;
+    }
+
+
+    fn_exit: A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return;
+
+    fn_fail: goto fn_exit;
+
+}
+
+
+void A1D_Sync_group(A1_group_t* group)
+{
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    if (group == A1_GROUP_WORLD || group == NULL)
+    {
+        A1DI_Flush_all();
+        A1DI_GlobalBarrier();
+        goto fn_exit;
+    }
+    else
+    {
+        A1U_ERR_POP(1, "A1D_Sync_group not implemented for non-world groups!");
         goto fn_fail;
     }
 

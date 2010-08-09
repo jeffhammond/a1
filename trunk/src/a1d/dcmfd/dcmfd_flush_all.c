@@ -6,7 +6,7 @@
 
 #include "dcmfdimpl.h"
 
-int A1DI_Flush_all()
+void A1DI_Flush_all()
 {
     int result = DCMF_SUCCESS;
     int b, i, dst;
@@ -90,7 +90,7 @@ int A1DI_Flush_all()
 
     fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return;
 
     fn_fail: goto fn_exit;
 }
@@ -105,9 +105,7 @@ int A1D_Flush_group(A1_group_t* group)
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        result = A1DI_Flush_all();
-        A1U_ERR_POP(result != A1_SUCCESS,
-                    " A1DI_Flush_all returned with an error \n");
+        A1DI_Flush_all();
         goto fn_exit;
     }
     else
