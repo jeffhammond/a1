@@ -861,7 +861,9 @@ int A1_Test_handle(A1_handle_t* handle, A1_bool_t* completed);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Test_handle_list(int count, A1_handle_t* handles[], A1_bool_t*  completed[]);
+int A1_Test_handle_list(int count,
+                        A1_handle_t* handles[],
+                        A1_bool_t* completed[]);
 
 /**
  * \brief Resets a non-blocking handle.
