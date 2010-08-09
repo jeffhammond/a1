@@ -12,8 +12,8 @@ int A1_PutAcc(int target,
               void* source_ptr,
               void* target_ptr,
               int bytes,
-              A1_datatype a1_type,
-              void* scaling);
+              A1_datatype_t a1_type,
+              void* scaling)
 {
     int status = A1_SUCCESS;
 
@@ -27,13 +27,13 @@ int A1_PutAcc(int target,
 #   endif
 
     status = A1D_PutAcc(target, source_ptr, target_ptr, bytes,
-            a1_type, scaling)
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_PutAcc returned error\n");
+            a1_type, scaling);
+    A1U_ERR_POP((status!=A1_SUCCESS), "A1D_PutAcc returned error\n");
 
-    fn_exit:
+  fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail:
+  fn_fail:
     goto fn_exit;
 }
