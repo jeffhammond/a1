@@ -33,33 +33,52 @@
  *                  Macros                       *
  *************************************************/
 
-#define A1DI_CRITICAL_CALL(call) do {                             \
-      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) { \
+#define A1DI_CRITICAL_CALL(call)                                 \
+    do {                                                          \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED)   \
+      {                                                           \
         DCMF_CriticalSection_enter(0);                            \
         call;                                                     \
         DCMF_CriticalSection_exit(0);                             \
-      } else {                                                    \
+      }                                                           \
+      else                                                       \
+      {                                                           \
         call;                                                     \
       }                                                           \
-    } while (0)
+    } while (0)                                                  \
 
-#define A1DI_CRITICAL_ENTER() do {                                \
-      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) { \
+#define A1DI_CRITICAL_ENTER()                                    \
+    do {                                                          \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED)   \
+      {                                                           \
         DCMF_CriticalSection_enter(0);                            \
       }                                                           \
-    } while (0)                                                   \
+    } while (0)                                                  \
 
-#define A1DI_CRITICAL_EXIT() do {                                 \
-      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED) { \
+#define A1DI_CRITICAL_EXIT()                                     \
+    do {                                                          \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED)   \
+      {                                                           \
         DCMF_CriticalSection_exit(0);                             \
       }                                                           \
-    } while (0)                                                   \
+    } while (0)                                                  \
 
-#define A1DI_Advance() do {                                       \
-      if(!a1_enable_cht) {                                        \
+#define A1DI_Advance()                                           \
+    do {                                                          \
+      if(!a1_enable_cht)                                          \
+      {                                                           \
         DCMF_Messager_advance(0);                                 \
       }                                                           \
-    } while (0)                                                   \
+    } while (0)                                                  \
+
+#define A1DI_Conditional_advance(boolean)                        \
+    do {                                                          \
+      if(!a1_enable_cht)                                          \
+      {                                                           \
+        DCMF_Messager_advance(0);                                 \
+      }                                                           \
+    } while (boolean)                                            \
+
 
 #define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count) do {    \
     int i;                                                                 \
