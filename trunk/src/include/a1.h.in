@@ -16,6 +16,9 @@ extern "C"
 #define A1_SUCCESS 0
 #define A1_ERROR   1
 
+#define A1_TRUE  1
+#define A1_FALSE 0
+
 /** @file a1.h.in */
 
 /*! \addtogroup a1 A1 Public Interface
@@ -99,9 +102,20 @@ A1_group_t a1_group_world;
 #define A1_GROUP_WORLD &a1_group_world
 
 /**
+ * \brief A1 non-blocking handle status boolean (A1_TRUE and A1_FALSE).
+ *
+ * \see A1_Test_handle, A1_Test_handle_list
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
+typedef int A1_bool_t;
+
+/**
  * \brief A1 non-blocking handle type.
  *
- * \see
+ * \see A1_Test_handle, A1_Test_handle_list, A1_Wait_handle, A1_Wait_handle_list
  *
  * \ingroup TYPEDEFS
  *
@@ -825,28 +839,29 @@ int A1_Wait_handle_list(int count, A1_handle_t* handles[]);
 /**
  * \brief Blocks on completion of a non-blocking handle.
  *
- * \param[in] handle      Non-blocking handle upon which to be waited.
+ * \param[in]  handle        Non-blocking handle upon which to be waited.
+ * \param[out] completed     Handle status.
  *
  * \see A1_handle_t, A1_Wait_handle, A1_Test_handle_list
  *
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Test_handle(A1_handle_t* handle, int completed);
+int A1_Test_handle(A1_handle_t* handle, A1_bool_t* completed);
 
 /**
  * \brief Blocks on completion of all elements in a vector of non-blocking handles.
  *
  * \param[in]  count        Number of handles in vector.
  * \param[in]  handles      Vector of non-blocking handles upon which to be waited.
- * \param[out] completed    Number of handles which are completed.
+ * \param[out] completed    Vector of handle statuses.
  *
  * \see A1_handle_t, A1_Test_handle, A1_Wait_handle_list
  *
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Test_handle_list(int count, A1_handle_t* handles[], int completed);
+int A1_Test_handle_list(int count, A1_handle_t* handles[], A1_bool_t*  completed[]);
 
 /**
  * \brief Resets a non-blocking handle.
