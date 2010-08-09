@@ -22,12 +22,10 @@ int A1_Initialize(int thread_level)
 #   endif
 
     status = A1D_Initialize(thread_level);
-    A1U_ERR_POP(status, "device init returned error\n");
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Initialize returned error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

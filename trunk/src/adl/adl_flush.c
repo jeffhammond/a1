@@ -22,7 +22,7 @@ void A1_Flush(int proc)
 #   endif
 
     status = A1D_Flush(proc); 
-    A1U_ERR_POP(status, "flush returned error\n");
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Flush returned an error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

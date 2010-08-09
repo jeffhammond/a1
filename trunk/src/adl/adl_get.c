@@ -22,12 +22,10 @@ int A1_Get(int proc, void* src, void* dst, int bytes)
 #   endif
 
     status = A1D_Get(proc, src, dst, bytes);
-    A1U_ERR_POP(status, "put returned error\n");
+    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Get returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

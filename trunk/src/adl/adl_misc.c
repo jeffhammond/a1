@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Process_id(A1_group_t* group) 
+int A1_Process_id(A1_group_t* group)
 {
     A1U_FUNC_ENTER();
 
@@ -19,12 +19,10 @@ int A1_Process_id(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return A1D_Process_id(group);
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1_Process_total(A1_group_t* group)
@@ -38,12 +36,10 @@ int A1_Process_total(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return A1D_Process_total(group);
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1_Node_id(A1_group_t* group)
@@ -57,14 +53,11 @@ int A1_Node_id(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return A1D_Node_id(group);
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
-
 
 int A1_Node_total(A1_group_t* group)
 {
@@ -77,12 +70,10 @@ int A1_Node_total(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return A1D_Node_total(group);
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 double A1_Time_seconds()
@@ -96,14 +87,11 @@ double A1_Time_seconds()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-  fn_exit:
-    A1U_FUNC_EXIT();  
+    fn_exit: A1U_FUNC_EXIT();
     return A1D_Time_seconds();
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
-
 
 unsigned long long A1_Time_cycles()
 {
@@ -116,10 +104,8 @@ unsigned long long A1_Time_cycles()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return A1D_Time_cycles();
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

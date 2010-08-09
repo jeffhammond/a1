@@ -22,12 +22,10 @@ int A1_Release_segments(A1_group_t* group, void* ptr)
 #   endif
 
     status = A1D_Release_segments(group, ptr);
-    A1U_ERR_POP(status, "Release segements returned error\n");
+    A1U_ERR_POP(status, "A1D_Release_segments returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

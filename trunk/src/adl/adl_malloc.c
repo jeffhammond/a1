@@ -22,12 +22,10 @@ int A1_Exchange_segments(A1_group_t* group, void* ptr[], int bytes)
 #   endif
 
     status = A1D_Exchange_segments(group, ptr, bytes);
-    A1U_ERR_POP(status, "Exchange segments returned error\n");
+    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Exchange_segments returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
