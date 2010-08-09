@@ -76,17 +76,17 @@ int A1D_PutAcc(int target,
 {
     DCMF_Result result = A1_SUCCESS;
     DCMF_Request_t request;
-    DCMF_Callback_t done_callback;
-    int done_active;
+    DCMF_Callback_t callback;
+    int active;
     A1D_Putacc_header_t header;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
-    done_callback.function = A1DI_Generic_done;
-    done_callback.clientdata = (void *) &done_active;
-    done_active = 1;
+    callback.function = A1DI_Generic_done;
+    callback.clientdata = (void *) &active;
+    active = 1;
 
     header.target_ptr = target_ptr;
     header.datatype = a1_type;
@@ -124,10 +124,10 @@ int A1D_PutAcc(int target,
                        bytes,
                        source_ptr,
                        &header,
-                       2);
+                       (unsigned) 2);
     A1U_ERR_POP((result != A1_SUCCESS), "Putacc returned with an error \n");
 
-    while (done_active > 0)
+    while (active > 0)
         A1DI_Advance();
 
     fn_exit: A1DI_CRITICAL_EXIT();
