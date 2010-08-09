@@ -799,19 +799,6 @@ void A1_Flush_list(int count, int proc_list[]);
 void A1_Flush_group(A1_group_t* group);
 
 /**
- * \brief On return, this call ensures that all outstanding blocking put or accumulate
- *        operations are complete remotely to all processes.
- *
- *        This operation is local and blocking.
- *
- * \see A1_Flush_group, A1_Sync
- *
- * \ingroup COMPLETION
- */
-
-void A1_Flush_all();
-
-/**
  * \brief Blocks on completion of a non-blocking handle.
  *
  * \param[in] handle      Non-blocking handle upon which to be waited.

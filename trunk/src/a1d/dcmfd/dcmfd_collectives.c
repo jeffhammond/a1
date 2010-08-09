@@ -37,11 +37,17 @@ void A1D_Barrier_group(A1_group_t* group)
 
     A1DI_CRITICAL_ENTER();
 
-    if (group == A1_GROUP_WORLD)
+    if (group == A1_GROUP_WORLD || group == NULL)
     {
         A1DI_GlobalBarrier();
         goto fn_exit;
     }
+    else
+    {
+        A1U_ERR_POP(1, "A1D_Barrier_group not implemented for non-world groups!");
+        goto fn_fail;
+    }
+
 
     fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();

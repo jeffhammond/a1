@@ -18,18 +18,12 @@ int A1DI_Flush_all()
 
     A1U_FUNC_ENTER();
 
-    request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t)
-            * a1_flushall_pending_limit);
+    request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * a1_flushall_pending_limit);
 
     ack_count = 0;
     pending_count = 0;
     ack_callback.function = A1DI_Generic_done;
     ack_callback.clientdata = (void *) ack_count;
-
-    if (a1_enable_immediate_flush)
-    {
-        return result;
-    }
 
     for (dst = 0; dst < A1D_Process_info.num_ranks; dst++)
     {
@@ -49,42 +43,38 @@ int A1DI_Flush_all()
                                    NULL,
                                    &msginfo,
                                    1);
-                A1U_ERR_POP(result, "Send returned with an error \n");
+                A1U_ERR_POP(result != DCMF_SUCCESS, "DCMF_Send returned with an error\n");
                 pending_count++;
 
             }
             else if (A1D_Connection_put_active[dst] > 0)
             {
 
-                src_disp
-                        = (size_t) A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]
-                                - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
+                src_disp = (size_t) A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]
+                         - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
                 dst_disp = (size_t) A1D_Put_Flushcounter_ptr[dst]
-                        - (size_t) A1D_Membase_global[dst] + 1;
+                         - (size_t) A1D_Membase_global[dst] + 1;
 
                 ack_count++;
-                result
-                        = DCMF_Put(&A1D_Generic_put_protocol,
-                                   &request[pending_count],
-                                   A1D_Nocallback,
-                                   DCMF_SEQUENTIAL_CONSISTENCY,
-                                   dst,
-                                   1,
-                                   &A1D_Memregion_global[A1D_Process_info.my_rank],
-                                   &A1D_Memregion_global[dst],
-                                   src_disp,
-                                   dst_disp,
-                                   ack_callback);
-                A1U_ERR_POP(result, "Send returned with an error \n");
+                result = DCMF_Put(&A1D_Generic_put_protocol,
+                                  &request[pending_count],
+                                  A1D_Nocallback,
+                                  DCMF_SEQUENTIAL_CONSISTENCY,
+                                  dst,
+                                  1,
+                                  &A1D_Memregion_global[A1D_Process_info.my_rank],
+                                  &A1D_Memregion_global[dst],
+                                  src_disp,
+                                  dst_disp,
+                                  ack_callback);
+                A1U_ERR_POP(result != DCMF_SUCCESS, "DCMF_Put returned with an error\n");
                 pending_count++;
 
             }
 
             if (pending_count >= a1_flushall_pending_limit)
             {
-                while (A1D_Control_flushack_info.rcv_active > 0 || ack_count
-                        > 0)
-                    A1DI_Advance();
+                while (A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1DI_Advance();
                 pending_count = 0;
             }
 
@@ -92,10 +82,8 @@ int A1DI_Flush_all()
     }
     while (A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1DI_Advance();
 
-    memset(A1D_Connection_send_active, 0, sizeof(uint32_t)
-            * A1D_Process_info.num_ranks);
-    memset(A1D_Connection_put_active, 0, sizeof(uint32_t)
-            * A1D_Process_info.num_ranks);
+    memset(A1D_Connection_send_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
+    memset(A1D_Connection_put_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
 
     /*Reset the request pool*/
     A1DI_Reset_request_pool();
@@ -107,16 +95,26 @@ int A1DI_Flush_all()
     fn_fail: goto fn_exit;
 }
 
-int A1D_Flush_all()
+int A1D_Flush_group(A1_group_t* group)
 {
-    int result = DCMF_SUCCESS;
+    int result = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
-    result = A1DI_Flush_all();
-    A1U_ERR_POP(result, " a1di_flushall returned with an error \n");
+    if (group == A1_GROUP_WORLD || group == NULL)
+    {
+        result = A1DI_Flush_all();
+        A1U_ERR_POP(result != A1_SUCCESS,
+                    " A1DI_Flush_all returned with an error \n");
+        goto fn_exit;
+    }
+    else
+    {
+        A1U_ERR_POP(1, "A1D_Flush_group not implemented for non-world groups!");
+        goto fn_fail;
+    }
 
     fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
