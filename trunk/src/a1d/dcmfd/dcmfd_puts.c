@@ -20,7 +20,8 @@ int A1DI_Packed_puts(int target,
     DCMF_Request_t *request;
     DCMF_Callback_t callback;
     void *packet;
-    unsigned size_packet, active;
+    unsigned size_packet;
+    volatile int active;
 
     A1U_FUNC_ENTER();
 

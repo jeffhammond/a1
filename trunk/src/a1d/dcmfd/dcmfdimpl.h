@@ -201,7 +201,7 @@ typedef struct
 typedef struct
 {
     DCMF_Protocol_t protocol;
-    size_t rcv_active;
+    volatile size_t rcv_active;
     void **xchange_ptr;
     size_t xchange_size;
 } A1D_Control_xchange_info_t;
@@ -209,21 +209,21 @@ typedef struct
 typedef struct
 {
     DCMF_Protocol_t protocol;
-    uint32_t rcv_active;
+    volatile uint32_t rcv_active;
     DCMF_Control_t info;
 } A1D_Control_flushack_info_t;
 
 typedef struct
 {
     DCMF_Protocol_t protocol;
-    uint32_t rcv_active;
+    volatile uint32_t rcv_active;
 } A1D_Send_info_t;
 
 typedef struct
 {
     DCMF_Protocol_t protocol;
     DCMF_Callback_t callback;
-    uint32_t active;
+    volatile uint32_t active;
 } A1D_GlobalBarrier_info_t;
 
 /*************************************************

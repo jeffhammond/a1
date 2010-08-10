@@ -6,8 +6,8 @@
 
 #include "dcmfdimpl.h"
 
-uint32_t A1D_Expecting_getresponse;
-volatile uint32_t get_active;
+volatile int A1D_Expecting_getresponse;
+volatile int get_active;
 DCMF_Callback_t get_callback;
 
 int A1DI_Packed_gets(int target,
@@ -22,7 +22,7 @@ int A1DI_Packed_gets(int target,
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t *request;
     A1D_Packed_gets_header_t packet;
-    int active;
+    volatile int active;
 
     A1U_FUNC_ENTER();
 

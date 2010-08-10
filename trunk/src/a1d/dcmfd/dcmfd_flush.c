@@ -83,7 +83,8 @@ int A1DI_Put_flush(int proc)
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t callback;
-    int active, src_disp, dst_disp;
+    volatile int active;
+    size_t src_disp, dst_disp;
 
     A1U_FUNC_ENTER();
 
@@ -121,7 +122,8 @@ int A1DI_Put_flush_local(int proc)
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t callback;
-    int active, src_disp, dst_disp;
+    volatile int active;
+    size_t src_disp, dst_disp;
 
     A1U_FUNC_ENTER();
 

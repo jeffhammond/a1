@@ -14,7 +14,7 @@ void A1DI_Flush_all()
     DCQuad msginfo;
     DCMF_Callback_t ack_callback;
     /* TODO: doesn't ack_count have to be volatile? */
-    int ack_count, pending_count;
+    volatile int ack_count, pending_count;
     size_t src_disp, dst_disp;
 
     A1U_FUNC_ENTER();

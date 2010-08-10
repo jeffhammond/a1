@@ -79,7 +79,7 @@ int A1D_PutAcc(int target,
     DCMF_Result result = A1_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t callback;
-    int active;
+    volatile int active;
     A1D_Putacc_header_t header;
 
     A1U_FUNC_ENTER();

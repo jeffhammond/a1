@@ -11,7 +11,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t done_callback, ack_callback;
-    int done_active, ack_active;
+    volatile int done_active, ack_active;
     size_t src_disp, dst_disp;
 
     A1U_FUNC_ENTER();
