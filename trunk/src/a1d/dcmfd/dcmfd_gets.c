@@ -7,8 +7,6 @@
 #include "dcmfdimpl.h"
 
 volatile int A1D_Expecting_getresponse;
-volatile int get_active;
-DCMF_Callback_t get_callback;
 
 int A1DI_Packed_gets(int target,
                      void* source_ptr,
@@ -67,10 +65,12 @@ int A1DI_Direct_gets(int target,
                      void* target_ptr,
                      int *trg_stride_ar,
                      int* count,
-                     int stride_level)
+                     int stride_level,
+                     volatile int *get_active)
 {
     int result = A1_SUCCESS;
     DCMF_Request_t *request;
+    DCMF_Callback_t callback;
     int i, size;
     size_t src_disp, dst_disp;
 
@@ -89,7 +89,8 @@ int A1DI_Direct_gets(int target,
                                      * trg_stride_ar[stride_level - 1]),
                              trg_stride_ar,
                              count,
-                             stride_level - 1);
+                             stride_level - 1,
+                             get_active);
         }
 
     }
@@ -102,11 +103,14 @@ int A1DI_Direct_gets(int target,
         src_disp = (size_t) source_ptr - (size_t) A1D_Membase_global[target];
         dst_disp = (size_t) target_ptr - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
-        get_active = get_active + 1;
+        *get_active = *get_active + 1;
+        callback.function = A1DI_Generic_done;
+        callback.clientdata = (void *) get_active; 
+
         A1DI_CRITICAL_ENTER();
         result = DCMF_Get(&A1D_Generic_get_protocol,
                           request,
-                          get_callback,
+                          callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
                           count[0],
@@ -142,9 +146,9 @@ int A1D_GetS(int target,
     if (count[0] >= a1_direct_noncontig_threshold)
     {
 
+        volatile int get_active = 0;
+
         get_active = 0;
-        get_callback.function = A1DI_Generic_done;
-        get_callback.clientdata = (void *) &get_active;
 
         result = A1DI_Direct_gets(target,
                                   source_ptr,
@@ -152,7 +156,8 @@ int A1D_GetS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   count,
-                                  stride_levels);
+                                  stride_levels,
+                                  &get_active);
         A1U_ERR_POP(result, "A1DI_Direct_gets returned with an error \n");
         while (get_active > 0) A1DI_Advance();
 
