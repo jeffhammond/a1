@@ -1,5 +1,56 @@
 #include "dcmfdimpl.h"
 
+A1D_Control_xchange_info_t A1D_Control_xchange_info;
+
+void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
+{
+    --(*((uint32_t *) clientdata));
+}
+
+void A1DI_Free_done(void *clientdata, DCMF_Error_t *error)
+{
+    A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
+    free(buffer_info->buffer_ptr);
+    free((void *) buffer_info);
+}
+
+void A1DI_Control_xchange_callback(void *clientdata,
+                                   const DCMF_Control_t *info,
+                                   size_t peer)
+{
+    memcpy((void *) ((size_t) A1D_Control_xchange_info.xchange_ptr
+                   + (size_t)(peer * A1D_Control_xchange_info.xchange_size)),
+           (void *) info,
+           A1D_Control_xchange_info.xchange_size);
+
+    --(*((uint32_t *) clientdata));
+}
+
+DCMF_Result A1DI_Control_xchange_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Control_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    conf.protocol = DCMF_DEFAULT_CONTROL_PROTOCOL;
+    conf.network = DCMF_DEFAULT_NETWORK;
+    conf.cb_recv = A1DI_Control_xchange_callback;
+    conf.cb_recv_clientdata = (void *) &A1D_Control_xchange_info.rcv_active;
+
+    result = DCMF_Control_register(&A1D_Control_xchange_info.protocol, &conf);
+    A1U_ERR_POP(result != DCMF_SUCCESS,
+                "Control xchange registartion returned with error %d \n",
+                result);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 void* A1DI_Unpack_data_strided(void *pointer,
                                void *trg_ptr,
                                int *trg_stride_ar,
