@@ -63,6 +63,14 @@
       }                                                           \
     } while (0)                                                  \
 
+#define A1DI_CRITICAL_CYCLE()                                    \
+    do {                                                          \
+      if(A1D_Messager_info.thread_level > A1_THREAD_SERIALIZED)   \
+      {                                                           \
+        DCMF_CriticalSection_cycle(0);                            \
+      }                                                           \
+    } while (0)
+
 #define A1DI_Advance()                                           \
     do {                                                          \
       if(!a1_enable_cht)                                          \
@@ -221,6 +229,9 @@ typedef struct
 /*************************************************
  *             Global variables                  *
  ************************************************/
+
+/* TODO: is extern rather than static the right declaration here? */
+extern pthread_t A1DI_CHT_pthread;
 
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;

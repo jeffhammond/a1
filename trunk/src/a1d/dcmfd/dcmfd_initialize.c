@@ -30,6 +30,17 @@ volatile uint32_t *A1D_Connection_put_active;
 
 uint32_t a1_request_pool_size;
 
+void A1DI_CHT_advance(void * dummy)
+{
+    A1DI_CRITICAL_ENTER();
+    while (1)
+    {
+        DCMF_Messager_advance(0);
+        A1DI_CRITICAL_CYCLE();
+    }
+    A1DI_CRITICAL_EXIT();
+}
+
 void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
 {
     --(*((uint32_t *) clientdata));
@@ -569,8 +580,7 @@ DCMF_Result A1DI_Put_flush_initialize()
                         "DCMF_Control failed in A1DI_Put_flush_initialize\n");
         }
     }
-    while (A1D_Control_xchange_info.rcv_active > 0)
-        A1DI_Advance();
+    while (A1D_Control_xchange_info.rcv_active > 0) A1DI_Advance();
 
     /* Allocating memory for vector thats tracks connections with active puts */
     result = posix_memalign((void **) &A1D_Connection_put_active,
@@ -812,14 +822,17 @@ int A1D_Initialize(int thread_level)
     A1D_Process_info.num_nodes = DCMF_Messager_size();
 
     result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
-                "global barrier initialize returned with error \n");
+    A1U_ERR_POP(result != DCMF_SUCCESS, "global barrier initialize returned with error \n");
 
     A1DI_Read_parameters();
 
+    if (a1_enable_cht)
+    {
+        result = pthread_create(&armcix_advance_thread, NULL, &A1DI_CHT_advance, NULL);
+    }
+
     result = A1DI_Control_xchange_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,
-                "control xchange initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"control xchange initialize returned with error \n");
 
     result = A1DI_Control_flushack_initialize();
     A1U_ERR_POP(result != A1_SUCCESS,

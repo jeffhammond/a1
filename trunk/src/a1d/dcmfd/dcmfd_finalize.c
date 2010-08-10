@@ -26,7 +26,7 @@ void A1DI_Request_pool_finalize()
 
 int A1D_Finalize(void)
 {
-    int status = A1_SUCCESS;
+    int result = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
@@ -34,11 +34,16 @@ int A1D_Finalize(void)
 
     A1DI_Request_pool_finalize();
 
+    if (a1_enable_cht)
+    {
+        result = pthread_cancel(armcix_advance_thread);
+    }
+
     DCMF_Messager_finalize();
 
     fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return status;
+    return result;
 
     fn_fail: goto fn_exit;
 }
