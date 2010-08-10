@@ -71,22 +71,22 @@
 #endif
 
 #if defined __FILE__ && defined A1U_FUNC
-#define A1U_error_printf(...)                                           \
-    {                                                                   \
-        fprintf(stderr, "%s (%s:%d): ", A1U_FUNC, __FILE__, __LINE__);  \
-        fprintf(stderr, __VA_ARGS__);                                   \
-    }
+    #define A1U_error_printf(...)                                          \
+        {                                                                   \
+            fprintf(stderr, "%s (%s:%d): ", A1U_FUNC, __FILE__, __LINE__);  \
+            fprintf(stderr, __VA_ARGS__);                                   \
+        }
 #elif defined __FILE__
-#define A1U_error_printf(...)                                \
-    {                                                        \
-        fprintf(stderr, "%s (%d): ", __FILE__, __LINE__);    \
-        fprintf(stderr, __VA_ARGS__);                        \
-    }
+    #define A1U_error_printf(...)                               \
+        {                                                        \
+            fprintf(stderr, "%s (%d): ", __FILE__, __LINE__);    \
+            fprintf(stderr, __VA_ARGS__);                        \
+        }
 #else
-#define A1U_error_printf(...)                                           \
-    {                                                                   \
-        fprintf(stderr, __VA_ARGS__);                                   \
-    }
+    #define A1U_error_printf(...)                                          \
+        {                                                                   \
+            fprintf(stderr, __VA_ARGS__);                                   \
+        }
 #endif
 
 #define A1U_ASSERT(x, status)                                           \
@@ -94,6 +94,13 @@
         if (!(x)) {                                                     \
             A1U_ERR_SETANDJUMP(status, A1_INTERNAL_ERROR,               \
                                "assert (%s) failed\n", #x);             \
+        }                                                               \
+    }
+
+#define A1U_WARNING(status, ...)                                      \
+    {                                                                   \
+        if (status) {                                                   \
+            A1U_error_printf(__VA_ARGS__);                              \
         }                                                               \
     }
 
