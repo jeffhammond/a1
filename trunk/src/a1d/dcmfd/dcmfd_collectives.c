@@ -27,12 +27,12 @@ void A1DI_GlobalBarrier()
     result = DCMF_GlobalBarrier(&A1D_GlobalBarrier_protocol,
                                 &request,
                                 callback);
-    A1DI_CRITICAL_EXIT();
     A1U_ERR_ABORT(result, "DCMF_GlobalBarrier returned with an error");
 
-    while (active > 0) A1DI_Advance();
+    A1DI_Conditional_advance(active > 0);
 
-  fn_exit: 
+  fn_exit:
+    A1DI_CRITICAL_EXIT(); 
     A1U_FUNC_EXIT();
     return;
 

@@ -33,10 +33,8 @@ int A1DI_Packed_gets(int target,
     memcpy(packet.trg_stride_ar, trg_stride_ar, stride_levels * sizeof(uint32_t));
     memcpy(packet.count, count, (stride_levels + 1) * sizeof(uint32_t));
 
-    /* TODO: will this be thread-safe in A1_THREAD_MULTIPLE mode??? */
     request = A1DI_Get_request();
 
-    A1DI_CRITICAL_ENTER();
     result = DCMF_Send(&A1D_Packed_gets_protocol,
                        request,
                        A1D_Nocallback,
@@ -46,16 +44,16 @@ int A1DI_Packed_gets(int target,
                        (void *) &packet,
                        NULL,
                        0);
-    A1DI_CRITICAL_EXIT();
     A1U_ERR_POP(result, "Send returned with an error \n");
 
-    /* TODO: will this be thread-safe in A1_THREAD_MULTIPLE mode??? */
     A1D_Connection_send_active[target]++;
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 
@@ -97,7 +95,6 @@ int A1DI_Direct_gets(int target,
     else
     {
 
-        /* TODO: will this be thread-safe in A1_THREAD_MULTIPLE mode??? */
         request = A1DI_Get_request();
 
         src_disp = (size_t) source_ptr - (size_t) A1D_Membase_global[target];
@@ -107,7 +104,6 @@ int A1DI_Direct_gets(int target,
         callback.function = A1DI_Generic_done;
         callback.clientdata = (void *) get_active; 
 
-        A1DI_CRITICAL_ENTER();
         result = DCMF_Get(&A1D_Generic_get_protocol,
                           request,
                           callback,
@@ -118,17 +114,17 @@ int A1DI_Direct_gets(int target,
                           &A1D_Memregion_global[A1D_Process_info.my_rank],
                           src_disp,
                           dst_disp);
-        A1DI_CRITICAL_EXIT();
         A1U_ERR_POP(result, "DCMF_Get returned with an error \n");
 
-        /* TODO: will this be thread-safe in A1_THREAD_MULTIPLE mode??? */
         A1D_Connection_send_active[target]++;
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_GetS(int target,
@@ -142,6 +138,8 @@ int A1D_GetS(int target,
     DCMF_Result result = DCMF_SUCCESS;
 
     A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
 
     if (count[0] >= a1_direct_noncontig_threshold)
     {
@@ -159,7 +157,8 @@ int A1D_GetS(int target,
                                   stride_levels,
                                   &get_active);
         A1U_ERR_POP(result, "A1DI_Direct_gets returned with an error \n");
-        while (get_active > 0) A1DI_Advance();
+
+        A1DI_Conditional_advance(get_active > 0);
 
     }
     else
@@ -176,13 +175,15 @@ int A1D_GetS(int target,
                                   stride_levels);
         A1U_ERR_POP(result, "A1DI_Packed_gets returned with an error \n");
 
-        while (A1D_Expecting_getresponse > 0) A1DI_Advance();
+        A1DI_Conditional_advance(A1D_Expecting_getresponse > 0);
 
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

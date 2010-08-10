@@ -301,10 +301,12 @@ DCMF_Result A1DI_Control_xchange_initialize()
                 "Control xchange registartion returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Control_flushack_initialize()
@@ -324,10 +326,12 @@ DCMF_Result A1DI_Control_flushack_initialize()
                 "Control flushack registartion returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_GlobalBarrier_initialize()
@@ -344,10 +348,12 @@ DCMF_Result A1DI_GlobalBarrier_initialize()
                 "global barrier registartion returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Put_initialize()
@@ -367,10 +373,12 @@ DCMF_Result A1DI_Put_initialize()
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Get_initialize()
@@ -387,10 +395,12 @@ DCMF_Result A1DI_Get_initialize()
                 "get registartion returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Putacc_initialize()
@@ -412,10 +422,12 @@ DCMF_Result A1DI_Putacc_initialize()
                 "putacc registartion returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail:  
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Packed_puts_initialize()
@@ -440,10 +452,12 @@ DCMF_Result A1DI_Packed_puts_initialize()
                 "packed puts registartion returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail:  
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Packed_gets_initialize()
@@ -468,10 +482,12 @@ DCMF_Result A1DI_Packed_gets_initialize()
                 "packed gets registartion returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Packed_putaccs_initialize()
@@ -493,10 +509,12 @@ DCMF_Result A1DI_Packed_putaccs_initialize()
                 "packed putaccs registartion returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Send_flush_initialize()
@@ -530,10 +548,12 @@ DCMF_Result A1DI_Send_flush_initialize()
     memset((void *) A1D_Connection_send_active, 0, sizeof(int)
             * A1D_Process_info.num_ranks);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Put_flush_initialize()
@@ -576,7 +596,7 @@ DCMF_Result A1DI_Put_flush_initialize()
                         "DCMF_Control failed in A1DI_Put_flush_initialize\n");
         }
     }
-    while (A1D_Control_xchange_info.rcv_active > 0) A1DI_Advance();
+    A1DI_Conditional_advance(A1D_Control_xchange_info.rcv_active > 0);
 
     /* Allocating memory for vector thats tracks connections with active puts */
     result = posix_memalign((void **) &A1D_Connection_put_active,
@@ -587,10 +607,12 @@ DCMF_Result A1DI_Put_flush_initialize()
     memset((void *) A1D_Connection_put_active, 0, sizeof(int)
             * A1D_Process_info.num_ranks);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Result A1DI_Memregion_Global_xchange()
@@ -625,13 +647,14 @@ DCMF_Result A1DI_Memregion_Global_xchange()
                         "DCMF_Control failed in A1DI_Memregion_Global_xchange\n");
         }
     }
-    while (A1D_Control_xchange_info.rcv_active > 0)
-        A1DI_Advance();
+    A1DI_Conditional_advance(A1D_Control_xchange_info.rcv_active > 0);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 
@@ -672,10 +695,12 @@ int A1DI_Memregion_Global_initialize()
         A1U_ERR_POP(result != DCMF_SUCCESS, "Memregion query failed \n");
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Request_pool_initialize()
@@ -714,10 +739,12 @@ int A1DI_Request_pool_initialize()
         request[index].prev = &request[index - 1];
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Request_pool_increment()
@@ -750,10 +777,12 @@ int A1DI_Request_pool_increment()
         request[index].prev = &request[index - 1];
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 DCMF_Request_t* A1DI_Get_request()
@@ -778,10 +807,12 @@ DCMF_Request_t* A1DI_Get_request()
     a1_request = A1D_Request_pool.current;
     A1D_Request_pool.current = A1D_Request_pool.current->next;
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return &(a1_request->request);
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 void A1DI_Reset_request_pool()
@@ -791,10 +822,12 @@ void A1DI_Reset_request_pool()
 
     A1D_Request_pool.current = A1D_Request_pool.head;
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Initialize(int thread_level)
@@ -871,10 +904,12 @@ int A1D_Initialize(int thread_level)
 
     /* FIXME: Need to do stuff here! */
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 

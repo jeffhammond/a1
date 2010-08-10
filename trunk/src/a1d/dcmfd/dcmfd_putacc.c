@@ -130,8 +130,7 @@ int A1D_PutAcc(int target,
     A1U_ERR_POP((result != A1_SUCCESS), "Putacc returned with an error \n");
 
     A1D_Connection_send_active[target]++;
-    while (active > 0)
-        A1DI_Advance();
+    A1DI_Conditional_advance(active > 0);
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();

@@ -24,10 +24,12 @@ int A1D_Process_id(A1_group_t* group)
         goto fn_fail;
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return id;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Process_total(A1_group_t* group)
@@ -49,10 +51,12 @@ int A1D_Process_total(A1_group_t* group)
         goto fn_fail;
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return total;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Node_id(A1_group_t* group)
@@ -73,10 +77,12 @@ int A1D_Node_id(A1_group_t* group)
         goto fn_fail;
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit:  
+    A1U_FUNC_EXIT();
     return id;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Node_total(A1_group_t* group)
@@ -97,10 +103,12 @@ int A1D_Node_total(A1_group_t* group)
         goto fn_fail;
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return total;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 double A1D_Time_seconds()
@@ -109,18 +117,22 @@ double A1D_Time_seconds()
 
     A1U_FUNC_ENTER();
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return DCMF_Timer();
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 unsigned long long A1D_Time_cycles()
 {
     A1U_FUNC_ENTER();
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return DCMF_Timebase();
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

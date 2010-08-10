@@ -52,8 +52,10 @@ void A1DI_Read_parameters()
         a1_request_pool_limit = atoi(value);
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

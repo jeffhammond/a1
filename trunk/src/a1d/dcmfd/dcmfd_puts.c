@@ -59,7 +59,6 @@ int A1DI_Packed_puts(int target,
         active = 1;
     }
 
-    A1DI_CRITICAL_ENTER();
     result = DCMF_Send(&A1D_Packed_puts_protocol,
                        request,
                        callback,
@@ -69,26 +68,21 @@ int A1DI_Packed_puts(int target,
                        packet,
                        NULL,
                        0);
-    A1DI_CRITICAL_EXIT();
     A1U_ERR_POP(result, "Send returned with an error \n");
 
     if (!is_getresponse)
     {
-        /* TODO: without the lock, this update is unsafe
-         *        either we should lock the A1 stack for the update
-         *        or have an separate array for each thread when
-         *        running in A1_THREAD_MULTIPLE mode, otherwise,
-         *        a single vector is sufficient
-         */
         A1D_Connection_send_active[target]++;
-        while (active > 0) A1DI_Advance();
+        A1DI_Conditional_advance(active > 0);
         free(packet);
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 
@@ -150,10 +144,12 @@ int A1DI_Direct_puts(int target,
 
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_PutS(int target,
@@ -212,9 +208,11 @@ int A1D_PutS(int target,
 
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
