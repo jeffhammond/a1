@@ -16,10 +16,6 @@ void A1DI_GlobalBarrier()
 
     A1U_FUNC_ENTER();
 
-    /* TODO: modifying global A1 state is not thread-safe, but here it is easier to use
-     *        the DCMF lock instead of a separate call for an A1 lock */
-    A1DI_CRITICAL_ENTER();
-
     active = 1;
     callback.function = A1DI_Generic_done;
     callback.clientdata = (void *) &active;
@@ -32,7 +28,6 @@ void A1DI_GlobalBarrier()
     A1DI_Conditional_advance(active > 0);
 
   fn_exit:
-    A1DI_CRITICAL_EXIT(); 
     A1U_FUNC_EXIT();
     return;
 
@@ -44,6 +39,8 @@ void A1DI_GlobalBarrier()
 void A1D_Barrier_group(A1_group_t* group)
 {
     A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
@@ -57,10 +54,13 @@ void A1D_Barrier_group(A1_group_t* group)
     }
 
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 
@@ -69,6 +69,8 @@ void A1D_Sync_group(A1_group_t* group)
 {
 
     A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
@@ -82,10 +84,12 @@ void A1D_Sync_group(A1_group_t* group)
         goto fn_fail;
     }
 
-
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
