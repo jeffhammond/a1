@@ -22,7 +22,7 @@ int A1DI_Send_flush(int proc)
      *        checked for the advance condition
      */
     A1D_Control_flushack_info.rcv_active = 1;
-    result = DCMF_Send(&A1D_Send_flush_info.protocol,
+    result = DCMF_Send(&A1D_Send_flush_protocol,
                        &request,
                        A1D_Nocallback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
@@ -59,7 +59,7 @@ int A1DI_Send_flush_local(int proc)
     active = 1;
     A1DI_CRITICAL_ENTER();
     A1D_Control_flushack_info.rcv_active += 1;
-    result = DCMF_Send(&A1D_Send_flush_info.protocol,
+    result = DCMF_Send(&A1D_Send_flush_protocol,
                        &request,
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,

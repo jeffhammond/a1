@@ -40,7 +40,7 @@ void A1DI_Flush_all()
             {
 
                 A1D_Control_flushack_info.rcv_active++;
-                result = DCMF_Send(&A1D_Send_flush_info.protocol,
+                result = DCMF_Send(&A1D_Send_flush_protocol,
                                    &request[pending_count],
                                    A1D_Nocallback,
                                    DCMF_SEQUENTIAL_CONSISTENCY,

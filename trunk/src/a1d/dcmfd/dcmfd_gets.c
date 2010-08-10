@@ -170,6 +170,7 @@ int A1D_GetS(int target,
                                   count,
                                   stride_levels);
         A1U_ERR_POP(result, "A1DI_Packed_gets returned with an error \n");
+
         while (A1D_Expecting_getresponse > 0) A1DI_Advance();
 
     }

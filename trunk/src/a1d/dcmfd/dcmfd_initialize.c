@@ -10,10 +10,10 @@ DCMF_Configure_t A1D_Messager_info;
 A1D_Process_info_t A1D_Process_info;
 A1D_Control_xchange_info_t A1D_Control_xchange_info;
 A1D_Control_flushack_info_t A1D_Control_flushack_info;
-A1D_Send_info_t A1D_Send_flush_info;
-A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
 A1D_Request_pool_t A1D_Request_pool;
 
+DCMF_Protocol_t A1D_Send_flush_protocol;
+DCMF_Protocol_t A1D_GlobalBarrier_protocol;
 DCMF_Protocol_t A1D_Generic_put_protocol;
 DCMF_Protocol_t A1D_Generic_get_protocol;
 DCMF_Protocol_t A1D_Generic_putacc_protocol;
@@ -25,8 +25,8 @@ DCMF_Memregion_t *A1D_Memregion_global;
 
 void **A1D_Membase_global;
 void **A1D_Put_Flushcounter_ptr;
-volatile uint32_t *A1D_Connection_send_active;
-volatile uint32_t *A1D_Connection_put_active;
+volatile int *A1D_Connection_send_active;
+volatile int *A1D_Connection_put_active;
 
 uint32_t a1_request_pool_size;
 
@@ -36,9 +36,9 @@ void A1DI_CHT_advance_function(void * dummy)
     while (1)
     {
         DCMF_Messager_advance(0);
-        DCMF_CriticalSection_cycle();
+        DCMF_CriticalSection_cycle(0);
     }
-    DCMF_CriticalSection_exit();
+    DCMF_CriticalSection_exit(0);
 }
 
 void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
@@ -274,14 +274,14 @@ void A1DI_RecvSendShort_flush_callback(void *clientdata,
                                        size_t bytes)
 {
     int result = A1_SUCCESS;
+    DCMF_Control_t info;
 
     result = DCMF_Control(&A1D_Control_flushack_info.protocol,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           peer,
-                          &A1D_Control_flushack_info.info);
+                          &info);
     A1U_ERR_ABORT(result != DCMF_SUCCESS,
                   "DCMF_Control failed in A1DI_RecvSendShort_flush_callback\n");
-    --(*((uint32_t *) clientdata));
 }
 
 DCMF_Result A1DI_Control_xchange_initialize()
@@ -338,15 +338,11 @@ DCMF_Result A1DI_GlobalBarrier_initialize()
     A1U_FUNC_ENTER();
 
     conf.protocol = DCMF_DEFAULT_GLOBALBARRIER_PROTOCOL;
-    result = DCMF_GlobalBarrier_register(&A1D_GlobalBarrier_info.protocol,
+    result = DCMF_GlobalBarrier_register(&A1D_GlobalBarrier_protocol,
                                          &conf);
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "global barrier registartion returned with error %d \n",
                 result);
-
-    A1D_GlobalBarrier_info.callback.function = A1DI_Generic_done;
-    A1D_GlobalBarrier_info.callback.clientdata
-            = (void *) &A1D_GlobalBarrier_info.active;
 
     fn_exit: A1U_FUNC_EXIT();
     return result;
@@ -516,11 +512,11 @@ DCMF_Result A1DI_Send_flush_initialize()
     conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
     conf.cb_recv_short = A1DI_RecvSendShort_flush_callback;
-    conf.cb_recv_short_clientdata = (void *) &A1D_Send_flush_info.rcv_active;
+    conf.cb_recv_short_clientdata = NULL;
     conf.cb_recv = NULL;
     conf.cb_recv_clientdata = NULL;
 
-    result = DCMF_Send_register(&A1D_Send_flush_info.protocol, &conf);
+    result = DCMF_Send_register(&A1D_Send_flush_protocol, &conf);
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "send flush registartion returned with error %d \n",
                 result);
@@ -528,10 +524,10 @@ DCMF_Result A1DI_Send_flush_initialize()
     /* Allocating memory for vector that tracks connections with active sends */
     result = posix_memalign((void **) &A1D_Connection_send_active,
                             16,
-                            sizeof(uint32_t) * A1D_Process_info.num_ranks);
+                            sizeof(int) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(result != 0,
                 "Connection send active buffer allocation Failed \n");
-    memset((void *) A1D_Connection_send_active, 0, sizeof(uint32_t)
+    memset((void *) A1D_Connection_send_active, 0, sizeof(int)
             * A1D_Process_info.num_ranks);
 
     fn_exit: A1U_FUNC_EXIT();
@@ -543,7 +539,7 @@ DCMF_Result A1DI_Send_flush_initialize()
 DCMF_Result A1DI_Put_flush_initialize()
 {
     DCMF_Result result = A1_SUCCESS;
-    DCMF_Control_t cmsg;
+    DCMF_Control_t info;
     int rank;
 
     A1U_FUNC_ENTER();
@@ -565,7 +561,7 @@ DCMF_Result A1DI_Put_flush_initialize()
 
     A1DI_GlobalBarrier();
 
-    memcpy((void *) &cmsg,
+    memcpy((void *) &info,
            (void *) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
            sizeof(void *));
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
@@ -575,7 +571,7 @@ DCMF_Result A1DI_Put_flush_initialize()
             result = DCMF_Control(&A1D_Control_xchange_info.protocol,
                                   DCMF_SEQUENTIAL_CONSISTENCY,
                                   rank,
-                                  &cmsg);
+                                  &info);
             A1U_ERR_POP(result != DCMF_SUCCESS,
                         "DCMF_Control failed in A1DI_Put_flush_initialize\n");
         }
@@ -585,10 +581,10 @@ DCMF_Result A1DI_Put_flush_initialize()
     /* Allocating memory for vector thats tracks connections with active puts */
     result = posix_memalign((void **) &A1D_Connection_put_active,
                             16,
-                            sizeof(uint32_t) * A1D_Process_info.num_ranks);
+                            sizeof(int) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(result != 0,
                 "Connection put active buffer allocation Failed \n");
-    memset((void *) A1D_Connection_put_active, 0, sizeof(uint32_t)
+    memset((void *) A1D_Connection_put_active, 0, sizeof(int)
             * A1D_Process_info.num_ranks);
 
     fn_exit: A1U_FUNC_EXIT();
@@ -601,7 +597,7 @@ DCMF_Result A1DI_Memregion_Global_xchange()
 {
 
     DCMF_Result result = DCMF_SUCCESS;
-    DCMF_Control_t cmsg;
+    DCMF_Control_t info;
     int rank;
 
     A1U_FUNC_ENTER();
@@ -614,7 +610,7 @@ DCMF_Result A1DI_Memregion_Global_xchange()
 
     A1DI_GlobalBarrier();
 
-    memcpy((void *) &cmsg,
+    memcpy((void *) &info,
            (void *) &A1D_Memregion_global[A1D_Process_info.my_rank],
            sizeof(DCMF_Memregion_t));
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
@@ -624,7 +620,7 @@ DCMF_Result A1DI_Memregion_Global_xchange()
             result = DCMF_Control(&A1D_Control_xchange_info.protocol,
                                   DCMF_SEQUENTIAL_CONSISTENCY,
                                   rank,
-                                  &cmsg);
+                                  &info);
             A1U_ERR_POP(result != DCMF_SUCCESS,
                         "DCMF_Control failed in A1DI_Memregion_Global_xchange\n");
         }

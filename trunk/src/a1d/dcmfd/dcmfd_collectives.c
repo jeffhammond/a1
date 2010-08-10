@@ -11,25 +11,33 @@ void A1DI_GlobalBarrier()
 
     int result = DCMF_SUCCESS;
     DCMF_Request_t request;
+    DCMF_Callback_t callback;
+    volatile int active;
 
     A1U_FUNC_ENTER();
 
     /* TODO: modifying global A1 state is not thread-safe, but here it is easier to use
      *        the DCMF lock instead of a separate call for an A1 lock */
     A1DI_CRITICAL_ENTER();
-    A1D_GlobalBarrier_info.active += 1;
-    result = DCMF_GlobalBarrier(&A1D_GlobalBarrier_info.protocol,
+
+    active = 1;
+    callback.function = A1DI_Generic_done;
+    callback.clientdata = (void *) &active;
+
+    result = DCMF_GlobalBarrier(&A1D_GlobalBarrier_protocol,
                                 &request,
-                                A1D_GlobalBarrier_info.callback);
+                                callback);
     A1DI_CRITICAL_EXIT();
     A1U_ERR_ABORT(result, "DCMF_GlobalBarrier returned with an error");
 
-    while (A1D_GlobalBarrier_info.active > 0) A1DI_Advance();
+    while (active > 0) A1DI_Advance();
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 

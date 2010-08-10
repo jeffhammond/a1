@@ -210,21 +210,7 @@ typedef struct
 {
     DCMF_Protocol_t protocol;
     volatile uint32_t rcv_active;
-    DCMF_Control_t info;
 } A1D_Control_flushack_info_t;
-
-typedef struct
-{
-    DCMF_Protocol_t protocol;
-    volatile uint32_t rcv_active;
-} A1D_Send_info_t;
-
-typedef struct
-{
-    DCMF_Protocol_t protocol;
-    DCMF_Callback_t callback;
-    volatile uint32_t active;
-} A1D_GlobalBarrier_info_t;
 
 /*************************************************
  *             Global variables                  *
@@ -236,11 +222,11 @@ extern pthread_t A1DI_CHT_pthread;
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
 extern A1D_Control_flushack_info_t A1D_Control_flushack_info;
-extern A1D_Send_info_t A1D_Send_flush_info;
-extern A1D_GlobalBarrier_info_t A1D_GlobalBarrier_info;
 extern A1D_Request_pool_t A1D_Request_pool;
 
 extern DCMF_Configure_t A1D_Messager_info;
+extern DCMF_Protocol_t A1D_Send_flush_protocol;
+extern DCMF_Protocol_t A1D_GlobalBarrier_protocol;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
 extern DCMF_Protocol_t A1D_Generic_putacc_protocol;
@@ -252,9 +238,9 @@ extern DCMF_Memregion_t *A1D_Memregion_global;
 
 extern void **A1D_Membase_global;
 extern void **A1D_Put_Flushcounter_ptr;
-extern volatile uint32_t *A1D_Connection_send_active;
-extern volatile uint32_t *A1D_Connection_put_active;
-extern uint32_t A1D_Expecting_getresponse;
+extern volatile int *A1D_Connection_send_active;
+extern volatile int *A1D_Connection_put_active;
+extern volatile int A1D_Expecting_getresponse;
 
 /* TODO: Put these in some global structure ala A1D_Process_info.
  *        If these settings are going to be used for all devices,
