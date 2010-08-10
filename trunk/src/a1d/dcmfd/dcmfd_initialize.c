@@ -32,13 +32,13 @@ uint32_t a1_request_pool_size;
 
 void A1DI_CHT_advance_function(void * dummy)
 {
-    A1DI_CRITICAL_ENTER();
+    DCMF_CriticalSection_enter(0);
     while (1)
     {
         DCMF_Messager_advance(0);
-        A1DI_CRITICAL_CYCLE();
+        DCMF_CriticalSection_cycle();
     }
-    A1DI_CRITICAL_EXIT();
+    DCMF_CriticalSection_exit();
 }
 
 void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
