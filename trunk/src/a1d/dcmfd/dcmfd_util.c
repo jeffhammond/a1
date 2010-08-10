@@ -14,12 +14,8 @@ void* A1DI_Unpack_data_strided(void *pointer,
     {
         for (i = 0; i < count[stride_level]; i++)
         {
-            pointer
-                    = A1DI_Unpack_data_strided(pointer,
-                                               (void *) ((size_t) trg_ptr
-                                                       + i
-                                                               * trg_stride_ar[stride_level
-                                                                       - 1]),
+            pointer = A1DI_Unpack_data_strided(pointer,
+                                               (void *) ((size_t) trg_ptr + i * trg_stride_ar[stride_level - 1]),
                                                trg_stride_ar,
                                                count,
                                                stride_level - 1);
@@ -80,12 +76,8 @@ void* A1DI_Pack_data_strided(void *pointer,
     {
         for (i = 0; i < count[stride_level]; i++)
         {
-            pointer
-                    = A1DI_Pack_data_strided(pointer,
-                                             (void *) ((size_t) source_ptr
-                                                     + i
-                                                             * src_stride_ar[stride_level
-                                                                     - 1]),
+            pointer = A1DI_Pack_data_strided(pointer,
+                                             (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
                                              src_stride_ar,
                                              count,
                                              stride_level - 1);
@@ -131,8 +123,7 @@ int A1DI_Pack_strided(void **packet,
     /*Copying header information*/
     header.target_ptr = target_ptr;
     header.stride_levels = stride_levels;
-    memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels
-            * sizeof(uint32_t));
+    memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels * sizeof(uint32_t));
     memcpy(header.count, count, (stride_levels + 1) * sizeof(uint32_t));
     header.is_getresponse = is_getresponse;
     memcpy(*packet, &header, sizeof(A1D_Packed_puts_header_t));
@@ -167,12 +158,8 @@ void* A1DI_Unpack_data_strided_acc(void *pointer,
     {
         for (i = 0; i < count[stride_level]; i++)
         {
-            pointer
-                    = A1DI_Unpack_data_strided_acc(pointer,
-                                                   (void *) ((size_t) trg_ptr
-                                                           + i
-                                                                   * trg_stride_ar[stride_level
-                                                                           - 1]),
+            pointer = A1DI_Unpack_data_strided_acc(pointer,
+                                                   (void *) ((size_t) trg_ptr + i * trg_stride_ar[stride_level - 1]),
                                                    trg_stride_ar,
                                                    count,
                                                    stride_level - 1,
@@ -285,8 +272,7 @@ int A1DI_Pack_strided_putaccs(void **packet,
     A1U_FUNC_ENTER();
 
     size_data = count[0];
-    for (i = 1; i <= stride_levels; i++)
-        size_data *= count[i];
+    for (i = 1; i <= stride_levels; i++) size_data *= count[i];
     *size_packet = sizeof(A1D_Packed_putaccs_header_t) + size_data;
 
     result = posix_memalign(packet, 64, *size_packet);
@@ -295,8 +281,7 @@ int A1DI_Pack_strided_putaccs(void **packet,
     /*Copying header information*/
     header.target_ptr = target_ptr;
     header.stride_levels = stride_levels;
-    memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels
-            * sizeof(uint32_t));
+    memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels * sizeof(uint32_t));
     memcpy(header.count, count, (stride_levels + 1) * sizeof(uint32_t));
     header.datatype = a1_type;
     switch (a1_type)

@@ -245,6 +245,15 @@ extern volatile uint32_t *A1D_Connection_send_active;
 extern volatile uint32_t *A1D_Connection_put_active;
 extern uint32_t A1D_Expecting_getresponse;
 
+/* TODO: Put these in some global structure ala A1D_Process_info.
+ *        If these settings are going to be used for all devices,
+ *        and I suspect many of them will, then this structure should
+ *        be defined at a higher level and should probably be declared
+ *        in the src/include directory. */
+/* COMMENT: The reason to be these in a global structure is so that it is
+ *          clear they are global-scope when called in a function.  It
+ *          is not intuitive where these variables live otherwise.
+ */
 extern uint32_t a1_enable_cht;
 extern uint32_t a1_enable_immediate_flush;
 extern uint32_t a1_alignment;
