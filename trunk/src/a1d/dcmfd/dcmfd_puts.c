@@ -249,7 +249,7 @@ int A1D_PutS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    if (count[0] >= a1_direct_noncontig_threshold)
+    if (count[0] >= a1_settings.direct_noncontig_threshold)
     {
 
         result = A1DI_Direct_puts(target,
@@ -261,7 +261,7 @@ int A1D_PutS(int target,
                                   stride_levels);
         A1U_ERR_POP(result, "Direct puts function returned with an error \n");
 
-        if (a1_enable_immediate_flush)
+        if (a1_settings.enable_immediate_flush)
         {
             A1DI_Put_flush(target);
         }
@@ -284,7 +284,7 @@ int A1D_PutS(int target,
                                   0);
         A1U_ERR_POP(result, "Packed puts function returned with an error \n");
 
-        if (a1_enable_immediate_flush)
+        if (a1_settings.enable_immediate_flush)
         {
             A1DI_Send_flush(target);
         }

@@ -44,7 +44,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
     A1U_FUNC_ENTER();
 
     /* TODO: don't we need logic to decide when to do immediate completion??? */
-    if (a1_enable_immediate_flush)
+    if (a1_settings.enable_immediate_flush)
     {
         done_callback = A1D_Nocallback;
         done_active = 0;

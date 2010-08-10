@@ -6,14 +6,9 @@
 
 #include "dcmfdimpl.h"
 
-uint32_t a1_enable_cht = A1C_ENABLE_CHT;
-uint32_t a1_enable_immediate_flush = A1C_ENABLE_IMMEDIATE_FLUSH;
-uint32_t a1_alignment = A1C_ALIGNMENT;
-uint32_t a1_direct_noncontig_threshold = A1C_DIRECT_NONCONTIG_THRESHOLD;
-uint32_t a1_request_pool_initial = A1C_REQUEST_POOL_INITIAL;
-uint32_t a1_request_pool_increment = A1C_REQUEST_POOL_INCREMENT;
-uint32_t a1_request_pool_limit = A1C_REQUEST_POOL_LIMIT;
-uint32_t a1_flushall_pending_limit = A1C_FLUSHALL_PENDING_LIMIT;
+
+volatile A1_Settings_t a1_settings;
+volatile A1_Requestpool_info_t a1_requestpool_info;
 
 void A1DI_Read_parameters()
 {
@@ -21,36 +16,55 @@ void A1DI_Read_parameters()
     char* value = NULL;
 
     A1U_FUNC_ENTER();
+   
+    a1_settings.alignment = A1C_ALIGNMENT;
 
-    if ((value = getenv("A1_FLUSHALL_PENDING_LIMIT")) != NULL)
-    {
-        a1_flushall_pending_limit = atoi(value);
-    }
-
-    if ((value = getenv("A1_DIRECT_NONCONTIG_THRESHOLD")) != NULL)
-    {
-        a1_direct_noncontig_threshold = atoi(value);
-    }
-
+    a1_settings.enable_cht = A1C_ENABLE_CHT;
     if ((value = getenv("A1_ENABLE_CHT")) != NULL)
     {
-        a1_enable_cht = atoi(value);
+        a1_settings.enable_cht = atoi(value);
     }
 
+    a1_settings.disable_interrupts = A1C_DISABLE_INTERRUPTS; 
+    if ((value = getenv("A1_DISABLE_INTERRUPTS")) != NULL)
+    {
+        a1_settings.disable_interrupts = atoi(value);
+    }
+
+    a1_settings.flushall_pending_limit = A1C_FLUSHALL_PENDING_LIMIT; 
+    if ((value = getenv("A1_FLUSHALL_PENDING_LIMIT")) != NULL)
+    {
+        a1_settings.flushall_pending_limit = atoi(value);
+    }
+
+    a1_settings.direct_noncontig_threshold = A1C_DIRECT_NONCONTIG_THRESHOLD;
+    if ((value = getenv("A1_DIRECT_NONCONTIG_THRESHOLD")) != NULL)
+    {
+        a1_settings.direct_noncontig_threshold = atoi(value); 
+        if(a1_settings.enable_cht == 0 && a1_settings.disable_interrupts == 1) {
+            a1_settings.direct_noncontig_threshold = 0;
+        }
+    }
+  
+    a1_requestpool_info.initial_size = A1C_REQUEST_POOL_INITIAL;
     if ((value = getenv("A1_REQUEST_POOL_INITIAL")) != NULL)
     {
-        a1_request_pool_initial = atoi(value);
+        a1_requestpool_info.initial_size = atoi(value);
     }
 
+    a1_requestpool_info.increment_size = A1C_REQUEST_POOL_INCREMENT;
     if ((value = getenv("A1_REQUEST_POOL_INCREMENT")) != NULL)
     {
-        a1_request_pool_increment = atoi(value);
+        a1_requestpool_info.increment_size = atoi(value);
     }
 
+    a1_requestpool_info.limit_size = A1C_REQUEST_POOL_LIMIT;
     if ((value = getenv("A1_REQUEST_POOL_LIMIT")) != NULL)
     {
-        a1_request_pool_limit = atoi(value);
+        a1_requestpool_info.limit_size = atoi(value);
     }
+
+    a1_requestpool_info.total_size = 0;
 
   fn_exit: 
     A1U_FUNC_EXIT();

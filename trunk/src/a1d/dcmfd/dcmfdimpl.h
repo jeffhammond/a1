@@ -19,6 +19,7 @@
 #define A1C_ALIGNMENT 16
 
 #define A1C_ENABLE_CHT 0
+#define A1C_DISABLE_INTERRUPTS 0 
 
 #define A1C_DIRECT_NONCONTIG_THRESHOLD 512
 
@@ -36,7 +37,7 @@
 #define A1DI_CRITICAL_CALL(call)                                  \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_enable_cht)                                     \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         DCMF_CriticalSection_enter(0);                            \
         call;                                                     \
@@ -51,7 +52,7 @@
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_enable_cht)                                     \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         DCMF_CriticalSection_enter(0);                            \
       }                                                           \
@@ -60,7 +61,7 @@
 #define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_enable_cht)                                     \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         DCMF_CriticalSection_exit(0);                             \
       }                                                           \
@@ -69,7 +70,7 @@
 #define A1DI_CRITICAL_CYCLE()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_enable_cht)                                     \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         DCMF_CriticalSection_cycle(0);                            \
       }                                                           \
@@ -77,7 +78,7 @@
 
 #define A1DI_Advance()                                            \
     do {                                                          \
-      if(!a1_enable_cht)                                          \
+      if(!a1_settings.enable_cht)                                 \
       {                                                           \
         DCMF_Messager_advance(0);                                 \
       }                                                           \
@@ -85,7 +86,7 @@
 
 #define A1DI_Conditional_advance(boolean)                         \
     do {                                                          \
-      if(!a1_enable_cht)                                          \
+      if(!a1_settings.enable_cht)                                 \
       {                                                           \
         while(boolean) {                                          \
           DCMF_Messager_advance(0);                               \
@@ -111,6 +112,23 @@
 /*************************************************
  *             Data Structures                   *
  *************************************************/
+typedef struct
+{
+   uint32_t enable_cht;
+   uint32_t disable_interrupts;
+   uint32_t enable_immediate_flush;
+   uint32_t direct_noncontig_threshold;
+   uint32_t flushall_pending_limit;
+   uint32_t alignment;
+} A1_Settings_t;
+
+typedef struct 
+{
+   uint32_t initial_size;
+   uint32_t increment_size;
+   uint32_t limit_size;
+   uint32_t total_size;
+} A1_Requestpool_info_t;
 
 typedef struct
 {
@@ -253,24 +271,8 @@ extern volatile int *A1D_Connection_send_active;
 extern volatile int *A1D_Connection_put_active;
 extern volatile int A1D_Expecting_getresponse;
 
-/* TODO: Put these in some global structure ala A1D_Process_info.
- *        If these settings are going to be used for all devices,
- *        and I suspect many of them will, then this structure should
- *        be defined at a higher level and should probably be declared
- *        in the src/include directory. */
-/* COMMENT: The reason to be these in a global structure is so that it is
- *          clear they are global-scope when called in a function.  It
- *          is not intuitive where these variables live otherwise.
- */
-extern uint32_t a1_enable_cht;
-extern uint32_t a1_enable_immediate_flush;
-extern uint32_t a1_alignment;
-extern uint32_t a1_direct_noncontig_threshold;
-extern uint32_t a1_flushall_pending_limit;
-extern uint32_t a1_request_pool_initial;
-extern uint32_t a1_request_pool_increment;
-extern uint32_t a1_request_pool_limit;
-extern uint32_t a1_request_pool_size;
+extern volatile A1_Settings_t a1_settings;
+extern volatile A1_Requestpool_info_t a1_requestpool_info;
 
 /************************************************* 
  *             Function Prototypes               *

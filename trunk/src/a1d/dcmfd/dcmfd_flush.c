@@ -344,7 +344,7 @@ int A1D_Flush(int proc)
 
     A1DI_CRITICAL_ENTER();
 
-    if (a1_enable_immediate_flush)
+    if (a1_settings.enable_immediate_flush)
     {
         goto fn_exit;
     }

@@ -35,7 +35,7 @@ int A1D_Finalize(void)
 
     A1DI_Request_pool_finalize();
 
-    if (a1_enable_cht)
+    if (a1_settings.enable_cht)
     {
         result = pthread_cancel(A1DI_CHT_pthread);
     }

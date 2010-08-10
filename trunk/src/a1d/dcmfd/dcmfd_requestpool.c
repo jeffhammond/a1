@@ -7,7 +7,6 @@
 #include "dcmfdimpl.h"
 
 A1D_Request_pool_t A1D_Request_pool;
-uint32_t a1_request_pool_size;
 
 void A1DI_Reset_request_pool()
 {
@@ -34,7 +33,7 @@ DCMF_Request_t* A1DI_Get_request()
 
     if (!A1D_Request_pool.current)
     {
-        if (a1_request_pool_size < a1_request_pool_limit)
+        if (a1_requestpool_info.total_size < a1_requestpool_info.limit_size)
         {
             A1DI_Request_pool_increment();
         }
@@ -64,10 +63,10 @@ int A1DI_Request_pool_increment()
     A1U_FUNC_ENTER();
 
     posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)
-            * a1_request_pool_increment);
+            * a1_requestpool_info.increment_size);
     A1U_ERR_POP(result = !request,
                 "memory allocation for request pool failed \n");
-    a1_request_pool_size = a1_request_pool_size + a1_request_pool_increment;
+    a1_requestpool_info.total_size = a1_requestpool_info.total_size + a1_requestpool_info.increment_size;
 
     A1D_Request_pool.region_ptr[A1D_Request_pool.region_count]
             = (void *) request;
@@ -76,9 +75,9 @@ int A1DI_Request_pool_increment()
     A1D_Request_pool.current = request;
     A1D_Request_pool.tail->next = request;
     request->prev = A1D_Request_pool.tail;
-    A1D_Request_pool.tail = &request[a1_request_pool_increment - 1];
+    A1D_Request_pool.tail = &request[a1_requestpool_info.increment_size - 1];
     A1D_Request_pool.tail->next = NULL;
-    for (index = 1; index < a1_request_pool_increment; index++)
+    for (index = 1; index < a1_requestpool_info.increment_size; index++)
     {
         request[index - 1].next = &request[index];
         request[index].prev = &request[index - 1];
@@ -101,17 +100,17 @@ int A1DI_Request_pool_initialize()
 
     A1U_FUNC_ENTER();
 
-    max_regions = (a1_request_pool_limit - a1_request_pool_initial)
-            / a1_request_pool_increment + 1;
+    max_regions = (a1_requestpool_info.limit_size - a1_requestpool_info.initial_size)
+            / a1_requestpool_info.increment_size + 1;
     result = posix_memalign((void **) &(A1D_Request_pool.region_ptr),
                             16,
                             sizeof(void *) * max_regions);
     A1U_ERR_POP(result != 0, "memory region list allocation failed \n");
 
     result = posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)
-            * a1_request_pool_initial);
+            * a1_requestpool_info.initial_size);
     A1U_ERR_POP(result != 0, "memory allocation for request pool failed \n");
-    a1_request_pool_size = a1_request_pool_initial;
+    a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
 
     A1D_Request_pool.region_ptr[A1D_Request_pool.region_count]
             = (void *) request;
@@ -119,10 +118,10 @@ int A1DI_Request_pool_initialize()
 
     A1D_Request_pool.head = request;
     A1D_Request_pool.current = request;
-    A1D_Request_pool.tail = &request[a1_request_pool_initial - 1];
+    A1D_Request_pool.tail = &request[a1_requestpool_info.initial_size - 1];
     A1D_Request_pool.head->prev = NULL;
     A1D_Request_pool.tail->next = NULL;
-    for (index = 1; index < a1_request_pool_initial; index++)
+    for (index = 1; index < a1_requestpool_info.initial_size; index++)
     {
         request[index - 1].next = &request[index];
         request[index].prev = &request[index - 1];

@@ -20,7 +20,7 @@ void A1DI_Flush_all()
 
     A1DI_CRITICAL_ENTER();
 
-    request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * a1_flushall_pending_limit);
+    request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * a1_settings.flushall_pending_limit);
 
     ack_count = 0;
     pending_count = 0;
@@ -74,7 +74,7 @@ void A1DI_Flush_all()
 
             }
 
-            if (pending_count >= a1_flushall_pending_limit)
+            if (pending_count >= a1_settings.flushall_pending_limit)
             {
                 A1DI_Conditional_advance(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0);
                 pending_count = 0;

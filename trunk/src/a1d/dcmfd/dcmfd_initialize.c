@@ -37,8 +37,17 @@ int A1D_Initialize(int thread_level)
     count = DCMF_Messager_initialize();
     A1U_WARNING(count == 0,"DCMF_Messager_initialize has been called more than once.");
 
-    A1D_Messager_info.thread_level = thread_level;
-    A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
+    A1DI_Read_parameters();
+
+    A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
+    if(a1_settings.enable_cht) {
+        A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
+    } else if (!a1_settings.disable_interrupts) {
+        A1D_Messager_info.interrupts = DCMF_INTERRUPTS_ON;
+    }
+
+    result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
+    A1U_ERR_POP(result != DCMF_SUCCESS, "DCMF_Messager_configure returned with error \n");
 
     A1D_Process_info.my_rank = DCMF_Messager_rank();
     A1D_Process_info.num_ranks = DCMF_Messager_size();
@@ -46,12 +55,7 @@ int A1D_Initialize(int thread_level)
     A1D_Process_info.my_node = DCMF_Messager_rank();
     A1D_Process_info.num_nodes = DCMF_Messager_size();
 
-    result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
-    A1U_ERR_POP(result != DCMF_SUCCESS, "DCMF_Messager_configure returned with error \n");
-
-    A1DI_Read_parameters();
-
-    if (a1_enable_cht)
+    if (a1_settings.enable_cht)
     {
         result = pthread_create(&A1DI_CHT_pthread, NULL, &A1DI_CHT_advance_function, NULL);
         A1U_ERR_POP(result != 0, "pthread_create returned with error \n");

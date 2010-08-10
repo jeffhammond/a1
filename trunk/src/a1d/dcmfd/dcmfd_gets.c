@@ -194,7 +194,7 @@ int A1D_GetS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    if (count[0] >= a1_direct_noncontig_threshold)
+    if (count[0] >= a1_settings.direct_noncontig_threshold)
     {
 
         volatile int get_active = 0;
