@@ -30,7 +30,7 @@ volatile uint32_t *A1D_Connection_put_active;
 
 uint32_t a1_request_pool_size;
 
-void A1DI_CHT_advance(void * dummy)
+void A1DI_CHT_advance_function(void * dummy)
 {
     A1DI_CRITICAL_ENTER();
     while (1)
@@ -822,60 +822,54 @@ int A1D_Initialize(int thread_level)
     A1D_Process_info.num_nodes = DCMF_Messager_size();
 
     result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
-    A1U_ERR_POP(result != DCMF_SUCCESS, "global barrier initialize returned with error \n");
+    A1U_ERR_POP(result != DCMF_SUCCESS, "DCMF_Messager_configure returned with error \n");
 
     A1DI_Read_parameters();
 
     if (a1_enable_cht)
     {
-        result = pthread_create(&armcix_advance_thread, NULL, &A1DI_CHT_advance, NULL);
+        result = pthread_create(&A1DI_CHT_pthread, NULL, &A1DI_CHT_advance_function, NULL);
+        A1U_ERR_POP(result != 0, "pthread_create returned with error \n");
     }
 
     result = A1DI_Control_xchange_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,"control xchange initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Control_xchange_initialize returned with error \n");
 
     result = A1DI_Control_flushack_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,
-                "control flushack initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Control_flushack_initialize returned with error \n");
 
     result = A1DI_GlobalBarrier_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,
-                "global barrier initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_GlobalBarrier_initialize returned with error \n");
 
     result = A1DI_Put_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS, "Put initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Put_initialize returned with error \n");
 
     result = A1DI_Get_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS, "Get initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Get_initialize returned with error \n");
 
     result = A1DI_Putacc_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS, "Get initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Putacc_initialize returned with error \n");
 
     result = A1DI_Packed_puts_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,
-                "Packed puts initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Packed_puts_initialize returned with error \n");
 
     result = A1DI_Packed_gets_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,
-                "Packed puts initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Packed_gets_initialize returned with error \n");
 
     result = A1DI_Packed_putaccs_initialize();
-    A1U_ERR_POP(result!=A1_SUCCESS,"Get initialize returned with error \n");
+    A1U_ERR_POP(result!=A1_SUCCESS,"A1DI_Packed_putaccs_initialize returned with error \n");
 
     result = A1DI_Send_flush_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,
-                "Send flush initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Send_flush_initialize returned with error \n");
 
     result = A1DI_Put_flush_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,
-                "Put flush initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"Put flush initialize returned with error \n");
 
     result = A1DI_Request_pool_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS, "Request initialization failed \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Request_pool_initialize failed \n");
 
     result = A1DI_Memregion_Global_initialize();
-    A1U_ERR_POP(result != A1_SUCCESS,
-                "Memregion list initialize returned with error \n");
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Memregion_Global_initialize returned with error \n");
 
     /* FIXME: Need to do stuff here! */
 

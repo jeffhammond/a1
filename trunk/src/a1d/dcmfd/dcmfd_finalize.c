@@ -36,7 +36,7 @@ int A1D_Finalize(void)
 
     if (a1_enable_cht)
     {
-        result = pthread_cancel(armcix_advance_thread);
+        result = pthread_cancel(A1DI_CHT_pthread);
     }
 
     DCMF_Messager_finalize();
