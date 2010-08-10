@@ -19,10 +19,10 @@ void A1DI_Read_parameters()
    
     a1_settings.alignment = A1C_ALIGNMENT;
 
-    a1_settings.enable_cht = A1C_ENABLE_CHT;
+    a1_settings.disable_cht = A1C_DISABLE_CHT;
     if ((value = getenv("A1_ENABLE_CHT")) != NULL)
     {
-        a1_settings.enable_cht = atoi(value);
+        a1_settings.disable_cht = atoi(value);
     }
 
     a1_settings.disable_interrupts = A1C_DISABLE_INTERRUPTS; 
@@ -41,7 +41,7 @@ void A1DI_Read_parameters()
     if ((value = getenv("A1_DIRECT_NONCONTIG_THRESHOLD")) != NULL)
     {
         a1_settings.direct_noncontig_threshold = atoi(value); 
-        if(a1_settings.enable_cht == 0 && a1_settings.disable_interrupts == 1) {
+        if(a1_settings.disable_cht == 1 && a1_settings.disable_interrupts == 1) {
             a1_settings.direct_noncontig_threshold = 0;
         }
     }

@@ -18,7 +18,7 @@
 
 #define A1C_ALIGNMENT 16
 
-#define A1C_ENABLE_CHT 0
+#define A1C_DISABLE_CHT 0
 #define A1C_DISABLE_INTERRUPTS 0 
 
 #define A1C_DIRECT_NONCONTIG_THRESHOLD 512
@@ -37,7 +37,7 @@
 #define A1DI_CRITICAL_CALL(call)                                  \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
+            || !a1_settings.disable_cht)                          \
       {                                                           \
         DCMF_CriticalSection_enter(0);                            \
         call;                                                     \
@@ -52,7 +52,7 @@
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
+            || !a1_settings.disable_cht)                          \
       {                                                           \
         DCMF_CriticalSection_enter(0);                            \
       }                                                           \
@@ -61,7 +61,7 @@
 #define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
+            || !a1_settings.disable_cht)                          \
       {                                                           \
         DCMF_CriticalSection_exit(0);                             \
       }                                                           \
@@ -70,7 +70,7 @@
 #define A1DI_CRITICAL_CYCLE()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
+            || !a1_settings.disable_cht)                          \
       {                                                           \
         DCMF_CriticalSection_cycle(0);                            \
       }                                                           \
@@ -78,7 +78,7 @@
 
 #define A1DI_Advance()                                            \
     do {                                                          \
-      if(!a1_settings.enable_cht)                                 \
+      if(a1_settings.disable_cht)                                 \
       {                                                           \
         DCMF_Messager_advance(0);                                 \
       }                                                           \
@@ -86,7 +86,7 @@
 
 #define A1DI_Conditional_advance(boolean)                         \
     do {                                                          \
-      if(!a1_settings.enable_cht)                                 \
+      if(a1_settings.disable_cht)                                 \
       {                                                           \
         while(boolean) {                                          \
           DCMF_Messager_advance(0);                               \
@@ -114,7 +114,7 @@
  *************************************************/
 typedef struct
 {
-   uint32_t enable_cht;
+   uint32_t disable_cht;
    uint32_t disable_interrupts;
    uint32_t enable_immediate_flush;
    uint32_t direct_noncontig_threshold;

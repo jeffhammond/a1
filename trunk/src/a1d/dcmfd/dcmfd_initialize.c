@@ -32,18 +32,39 @@ int A1D_Initialize(int thread_level)
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();
-
     count = DCMF_Messager_initialize();
     A1U_WARNING(count == 0,"DCMF_Messager_initialize has been called more than once.");
 
     A1DI_Read_parameters();
 
-    A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
-    if(a1_settings.enable_cht) {
+    if(!a1_settings.disable_cht) {
+        A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
-    } else if (!a1_settings.disable_interrupts) {
+    } else if(!a1_settings.disable_interrupts) {
+        A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_ON;
+    } else {
+        switch(thread_level) 
+        {
+           case A1_THREAD_SINGLE:
+                 thread_level = DCMF_THREAD_SINGLE; 
+                 break;
+           case A1_THREAD_FUNNELED:
+                 thread_level = DCMF_THREAD_FUNNELED;
+                 break;           
+           case A1_THREAD_SERIALIZED:
+                 thread_level = DCMF_THREAD_SERIALIZED;
+                 break;
+           case A1_THREAD_GENERAL:
+                 thread_level = DCMF_THREAD_MULTIPLE;
+                 break;      
+           case A1_THREAD_MATCHED:
+           default: 
+                 A1U_ERR_POP(A1_ERROR, 
+                      "Unsupported thread level provided in Initialize \n");
+                 break;
+        }
+        A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
     }
 
     result = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
@@ -55,11 +76,13 @@ int A1D_Initialize(int thread_level)
     A1D_Process_info.my_node = DCMF_Messager_rank();
     A1D_Process_info.num_nodes = DCMF_Messager_size();
 
-    if (a1_settings.enable_cht)
+    if (!a1_settings.disable_cht)
     {
         result = pthread_create(&A1DI_CHT_pthread, NULL, &A1DI_CHT_advance_function, NULL);
         A1U_ERR_POP(result != 0, "pthread_create returned with error \n");
     }
+
+    A1DI_CRITICAL_ENTER();
 
     result = A1DI_Control_xchange_initialize();
     A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Control_xchange_initialize returned with error \n");

@@ -18,10 +18,12 @@ void A1DI_Request_pool_finalize()
     }
     free(A1D_Request_pool.region_ptr);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Finalize(void)
@@ -35,7 +37,7 @@ int A1D_Finalize(void)
 
     A1DI_Request_pool_finalize();
 
-    if (a1_settings.enable_cht)
+    if (!a1_settings.disable_cht)
     {
         result = pthread_cancel(A1DI_CHT_pthread);
     }
@@ -43,9 +45,11 @@ int A1D_Finalize(void)
     count = DCMF_Messager_finalize();
     A1U_WARNING(count == 0,"DCMF_Messager_finalize has been called more than once.");
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

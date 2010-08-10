@@ -105,6 +105,8 @@ int A1D_Flush_group(A1_group_t* group)
 
     A1U_FUNC_ENTER();
 
+    A1DI_CRITICAL_ENTER();
+
     if (group == A1_GROUP_WORLD || group == NULL)
     {
         A1DI_Flush_all();
@@ -117,6 +119,7 @@ int A1D_Flush_group(A1_group_t* group)
     }
 
   fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 

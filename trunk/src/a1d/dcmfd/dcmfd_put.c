@@ -43,6 +43,8 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
 
     A1U_FUNC_ENTER();
 
+    A1DI_CRITICAL_ENTER();    
+
     /* TODO: don't we need logic to decide when to do immediate completion??? */
     if (a1_settings.enable_immediate_flush)
     {
@@ -81,6 +83,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
     A1DI_Conditional_advance(done_active > 0 || ack_active > 0);
 
   fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
