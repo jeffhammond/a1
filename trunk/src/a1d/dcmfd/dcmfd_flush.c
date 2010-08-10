@@ -6,6 +6,8 @@
 
 #include "dcmfdimpl.h"
 
+
+
 int A1DI_Send_flush(int proc)
 {
     DCMF_Result result = DCMF_SUCCESS;

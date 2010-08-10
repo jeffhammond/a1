@@ -6,7 +6,60 @@
 
 #include "dcmfdimpl.h"
 
+DCMF_Protocol_t A1D_Packed_gets_protocol;
 volatile int A1D_Expecting_getresponse;
+
+void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
+                                            const DCQuad *msginfo,
+                                            unsigned count,
+                                            size_t peer,
+                                            const char *src,
+                                            size_t bytes)
+{
+
+    A1D_Packed_gets_header_t *header = (A1D_Packed_gets_header_t *) src;
+    int is_getresponse = 1;
+
+    A1DI_Packed_puts(header->target,
+                     header->source_ptr,
+                     header->src_stride_ar,
+                     header->target_ptr,
+                     header->trg_stride_ar,
+                     header->count,
+                     header->stride_levels,
+                     is_getresponse);
+
+}
+
+DCMF_Result A1DI_Packed_gets_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Send_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The recv callback should be implemented when Send might be used *
+     * with large messages */
+
+    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    conf.cb_recv_short = A1DI_RecvSendShort_packedgets_callback;
+    conf.cb_recv_short_clientdata = NULL;
+    conf.cb_recv = NULL;
+    conf.cb_recv_clientdata = NULL;
+
+    result = DCMF_Send_register(&A1D_Packed_gets_protocol, &conf);
+    A1U_ERR_POP(result != DCMF_SUCCESS,
+                "packed gets registartion returned with error %d \n",
+                result);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
 
 int A1DI_Packed_gets(int target,
                      void* source_ptr,

@@ -6,6 +6,30 @@
 
 #include "dcmfdimpl.h"
 
+DCMF_Protocol_t A1D_Generic_get_protocol;
+
+DCMF_Result A1DI_Get_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Get_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    result = DCMF_Get_register(&A1D_Generic_get_protocol, &conf);
+    A1U_ERR_POP(result != DCMF_SUCCESS,
+                "get registartion returned with error %d \n",
+                result);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1D_Get(int target, void* src, void* dst, int bytes)
 {
     DCMF_Result result = DCMF_SUCCESS;

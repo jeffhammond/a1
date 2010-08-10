@@ -6,6 +6,31 @@
 
 #include "dcmfdimpl.h"
 
+DCMF_Protocol_t A1D_GlobalBarrier_protocol;
+
+DCMF_Result A1DI_GlobalBarrier_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_GlobalBarrier_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    conf.protocol = DCMF_DEFAULT_GLOBALBARRIER_PROTOCOL;
+    result = DCMF_GlobalBarrier_register(&A1D_GlobalBarrier_protocol,
+                                         &conf);
+    A1U_ERR_POP(result != DCMF_SUCCESS,
+                "global barrier registartion returned with error %d \n",
+                result);
+
+  fn_exit:
+
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 void A1DI_GlobalBarrier()
 {
 

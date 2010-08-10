@@ -6,6 +6,89 @@
 
 #include "dcmfdimpl.h"
 
+DCMF_Protocol_t A1D_Packed_puts_protocol;
+
+void A1DI_RecvDone_packedputs_callback(void *clientdata, DCMF_Error_t *error)
+{
+    A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
+
+    A1DI_Unpack_strided(buffer_info->buffer_ptr);
+
+    free(buffer_info->buffer_ptr);
+    free((void *) buffer_info);
+}
+
+DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
+                                                  const DCQuad *msginfo,
+                                                  unsigned count,
+                                                  size_t peer,
+                                                  size_t sndlen,
+                                                  size_t *rcvlen,
+                                                  char **rcvbuf,
+                                                  DCMF_Callback_t *cb_done)
+{
+    int result = 0;
+    A1D_Buffer_info_t *buffer_info;
+
+    result = posix_memalign((void **) &buffer_info,
+                            16,
+                            sizeof(A1D_Buffer_info_t));
+    A1U_ERR_ABORT(result != 0,
+                  "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+
+    *rcvlen = sndlen;
+    result = posix_memalign((void **) rcvbuf, 16, sndlen);
+    A1U_ERR_ABORT(result != 0,
+                  "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+
+    buffer_info->buffer_ptr = (void *) *rcvbuf;
+
+    cb_done->function = A1DI_RecvDone_packedputs_callback;
+    cb_done->clientdata = (void *) buffer_info;
+
+    return &(buffer_info->request);
+}
+
+void A1DI_RecvSendShort_packedputs_callback(void *clientdata,
+                                            const DCQuad *msginfo,
+                                            unsigned count,
+                                            size_t peer,
+                                            const char *src,
+                                            size_t bytes)
+{
+    A1DI_Unpack_strided((void *) src);
+}
+
+DCMF_Result A1DI_Packed_puts_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Send_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The recv callback should be implemented when Send might be used *
+     * with large messages */
+
+    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    conf.cb_recv_short = A1DI_RecvSendShort_packedputs_callback;
+    conf.cb_recv_short_clientdata = NULL;
+    conf.cb_recv = A1DI_RecvSend_packedputs_callback;
+    conf.cb_recv_clientdata = NULL;
+
+    result = DCMF_Send_register(&A1D_Packed_puts_protocol, &conf);
+    A1U_ERR_POP(result != DCMF_SUCCESS,
+                "packed puts registartion returned with error %d \n",
+                result);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1DI_Packed_puts(int target,
                      void* source_ptr,
                      int *src_stride_ar,

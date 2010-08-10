@@ -6,6 +6,33 @@
 
 #include "dcmfdimpl.h"
 
+DCMF_Protocol_t A1D_Generic_put_protocol;
+
+DCMF_Result A1DI_Put_initialize()
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Put_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    result = DCMF_Put_register(&A1D_Generic_put_protocol, &conf);
+    A1U_ERR_POP(result != DCMF_SUCCESS,
+                "put registartion returned with error %d \n",
+                result);
+
+    A1D_Nocallback.function = NULL;
+    A1D_Nocallback.clientdata = NULL;
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1D_Put(int target, void* src, void* dst, int bytes)
 {
     DCMF_Result result = DCMF_SUCCESS;

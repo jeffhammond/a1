@@ -280,7 +280,23 @@ void A1DI_Generic_done(void *, DCMF_Error_t *);
 
 void A1DI_Free_done(void *, DCMF_Error_t *);
 
+int A1DI_Memregion_Global_initialize();
+
+DCMF_Result A1DI_Put_initialize();
+
+DCMF_Result A1DI_Packed_puts_initialize();
+
+DCMF_Result A1DI_Get_initialize();
+
 DCMF_Request_t* A1DI_Get_request();
+
+DCMF_Result A1DI_Packed_gets_initialize();
+
+DCMF_Result A1DI_Putacc_initialize();
+
+DCMF_Result A1DI_Packed_putaccs_initialize();
+
+DCMF_Result A1DI_GlobalBarrier_initialize();
 
 void A1DI_Free_request(A1D_Request_info_t *request);
 
