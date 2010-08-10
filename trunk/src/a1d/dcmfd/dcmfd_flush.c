@@ -15,6 +15,12 @@ int A1DI_Send_flush(int proc)
     A1U_FUNC_ENTER();
 
     /* FIXME: Need to do stuff here!  What stuff? */
+
+    A1DI_CRITICAL_ENTER();
+    /* TODO: If this is a global A1 variable, then it needs an A1 lock to be modified,
+     *        however, it will happen outside a critical section because it needs to be
+     *        checked for the advance condition
+     */
     A1D_Control_flushack_info.rcv_active = 1;
     result = DCMF_Send(&A1D_Send_flush_info.protocol,
                        &request,
@@ -25,7 +31,8 @@ int A1DI_Send_flush(int proc)
                        NULL,
                        &msginfo,
                        1);
-    A1U_ERR_POP(result, "Send returned with an error \n");
+    A1DI_CRITICAL_EXIT();
+    A1U_ERR_POP(result, "DCMF_Send returned with an error \n");
     while (A1D_Control_flushack_info.rcv_active > 0) A1DI_Advance();
 
     fn_exit: A1U_FUNC_EXIT();
@@ -39,7 +46,7 @@ int A1DI_Send_flush_local(int proc)
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t callback;
-    int active;
+    volatile int active;
     DCQuad msginfo;
 
     A1U_FUNC_ENTER();
@@ -50,6 +57,7 @@ int A1DI_Send_flush_local(int proc)
     /* As this is local flush, you just wait for local completion and return. *
      rcv_active can be decremented asynchronously in the callback */
     active = 1;
+    A1DI_CRITICAL_ENTER();
     A1D_Control_flushack_info.rcv_active += 1;
     result = DCMF_Send(&A1D_Send_flush_info.protocol,
                        &request,
@@ -60,7 +68,8 @@ int A1DI_Send_flush_local(int proc)
                        NULL,
                        &msginfo,
                        1);
-    A1U_ERR_POP(result, "Send returned with an error \n");
+    A1DI_CRITICAL_EXIT();
+    A1U_ERR_POP(result, "DCMF_Send returned with an error \n");
     while (active > 0) A1DI_Advance();
 
     fn_exit: A1U_FUNC_EXIT();

@@ -877,6 +877,25 @@ int A1_Reset_handle(A1_handle_t* handle);
 
 int A1_Reset_handle_list(int count, A1_handle_t* handle);
 
+
+/* ********************************************************************** */
+/*                                                                        */
+/*               A1 external API - many-to-many operations                */
+/*                                                                        */
+/* ********************************************************************** */
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+void A1_SyncMulticast_group(A1_group_t* group);
+
 /* FIXME: More API functions to come */
 
 /*! @} */

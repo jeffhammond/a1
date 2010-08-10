@@ -33,11 +33,13 @@ int A1DI_Packed_puts(int target,
                                count,
                                stride_levels,
                                is_getresponse);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
-                "Pack function returned with an error \n");
+    A1U_ERR_POP(result != DCMF_SUCCESS, "A1DI_Pack_strided returned with an error\n");
 
+    /* TODO: This seems a bit scary to me.  Can't we have different functions:
+     *        one for inside callback and one for normal usage, just to be safe?
+     */
     /* If this put is in response to a get, we are in a callback, so we should not 
-     hit advance. We set buffer and requesst pointers in the callback which frees it
+     hit advance. We set buffer and request pointers in the callback which frees it
      when invoked */
     if (is_getresponse)
     {
@@ -56,6 +58,7 @@ int A1DI_Packed_puts(int target,
         active = 1;
     }
 
+    A1DI_CRITICAL_ENTER();
     result = DCMF_Send(&A1D_Packed_puts_protocol,
                        request,
                        callback,
@@ -65,13 +68,19 @@ int A1DI_Packed_puts(int target,
                        packet,
                        NULL,
                        0);
+    A1DI_CRITICAL_EXIT();
     A1U_ERR_POP(result, "Send returned with an error \n");
 
     if (!is_getresponse)
     {
+        /* TODO: without the lock, this update is unsafe
+         *        either we should lock the A1 stack for the update
+         *        or have an separate array for each thread when
+         *        running in A1_THREAD_MULTIPLE mode, otherwise,
+         *        a single vector is sufficient
+         */
         A1D_Connection_send_active[target]++;
-        while (active > 0)
-            A1DI_Advance();
+        while (active > 0) A1DI_Advance();
         free(packet);
     }
 

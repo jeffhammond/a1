@@ -16,8 +16,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();
-
+    /* TODO: don't we need logic to decide when to do immediate completion??? */
     if (a1_enable_immediate_flush)
     {
         done_callback = A1D_Nocallback;
@@ -33,13 +32,19 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
         done_active = 1;
         ack_callback = A1D_Nocallback;
         ack_active = 0;
+        /* TODO: without the lock, this update is unsafe
+         *        either we should lock the A1 stack for the update
+         *        or have an separate array for each thread when
+         *        running in A1_THREAD_MULTIPLE mode, otherwise,
+         *        a single vector is sufficient
+         */
         A1D_Connection_put_active[target]++;
     }
 
-    src_disp = (size_t) src
-            - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
+    src_disp = (size_t) src - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
+    A1DI_CRITICAL_ENTER();
     result = DCMF_Put(&A1D_Generic_put_protocol,
                       &request,
                       done_callback,
@@ -51,12 +56,14 @@ int A1D_Put(int target, void* src, void* dst, int bytes)
                       src_disp,
                       dst_disp,
                       ack_callback);
+    A1DI_CRITICAL_EXIT();
     A1U_ERR_POP(result, "Put returned with an error \n");
-    while (done_active > 0 || ack_active > 0)
-        A1DI_Advance();
+    /* NOTE: it is critical to unlock before the "done" conditional is probed
+     *       to avoid deadlocking in CHT mode
+     */
+    while (done_active > 0 || ack_active > 0) A1DI_Advance();
 
-    fn_exit: A1DI_CRITICAL_EXIT();
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
     fn_fail: goto fn_exit;

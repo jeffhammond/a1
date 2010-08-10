@@ -13,10 +13,16 @@ void A1DI_Flush_all()
     DCMF_Request_t *request;
     DCQuad msginfo;
     DCMF_Callback_t ack_callback;
+    /* TODO: doesn't ack_count have to be volatile? */
     int ack_count, pending_count;
     size_t src_disp, dst_disp;
 
     A1U_FUNC_ENTER();
+
+    /* NOTE: Okay, this function uses coarse-graining locking because otherwise it gets
+     *       really complicated, but we have to release the lock before hitting advance
+     */
+    A1DI_CRITICAL_ENTER();
 
     request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * a1_flushall_pending_limit);
 
@@ -74,8 +80,10 @@ void A1DI_Flush_all()
 
             if (pending_count >= a1_flushall_pending_limit)
             {
+                A1DI_CRITICAL_EXIT();
                 while (A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0) A1DI_Advance();
                 pending_count = 0;
+                A1DI_CRITICAL_ENTER();
             }
 
         }
@@ -101,8 +109,6 @@ int A1D_Flush_group(A1_group_t* group)
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();
-
     if (group == A1_GROUP_WORLD || group == NULL)
     {
         A1DI_Flush_all();
@@ -114,8 +120,7 @@ int A1D_Flush_group(A1_group_t* group)
         goto fn_fail;
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
     fn_fail: goto fn_exit;
