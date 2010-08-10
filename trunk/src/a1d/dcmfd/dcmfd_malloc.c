@@ -6,6 +6,9 @@
 
 #include "dcmfdimpl.h"
 
+DCMF_Memregion_t *A1D_Memregion_global;
+void **A1D_Membase_global;
+
 DCMF_Result A1DI_Memregion_Global_xchange()
 {
 

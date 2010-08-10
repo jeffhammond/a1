@@ -298,6 +298,12 @@ DCMF_Result A1DI_Packed_putaccs_initialize();
 
 DCMF_Result A1DI_GlobalBarrier_initialize();
 
+DCMF_Result A1DI_Send_flush_initialize();
+
+DCMF_Result A1DI_Put_flush_initialize();
+
+DCMF_Result A1DI_Control_flushack_initialize();
+
 void A1DI_Free_request(A1D_Request_info_t *request);
 
 void A1DI_GlobalBarrier();
