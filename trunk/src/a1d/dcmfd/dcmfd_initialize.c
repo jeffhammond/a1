@@ -805,12 +805,14 @@ int A1D_Initialize(int thread_level)
 {
 
     DCMF_Result result = DCMF_SUCCESS;
+    int count = 0;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
-    DCMF_Messager_initialize();
+    count = DCMF_Messager_initialize();
+    A1U_WARNING(count == 0,"DCMF_Messager_initialize has been called more than once.");
 
     A1D_Messager_info.thread_level = thread_level;
     A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
