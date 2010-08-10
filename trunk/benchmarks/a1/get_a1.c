@@ -107,7 +107,7 @@ int main() {
 
    }
 
-   A1_Barrier(A1_GROUP_WORLD); 
+   A1_Barrier_group(A1_GROUP_WORLD); 
 
    A1_Release_segments(A1_GROUP_WORLD, source[rank]); 
  

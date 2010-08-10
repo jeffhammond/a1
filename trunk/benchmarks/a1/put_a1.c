@@ -59,29 +59,41 @@
 int main() {
 
    int i, rank, nranks, msgsize;
-   int memtype = 1;
    long bufsize;
-   char **target;
-   char *source; 
+   char **buffer;
    double t_start, t_stop, t_latency;
    
-   A1_Initialize(A1_THREAD_SINGLE, 1, 1, &memtype); 
+   A1_Initialize(A1_THREAD_SINGLE); 
 
-   A1_Rank(&rank); 
-   A1_Size(&nranks);
+   rank = A1_Process_id(A1_GROUP_WORLD); 
+   nranks = A1_Process_total(A1_GROUP_WORLD);
 
-   target = (char **) malloc (sizeof(char *) * nranks); 
+   if(nranks != 2) 
+   {
+      printf("[%d] This test requires only two processes \n", rank);
+      fflush(stdout);
 
-   A1_GlobalBarrier();
+      A1_Finalize();
+
+      return -1;
+   }
+
+   buffer = (char **) malloc (sizeof(char *) * nranks); 
 
    bufsize = MAX_MSG_SIZE*ITERATIONS;
-   source = (char *) malloc(bufsize);
-   A1_Malloc((void **) target, bufsize); 
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer, bufsize);
 
-   for(i=0; i<bufsize; i++) {
-     *(target[rank] + i) = '*';
-     *(source + i) = '-';
+   if(rank == 0) 
+   {
+     for(i=0; i<bufsize; i++) 
+         *(buffer[rank] + i) = '*';
+   } else
+   {
+     for(i=0; i<bufsize; i++) 
+       *(buffer[rank] + i) = '-';
    }
+
+   A1_Barrier_group(A1_GROUP_WORLD); 
 
    if(rank == 0) {
      printf("A1_Put Latency - local and remote completions - in usec \n");
@@ -93,25 +105,25 @@ int main() {
         for(i=0; i<ITERATIONS+SKIP; i++) { 
 
             if(i == SKIP)
-                t_start = A1_Time();              
+                t_start = A1_Time_seconds();              
 
-            A1_Put(1, (void *) ((size_t)source + (size_t)(i*msgsize)), (void *) ((size_t)target[1] + (size_t)(i*msgsize)), msgsize); 
+            A1_Put(1, (void *) ((size_t)buffer[0] + (size_t)(i*msgsize)), (void *) ((size_t)buffer[1] + (size_t)(i*msgsize)), msgsize); 
 
         }
-        t_stop = A1_Time();
+        t_stop = A1_Time_seconds();
         printf("%20d %20.2f", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
         fflush(stdout);
 
         for(i=0; i<ITERATIONS+SKIP; i++) {
 
             if(i == SKIP)
-                t_start = A1_Time();
+                t_start = A1_Time_seconds();
 
-            A1_Put(1, (void *) ((size_t)source + (size_t)(i*msgsize)), (void *) ((size_t)target[1] + (size_t)(i*msgsize)), msgsize);
+            A1_Put(1, (void *) ((size_t)buffer[0] + (size_t)(i*msgsize)), (void *) ((size_t)buffer[1] + (size_t)(i*msgsize)), msgsize);
             A1_Flush(1);
 
         }
-        t_stop = A1_Time();
+        t_stop = A1_Time_seconds();
         printf("%20.2f \n", ((t_stop-t_start)*1000000)/ITERATIONS);
         fflush(stdout);
 
@@ -119,9 +131,9 @@ int main() {
 
    }
 
-   A1_GlobalBarrier();  
+   A1_Barrier_group(A1_GROUP_WORLD);  
 
-   A1_Free(target[rank]); 
+   A1_Release_segments(A1_GROUP_WORLD, buffer[rank]); 
  
    A1_Finalize();
 

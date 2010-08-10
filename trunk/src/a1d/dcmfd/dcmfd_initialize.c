@@ -11,6 +11,8 @@ A1D_Process_info_t A1D_Process_info;
 
 DCMF_Callback_t A1D_Nocallback;
 
+pthread_t A1DI_CHT_pthread;
+
 void A1DI_CHT_advance_function(void * dummy)
 {
     DCMF_CriticalSection_enter(0);
