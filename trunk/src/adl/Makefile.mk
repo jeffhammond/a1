@@ -8,7 +8,7 @@ liba1_la_SOURCES += $(top_srcdir)/src/adl/adl_initialize.c \
 	$(top_srcdir)/src/adl/adl_malloc.c \
 	$(top_srcdir)/src/adl/adl_free.c \
 	$(top_srcdir)/src/adl/adl_flush.c \
-	$(top_srcdir)/src/adl/adl_flush_all.c \
+	$(top_srcdir)/src/adl/adl_flush_group.c \
 	$(top_srcdir)/src/adl/adl_put.c \
 	$(top_srcdir)/src/adl/adl_puts.c \
 	$(top_srcdir)/src/adl/adl_get.c \

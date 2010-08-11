@@ -9,7 +9,7 @@ liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmfd/dcmfd_param.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_malloc.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_free.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_flush.c \
-	$(top_srcdir)/src/a1d/dcmfd/dcmfd_flush_all.c \
+	$(top_srcdir)/src/a1d/dcmfd/dcmfd_flush_group.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_put.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_puts.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_get.c \

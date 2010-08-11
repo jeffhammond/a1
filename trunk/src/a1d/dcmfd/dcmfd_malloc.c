@@ -56,7 +56,7 @@ int A1DI_Memregion_Global_initialize()
 {
 
     int result = A1_SUCCESS;
-    int out, i;
+    unsigned int out, i;
 
     A1U_FUNC_ENTER();
 

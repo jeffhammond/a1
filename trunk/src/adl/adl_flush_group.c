@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-void A1_Flush_all()
+void A1_Flush_group(A1_group_t * group)
 {
     int status = A1_SUCCESS;
 
@@ -21,11 +21,13 @@ void A1_Flush_all()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Flush_all();
+    status = A1D_Flush_group(group);
     A1U_ERR_POP(status != A1_SUCCESS, "A1D_Flush_all returned an error\n");
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
