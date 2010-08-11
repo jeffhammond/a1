@@ -65,9 +65,6 @@ DCMF_Result A1DI_Packed_puts_initialize()
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The recv callback should be implemented when Send might be used *
-     * with large messages */
-
     conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
     conf.cb_recv_short = A1DI_RecvSendShort_packedputs_callback;
@@ -94,15 +91,14 @@ int A1DI_Packed_puts(int target,
                      void* target_ptr,
                      int *trg_stride_ar,
                      int *count,
-                     int stride_levels,
-                     int is_getresponse)
+                     int stride_levels)
 {
 
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t *request;
     DCMF_Callback_t callback;
     void *packet;
-    unsigned size_packet;
+    int size_packet;
     volatile int active;
 
     A1U_FUNC_ENTER();
@@ -114,32 +110,13 @@ int A1DI_Packed_puts(int target,
                                target_ptr,
                                trg_stride_ar,
                                count,
-                               stride_levels,
-                               is_getresponse);
+                               stride_levels);
     A1U_ERR_POP(result != DCMF_SUCCESS, "A1DI_Pack_strided returned with an error\n");
 
-    /* TODO: This seems a bit scary to me.  Can't we have different functions:
-     *        one for inside callback and one for normal usage, just to be safe?
-     */
-    /* If this put is in response to a get, we are in a callback, so we should not 
-     hit advance. We set buffer and request pointers in the callback which frees it
-     when invoked */
-    if (is_getresponse)
-    {
-        A1D_Buffer_info_t *response_info;
-        A1DI_Malloc_aligned((void **) &response_info, sizeof(A1D_Buffer_info_t));
-        response_info->buffer_ptr = packet;
-        request = &(response_info->request);
-        callback.function = A1DI_Free_done;
-        callback.clientdata = (void *) response_info;
-    }
-    else
-    {
-        request = A1DI_Get_request();
-        callback.function = A1DI_Generic_done;
-        callback.clientdata = (void *) &active;
-        active = 1;
-    }
+    request = A1DI_Get_request();
+    callback.function = A1DI_Generic_done;
+    callback.clientdata = (void *) &active;
+    active = 1;
 
     result = DCMF_Send(&A1D_Packed_puts_protocol,
                        request,
@@ -152,12 +129,9 @@ int A1DI_Packed_puts(int target,
                        0);
     A1U_ERR_POP(result, "Send returned with an error \n");
 
-    if (!is_getresponse)
-    {
-        A1D_Connection_send_active[target]++;
-        A1DI_Conditional_advance(active > 0);
-        A1DI_Free(packet);
-    }
+    A1D_Connection_send_active[target]++;
+    A1DI_Conditional_advance(active > 0);
+    A1DI_Free(packet);
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -279,8 +253,7 @@ int A1D_PutS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   count,
-                                  stride_levels,
-                                  0);
+                                  stride_levels);
         A1U_ERR_POP(result, "Packed puts function returned with an error \n");
 
         if (a1_settings.enable_immediate_flush)

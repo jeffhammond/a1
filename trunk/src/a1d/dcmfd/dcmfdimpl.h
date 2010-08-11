@@ -213,7 +213,6 @@ typedef struct
     int trg_stride_ar[2];
     int count[3];
     int stride_levels;
-    int is_getresponse;
 } A1D_Packed_puts_header_t;
 
 typedef struct
@@ -301,6 +300,7 @@ extern DCMF_Protocol_t A1D_Generic_get_protocol;
 extern DCMF_Protocol_t A1D_Generic_putacc_protocol;
 extern DCMF_Protocol_t A1D_Packed_puts_protocol;
 extern DCMF_Protocol_t A1D_Packed_gets_protocol;
+extern DCMF_Protocol_t A1D_Packed_gets_response_protocol;
 extern DCMF_Protocol_t A1D_Packed_putaccs_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
@@ -360,8 +360,7 @@ int A1DI_Packed_puts(int target,
                      void* target_ptr,
                      int *trg_stride_ar,
                      int *count,
-                     int stride_levels,
-                     int is_getresponse);
+                     int stride_levels);
 
 int A1DI_Pack_strided(void **packet,
                       int *size_packet,
@@ -370,8 +369,7 @@ int A1DI_Pack_strided(void **packet,
                       void *target_ptr,
                       int *trg_stride_ar,
                       int *count,
-                      int stride_levels,
-                      int is_getresponse);
+                      int stride_levels);
 
 int A1DI_Pack_strided_putaccs(void **packet,
                               int *size_packet,

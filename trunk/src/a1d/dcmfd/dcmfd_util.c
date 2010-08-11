@@ -102,11 +102,6 @@ int A1DI_Unpack_strided(void *packet)
                              header->count,
                              header->stride_levels);
 
-    if (header->is_getresponse)
-    {
-        A1D_Expecting_getresponse = 0;
-    }
-
     fn_exit: A1U_FUNC_EXIT();
     return result;
 
@@ -153,8 +148,7 @@ int A1DI_Pack_strided(void **packet,
                       void *target_ptr,
                       int *trg_stride_ar,
                       int *count,
-                      int stride_levels,
-                      int is_getresponse)
+                      int stride_levels)
 {
     int result = A1_SUCCESS;
     int i, size_data;
@@ -177,7 +171,6 @@ int A1DI_Pack_strided(void **packet,
     header.stride_levels = stride_levels;
     memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels * sizeof(uint32_t));
     memcpy(header.count, count, (stride_levels + 1) * sizeof(uint32_t));
-    header.is_getresponse = is_getresponse;
     memcpy(*packet, &header, sizeof(A1D_Packed_puts_header_t));
 
     /*Copying data*/

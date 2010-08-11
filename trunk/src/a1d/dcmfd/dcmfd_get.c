@@ -53,7 +53,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
     result = DCMF_Get(&A1D_Generic_get_protocol,
                       &request,
                       callback,
-                      DCMF_SEQUENTIAL_CONSISTENCY,
+                      DCMF_RELAXED_CONSISTENCY,
                       target,
                       bytes,
                       &A1D_Memregion_global[target],

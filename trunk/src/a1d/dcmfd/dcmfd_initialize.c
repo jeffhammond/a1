@@ -111,6 +111,9 @@ int A1D_Initialize(int thread_level)
     result = A1DI_Packed_gets_initialize();
     A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Packed_gets_initialize returned with error \n");
 
+    result = A1DI_Packed_gets_response_initialize();
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Packed_gets_initialize returned with error \n");
+
     result = A1DI_Packed_putaccs_initialize();
     A1U_ERR_POP(result!=A1_SUCCESS,"A1DI_Packed_putaccs_initialize returned with error \n");
 
