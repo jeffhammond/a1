@@ -14,8 +14,8 @@ void A1DI_RecvDone_packedputs_callback(void *clientdata, DCMF_Error_t *error)
 
     A1DI_Unpack_strided(buffer_info->buffer_ptr);
 
-    free(buffer_info->buffer_ptr);
-    free((void *) buffer_info);
+    A1DI_Free(buffer_info->buffer_ptr);
+    A1DI_Free((void *) buffer_info);
 }
 
 DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
@@ -30,16 +30,15 @@ DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
     int result = 0;
     A1D_Buffer_info_t *buffer_info;
 
-    result = posix_memalign((void **) &buffer_info,
-                            16,
-                            sizeof(A1D_Buffer_info_t));
+    result = A1DI_Malloc_aligned((void **) &buffer_info,
+                                 sizeof(A1D_Buffer_info_t));
     A1U_ERR_ABORT(result != 0,
-                  "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
     *rcvlen = sndlen;
-    result = posix_memalign((void **) rcvbuf, 16, sndlen);
+    result = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
     A1U_ERR_ABORT(result != 0,
-                  "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
     buffer_info->buffer_ptr = (void *) *rcvbuf;
 
@@ -128,7 +127,7 @@ int A1DI_Packed_puts(int target,
     if (is_getresponse)
     {
         A1D_Buffer_info_t *response_info;
-        posix_memalign((void **) &response_info, 16, sizeof(A1D_Buffer_info_t));
+        A1DI_Malloc_aligned((void **) &response_info, sizeof(A1D_Buffer_info_t));
         response_info->buffer_ptr = packet;
         request = &(response_info->request);
         callback.function = A1DI_Free_done;
@@ -157,7 +156,7 @@ int A1DI_Packed_puts(int target,
     {
         A1D_Connection_send_active[target]++;
         A1DI_Conditional_advance(active > 0);
-        free(packet);
+        A1DI_Free(packet);
     }
 
   fn_exit: 

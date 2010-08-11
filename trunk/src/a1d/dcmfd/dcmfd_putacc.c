@@ -23,8 +23,8 @@ void A1DI_RecvDone_putacc_callback(void *clientdata, DCMF_Error_t *error)
     A1U_ERR_ABORT(result,
                   "A1D_Acc_process failed in A1DI_RecvDone_putacc_callback\n");
 
-    free(buffer_info->buffer_ptr);
-    free((void *) putacc_recv_info);
+    A1DI_Free(buffer_info->buffer_ptr);
+    A1DI_Free((void *) putacc_recv_info);
 }
 
 DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
@@ -39,19 +39,18 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
     int result = 0;
     A1D_Putacc_recv_info_t *putacc_recv_info;
 
-    result = posix_memalign((void **) &putacc_recv_info,
-                            16,
-                            sizeof(A1D_Putacc_recv_info_t));
+    result = A1DI_Malloc_aligned((void **) &putacc_recv_info,
+                                 sizeof(A1D_Putacc_recv_info_t));
     A1U_ERR_ABORT(result != 0,
-                  "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
     memcpy((void *) &(putacc_recv_info->header), (void *) msginfo, count
             * sizeof(DCQuad));
 
     *rcvlen = sndlen;
-    result = posix_memalign((void **) rcvbuf, 16, sndlen);
+    result = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
     A1U_ERR_ABORT(result != 0,
-                  "posix_memalign failed in A1DI_RecvSend_packedputs_callback\n");
+                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
     (putacc_recv_info->buffer_info).buffer_ptr = (void *) *rcvbuf;
     (putacc_recv_info->buffer_info).bytes = sndlen;

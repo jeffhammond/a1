@@ -16,7 +16,7 @@ int A1D_Release_segments(A1_group_t* group, void *ptr)
 
     A1DI_GlobalBarrier();
 
-    free(ptr);
+    A1DI_Free(ptr);
 
   fn_exit:
     A1DI_CRITICAL_EXIT();

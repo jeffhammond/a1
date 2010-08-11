@@ -31,7 +31,19 @@
 #define A1C_REQUEST_POOL_LIMIT 500
 
 /*************************************************
- *                  Macros                       *
+ *          Memory Allocation Macros             *
+ *************************************************/
+
+#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
+
+#define A1DI_Malloc(ptr, num)  !(p = malloc(num))
+
+#define A1DI_Free(ptr) free(ptr)
+
+#define A1DI_Memset(ptr, val, num)  memset(ptr, val, num)
+
+/*************************************************
+ *          Critical Section Macros              *
  *************************************************/
 
 #define A1DI_CRITICAL_CALL(call)                                  \

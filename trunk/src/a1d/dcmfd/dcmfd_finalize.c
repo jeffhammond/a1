@@ -14,9 +14,9 @@ void A1DI_Request_pool_finalize()
 
     for (i = 0; i < A1D_Request_pool.region_count; i++)
     {
-        free(A1D_Request_pool.region_ptr[i]);
+        A1DI_Free(A1D_Request_pool.region_ptr[i]);
     }
-    free(A1D_Request_pool.region_ptr);
+    A1DI_Free(A1D_Request_pool.region_ptr);
 
   fn_exit: 
     A1U_FUNC_EXIT();

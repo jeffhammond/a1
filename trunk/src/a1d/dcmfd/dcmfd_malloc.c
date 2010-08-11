@@ -60,10 +60,8 @@ int A1DI_Memregion_Global_initialize()
 
     A1U_FUNC_ENTER();
 
-    result = posix_memalign((void **) &A1D_Memregion_global,
-                            16,
-                            sizeof(DCMF_Memregion_t)
-                                    * A1D_Process_info.num_ranks);
+    result = A1DI_Malloc_aligned((void **) &A1D_Memregion_global,
+                            sizeof(DCMF_Memregion_t) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(result != 0, "Memregion allocation Failed \n");
 
     result
@@ -77,8 +75,9 @@ int A1DI_Memregion_Global_initialize()
     result = A1DI_Memregion_Global_xchange();
     A1U_ERR_POP(result != A1_SUCCESS, "Memory Region Xchange Failed \n");
 
-    result = posix_memalign((void **) &A1D_Membase_global, 16, sizeof(void *)
-            * A1D_Process_info.num_ranks);
+    result = A1DI_Malloc_aligned((void **) &A1D_Membase_global, 
+                                 sizeof(void *)
+                                      * A1D_Process_info.num_ranks);
     A1U_ERR_POP(result != 0, "Membase allocation Failed \n");
 
     for (i = 0; i < A1D_Process_info.num_ranks; i++)

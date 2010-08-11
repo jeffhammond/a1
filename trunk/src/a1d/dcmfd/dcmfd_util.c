@@ -10,8 +10,8 @@ void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
 void A1DI_Free_done(void *clientdata, DCMF_Error_t *error)
 {
     A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
-    free(buffer_info->buffer_ptr);
-    free((void *) buffer_info);
+    A1DI_Free(buffer_info->buffer_ptr);
+    A1DI_Free((void *) buffer_info);
 }
 
 void A1DI_Control_xchange_callback(void *clientdata,
@@ -168,8 +168,9 @@ int A1DI_Pack_strided(void **packet,
         size_data *= count[i];
     *size_packet = sizeof(A1D_Packed_puts_header_t) + size_data;
 
-    result = posix_memalign(packet, 64, *size_packet);
-    A1U_ERR_POP(result != A1_SUCCESS, "packet allocation failed \n");
+    result = A1DI_Malloc_aligned(packet, *size_packet);
+    A1U_ERR_POP(result != A1_SUCCESS, "A1DI_Malloc_aligned failed while allocating packet\
+               in A1DI_Pack_strided\n");
 
     /*Copying header information*/
     header.target_ptr = target_ptr;
@@ -326,8 +327,8 @@ int A1DI_Pack_strided_putaccs(void **packet,
     for (i = 1; i <= stride_levels; i++) size_data *= count[i];
     *size_packet = sizeof(A1D_Packed_putaccs_header_t) + size_data;
 
-    result = posix_memalign(packet, 64, *size_packet);
-    A1U_ERR_POP(result != A1_SUCCESS, "packet allocation failed \n");
+    result = A1DI_Malloc_aligned(packet, *size_packet);
+    A1U_ERR_POP(result != A1_SUCCESS, "A1DI_Malloc_aligned while allocating packet in A1DI_Pack_strided_putaccs\n");
 
     /*Copying header information*/
     header.target_ptr = target_ptr;

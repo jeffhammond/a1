@@ -62,8 +62,9 @@ int A1DI_Request_pool_increment()
 
     A1U_FUNC_ENTER();
 
-    posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)
-            * a1_requestpool_info.increment_size);
+    result = A1DI_Malloc_aligned((void **) &request, 
+                                 sizeof(A1D_Request_info_t)
+                                       * a1_requestpool_info.increment_size);
     A1U_ERR_POP(result = !request,
                 "memory allocation for request pool failed \n");
     a1_requestpool_info.total_size = a1_requestpool_info.total_size + a1_requestpool_info.increment_size;
@@ -101,15 +102,17 @@ int A1DI_Request_pool_initialize()
     A1U_FUNC_ENTER();
 
     max_regions = (a1_requestpool_info.limit_size - a1_requestpool_info.initial_size)
-            / a1_requestpool_info.increment_size + 1;
-    result = posix_memalign((void **) &(A1D_Request_pool.region_ptr),
-                            16,
-                            sizeof(void *) * max_regions);
-    A1U_ERR_POP(result != 0, "memory region list allocation failed \n");
+                        / a1_requestpool_info.increment_size + 1;
+    result = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr),
+                                 sizeof(void *) * max_regions);
+    A1U_ERR_POP(result != 0, "A1DI_Malloc_aligned failed while allocating request pool\
+                       regions list in A1DI_Request_pool_initialize\n");
 
-    result = posix_memalign((void **) &request, 16, sizeof(A1D_Request_info_t)
-            * a1_requestpool_info.initial_size);
-    A1U_ERR_POP(result != 0, "memory allocation for request pool failed \n");
+    result = A1DI_Malloc_aligned((void **) &request, 
+                                  sizeof(A1D_Request_info_t)
+                                        * a1_requestpool_info.initial_size);
+    A1U_ERR_POP(result != 0, "A1DI_Malloc_aligned failed while allocating request pool\
+                      in A1DI_Request_pool_initialize\n");
     a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
 
     A1D_Request_pool.region_ptr[A1D_Request_pool.region_count]
