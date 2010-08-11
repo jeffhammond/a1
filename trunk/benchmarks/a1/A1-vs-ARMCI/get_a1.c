@@ -68,8 +68,6 @@ int main() {
    rank = A1_Process_id(A1_GROUP_WORLD); 
    nranks = A1_Process_total(A1_GROUP_WORLD);
 
-   A1_Barrier_group(A1_GROUP_WORLD);
-
    bufsize = MAX_MSG_SIZE*ITERATIONS;
    buffer = (double **) malloc (sizeof(double *) * nranks);
    A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer, bufsize); 
@@ -77,6 +75,8 @@ int main() {
    for(i=0; i<bufsize/sizeof(double); i++) {
      *(buffer[rank] + i) = 1.0 + rank;
    }
+
+   A1_Barrier_group(A1_GROUP_WORLD);
 
    if(rank == 0) {
 
@@ -100,7 +100,7 @@ int main() {
         printf("%20d %20.2f \n", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
         fflush(stdout);
 
-        for(i=0; i < ((ITERATIONS+SKIP)*msgsize)/sizeof(double); i++) {
+        for(i=0; i<(((ITERATIONS+SKIP)*msgsize)/sizeof(double)); i++) {
            if(*(buffer[rank] + i) != (1.0 + dest)) {
                  printf("Data validation failed At displacement : %d Expected : %f Actual : %f \n", 
                              i, (1.0 + dest), *(buffer[rank] + i));

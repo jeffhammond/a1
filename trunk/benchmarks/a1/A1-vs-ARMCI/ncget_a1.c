@@ -52,16 +52,19 @@
 #include <stdlib.h>
 #include <a1.h>
 
-#define MAX_MSG_SIZE 1024*1024
+#define MAX_XDIM 1024 
+#define MAX_YDIM 1024
 #define ITERATIONS 100
 #define SKIP 10
 
 int main() {
 
-   int i, rank, nranks, msgsize, dest;
+   int i, j, rank, nranks, msgsize, dest;
+   int xdim, ydim;
    long bufsize;
    double **buffer;
    double t_start, t_stop, t_latency;
+   int count[2], src_stride, trg_stride, stride_levels;
    
    A1_Initialize(A1_THREAD_SINGLE); 
 
@@ -70,55 +73,74 @@ int main() {
 
    A1_Barrier_group(A1_GROUP_WORLD);
 
-   bufsize = MAX_MSG_SIZE*ITERATIONS;
-   buffer = (double **) malloc (sizeof(double *) * nranks);
-   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer, bufsize); 
+   bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
+   buffer = (double **) malloc (sizeof(double *) * nranks); 
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer, bufsize);
 
    for(i=0; i<bufsize/sizeof(double); i++) {
      *(buffer[rank] + i) = 1.0 + rank;
    }
 
    if(rank == 0) {
-
-     printf("A1_Get Latency in usec \n");
-     printf("%20s %22s \n", "Message Size", "Latency");
+     printf("A1_GetS Latency in usec \n");
+     printf("%30s %22s \n", "Dimensions(array of doubles)", "Latency");
      fflush(stdout);
 
      dest = 1;
 
-     for(msgsize=sizeof(double); msgsize<=MAX_MSG_SIZE; msgsize*=2) {
+     src_stride = MAX_YDIM*sizeof(double);
+     trg_stride = MAX_YDIM*sizeof(double);
+     stride_levels = 1;
 
-        for(i=0; i<ITERATIONS+SKIP; i++) { 
+     for(xdim=1; xdim<=MAX_XDIM; xdim*=2) 
+     {
 
-            if(i == SKIP)
-                t_start = A1_Time_seconds();              
+        count[1] = xdim;
 
-            A1_Get(1, (void *) ((size_t)buffer[dest] + (size_t)(i*msgsize)), (void *) ((size_t)buffer[rank] + (size_t)(i*msgsize)), msgsize); 
+        for(ydim=1; ydim<=MAX_YDIM; ydim*=2) 
+        {
 
-        }
-        t_stop = A1_Time_seconds();
-        printf("%20d %20.2f \n", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
-        fflush(stdout);
+          count[0] = ydim*sizeof(double); 
 
-        for(i=0; i < ((ITERATIONS+SKIP)*msgsize)/sizeof(double); i++) {
-           if(*(buffer[rank] + i) != (1.0 + dest)) {
-                 printf("Data validation failed At displacement : %d Expected : %f Actual : %f \n", 
-                             i, (1.0 + dest), *(buffer[rank] + i));
-                 fflush(stdout);
-                 return -1;
-           }
-        }
+          for(i=0; i<ITERATIONS+SKIP; i++) 
+          { 
 
-        for(i=0; i<bufsize/sizeof(double); i++) {
-           *(buffer[rank] + i) = 1.0 + rank;
-        }
-     }
+             if(i == SKIP)
+                 t_start = A1_Time_seconds();              
+
+             A1_GetS(1, (void *) buffer[dest], &src_stride, (void *) buffer[rank], &trg_stride, count, stride_levels); 
+ 
+          }
+          t_stop = A1_Time_seconds();
+
+          char temp[10]; 
+          sprintf(temp,"%dX%d", xdim, ydim);
+          printf("%30s %20.2f \n", temp, ((t_stop-t_start)*1000000)/ITERATIONS);
+          fflush(stdout);
+
+          for(i=0; i<xdim; i++) 
+          {
+              for(j=0; j<ydim; j++) 
+              {
+                   if(*(buffer[rank] + i*MAX_XDIM + j) != (1.0 + dest)) 
+                   {
+                      printf("Data validation failed at X: %d Y: %d Expected : %f Actual : %f \n",
+                              i, j, (1.0 + dest), *(buffer[rank] + i*MAX_XDIM + j));
+                      fflush(stdout);
+                      return -1;
+                   }
+               }
+           }               
+
+      }
+
+    }
 
    }
 
-   A1_Barrier_group(A1_GROUP_WORLD); 
+   A1_Barrier_group(A1_GROUP_WORLD);
 
-   A1_Release_segments(A1_GROUP_WORLD, buffer[rank]); 
+   A1_Release_segments(A1_GROUP_WORLD, (void *) buffer[rank]); 
  
    A1_Finalize();
 
