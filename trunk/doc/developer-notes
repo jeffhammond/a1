@@ -1,0 +1,13 @@
+-----------------------
+* Threads and Locking *
+-----------------------
+
+The A1 library has been designed to be thread safe, when helper thread or interrupts are enabled or when the user has specified a 
+A1_THREAD_MULTIPLE as the thread level. A global (DCMF) lock is acquired on entry into any of any A1D function. 
+The lock is given up of exit of the function or when waiting on communication progress, thus allowing the helper 
+thread (CHT) to acquire the lock and hit advance (DCMF_Messager_advance). When the helper thread is not present, 
+the lock is retained and the main thread hits advance until the required communication progress is achieved.
+
+None of the A1DI functions should acquire the lock since these functions are called from within the A1D functions or from inside 
+a DCMF Callback at which point the lock would have already been acquired. 
+

@@ -20,7 +20,7 @@ void A1DI_Read_parameters()
     a1_settings.alignment = A1C_ALIGNMENT;
 
     a1_settings.disable_cht = A1C_DISABLE_CHT;
-    if ((value = getenv("A1_ENABLE_CHT")) != NULL)
+    if ((value = getenv("A1_DISABLE_CHT")) != NULL)
     {
         a1_settings.disable_cht = atoi(value);
     }
