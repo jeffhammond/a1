@@ -15,11 +15,14 @@ pthread_t A1DI_CHT_pthread;
 
 void A1DI_CHT_advance_function(void * dummy)
 {
+    volatile int stall;
     DCMF_CriticalSection_enter(0);
     while (1)
     {
         DCMF_Messager_advance(0);
-        DCMF_CriticalSection_cycle(0);
+        DCMF_CriticalSection_exit(0);
+        A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
+        DCMF_CriticalSection_enter(0);        
     }
     DCMF_CriticalSection_exit(0);
 }

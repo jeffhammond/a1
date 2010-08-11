@@ -25,6 +25,12 @@ void A1DI_Read_parameters()
         a1_settings.disable_cht = atoi(value);
     }
 
+    a1_settings.cht_pause_cycles = A1C_CHT_PAUSE_CYCLES;
+    if ((value = getenv("A1_CHT_PAUSE_CYCLES")) != NULL)
+    {
+        a1_settings.cht_pause_cycles = atoi(value);
+    }
+
     a1_settings.disable_interrupts = A1C_DISABLE_INTERRUPTS; 
     if ((value = getenv("A1_DISABLE_INTERRUPTS")) != NULL)
     {

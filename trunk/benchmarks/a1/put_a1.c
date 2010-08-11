@@ -63,7 +63,7 @@ int main() {
    char **buffer;
    double t_start, t_stop, t_latency;
    
-   A1_Initialize(A1_THREAD_SINGLE); 
+   A1_Initialize(A1_THREAD_GENERAL); 
 
    rank = A1_Process_id(A1_GROUP_WORLD); 
    nranks = A1_Process_total(A1_GROUP_WORLD);

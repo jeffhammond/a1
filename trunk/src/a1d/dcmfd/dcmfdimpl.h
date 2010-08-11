@@ -20,6 +20,7 @@
 
 #define A1C_DISABLE_CHT 0
 #define A1C_DISABLE_INTERRUPTS 0 
+#define A1C_CHT_PAUSE_CYCLES 750
 
 #define A1C_DIRECT_NONCONTIG_THRESHOLD 512
 
@@ -29,6 +30,25 @@
 #define A1C_REQUEST_POOL_INITIAL 200
 #define A1C_REQUEST_POOL_INCREMENT 100
 #define A1C_REQUEST_POOL_LIMIT 500
+
+/*************************************************
+ *          Generic  Macros                      *
+ *************************************************/
+#define A1DI_Wait_cycles(cycles)                   \
+   do {                                            \
+      unsigned long long start = DCMF_Timebase();  \
+      unsigned long long stop = DCMF_Timebase();   \
+      while((stop - start) < cycles)               \
+           stop = DCMF_Timebase();                 \
+   } while(0)                                      \
+
+#define A1DI_Wait_seconds(seconds)       \
+   do {                                  \
+      double start = DCMF_Timer();       \
+      double stop = DCMF_Timer();        \
+      while((stop - start) < seconds)    \
+           stop = DCMF_Timer();          \
+   } while(0)                            \
 
 /*************************************************
  *          Memory Allocation Macros             *
@@ -96,6 +116,7 @@
       }                                                           \
     } while (0)                                                   \
 
+/*
 #define A1DI_Conditional_advance(boolean)                         \
     do {                                                          \
       if(a1_settings.disable_cht)                                 \
@@ -110,6 +131,12 @@
         DCMF_CriticalSection_enter(0);                            \
       }                                                           \
     } while (0)                                                   \
+*/
+
+#define A1DI_Conditional_advance(boolean)                         \
+    while(boolean) {                                              \
+          DCMF_Messager_advance(0);                               \
+    }                                                             \
 
 #define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count)          \
    do {                                                                     \
@@ -127,6 +154,7 @@
 typedef struct
 {
    uint32_t disable_cht;
+   uint32_t cht_pause_cycles;
    uint32_t disable_interrupts;
    uint32_t enable_immediate_flush;
    uint32_t direct_noncontig_threshold;
