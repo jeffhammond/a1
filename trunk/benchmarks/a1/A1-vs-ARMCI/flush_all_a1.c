@@ -94,7 +94,7 @@ int main() {
             for(j=0; j<nranks; j++) 
             {
 
-               A1_Put(1, (void *) ((size_t)buffer[rank] + (size_t)(i*msgsize)), 
+               A1_Put(j, (void *) ((size_t)buffer[rank] + (size_t)(i*msgsize)), 
                            (void *) ((size_t)buffer[j] + (size_t)(i*msgsize)), msgsize); 
             }
             A1_Flush_group(A1_GROUP_WORLD);

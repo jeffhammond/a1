@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
             {
 
                ARMCI_Put((void *) ((size_t)buffer[rank] + (size_t)(i*msgsize)), 
-                           (void *) ((size_t)buffer[j] + (size_t)(i*msgsize)), msgsize, 1); 
+                           (void *) ((size_t)buffer[j] + (size_t)(i*msgsize)), msgsize, j); 
             }
             ARMCI_AllFence();
 
