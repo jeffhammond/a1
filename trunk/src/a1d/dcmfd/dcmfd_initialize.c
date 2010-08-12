@@ -15,7 +15,6 @@ pthread_t A1DI_CHT_pthread;
 
 void A1DI_CHT_advance_function(void * dummy)
 {
-    volatile int stall;
     DCMF_CriticalSection_enter(0);
     while (1)
     {

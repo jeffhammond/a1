@@ -18,14 +18,12 @@ void A1DI_Flush_all()
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();
-
     request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * a1_settings.flushall_pending_limit);
 
     ack_count = 0;
     pending_count = 0;
     ack_callback.function = A1DI_Generic_done;
-    ack_callback.clientdata = (void *) ack_count;
+    ack_callback.clientdata = (void *) &ack_count;
 
     for (dst = 0; dst < A1D_Process_info.num_ranks; dst++)
     {
@@ -91,7 +89,6 @@ void A1DI_Flush_all()
     A1DI_Reset_request_pool();
 
   fn_exit:  
-    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return;
 

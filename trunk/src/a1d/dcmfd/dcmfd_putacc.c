@@ -69,10 +69,13 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
                                         size_t bytes)
 {
     int result = A1_SUCCESS;
+    A1D_Putacc_header_t *header;
 
-    result = A1D_Acc_process((void *) src,
+    header = (A1D_Putacc_header_t *) msginfo;
+
+    result = A1D_Acc_process(src,
                              bytes,
-                             (A1D_Putacc_header_t *) msginfo);
+                             header);
     A1U_ERR_ABORT(result,
                   "A1D_Acc_process failed in A1DI_RecvSendShort_putacc_callback\n");
 }

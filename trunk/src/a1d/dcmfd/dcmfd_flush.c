@@ -31,6 +31,8 @@ DCMF_Result A1DI_Control_flushack_initialize()
 
     A1U_FUNC_ENTER();
 
+    A1D_Control_flushack_info.rcv_active = 0;
+
     conf.protocol = DCMF_DEFAULT_CONTROL_PROTOCOL;
     conf.network = DCMF_DEFAULT_NETWORK;
     conf.cb_recv = A1DI_Control_flushack_callback;

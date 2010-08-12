@@ -56,11 +56,13 @@
 
 #define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
 
-#define A1DI_Malloc(ptr, num)  !(p = malloc(num))
+#define A1DI_Malloc(ptr, num)  !(ptr = malloc(num))
 
 #define A1DI_Free(ptr) free(ptr)
 
 #define A1DI_Memset(ptr, val, num)  memset(ptr, val, num)
+
+#define A1DI_Memcpy(trg, src, num)  memcpy(trg, src, num)
 
 /*************************************************
  *          Critical Section Macros              *
@@ -115,23 +117,6 @@
         DCMF_Messager_advance(0);                                 \
       }                                                           \
     } while (0)                                                   \
-
-/*
-#define A1DI_Conditional_advance(boolean)                         \
-    do {                                                          \
-      if(a1_settings.disable_cht)                                 \
-      {                                                           \
-        while(boolean) {                                          \
-          DCMF_Messager_advance(0);                               \
-        }                                                         \
-      } else                                                      \
-      {                                                           \
-        DCMF_CriticalSection_exit(0);                             \
-        while(boolean);                                           \
-        DCMF_CriticalSection_enter(0);                            \
-      }                                                           \
-    } while (0)                                                   \
-*/
 
 #define A1DI_Conditional_advance(boolean)                         \
     while(boolean) {                                              \
