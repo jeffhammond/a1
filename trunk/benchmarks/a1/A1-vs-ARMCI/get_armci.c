@@ -65,10 +65,10 @@ int main(int argc, char **argv) {
    double t_start, t_stop, t_latency;
    int provided;
  
-   MP_INIT(&argc, &argv); 
+   MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided); 
     
-   MP_MYID(&rank); 
-   MP_PROCS(&nranks);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank); 
+   MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
    ARMCI_Init_args(&argc, &argv);
   
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
      *(buffer[rank] + i) = 1.0 + rank;
    }
 
-   MP_BARRIER();
+   MPI_Barrier(MPI_COMM_WORLD);
 
    if(rank == 0) {
 
@@ -95,12 +95,13 @@ int main(int argc, char **argv) {
         for(i=0; i<ITERATIONS+SKIP; i++) { 
 
             if(i == SKIP)
-                t_start = MP_TIMER();              
+                t_start = MPI_Wtime();              
+
 
             ARMCI_Get((void *) ((size_t)buffer[dest] + (size_t)(i*msgsize)), (void *) ((size_t)buffer[rank] + (size_t)(i*msgsize)), msgsize, 1); 
 
         }
-        t_stop = MP_TIMER();
+        t_stop = MPI_Wtime();
         printf("%20d %20.2f \n", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
         fflush(stdout);
 
@@ -120,11 +121,13 @@ int main(int argc, char **argv) {
 
    }
 
-   MP_BARRIER(); 
+   MPI_Barrier(MPI_COMM_WORLD);
 
    ARMCI_Free(buffer[rank]); 
  
    ARMCI_Finalize();
 
+   MPI_Finalize();
+ 
    return 0;
 }
