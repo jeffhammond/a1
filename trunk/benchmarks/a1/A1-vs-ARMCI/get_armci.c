@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 
    ARMCI_Init_args(&argc, &argv);
   
-   bufsize = MAX_MSG_SIZE*ITERATIONS;
+   bufsize = MAX_MSG_SIZE*(ITERATIONS+SKIP);
    buffer = (double **) malloc (sizeof(double *) * nranks);
    ARMCI_Malloc((void **) buffer, bufsize);
 

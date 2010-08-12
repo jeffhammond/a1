@@ -58,7 +58,7 @@
 
 int main() {
 
-   int i, rank, nranks, msgsize, dest;
+   size_t i, rank, nranks, msgsize, dest;
    long bufsize;
    double **buffer;
    double t_start, t_stop, t_latency;
@@ -68,7 +68,7 @@ int main() {
    rank = A1_Process_id(A1_GROUP_WORLD); 
    nranks = A1_Process_total(A1_GROUP_WORLD);
 
-   bufsize = MAX_MSG_SIZE*ITERATIONS;
+   bufsize = MAX_MSG_SIZE*(ITERATIONS+SKIP);
    buffer = (double **) malloc (sizeof(double *) * nranks);
    A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer, bufsize); 
 
