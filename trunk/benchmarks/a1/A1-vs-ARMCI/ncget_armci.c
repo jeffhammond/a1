@@ -50,7 +50,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <mp3.h>
+#include <mpi.h>
 #include <armci.h>
 
 #define MAX_XDIM 1024 
@@ -66,10 +66,11 @@ int main(int argc, char **argv) {
    double **buffer;
    double t_start, t_stop, t_latency;
    int count[2], src_stride, trg_stride, stride_levels;
-   
-   MP_INIT(argc, argv);
-   MP_MYID(&rank);
-   MP_PROCS(&nranks);
+   int provided;
+ 
+   MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);  
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
    ARMCI_Init_args(&argc, &argv);
 
@@ -108,12 +109,12 @@ int main(int argc, char **argv) {
           { 
 
              if(i == SKIP)
-                 t_start = MP_TIMER();              
+                 t_start = MPI_Wtime();              
 
              ARMCI_GetS((void *) buffer[dest], &src_stride, (void *) buffer[rank], &trg_stride, count, stride_levels, 1); 
  
           }
-          t_stop = MP_TIMER();
+          t_stop = MPI_Wtime();
 
           char temp[10]; 
           sprintf(temp,"%dX%d", xdim, ydim);
@@ -145,6 +146,8 @@ int main(int argc, char **argv) {
    ARMCI_Free((void *) buffer[rank]); 
  
    ARMCI_Finalize();
+
+   MPI_Finalize();
 
    return 0;
 }
