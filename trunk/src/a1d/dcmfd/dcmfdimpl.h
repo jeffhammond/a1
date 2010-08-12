@@ -262,7 +262,7 @@ typedef struct
 typedef struct
 {
     DCMF_Protocol_t protocol;
-    volatile uint32_t rcv_active;
+    volatile uint32_t active;
 } A1D_Control_flushack_info_t;
 
 /*************************************************
@@ -294,6 +294,7 @@ extern void **A1D_Membase_global;
 extern void **A1D_Put_Flushcounter_ptr;
 extern volatile int *A1D_Connection_send_active;
 extern volatile int *A1D_Connection_put_active;
+extern volatile int A1D_Put_flushack_active;
 extern volatile int A1D_Expecting_getresponse;
 
 extern volatile A1_Settings_t a1_settings;

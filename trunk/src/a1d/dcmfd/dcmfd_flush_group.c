@@ -13,17 +13,16 @@ void A1DI_Flush_all()
     DCMF_Request_t *request;
     DCQuad msginfo;
     DCMF_Callback_t ack_callback;
-    volatile int ack_count, pending_count;
+    volatile int pending_count;
     size_t src_disp, dst_disp;
 
     A1U_FUNC_ENTER();
 
     request = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * a1_settings.flushall_pending_limit);
 
-    ack_count = 0;
     pending_count = 0;
     ack_callback.function = A1DI_Generic_done;
-    ack_callback.clientdata = (void *) &ack_count;
+    ack_callback.clientdata = (void *) &A1D_Put_flushack_active;
 
     for (dst = 0; dst < A1D_Process_info.num_ranks; dst++)
     {
@@ -33,7 +32,8 @@ void A1DI_Flush_all()
             if (A1D_Connection_send_active[dst] > 0)
             {
 
-                A1D_Control_flushack_info.rcv_active++;
+                A1D_Control_flushack_info.active++;
+
                 result = DCMF_Send(&A1D_Send_flush_protocol,
                                    &request[pending_count],
                                    A1D_Nocallback,
@@ -55,7 +55,8 @@ void A1DI_Flush_all()
                 dst_disp = (size_t) A1D_Put_Flushcounter_ptr[dst]
                          - (size_t) A1D_Membase_global[dst] + 1;
 
-                ack_count++;
+                A1D_Put_flushack_active++;
+
                 result = DCMF_Put(&A1D_Generic_put_protocol,
                                   &request[pending_count],
                                   A1D_Nocallback,
@@ -74,13 +75,13 @@ void A1DI_Flush_all()
 
             if (pending_count >= a1_settings.flushall_pending_limit)
             {
-                A1DI_Conditional_advance(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0);
+                A1DI_Conditional_advance(A1D_Control_flushack_info.active > 0 || A1D_Put_flushack_active > 0);
                 pending_count = 0;
             }
 
         }
     }
-    A1DI_Conditional_advance(A1D_Control_flushack_info.rcv_active > 0 || ack_count > 0);
+    A1DI_Conditional_advance(A1D_Control_flushack_info.active > 0 || A1D_Put_flushack_active > 0);
 
     A1DI_Memset((void *) A1D_Connection_send_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
     A1DI_Memset((void *) A1D_Connection_put_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
