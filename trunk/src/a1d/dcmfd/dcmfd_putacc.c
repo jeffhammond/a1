@@ -70,7 +70,7 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
 {
     int result = A1_SUCCESS;
     A1D_Putacc_header_t *header;
-
+  
     header = (A1D_Putacc_header_t *) msginfo;
 
     result = A1D_Acc_process(src,
@@ -78,6 +78,7 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
                              header);
     A1U_ERR_ABORT(result,
                   "A1D_Acc_process failed in A1DI_RecvSendShort_putacc_callback\n");
+
 }
 
 DCMF_Result A1DI_Putacc_initialize()

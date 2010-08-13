@@ -7,7 +7,7 @@
 #include "dcmfdimpl.h"
 
 DCMF_Protocol_t A1D_Send_flush_protocol;
-A1D_Control_flushack_info_t A1D_Control_flushack_info;
+volatile A1D_Control_flushack_info_t A1D_Control_flushack_info;
 void **A1D_Put_Flushcounter_ptr;
 volatile int A1D_Put_flushack_active;
 volatile int *A1D_Connection_send_active;
@@ -23,6 +23,7 @@ void A1DI_Control_flushack_callback(void *clientdata,
                                     size_t peer)
 {
     --(*((uint32_t *) clientdata));
+
 }
 
 DCMF_Result A1DI_Control_flushack_initialize()
@@ -72,6 +73,7 @@ void A1DI_RecvSendShort_flush_callback(void *clientdata,
                           &info);
     A1U_ERR_ABORT(result != DCMF_SUCCESS,
                   "DCMF_Control failed in A1DI_RecvSendShort_flush_callback\n");
+
 }
 
 DCMF_Result A1DI_Send_flush_initialize()
@@ -354,13 +356,17 @@ int A1D_Flush(int proc)
 
     if (A1D_Connection_send_active[proc])
     {
+
         result = A1DI_Send_flush(proc);
         A1U_ERR_POP(result, "Send returned with an error \n");
+
     }
-    else
+    else if (A1D_Connection_put_active[proc])
     {
+
         result = A1DI_Put_flush(proc);
         A1U_ERR_POP(result, "Put returned with an error \n");
+
     }
 
     A1DI_Conditional_advance(A1D_Put_flushack_active > 0 || A1D_Control_flushack_info.active > 0);

@@ -43,12 +43,39 @@ void A1DI_Read_parameters()
         a1_settings.flushall_pending_limit = atoi(value);
     }
 
-    a1_settings.direct_noncontig_threshold = A1C_DIRECT_NONCONTIG_THRESHOLD;
-    if ((value = getenv("A1_DIRECT_NONCONTIG_THRESHOLD")) != NULL)
+    a1_settings.direct_noncontig_put_threshold = A1C_DIRECT_NONCONTIG_PUT_THRESHOLD;
+    if ((value = getenv("A1_DIRECT_NONCONTIG_PUT_THRESHOLD")) != NULL)
     {
-        a1_settings.direct_noncontig_threshold = atoi(value); 
+        a1_settings.direct_noncontig_put_threshold = atoi(value); 
         if(a1_settings.disable_cht == 1 && a1_settings.disable_interrupts == 1) {
-            a1_settings.direct_noncontig_threshold = 0;
+            a1_settings.direct_noncontig_put_threshold = 0;
+        }
+    }
+
+    a1_settings.direct_noncontig_get_threshold = A1C_DIRECT_NONCONTIG_GET_THRESHOLD;
+    if ((value = getenv("A1_DIRECT_NONCONTIG_GET_THRESHOLD")) != NULL)
+    {
+        a1_settings.direct_noncontig_get_threshold = atoi(value);
+        if(a1_settings.disable_cht == 1 && a1_settings.disable_interrupts == 1) {
+            a1_settings.direct_noncontig_get_threshold = 0;
+        }
+    }
+
+    a1_settings.direct_noncontig_putacc_threshold = A1C_DIRECT_NONCONTIG_PUTACC_THRESHOLD;
+    if ((value = getenv("A1_DIRECT_NONCONTIG_PUTACC_THRESHOLD")) != NULL)
+    {
+        a1_settings.direct_noncontig_putacc_threshold = atoi(value);
+        if(a1_settings.disable_cht == 1 && a1_settings.disable_interrupts == 1) {
+            a1_settings.direct_noncontig_putacc_threshold = 0;
+        }
+    }
+
+    a1_settings.direct_noncontig_getacc_threshold = A1C_DIRECT_NONCONTIG_GETACC_THRESHOLD;
+    if ((value = getenv("A1_DIRECT_NONCONTIG_GETACC_THRESHOLD")) != NULL)
+    {
+        a1_settings.direct_noncontig_getacc_threshold = atoi(value);
+        if(a1_settings.disable_cht == 1 && a1_settings.disable_interrupts == 1) {
+            a1_settings.direct_noncontig_getacc_threshold = 0;
         }
     }
   

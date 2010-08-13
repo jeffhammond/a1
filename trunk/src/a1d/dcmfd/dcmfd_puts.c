@@ -222,7 +222,7 @@ int A1D_PutS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    if (count[0] >= a1_settings.direct_noncontig_threshold)
+    if (count[0] >= a1_settings.direct_noncontig_put_threshold)
     {
 
         result = A1DI_Direct_puts(target,

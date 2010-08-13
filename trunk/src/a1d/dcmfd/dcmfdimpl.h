@@ -22,7 +22,10 @@
 #define A1C_DISABLE_INTERRUPTS 0 
 #define A1C_CHT_PAUSE_CYCLES 750
 
-#define A1C_DIRECT_NONCONTIG_THRESHOLD 512
+#define A1C_DIRECT_NONCONTIG_PUT_THRESHOLD 512
+#define A1C_DIRECT_NONCONTIG_GET_THRESHOLD 512 
+#define A1C_DIRECT_NONCONTIG_PUTACC_THRESHOLD 2048 
+#define A1C_DIRECT_NONCONTIG_GETACC_THRESHOLD 2048
 
 #define A1C_ENABLE_IMMEDIATE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
@@ -142,7 +145,10 @@ typedef struct
    uint32_t cht_pause_cycles;
    uint32_t disable_interrupts;
    uint32_t enable_immediate_flush;
-   uint32_t direct_noncontig_threshold;
+   uint32_t direct_noncontig_put_threshold;
+   uint32_t direct_noncontig_get_threshold;
+   uint32_t direct_noncontig_putacc_threshold;
+   uint32_t direct_noncontig_getacc_threshold;
    uint32_t flushall_pending_limit;
    uint32_t alignment;
 } A1_Settings_t;
@@ -262,7 +268,7 @@ typedef struct
 typedef struct
 {
     DCMF_Protocol_t protocol;
-    volatile uint32_t active;
+    uint32_t active;
 } A1D_Control_flushack_info_t;
 
 /*************************************************
@@ -274,7 +280,7 @@ extern pthread_t A1DI_CHT_pthread;
 
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
-extern A1D_Control_flushack_info_t A1D_Control_flushack_info;
+extern volatile A1D_Control_flushack_info_t A1D_Control_flushack_info;
 extern A1D_Request_pool_t A1D_Request_pool;
 
 extern DCMF_Configure_t A1D_Messager_info;

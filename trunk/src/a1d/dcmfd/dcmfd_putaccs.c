@@ -222,7 +222,7 @@ int A1D_PutAccS(int target, void* source_ptr, int *src_stride_ar, void* target_p
 
     A1DI_CRITICAL_ENTER();
 
-    if(count[0] >= a1_settings.direct_noncontig_threshold) {
+    if(count[0] >= a1_settings.direct_noncontig_putacc_threshold) {
      
       result = A1DI_Direct_putaccs(target, source_ptr, src_stride_ar, target_ptr,
           trg_stride_ar, count, stride_levels, a1_type, scaling);
