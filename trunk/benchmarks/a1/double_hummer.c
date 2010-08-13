@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <mpi.h>
+
+#define SIZE 100*1024*1024
+
+int main(int argc, char **argv)
+{
+ 
+   int i;
+   double source[SIZE], target[SIZE], scaling[2]; 
+   double _Complex csource, cscaling, ctarget;
+   double t_start, t_stop;
+
+   MPI_Init(&argc, &argv);
+
+   scaling[0] = 2.0;
+   scaling[1] = 2.0;
+   for(i=0; i<SIZE; i=i+2) 
+   {
+      source[i] = i+1;
+      source[i+1] = i+1;   
+      target[i] = i+2;
+      target[i+1] = i+2;
+   }
+
+   t_start = MPI_Wtime();
+   cscaling = __lfpd(scaling);
+   for(i=0; i<SIZE; i=i+2)
+   {
+      csource = __lfpd(&(source[i]));
+      ctarget = __lfpd(&(target[i]));
+      ctarget = __fpmadd(csource,cscaling,ctarget);
+      __stfpd (&(target[i]), ctarget);
+   }
+   t_stop = MPI_Wtime();
+
+   printf("Time (in msec) with double hummmer: %d  target: %f\n", (t_stop-t_start)*1000, 
+                target[0]);   
+   fflush(stdout);
+
+   t_start = MPI_Wtime();
+   for(i=0; i<SIZE; i++)
+   {
+      target[i] = target[i] + source[i]*scaling[0];
+   }
+   t_stop = MPI_Wtime();
+
+   printf("Time (in msec) with regular arithmetic: %d target: %f\n", (t_stop-t_start)*1000,
+                 target[0]); 
+   fflush(stdout);
+
+   MPI_Finalize();
+
+   return 0;
+}
