@@ -37,6 +37,9 @@ int A1D_Initialize(int thread_level)
     count = DCMF_Messager_initialize();
     A1U_WARNING(count == 0,"DCMF_Messager_initialize has been called more than once.");
 
+    A1D_Nocallback.function = NULL;
+    A1D_Nocallback.clientdata = NULL;
+
     A1DI_Read_parameters();
 
     if(!a1_settings.disable_cht) {

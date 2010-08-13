@@ -22,9 +22,6 @@ DCMF_Result A1DI_Put_initialize()
                 "put registartion returned with error %d \n",
                 result);
 
-    A1D_Nocallback.function = NULL;
-    A1D_Nocallback.clientdata = NULL;
-
   fn_exit:
     A1U_FUNC_EXIT();
     return result;
