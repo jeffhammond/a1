@@ -15,12 +15,10 @@ int main(int argc, char **argv)
 
    scaling[0] = 2.0;
    scaling[1] = 2.0;
-   for(i=0; i<SIZE; i=i+2) 
+   for(i=0; i<SIZE; i++) 
    {
       source[i] = i+1;
-      source[i+1] = i+1;   
-      target[i] = i+2;
-      target[i+1] = i+2;
+      target[i] = i+1;
    }
 
    t_start = MPI_Wtime();
@@ -29,7 +27,7 @@ int main(int argc, char **argv)
    {
       csource = __lfpd(&(source[i]));
       ctarget = __lfpd(&(target[i]));
-      ctarget = __fpmadd(ctarget,cscaling,csource);
+      ctarget = __fpmadd(ctarget, cscaling, csource);
       __stfpd (&(target[i]), ctarget);
    }
    t_stop = MPI_Wtime();
@@ -38,12 +36,9 @@ int main(int argc, char **argv)
                 target[0]);   
    fflush(stdout);
 
-   for(i=0; i<SIZE; i=i+2)
+   for(i=0; i<SIZE; i++)
    {
-      source[i] = i+1;
-      source[i+1] = i+1;
-      target[i] = i+2;
-      target[i+1] = i+2;
+      target[i] = i+1;
    }
 
    t_start = MPI_Wtime();
