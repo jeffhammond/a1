@@ -29,7 +29,7 @@ int main(int argc, char **argv)
    {
       csource = __lfpd(&(source[i]));
       ctarget = __lfpd(&(target[i]));
-      ctarget = __fpmadd(csource,cscaling,ctarget);
+      ctarget = __fpmadd(ctarget,cscaling,csource);
       __stfpd (&(target[i]), ctarget);
    }
    t_stop = MPI_Wtime();
@@ -37,6 +37,14 @@ int main(int argc, char **argv)
    printf("Time (in msec) with double hummmer: %d  target: %f\n", (t_stop-t_start)*1000, 
                 target[0]);   
    fflush(stdout);
+
+   for(i=0; i<SIZE; i=i+2)
+   {
+      source[i] = i+1;
+      source[i+1] = i+1;
+      target[i] = i+2;
+      target[i+1] = i+2;
+   }
 
    t_start = MPI_Wtime();
    for(i=0; i<SIZE; i++)
