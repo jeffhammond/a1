@@ -1,5 +1,5 @@
 # Number of processes: 512. Time for FlushAll after one process does puts to every other process.
-ARMCI_Put + FlushAll Latency - in usec     	A1_Put + FlushAll Latency - in usec 
+  FlushAll Latency - in usec     	        FlushAll Latency - in usec 
   Message Size                Latency	        Message Size                Latency
              8              5014.38 	                   8              1418.76 
             16             10090.06 	                  16              2846.50 
