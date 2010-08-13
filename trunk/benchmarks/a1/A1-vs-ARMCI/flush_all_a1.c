@@ -56,13 +56,13 @@
 #define ITERATIONS 100
 #define SKIP 10
 
-int main() {
+int main(int argc, char **argv) {
 
    size_t i, j, rank, nranks, msgsize;
    long bufsize;
    double **buffer;
-   double t_start, t_stop, t_latency;
-   
+   double t_start, t_stop, t_latency = 0;
+
    A1_Initialize(A1_THREAD_GENERAL); 
 
    rank = A1_Process_id(A1_GROUP_WORLD); 
@@ -88,20 +88,23 @@ int main() {
 
         for(i=0; i<ITERATIONS+SKIP; i++) {
 
-            if(i == SKIP)
-                t_start = A1_Time_seconds();
-
             for(j=0; j<nranks; j++) 
             {
 
                A1_Put(j, (void *) ((size_t)buffer[rank] + (size_t)(i*msgsize)), 
                            (void *) ((size_t)buffer[j] + (size_t)(i*msgsize)), msgsize); 
             }
+
+            t_start = A1_Time_seconds();
+
             A1_Flush_group(A1_GROUP_WORLD);
 
+            t_stop = A1_Time_seconds();
+            if(i >= SKIP)
+                  t_latency = t_latency +  (t_stop - t_start);
+
         }
-        t_stop = A1_Time_seconds();
-        printf("%20d %20.2f \n", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
+        printf("%20d %20.2f \n", msgsize, ((t_latency)*1000000)/ITERATIONS);
         fflush(stdout);
 
      }

@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
    int i, j, rank, nranks, msgsize;
    long bufsize;
    double **buffer;
-   double t_start, t_stop, t_latency;
+   double t_start, t_stop, t_latency = 0;
    int provided;
  
    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
@@ -92,20 +92,23 @@ int main(int argc, char **argv) {
 
         for(i=0; i<ITERATIONS+SKIP; i++) {
 
-            if(i == SKIP)
-                t_start = MPI_Wtime();
-
             for(j=0; j<nranks; j++) 
             {
 
                ARMCI_Put((void *) ((size_t)buffer[rank] + (size_t)(i*msgsize)), 
                            (void *) ((size_t)buffer[j] + (size_t)(i*msgsize)), msgsize, j); 
             }
+
+            t_start = MPI_Wtime();
+
             ARMCI_AllFence();
 
+            t_stop = MPI_Wtime();
+            if(i >= SKIP)
+                  t_latency = t_latency +  (t_stop - t_start);
+
         }
-        t_stop = MPI_Wtime();
-        printf("%20d %20.2f \n", msgsize, ((t_stop-t_start)*1000000)/ITERATIONS);
+        printf("%20d %20.2f \n", msgsize, ((t_latency)*1000000)/ITERATIONS);
         fflush(stdout);
 
      }
