@@ -8,9 +8,15 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_PutAccS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
-                 int *trg_stride_ar, int *count, int stride_levels,
-                 A1_datatype_t a1_type, void* scaling)
+int A1_PutAccS(int target,
+               int stride_levels,
+               int *block_sizes,
+               void* source_ptr,
+               int *src_stride_ar,
+               void* target_ptr,
+               int *trg_stride_ar,
+               A1_datatype_t a1_type,
+               void* scaling)
 {
     int status = A1_SUCCESS;
 
@@ -23,14 +29,19 @@ int A1_PutAccS(int target, void* source_ptr, int *src_stride_ar, void* target_pt
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_PutAccS(target, source_ptr, src_stride_ar, target_ptr,
-                 trg_stride_ar, count, stride_levels, a1_type, scaling);
+    status = A1D_PutAccS(target,
+                         stride_levels,
+                         block_sizes,
+                         source_ptr,
+                         src_stride_ar,
+                         target_ptr,
+                         trg_stride_ar,
+                         a1_type,
+                         scaling);
     A1U_ERR_POP(status, "putaccs returned error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

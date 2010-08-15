@@ -15,12 +15,12 @@
 #if defined A1D_IMPLEMENTS_GETS
 
 int A1_GetS(int target,
+            int stride_levels,
+            int *block_sizes,
             void* source_ptr,
             int *src_stride_ar,
             void* target_ptr,
-            int *trg_stride_ar,
-            int *count,
-            int stride_levels)
+            int *trg_stride_ar)
 {
     int status = A1_SUCCESS;
 
@@ -34,12 +34,12 @@ int A1_GetS(int target,
 #   endif
 
     status = A1D_GetS(target,
+                      stride_levels,
+                      block_sizes,
                       source_ptr,
                       src_stride_ar,
                       target_ptr,
-                      trg_stride_ar,
-                      count,
-                      stride_levels);
+                      trg_stride_ar);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_GetS returned error\n");
 
     fn_exit: A1U_FUNC_EXIT();
