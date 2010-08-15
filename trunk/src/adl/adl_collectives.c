@@ -10,6 +10,7 @@
 
 void A1_Barrier_group(A1_group_t* group)
 {
+    int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
@@ -20,7 +21,8 @@ void A1_Barrier_group(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    A1D_Barrier_group(group);
+    status = A1D_Barrier_group(group);
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Barrier_group returned an error\n");
 
   fn_exit: 
     A1U_FUNC_EXIT();
