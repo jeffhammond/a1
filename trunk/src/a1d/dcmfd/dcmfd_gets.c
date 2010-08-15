@@ -244,7 +244,7 @@ int A1DI_Packed_gets(int target,
 }
 
 int A1DI_Direct_gets(int target,
-                     int stride_levels,
+                     int stride_level,
                      int *block_sizes,
                      void* source_ptr,
                      int *src_stride_ar,
