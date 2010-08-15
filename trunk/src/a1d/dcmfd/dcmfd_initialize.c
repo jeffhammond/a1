@@ -34,6 +34,9 @@ int A1D_Initialize(int thread_level)
 
     A1U_FUNC_ENTER();
 
+    /* TODO: need a non-DCMF lock here to make this function thread-safe */
+    /* TODO: need to set "A1 is alive" global variable */
+
     count = DCMF_Messager_initialize();
     A1U_WARNING(count == 0,"DCMF_Messager_initialize has been called more than once.");
 
@@ -63,10 +66,9 @@ int A1D_Initialize(int thread_level)
            case A1_THREAD_GENERAL:
                  thread_level = DCMF_THREAD_MULTIPLE;
                  break;      
-           case A1_THREAD_MATCHED:
            default: 
                  A1U_ERR_POP(A1_ERROR, 
-                      "Unsupported thread level provided in Initialize \n");
+                             "Unsupported thread level provided in Initialize \n");
                  break;
         }
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;

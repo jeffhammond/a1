@@ -84,10 +84,33 @@ void A1D_Barrier_group(A1_group_t* group);
  */
 int A1D_Put(int target, void* src, void* dst, int bytes);
 
+/**
+ * \brief Device level implementation of A1_PutS.
+ *
+ * Blocking copy of non-contiguous (strided) data from local memory to remote memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  block_sizes     Block size in each dimension, in bytes.
+ * \param[in]  source_ptr      Starting address in the (local) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+ * \param[in]  target_ptr      Starting address in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
+ *
+ * \ingroup COPY OPERATIONS
+ */
+int A1D_PutS(int target,
+             int stride_levels,
+             int block_sizes[],
+             void* source_ptr,
+             int src_stride_ar[],
+             void* target_ptr,
+             int trg_stride_ar[]);
 
 /**
  * \brief Device level implementation of A1_Get.
- * 
+ *
  * Blocking copy of contiguous data from remote memory to local memory.
  *
  * \param[out] rc            The error code.
@@ -100,46 +123,29 @@ int A1D_Put(int target, void* src, void* dst, int bytes);
  */
 int A1D_Get(int target, void* src, void* dst, int bytes);
 
-
 /**
  * \brief Device level implementation of A1_PutS.
  *
- * Blocking copy of non-contiguous (strided) data from local memory to remote memory.
- *
- * \param[out] rc              The error code.
- * \param[in]  target          Rank of the remote process.
- * \param[in]  source_ptr      Starting address in the (local) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
- * \param[in]  target_ptr      Starting address in the (remote) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
- * \param[in]  count           Block size in each dimension, in bytes.
- * \param[in]  stride_levels   The number of levels of stride.
- *
- * \ingroup COPY OPERATIONS
- */
-int A1D_PutS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
-         int *trg_stride_ar, int *count, int stride_levels);
-
-/**
- * \brief Device level implementation of A1_GetS.
- *
  * Blocking copy of non-contiguous (strided) data from remote memory to local memory.
- * 
+ *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
- * \param[in]  source_ptr      Starting address in the (remote) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at (remote process) source, in bytes.
- * \param[in]  target_ptr      Starting address in the (local) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at (local process) target, in bytes.
- * \param[in]  count           Block size in each dimension, in bytes.
  * \param[in]  stride_levels   The number of levels of stride.
- *
- * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ * \param[in]  block_sizes     Block size in each dimension, in bytes.
+ * \param[in]  source_ptr      Starting address in the (remote) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+ * \param[in]  target_ptr      Starting address in the (local) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
  *
  * \ingroup COPY OPERATIONS
  */
-int A1D_GetS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
-         int *trg_stride_ar, int *count, int stride_levels);
+int A1D_GetS(int target,
+             int stride_levels,
+             int block_sizes[],
+             void* source_ptr,
+             int src_stride_ar[],
+             void* target_ptr,
+             int trg_stride_ar[]);
 
 /**
  * \brief Device level implementation of A1_PutAcc
@@ -156,8 +162,12 @@ int A1D_GetS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
  *
  * \ingroup COPY OPERATIONS
  */
-int A1D_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
-                A1_datatype_t a1_type, void* scaling);
+int A1D_PutAcc(int target,
+               void* source_ptr,
+               void* target_ptr,
+               int bytes,
+               A1_datatype_t a1_type,
+               void* scaling);
 
 /**
  * \brief Device level implementation of A1_PutAccS 
@@ -166,20 +176,26 @@ int A1D_PutAcc(int target, void* source_ptr, void* target_ptr, int bytes,
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
+ * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  block_sizes     Block size in each dimension, in bytes.
  * \param[in]  source_ptr      Starting address in the (local) source memory.
  * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
  * \param[in]  target_ptr      Starting address in the (remote) target memory.
  * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
- * \param[in]  count           Block size in each dimension, in bytes.
- * \param[in]  stride_levels   The number of levels of stride.
  * \param[in]  a1_type         Amount of data to transfer, in bytes.
  * \param[in]  scaling         Factor for scaling source
  *
  * \ingroup COPY OPERATIONS
  */
-int A1D_PutAccS(int target, void* source_ptr, int *src_stride_ar, void* target_ptr,
-         int *trg_stride_ar, int *count, int stride_levels, A1_datatype_t a1_type,
-         void* scaling);
+int A1D_PutAccS(int target,
+                int stride_levels,
+                int block_sizes[],
+                void* source_ptr,
+                int *src_stride_ar,
+                void* target_ptr,
+                int *trg_stride_ar,
+                A1_datatype_t a1_type,
+                void* scaling);
 
 /**
  * \brief Device level implementation of A1_Flush 
@@ -204,7 +220,6 @@ int A1D_Flush(int proc);
  * \ingroup COMPLETION
  */
 int A1D_Flush_group(A1_group_t *group);
-
 
 /**
  * \brief Device level implementation of A1_Process_id 

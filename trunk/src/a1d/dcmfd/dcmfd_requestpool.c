@@ -15,12 +15,10 @@ void A1DI_Reset_request_pool()
 
     A1D_Request_pool.current = A1D_Request_pool.head;
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 DCMF_Request_t* A1DI_Get_request()
@@ -45,12 +43,10 @@ DCMF_Request_t* A1DI_Get_request()
     a1_request = A1D_Request_pool.current;
     A1D_Request_pool.current = A1D_Request_pool.current->next;
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return &(a1_request->request);
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Request_pool_increment()
@@ -62,15 +58,14 @@ int A1DI_Request_pool_increment()
 
     A1U_FUNC_ENTER();
 
-    result = A1DI_Malloc_aligned((void **) &request, 
-                                 sizeof(A1D_Request_info_t)
-                                       * a1_requestpool_info.increment_size);
+    result = A1DI_Malloc_aligned((void **) &request, sizeof(A1D_Request_info_t)
+            * a1_requestpool_info.increment_size);
     A1U_ERR_POP(result = !request,
                 "memory allocation for request pool failed \n");
-    a1_requestpool_info.total_size = a1_requestpool_info.total_size + a1_requestpool_info.increment_size;
+    a1_requestpool_info.total_size = a1_requestpool_info.total_size
+            + a1_requestpool_info.increment_size;
 
-    A1D_Request_pool.region_ptr[A1D_Request_pool.region_count]
-            = (void *) request;
+    A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *) request;
     A1D_Request_pool.region_count++;
 
     A1D_Request_pool.current = request;
@@ -84,12 +79,10 @@ int A1DI_Request_pool_increment()
         request[index].prev = &request[index - 1];
     }
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Request_pool_initialize()
@@ -101,22 +94,23 @@ int A1DI_Request_pool_initialize()
 
     A1U_FUNC_ENTER();
 
-    max_regions = (a1_requestpool_info.limit_size - a1_requestpool_info.initial_size)
-                        / a1_requestpool_info.increment_size + 1;
+    max_regions = (a1_requestpool_info.limit_size
+            - a1_requestpool_info.initial_size)
+            / a1_requestpool_info.increment_size + 1;
     result = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr),
                                  sizeof(void *) * max_regions);
-    A1U_ERR_POP(result != 0, "A1DI_Malloc_aligned failed while allocating request pool\
+    A1U_ERR_POP(result != 0,
+                "A1DI_Malloc_aligned failed while allocating request pool\
                        regions list in A1DI_Request_pool_initialize\n");
 
-    result = A1DI_Malloc_aligned((void **) &request, 
-                                  sizeof(A1D_Request_info_t)
-                                        * a1_requestpool_info.initial_size);
-    A1U_ERR_POP(result != 0, "A1DI_Malloc_aligned failed while allocating request pool\
+    result = A1DI_Malloc_aligned((void **) &request, sizeof(A1D_Request_info_t)
+            * a1_requestpool_info.initial_size);
+    A1U_ERR_POP(result != 0,
+                "A1DI_Malloc_aligned failed while allocating request pool\
                       in A1DI_Request_pool_initialize\n");
     a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
 
-    A1D_Request_pool.region_ptr[A1D_Request_pool.region_count]
-            = (void *) request;
+    A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *) request;
     A1D_Request_pool.region_count++;
 
     A1D_Request_pool.head = request;
@@ -130,9 +124,28 @@ int A1DI_Request_pool_initialize()
         request[index].prev = &request[index - 1];
     }
 
+    fn_exit: A1U_FUNC_EXIT();
+    return result;
+
+    fn_fail: goto fn_exit;
+}
+
+
+void A1DI_Request_pool_finalize()
+{
+    int i;
+
+    A1U_FUNC_ENTER();
+
+    for (i = 0; i < A1D_Request_pool.region_count; i++)
+    {
+        A1DI_Free(A1D_Request_pool.region_ptr[i]);
+    }
+    A1DI_Free(A1D_Request_pool.region_ptr);
+
   fn_exit:
     A1U_FUNC_EXIT();
-    return result;
+    return;
 
   fn_fail:
     goto fn_exit;

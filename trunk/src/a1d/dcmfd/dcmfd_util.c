@@ -43,19 +43,17 @@ DCMF_Result A1DI_Control_xchange_initialize()
                 "Control xchange registartion returned with error %d \n",
                 result);
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 void* A1DI_Unpack_data_strided(void *pointer,
+                               int stride_level,
+                               int *block_sizes,
                                void *trg_ptr,
-                               int *trg_stride_ar,
-                               int *count,
-                               int stride_level)
+                               int *trg_stride_ar)
 {
     int i;
 
@@ -63,19 +61,19 @@ void* A1DI_Unpack_data_strided(void *pointer,
 
     if (stride_level > 0)
     {
-        for (i = 0; i < count[stride_level]; i++)
+        for (i = 0; i < block_sizes[stride_level]; i++)
         {
             pointer = A1DI_Unpack_data_strided(pointer,
                                                (void *) ((size_t) trg_ptr + i * trg_stride_ar[stride_level - 1]),
                                                trg_stride_ar,
-                                               count,
+                                               block_sizes,
                                                stride_level - 1);
         }
     }
     else
     {
-        memcpy(trg_ptr, pointer, count[0]);
-        pointer = (void *) ((size_t) pointer + count[0]);
+        memcpy(trg_ptr, pointer, block_sizes[0]);
+        pointer = (void *) ((size_t) pointer + block_sizes[0]);
     }
 
     fn_exit: A1U_FUNC_EXIT();
@@ -97,10 +95,10 @@ int A1DI_Unpack_strided(void *packet)
     /*Unpacking and Copying data*/
     temp = (void *) ((size_t) packet + sizeof(A1D_Packed_puts_header_t));
     A1DI_Unpack_data_strided(temp,
+                             header->stride_levels,
+                             header->block_sizes,
                              header->target_ptr,
-                             header->trg_stride_ar,
-                             header->count,
-                             header->stride_levels);
+                             header->trg_stride_ar);
 
     fn_exit: A1U_FUNC_EXIT();
     return result;
@@ -109,10 +107,10 @@ int A1DI_Unpack_strided(void *packet)
 }
 
 void* A1DI_Pack_data_strided(void *pointer,
+                             int stride_level,
+                             int *block_sizes,
                              void *source_ptr,
-                             int *src_stride_ar,
-                             int *count,
-                             int stride_level)
+                             int *src_stride_ar)
 {
     int i, size;
 
@@ -120,19 +118,19 @@ void* A1DI_Pack_data_strided(void *pointer,
 
     if (stride_level > 0)
     {
-        for (i = 0; i < count[stride_level]; i++)
+        for (i = 0; i < block_sizes[stride_level]; i++)
         {
             pointer = A1DI_Pack_data_strided(pointer,
+                                             stride_level - 1,
+                                             block_sizes,
                                              (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
-                                             src_stride_ar,
-                                             count,
-                                             stride_level - 1);
+                                             src_stride_ar);
         }
     }
     else
     {
-        memcpy(pointer, source_ptr, count[0]);
-        pointer = (void *) ((size_t) pointer + count[0]);
+        memcpy(pointer, source_ptr, block_sizes[0]);
+        pointer = (void *) ((size_t) pointer + block_sizes[0]);
     }
 
     fn_exit: A1U_FUNC_EXIT();
@@ -143,12 +141,12 @@ void* A1DI_Pack_data_strided(void *pointer,
 
 int A1DI_Pack_strided(void **packet,
                       int *size_packet,
+                      int stride_levels,
+                      int *block_sizes,
                       void *source_ptr,
                       int *src_stride_ar,
                       void *target_ptr,
-                      int *trg_stride_ar,
-                      int *count,
-                      int stride_levels)
+                      int *trg_stride_ar)
 {
     int result = A1_SUCCESS;
     int i, size_data;
@@ -157,29 +155,30 @@ int A1DI_Pack_strided(void **packet,
 
     A1U_FUNC_ENTER();
 
-    size_data = count[0];
+    size_data = block_sizes[0];
     for (i = 1; i <= stride_levels; i++)
-        size_data *= count[i];
+        size_data *= block_sizes[i];
     *size_packet = sizeof(A1D_Packed_puts_header_t) + size_data;
 
     result = A1DI_Malloc_aligned(packet, *size_packet);
-    A1U_ERR_POP(result != A1_SUCCESS, "A1DI_Malloc_aligned failed while allocating packet\
+    A1U_ERR_POP(result != A1_SUCCESS,
+                "A1DI_Malloc_aligned failed while allocating packet\
                in A1DI_Pack_strided\n");
 
     /*Copying header information*/
     header.target_ptr = target_ptr;
     header.stride_levels = stride_levels;
     memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels * sizeof(uint32_t));
-    memcpy(header.count, count, (stride_levels + 1) * sizeof(uint32_t));
+    memcpy(header.block_sizes, block_sizes, (stride_levels + 1) * sizeof(uint32_t));
     memcpy(*packet, &header, sizeof(A1D_Packed_puts_header_t));
 
     /*Copying data*/
     temp = (void *) ((size_t)(*packet) + sizeof(A1D_Packed_puts_header_t));
     A1DI_Pack_data_strided(temp,
+                           stride_levels,
+                           block_sizes,
                            source_ptr,
-                           src_stride_ar,
-                           count,
-                           stride_levels);
+                           src_stride_ar);
 
     fn_exit: A1U_FUNC_EXIT();
     return result;
@@ -188,10 +187,10 @@ int A1DI_Pack_strided(void **packet,
 }
 
 void* A1DI_Unpack_data_strided_acc(void *pointer,
+                                   int stride_level,
+                                   int *block_sizes,
                                    void *trg_ptr,
                                    int *trg_stride_ar,
-                                   int *count,
-                                   int stride_level,
                                    A1_datatype_t a1_type,
                                    void* scaling)
 {
@@ -201,13 +200,13 @@ void* A1DI_Unpack_data_strided_acc(void *pointer,
 
     if (stride_level > 0)
     {
-        for (i = 0; i < count[stride_level]; i++)
+        for (i = 0; i < block_sizes[stride_level]; i++)
         {
             pointer = A1DI_Unpack_data_strided_acc(pointer,
+                                                   stride_level - 1,
+                                                   block_sizes,
                                                    (void *) ((size_t) trg_ptr + i * trg_stride_ar[stride_level - 1]),
                                                    trg_stride_ar,
-                                                   count,
-                                                   stride_level - 1,
                                                    a1_type,
                                                    scaling);
         }
@@ -221,49 +220,49 @@ void* A1DI_Unpack_data_strided_acc(void *pointer,
                              pointer,
                              trg_ptr,
                              *((int32_t *) scaling),
-                             count[0] / sizeof(int32_t));
+                             block_sizes[0] / sizeof(int32_t));
             break;
         case A1_INT64:
             A1DI_ACC_EXECUTE(int64_t,
                              pointer,
                              trg_ptr,
                              *((int64_t *) scaling),
-                             count[0] / sizeof(int64_t));
+                             block_sizes[0] / sizeof(int64_t));
             break;
         case A1_UINT32:
             A1DI_ACC_EXECUTE(uint32_t,
                              pointer,
                              trg_ptr,
                              *((uint32_t *) scaling),
-                             count[0] / sizeof(uint32_t));
+                             block_sizes[0] / sizeof(uint32_t));
             break;
         case A1_UINT64:
             A1DI_ACC_EXECUTE(uint64_t,
                              pointer,
                              trg_ptr,
                              *((uint64_t *) scaling),
-                             count[0] / sizeof(uint64_t));
+                             block_sizes[0] / sizeof(uint64_t));
             break;
         case A1_FLOAT:
-            A1DI_ACC_EXECUTE(float, 
-                             pointer, 
-                             trg_ptr, 
-                             *((float *) scaling),
-                             count[0]/sizeof(float));
+            A1DI_ACC_EXECUTE(float,
+                    pointer,
+                    trg_ptr,
+                    *((float *) scaling),
+                    block_sizes[0]/sizeof(float));
             break;
         case A1_DOUBLE:
-            A1DI_ACC_EXECUTE(double, 
-                             pointer, 
-                             trg_ptr, 
-                             *((double *) scaling),
-                             count[0]/sizeof(double));
+            A1DI_ACC_EXECUTE(double,
+                    pointer,
+                    trg_ptr,
+                    *((double *) scaling),
+                    block_sizes[0]/sizeof(double));
             break;
         default:
             A1U_ERR_ABORT(A1_ERROR,
                           "Invalid datatype received in Putacc operation \n");
             break;
         }
-        pointer = (void *) ((size_t) pointer + count[0]);
+        pointer = (void *) ((size_t) pointer + block_sizes[0]);
     }
 
     fn_exit: A1U_FUNC_EXIT();
@@ -285,10 +284,10 @@ int A1DI_Unpack_strided_putaccs(void *packet)
     /*Unpacking and Copying data*/
     temp = (void *) ((size_t) packet + sizeof(A1D_Packed_putaccs_header_t));
     A1DI_Unpack_data_strided_acc(temp,
+                                 header->stride_levels,
+                                 header->block_sizes,
                                  header->target_ptr,
                                  header->trg_stride_ar,
-                                 header->count,
-                                 header->stride_levels,
                                  header->datatype,
                                  (void *) &(header->scaling));
 
@@ -300,12 +299,12 @@ int A1DI_Unpack_strided_putaccs(void *packet)
 
 int A1DI_Pack_strided_putaccs(void **packet,
                               int *size_packet,
+                              int stride_levels,
+                              int *block_sizes,
                               void *source_ptr,
                               int *src_stride_ar,
                               void *target_ptr,
                               int *trg_stride_ar,
-                              int *count,
-                              int stride_levels,
                               A1_datatype_t a1_type,
                               void *scaling)
 {
@@ -316,18 +315,19 @@ int A1DI_Pack_strided_putaccs(void **packet,
 
     A1U_FUNC_ENTER();
 
-    size_data = count[0];
-    for (i = 1; i <= stride_levels; i++) size_data *= count[i];
+    size_data = block_sizes[0];
+    for (i = 1; i <= stride_levels; i++) size_data *= block_sizes[i];
     *size_packet = sizeof(A1D_Packed_putaccs_header_t) + size_data;
 
     result = A1DI_Malloc_aligned(packet, *size_packet);
-    A1U_ERR_POP(result != A1_SUCCESS, "A1DI_Malloc_aligned while allocating packet in A1DI_Pack_strided_putaccs\n");
+    A1U_ERR_POP(result != A1_SUCCESS,
+                "A1DI_Malloc_aligned while allocating packet in A1DI_Pack_strided_putaccs\n");
 
     /*Copying header information*/
     header.target_ptr = target_ptr;
     header.stride_levels = stride_levels;
     memcpy(header.trg_stride_ar, trg_stride_ar, stride_levels * sizeof(uint32_t));
-    memcpy(header.count, count, (stride_levels + 1) * sizeof(uint32_t));
+    memcpy(header.block_sizes, block_sizes, (stride_levels + 1) * sizeof(uint32_t));
     header.datatype = a1_type;
     switch (a1_type)
     {
@@ -358,15 +358,13 @@ int A1DI_Pack_strided_putaccs(void **packet,
     /*Copying data*/
     temp = (void *) ((size_t)(*packet) + sizeof(A1D_Packed_putaccs_header_t));
     A1DI_Pack_data_strided(temp,
+                           stride_levels,
+                           block_sizes,
                            source_ptr,
-                           src_stride_ar,
-                           count,
-                           stride_levels);
+                           src_stride_ar);
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

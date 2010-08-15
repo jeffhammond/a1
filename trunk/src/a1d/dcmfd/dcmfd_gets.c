@@ -11,12 +11,12 @@ DCMF_Protocol_t A1D_Packed_gets_response_protocol;
 volatile int A1D_Expecting_getresponse;
 
 int A1DI_Packed_gets_response(int target,
+                              int stride_levels,
+                              int *block_sizes,
                               void* source_ptr,
                               int *src_stride_ar,
                               void* target_ptr,
-                              int *trg_stride_ar,
-                              int *count,
-                              int stride_levels)
+                              int *trg_stride_ar)
 {
     DCMF_Result result = DCMF_SUCCESS;
     DCMF_Request_t *request;
@@ -31,13 +31,14 @@ int A1DI_Packed_gets_response(int target,
 
     result = A1DI_Pack_strided(&packet,
                                &size_packet,
+                               stride_levels,
+                               block_sizes,
                                source_ptr,
                                src_stride_ar,
                                target_ptr,
-                               trg_stride_ar,
-                               count,
-                               stride_levels);
-    A1U_ERR_POP(result != DCMF_SUCCESS, "A1DI_Pack_strided returned with an error\n");
+                               trg_stride_ar);
+    A1U_ERR_POP(result != DCMF_SUCCESS,
+                "A1DI_Pack_strided returned with an error\n");
 
     buffer_info->buffer_ptr = packet;
     request = &(buffer_info->request);
@@ -55,16 +56,15 @@ int A1DI_Packed_gets_response(int target,
                        0);
     A1U_ERR_POP(result, "Send returned with an error \n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 
 }
 
-void A1DI_RecvDone_packedgets_response_callback(void *clientdata, DCMF_Error_t *error)
+void A1DI_RecvDone_packedgets_response_callback(void *clientdata,
+                                                DCMF_Error_t *error)
 {
     A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
 
@@ -78,7 +78,7 @@ void A1DI_RecvDone_packedgets_response_callback(void *clientdata, DCMF_Error_t *
 
 DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
                                                            const DCQuad *msginfo,
-                                                           unsigned count,
+                                                           unsigned count, /* TODO: this is not used */
                                                            size_t peer,
                                                            size_t sndlen,
                                                            size_t *rcvlen,
@@ -108,7 +108,7 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
 
 void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
                                                      const DCQuad *msginfo,
-                                                     unsigned count,
+                                                     unsigned count, /* TODO: this is not used */
                                                      size_t peer,
                                                      const char *src,
                                                      size_t bytes)
@@ -140,17 +140,15 @@ DCMF_Result A1DI_Packed_gets_response_initialize()
                 "packed puts registartion returned with error %d \n",
                 result);
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
                                             const DCQuad *msginfo,
-                                            unsigned count,
+                                            unsigned count, /* TODO: this is not used */
                                             size_t peer,
                                             const char *src,
                                             size_t bytes)
@@ -159,12 +157,12 @@ void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
     A1D_Packed_gets_header_t *header = (A1D_Packed_gets_header_t *) src;
 
     A1DI_Packed_gets_response(header->target,
+                              header->stride_levels,
+                              header->block_sizes,
                               header->source_ptr,
                               header->src_stride_ar,
                               header->target_ptr,
-                              header->trg_stride_ar,
-                              header->count,
-                              header->stride_levels);
+                              header->trg_stride_ar);
 
 }
 
@@ -190,21 +188,19 @@ DCMF_Result A1DI_Packed_gets_initialize()
                 "packed gets registartion returned with error %d \n",
                 result);
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Packed_gets(int target,
+                     int stride_levels,
+                     int *block_sizes,
                      void* source_ptr,
                      int *src_stride_ar,
                      void* target_ptr,
-                     int *trg_stride_ar,
-                     int *count,
-                     int stride_levels)
+                     int *trg_stride_ar)
 {
 
     DCMF_Result result = DCMF_SUCCESS;
@@ -219,9 +215,11 @@ int A1DI_Packed_gets(int target,
     packet.source_ptr = source_ptr;
     packet.target_ptr = target_ptr;
     packet.stride_levels = stride_levels;
-    memcpy(packet.src_stride_ar, src_stride_ar, stride_levels * sizeof(uint32_t));
-    memcpy(packet.trg_stride_ar, trg_stride_ar, stride_levels * sizeof(uint32_t));
-    memcpy(packet.count, count, (stride_levels + 1) * sizeof(uint32_t));
+    memcpy(packet.src_stride_ar, src_stride_ar, stride_levels
+            * sizeof(uint32_t));
+    memcpy(packet.trg_stride_ar, trg_stride_ar, stride_levels
+            * sizeof(uint32_t));
+    memcpy(packet.block_sizes, block_sizes, (stride_levels + 1) * sizeof(uint32_t));
 
     request = A1DI_Get_request();
 
@@ -238,22 +236,20 @@ int A1DI_Packed_gets(int target,
 
     A1D_Connection_send_active[target]++;
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 
 }
 
 int A1DI_Direct_gets(int target,
+                     int stride_levels,
+                     int *block_sizes,
                      void* source_ptr,
                      int *src_stride_ar,
                      void* target_ptr,
                      int *trg_stride_ar,
-                     int* count,
-                     int stride_level,
                      volatile int *get_active)
 {
     int result = A1_SUCCESS;
@@ -267,17 +263,15 @@ int A1DI_Direct_gets(int target,
     if (stride_level > 0)
     {
 
-        for (i = 0; i < count[stride_level]; i++)
+        for (i = 0; i < block_sizes[stride_level]; i++)
         {
             A1DI_Direct_gets(target,
-                             (void *) ((size_t) source_ptr + i
-                                     * src_stride_ar[stride_level - 1]),
+                             stride_levels -1,
+                             block_sizes,
+                             (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
                              src_stride_ar,
-                             (void *) ((size_t) target_ptr + i
-                                     * trg_stride_ar[stride_level - 1]),
+                             (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
                              trg_stride_ar,
-                             count,
-                             stride_level - 1,
                              get_active);
         }
 
@@ -287,19 +281,21 @@ int A1DI_Direct_gets(int target,
 
         request = A1DI_Get_request();
 
-        src_disp = (size_t) source_ptr - (size_t) A1D_Membase_global[target];
-        dst_disp = (size_t) target_ptr - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
+        src_disp = (size_t) source_ptr
+                 - (size_t) A1D_Membase_global[target];
+        dst_disp = (size_t) target_ptr
+                 - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
         *get_active = *get_active + 1;
         callback.function = A1DI_Generic_done;
-        callback.clientdata = (void *) get_active; 
+        callback.clientdata = (void *) get_active;
 
         result = DCMF_Get(&A1D_Generic_get_protocol,
                           request,
                           callback,
                           DCMF_RELAXED_CONSISTENCY,
                           target,
-                          count[0],
+                          block_sizes[0],
                           &A1D_Memregion_global[target],
                           &A1D_Memregion_global[A1D_Process_info.my_rank],
                           src_disp,
@@ -309,21 +305,19 @@ int A1DI_Direct_gets(int target,
         A1D_Connection_send_active[target]++;
     }
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1D_GetS(int target,
+             int stride_levels,
+             int *block_sizes,
              void* source_ptr,
              int *src_stride_ar,
              void* target_ptr,
-             int *trg_stride_ar,
-             int *count,
-             int stride_levels)
+             int *trg_stride_ar)
 {
     DCMF_Result result = DCMF_SUCCESS;
 
@@ -331,7 +325,7 @@ int A1D_GetS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    if (count[0] >= a1_settings.direct_noncontig_get_threshold)
+    if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {
 
         volatile int get_active = 0;
@@ -339,12 +333,12 @@ int A1D_GetS(int target,
         get_active = 0;
 
         result = A1DI_Direct_gets(target,
+                                  stride_levels,
+                                  block_sizes,
                                   source_ptr,
                                   src_stride_ar,
                                   target_ptr,
                                   trg_stride_ar,
-                                  count,
-                                  stride_levels,
                                   &get_active);
         A1U_ERR_POP(result, "A1DI_Direct_gets returned with an error \n");
 
@@ -357,23 +351,21 @@ int A1D_GetS(int target,
         A1D_Expecting_getresponse = 1;
 
         result = A1DI_Packed_gets(target,
+                                  stride_levels,
+                                  block_sizes,
                                   source_ptr,
                                   src_stride_ar,
                                   target_ptr,
-                                  trg_stride_ar,
-                                  count,
-                                  stride_levels);
+                                  trg_stride_ar);
         A1U_ERR_POP(result, "A1DI_Packed_gets returned with an error \n");
 
         A1DI_Conditional_advance(A1D_Expecting_getresponse > 0);
 
     }
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

@@ -138,7 +138,7 @@ typedef struct
  * \warning This function is not guaranteed to produce correct results for
  *          arbitrarily-long durations.
  *
- * \param[out] rc          Number of secs from an arbitrary time in the past.
+ * \param[out] rc          Number of cpu clock cycles from an arbitrary time in the past.
  *
  * \see A1_Time_seconds
  *
@@ -150,7 +150,8 @@ unsigned long long A1_Time_cycles();
 /**
  * \brief Timer in units of seconds.
  *
- * \param[out] rc          Number of secs from an arbitrary time in the past.
+ *
+ * \param[out] rc          Number of seconds from an arbitrary time in the past.
  *
  * \see A1_Time_cycles
  *
@@ -168,8 +169,9 @@ double A1_Time_seconds();
 /**
  * \brief Returns process rank relative to the group base of the process calling it.
  *
- * \note Jeff hates MPI-style function style where return value is an argument
- *       passed by reference for the sake of Fortran compatibility.
+ * \note Jeff hates MPI-style function style where return value is an
+ *       argument passed by reference for the sake of Fortran compatibility
+ *       (or whatever their reason is).
  *
  * \see A1_Node_id, A1_Process_total
  *
@@ -181,8 +183,9 @@ int A1_Process_id(A1_group_t* group);
 /**
  * \brief Returns total number of processes in a group.
  *
- * \note Jeff hates MPI-style function style where return value is an argument
- *       passed by reference for the sake of Fortran compatibility.
+ * \note Jeff hates MPI-style function style where return value is an
+ *       argument passed by reference for the sake of Fortran compatibility
+ *       (or whatever their reason is).
  *
  * \see A1_Process_id, A1_Node_total
  *
@@ -226,24 +229,23 @@ int A1_Node_total(A1_group_t* group);
 /**
  * \brief Initializes the Al environment.
  *
- * This routine initializes one or more channels that
- * may be used in the course of a program.
+ * \warning This must be the first A1 call made in any code.
  *
- * \warning This must be the first A1 call made in any code
+ * \note Unlike MPI, A1_Initialize may be called many times and is thread-safe.
+ *       Improper use of A1_Initialize (calling it more than once) shall be
+ *       indicated by a non-zero error code and potentially warnings in
+ *       stderr.
  *
- * \note This routine is called A1_Initialize for syntactic symmetry with A1_Finalize.
+ * \note Implementation detail: we need global variable indicated where or not
+ *       A1 is alive or not to make this function thread-safe.
  *
- * \note The reason to give the number of threads at initialization is so that
- *       certain kinds of efficient locking mechanisms will function better in
- *       the context of limited number of threads.
+ * \note This routine is called A1_Initialize for syntactic symmetry with
+ *       A1_Finalize and because of Jeff's schadenfreude toward Pavan.
  *
- * \param[out] rc               The error code from initalizing A1
+ * \param[out] rc               The error code from initializing A1
  * \param[in]  A1_thread_level  The type of thread support for A1
- * \param[in]  A1_num_threads   The number of threads A1 supports
- * \param[in]  A1_num_channel  Number of channels to initialize
- * \param[in]  A1_channels[]    Array of channels to initialize
  *
- * \see A1_thread_level, A1_memtype_t
+ * \see A1_thread_level
  *
  * \ingroup MANAGEMENT
  */
@@ -255,8 +257,15 @@ int A1_Initialize(int A1_thread_level);
  *
  * \warning This must be the last A1 call made in any code unless A1_Abort is called instead.
  *
- * \param[out] rc    The error code from terminating A1.  Not sure what one would do with this.
- * \param[in]  none  Proper termination should not require additional information.
+ * \note Unlike MPI, A1_Finalize may be called many times and is thread-safe.
+ *       Improper use of A1_Finalize (calling it more than once) shall be
+ *       indicated by a non-zero error code and potentially warnings in
+ *       stderr.
+ *
+ * \note Implementation detail: we need global variable indicated where or not
+ *       A1 is alive or not to make this function thread-safe.
+ *
+ * \param[out] rc    The error code from terminating A1.
  *
  * \see A1_Initialize, A1_Abort
  *
@@ -332,7 +341,8 @@ int A1_Free_segment(void* pointer);
  *       potentially by writing "\0" to all bytes.
  *
  * \note This call may not work in all contexts.  For example, CUDA provides no API call to
- *       register pre-allocated memory.
+ *       register pre-allocated memory.  A truly portable A1 program must not call this
+ *       function.
  *
  * \param[out] rc            The error code.
  * \param[in]  ptr           Pointer to memory.
@@ -348,7 +358,7 @@ int A1_Register_segment(void** pointer, int bytes);
 /**
  * \brief A collective operation to allocate memory to be used in context of A1 copy operations.
  *
- * \note There is no local de-registration call because that would lead to erroneous programs.
+ * \note There is no local de-registration call because that could lead to erroneous programs.
  *       De-registration can only be effected by a call to A1_Release_segments, which is collective.
  *
  * \param[out] rc            The error code.
@@ -381,7 +391,7 @@ int A1_Release_segments(A1_group_t* group, void* ptr);
 
 /* ********************************************************************** */
 /*                                                                        */
-/*               A1 external API - copy operations                        */
+/*               A1 external API - data transfer operations               */
 /*                                                                        */
 /* ********************************************************************** */
 
@@ -392,32 +402,39 @@ int A1_Release_segments(A1_group_t* group, void* ptr);
  * \param[in]  target        Rank of the remote process.
  * \param[in]  source_ptr    Starting address in the (local) source memory.
  * \param[in]  target_ptr    Starting address in the (remote) target memory.
- * \param[in]  bytes         Amount of data to transfer, in bytes.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
  *
  * \see A1_PutS, A1_PutV, A1_MultiPut, A1_MultiPutS, A1_MultiPutV
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
-int A1_Put(int target, void* source_ptr, void* target_ptr, int bytes);
+int A1_Put(int target,
+           void* source_ptr,
+           void* target_ptr,
+           int bytes);
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
  *
+ * \note A1_MultiPut can be used for single-target non-contiguous put as well,
+ *       but the implementation may be far from optimal relative to A1_PutS
+ *       and A1_PutV.
+ *
  * \param[out] rc            The error code.
- * \param[in]  count           Number of operations to be performed
- * \param[in]  target        Vector of remote process ranks.
+ * \param[in]  count         Number of operations to be performed
+ * \param[in]  targets       Vector of remote process ranks.
  * \param[in]  source_ptr    Vector of starting addresses in the (local) source memory.
  * \param[in]  target_ptr    Vector of starting addresses in the (remote) target memory.
- * \param[in]  bytes         Vector of quantity of data to transfer, in bytes.
+ * \param[in]  bytes         Vector of quantity of data to transfer in bytes.
  *
  * \see A1_Put, A1_PutS, A1_PutV, A1_MultiPutS, A1_MultiPutV
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_MultiPut(int count,
-                int target[],
+                int targets[],
                 void* source_ptr[],
                 void* target_ptr[],
                 int bytes[]);
@@ -427,25 +444,25 @@ int A1_MultiPut(int count,
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
- * \param[in]  source_ptr      Starting address in the (local) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
- * \param[in]  target_ptr      Starting address in the (remote) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
- * \param[in]  count           Block size in each dimension, in bytes.
+ * \param[in]  count           Block size in each dimension in bytes.
  * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  source_ptr      Starting address in the (local) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source in bytes.
+ * \param[in]  target_ptr      Starting address in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target in bytes.
  *
  * \see A1_Put, A1_PutV, A1_MultiPut, A1_MultiPutS, A1_MultiPutV
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_PutS(int target,
+            int stride_levels,
+            int block_sizes[],
             void* source_ptr,
             int src_stride_ar[],
             void* target_ptr,
-            int trg_stride_ar[],
-            int count[],
-            int stride_levels);
+            int trg_stride_ar[]);
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -454,27 +471,27 @@ int A1_PutS(int target,
  *
  * \param[out] rc              The error code.
  * \param[in]  count           Number of operations to be performed
- * \param[in]  target          Vector of remote process ranks.
- * \param[in]  source_ptr      Vector of starting in the (local) source memory.
- * \param[in]  src_stride_ar   Vector of arrays of stride distances at source, in bytes.
- * \param[in]  target_ptr      Vector of starting in the (remote) target memory.
- * \param[in]  trg_stride_ar   Vector of arrays of stride distances at target, in bytes.
- * \param[in]  count           Vector of block sizes in each dimension, in bytes.
+ * \param[in]  targets         Vector of remote process ranks.
+ * \param[in]  block_sizes     Vector of block sizes in each dimension in bytes.
  * \param[in]  stride_levels   Number of levels of stride.
+ * \param[in]  source_ptr      Vector of starting in the (local) source memory.
+ * \param[in]  src_stride_ar   Vector of arrays of stride distances at source in bytes.
+ * \param[in]  target_ptr      Vector of starting in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Vector of arrays of stride distances at target in bytes.
  *
  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
-int A1_MultiPutS(int target_count,
-                 int target[],
-                 void* source_ptr[],
-                 int **src_stride_ar,
-                 void* target_ptr[],
-                 int **trg_stride_ar,
-                 int **count,
-                 int stride_levels);
+int A1_MultiPutS(int count,
+                 int targets[],
+                 int stride_levels,
+                 int* block_sizes[],
+                 void* source_ptr,
+                 int src_stride_ar[],
+                 void* target_ptr,
+                 int trg_stride_ar[]);
 
 /**
  * \brief Blocking accumulate of contiguous data from local memory onto remote memory.
@@ -483,13 +500,13 @@ int A1_MultiPutS(int target_count,
  * \param[in]  target        Rank of the remote process.
  * \param[in]  source_ptr    Starting address in the (local) source memory.
  * \param[in]  target_ptr    Starting address in the (remote) target memory.
- * \param[in]  bytes         Amount of data to transfer, in bytes.
- * \param[in]  a1_type       Amount of data to transfer, in bytes.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
+ * \param[in]  a1_type       Datatype of buffer and scaling factor.
  * \param[in]  scaling       Factor for scaling source
  *
  * \see A1_Put, A1_Copy, A1_CopyAcc
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_PutAcc(int target,
@@ -500,29 +517,29 @@ int A1_PutAcc(int target,
               void* scaling);
 
 /**
- * \brief Blocking copy of contiguous data from local memory to remote memory.
+ * \brief Blocking accumulate of contiguous data from local memory to remote memory.
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
- * \param[in]  source_ptr      Starting address in the (local) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
- * \param[in]  target_ptr      Starting address in the (remote) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
- * \param[in]  count           Block size in each dimension, in bytes.
  * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  block_sizes     Block size in each dimension in bytes.
+ * \param[in]  source_ptr      Starting address in the (local) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source in bytes.
+ * \param[in]  target_ptr      Starting address in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target in bytes.
  *
- * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ * \see A1_Put, A1_PutS, A1_PutAcc
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_PutAccS(int target,
+               int stride_levels,
+               int block_sizes[],
                void* source_ptr,
                int *src_stride_ar,
                void* target_ptr,
                int *trg_stride_ar,
-               int *count,
-               int stride_levels,
                A1_datatype_t a1_type,
                void* scaling);
 
@@ -533,30 +550,28 @@ int A1_PutAccS(int target,
  * \param[in]  target        Rank of the remote process.
  * \param[in]  source_ptr    Starting address in the (remote) source memory.
  * \param[in]  target_ptr    Starting address in the (local) target memory.
- * \param[in]  bytes         Amount of data to transfer, in bytes.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
  *
  * \see A1_Put, A1_Copy
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_Get(int target, void* source_ptr, void* target_ptr, int bytes);
 
 /**
- * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
+ * \brief Blocking copy of contiguous data from remote memory onto local memory.
  *
  * \param[out] rc            The error code.
  * \param[in]  count         Number of operations to be performed
- * \param[in]  target        Rank of the remote process.
- * \param[in]  source_ptr    Starting address in the (remote) source memory.
- * \param[in]  target_ptr    Starting address in the (local) target memory.
- * \param[in]  bytes         Amount of data to transfer, in bytes.
- * \param[in]  a1_type       Amount of data to transfer, in bytes.
- * \param[in]  scaling       Factor for scaling source
+ * \param[in]  target        Vector of remote process ranks.
+ * \param[in]  source_ptr    Vector of starting address in the (remote) source memory.
+ * \param[in]  target_ptr    Vector of starting address in the (local) target memory.
+ * \param[in]  bytes         Vector of data to transfer from each target in bytes.
  *
- * \see A1_Put, A1_Copy
+ * \see A1_Get, A1_MultiPut, A1_Copy
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_MultiGet(int count,
@@ -566,20 +581,20 @@ int A1_MultiGet(int count,
                 int bytes[]);
 
 /**
- * \brief Blocking copy of contiguous data from remote memory to local memory.
+ * \brief Blocking copy of strided data from remote memory to local memory.
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
  * \param[in]  source_ptr      Starting address in the (remote) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at (remote process) source, in bytes.
+ * \param[in]  src_stride_ar   Array of stride distances at (remote process) source in bytes.
  * \param[in]  target_ptr      Starting address in the (local) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at (local process) target, in bytes.
- * \param[in]  count           Block size in each dimension, in bytes.
+ * \param[in]  trg_stride_ar   Array of stride distances at (local process) target in bytes.
+ * \param[in]  count           Block size in each dimension in bytes.
  * \param[in]  stride_levels   The number of levels of stride.
  *
  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_GetS(int target,
@@ -591,21 +606,21 @@ int A1_GetS(int target,
             int stride_levels);
 
 /**
- * \brief Blocking copy of contiguous data from remote memory to local memory.
+ * \brief Blocking copy of stided data from remote memory to local memory.
  *
  * \param[out] rc              The error code.
  * \param[in]  count           Number of operations to be performed
  * \param[in]  target          Rank of the remote process.
  * \param[in]  source_ptr      Starting address in the (remote) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at (remote process) source, in bytes.
+ * \param[in]  src_stride_ar   Array of stride distances at (remote process) source in bytes.
  * \param[in]  target_ptr      Starting address in the (local) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at (local process) target, in bytes.
- * \param[in]  count           Block size in each dimension, in bytes.
+ * \param[in]  trg_stride_ar   Array of stride distances at (local process) target in bytes.
+ * \param[in]  count           Block size in each dimension in bytes.
  * \param[in]  stride_levels   The number of levels of stride.
  *
  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_MultiGetS(int target_count,
@@ -624,13 +639,13 @@ int A1_MultiGetS(int target_count,
  * \param[in]  target        Rank of the remote process.
  * \param[in]  source_ptr    Starting address in the (remote) source memory.
  * \param[in]  target_ptr    Starting address in the (local) target memory.
- * \param[in]  bytes         Amount of data to transfer, in bytes.
- * \param[in]  a1_type       Amount of data to transfer, in bytes.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
+ * \param[in]  a1_type       Amount of data to transfer in bytes.
  * \param[in]  scaling       Factor for scaling source
  *
  * \see A1_Put, A1_Copy
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_GetAcc(int target,
@@ -646,15 +661,15 @@ int A1_GetAcc(int target,
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
  * \param[in]  source_ptr      Starting address in the (local) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+ * \param[in]  src_stride_ar   Array of stride distances at source in bytes.
  * \param[in]  target_ptr      Starting address in the (remote) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
- * \param[in]  count           Block size in each dimension, in bytes.
+ * \param[in]  trg_stride_ar   Array of stride distances at target in bytes.
+ * \param[in]  count           Block size in each dimension in bytes.
  * \param[in]  stride_levels   The number of levels of stride.
  *
  * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_GetAccS(int target,
@@ -675,11 +690,11 @@ int A1_GetAccS(int target,
  * \param[in]  target        Rank of the (remote) target process.
  * \param[in]  source_ptr    Starting address in the (remote) source memory.
  * \param[in]  target_ptr    Starting address in the (remote) target memory.
- * \param[in]  bytes         Amount of data to transfer, in bytes.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
  *
  * \see A1_Put, A1_Get
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_Copy(int source,
@@ -696,13 +711,13 @@ int A1_Copy(int source,
  * \param[in]  target        Rank of the (remote) target process.
  * \param[in]  source_ptr    Starting address in the (remote) source memory.
  * \param[in]  target_ptr    Starting address in the (remote) target memory.
- * \param[in]  bytes         Amount of data to transfer, in bytes.
- * \param[in]  a1_type       Amount of data to transfer, in bytes.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
+ * \param[in]  a1_type       Amount of data to transfer in bytes.
  * \param[in]  scaling       Factor for scaling source
  *
  * \see A1_Put, A1_Get
  *
- * \ingroup MEMORY
+ * \ingroup DATA_TRANSFER
  */
 
 int A1_CopyAcc(int source,
@@ -877,7 +892,6 @@ int A1_Reset_handle(A1_handle_t* handle);
 
 int A1_Reset_handle_list(int count, A1_handle_t* handle);
 
-
 /* ********************************************************************** */
 /*                                                                        */
 /*               A1 external API - many-to-many operations                */
@@ -894,7 +908,7 @@ int A1_Reset_handle_list(int count, A1_handle_t* handle);
  * \ingroup MANYTOMANY
  */
 
-void A1_SyncMulticast_group(A1_group_t* group);
+void A1_Broadcast(A1_group_t* group);
 
 /* FIXME: More API functions to come */
 

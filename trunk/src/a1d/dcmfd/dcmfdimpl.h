@@ -34,6 +34,8 @@
 #define A1C_REQUEST_POOL_INCREMENT 100
 #define A1C_REQUEST_POOL_LIMIT 500
 
+#define A1C_MAX_STRIDED_DIM 4
+
 /*************************************************
  *          Generic  Macros                      *
  *************************************************/
@@ -141,24 +143,24 @@
  *************************************************/
 typedef struct
 {
-   uint32_t disable_cht;
-   uint32_t cht_pause_cycles;
-   uint32_t disable_interrupts;
-   uint32_t enable_immediate_flush;
-   uint32_t direct_noncontig_put_threshold;
-   uint32_t direct_noncontig_get_threshold;
-   uint32_t direct_noncontig_putacc_threshold;
-   uint32_t direct_noncontig_getacc_threshold;
-   uint32_t flushall_pending_limit;
-   uint32_t alignment;
+    uint32_t disable_cht;
+    uint32_t cht_pause_cycles;
+    uint32_t disable_interrupts;
+    uint32_t enable_immediate_flush;
+    uint32_t direct_noncontig_put_threshold;
+    uint32_t direct_noncontig_get_threshold;
+    uint32_t direct_noncontig_putacc_threshold;
+    uint32_t direct_noncontig_getacc_threshold;
+    uint32_t flushall_pending_limit;
+    uint32_t alignment;
 } A1_Settings_t;
 
-typedef struct 
+typedef struct
 {
-   uint32_t initial_size;
-   uint32_t increment_size;
-   uint32_t limit_size;
-   uint32_t total_size;
+    uint32_t initial_size;
+    uint32_t increment_size;
+    uint32_t limit_size;
+    uint32_t total_size;
 } A1_Requestpool_info_t;
 
 typedef struct
@@ -200,29 +202,29 @@ typedef union
  * find a better way to represent it */
 typedef struct
 {
+    int stride_levels;
+    int block_sizes[A1C_MAX_STRIDED_DIM];
     void *target_ptr;
     int trg_stride_ar[2];
-    int count[3];
-    int stride_levels;
 } A1D_Packed_puts_header_t;
 
 typedef struct
 {
     uint32_t target;
+    int stride_levels;
+    int block_sizes[A1C_MAX_STRIDED_DIM];
     void* source_ptr;
     int src_stride_ar[2];
     void* target_ptr;
     int trg_stride_ar[2];
-    int count[3];
-    int stride_levels;
 } A1D_Packed_gets_header_t;
 
 typedef struct
 {
+    int stride_levels;
+    int block_sizes[A1C_MAX_STRIDED_DIM];
     void *target_ptr;
     int trg_stride_ar[2];
-    int count[3];
-    int stride_levels;
     A1_datatype_t datatype;
     union
     {
@@ -347,57 +349,55 @@ void A1DI_Read_parameters();
 int A1DI_Send_flush(int proc);
 
 int A1DI_Packed_puts(int target,
+                     int stride_levels,
+                     int *block_sizes,
                      void* source_ptr,
                      int *src_stride_ar,
                      void* target_ptr,
-                     int *trg_stride_ar,
-                     int *count,
-                     int stride_levels);
+                     int *trg_stride_ar);
 
 int A1DI_Pack_strided(void **packet,
                       int *size_packet,
+                      int stride_levels,
+                      int *block_sizes,
                       void *source_ptr,
                       int *src_stride_ar,
                       void *target_ptr,
-                      int *trg_stride_ar,
-                      int *count,
-                      int stride_levels);
+                      int *trg_stride_ar);
 
 int A1DI_Pack_strided_putaccs(void **packet,
                               int *size_packet,
+                              int stride_levels,
+                              int *block_sizes,
                               void *source_ptr,
                               int *src_stride_ar,
                               void *target_ptr,
                               int *trg_stride_ar,
-                              int *count,
-                              int stride_levels,
                               A1_datatype_t a1_type,
                               void *scaling);
 
 void* A1DI_Pack_data_strided(void *pointer,
+                             int stride_levels,
+                             int *block_sizes,
                              void *source_ptr,
-                             int *src_stride_ar,
-                             int *count,
-                             int stride_level);
+                             int *src_stride_ar);
 
 int A1DI_Unpack_strided(void *packet);
 
 int A1DI_Unpack_strided_putaccs(void *packet);
 
 void* A1DI_Unpack_data_strided(void *pointer,
+                               int stride_levels,
+                               int *block_sizes,
                                void *trg_ptr,
-                               int *trg_stride_ar,
-                               int *count,
-                               int stride_level);
+                               int *trg_stride_ar);
 
 void* A1DI_Unpack_data_strided_acc(void *pointer,
+                                   int stride_levels,
+                                   int *block_sizes,
                                    void *trg_ptr,
                                    int *trg_stride_ar,
-                                   int *count,
-                                   int stride_level,
                                    A1_datatype_t a1_type,
                                    void* scaling);
 
-int A1D_Acc_process(void *src, 
-                    int bytes, 
-                    A1D_Putacc_header_t *header);
+int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header);
