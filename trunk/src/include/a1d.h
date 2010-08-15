@@ -70,6 +70,18 @@ int A1D_Release_segments(A1_group_t* group, void *ptr);
 void A1D_Barrier_group(A1_group_t* group);
 
 /**
+ * \brief Device level implementation of A1_Sync_group.
+ *
+ * On return, this call ensures that all processes within the entire group
+ * have reached this point in the program and that all messages have completed remotely.
+ *
+ * \param[in] group          Group of processes to synchronize.
+ *
+ * \ingroup  SYNCHRONIZATION
+ */
+void A1D_Sync_group(A1_group_t* group);
+
+/**
  * \brief Device level implementation of A1_Put.
  *
  * Blocking copy of contiguous data from local memory to remote memory.
