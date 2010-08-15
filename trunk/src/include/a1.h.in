@@ -770,11 +770,12 @@ int A1_Barrier_group(A1_group_t* group);
 int A1_Sync_group(A1_group_t* group);
 
 /**
- * \brief On return, this call ensure that all blocking put or accumulate operations
- *        issued to a particular process are complete remotely.
+ * \brief On return, this call ensures that all blocking and non-blocking put
+ *        and accumulate operations sent to the target process have completed remotely.
  *
  *        This operation is local and blocking.
  *
+ * \param[out] rc            The error code.
  * \param[in]  proc          Rank of the remote process.
  *
  * \see A1_Flush_group, A1_Sync
@@ -782,29 +783,32 @@ int A1_Sync_group(A1_group_t* group);
  * \ingroup COMPLETION
  */
 
-void A1_Flush(int proc);
+int A1_Flush(int proc);
 
 /**
- * \brief On return, this call ensures that all outstanding blocking put or accumulate
- *        operations are complete remotely to the processes given in the list.
+ * \brief On return, this call ensures that all blocking and non-blocking put
+ *        and accumulate operations have completed remotely at the processes given in the list.
  *
  *        This operation is local and blocking.
  *
- * \param[in] list           Vector of processes to flush against.
+ * \param[out] rc                The error code.
+ * \param[in] count              Number of processes in vector.
+ * \param[in] proc_list          Vector of processes to flush against.
  *
  * \see A1_Flush, A1_Flush_group
  *
  * \ingroup COMPLETION
  */
 
-void A1_Flush_list(int count, int *proc_list);
+int A1_Flush_list(int count, int *proc_list);
 
 /**
- * \brief On return, this call ensures that all outstanding blocking put or accumulate
- *        operations are complete remotely to the processes in the group.
+ * \brief On return, this call ensures that all blocking and non-blocking put
+ *        and accumulate operations have completed remotely at the processes in the group.
  *
  *        This operation is local and blocking.
  *
+ * \param[out] rc                The error code.
  * \param[in] count              Number of processes in vector.
  * \param[in] proc_list          List of processes to flush against.
  *
@@ -813,7 +817,7 @@ void A1_Flush_list(int count, int *proc_list);
  * \ingroup COMPLETION
  */
 
-void A1_Flush_group(A1_group_t* group);
+int A1_Flush_group(A1_group_t* group);
 
 /**
  * \brief Blocks on completion of a non-blocking handle.
@@ -910,7 +914,7 @@ int A1_Reset_handle_list(int count, A1_handle_t* handle);
  * \ingroup MANYTOMANY
  */
 
-void A1_Broadcast(A1_group_t* group);
+int A1_Broadcast(A1_group_t* group);
 
 /* FIXME: More API functions to come */
 
