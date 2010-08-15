@@ -84,7 +84,7 @@ DCMF_Result A1DI_Packed_puts_initialize()
 }
 
 int A1DI_Packed_puts(int target,
-                     int stride_levels,
+                     int stride_level,
                      int *block_sizes,
                      void* source_ptr,
                      int *src_stride_ar,
@@ -103,7 +103,7 @@ int A1DI_Packed_puts(int target,
 
     result = A1DI_Pack_strided(&packet,
                                &size_packet,
-                               stride_levels,
+                               stride_level,
                                block_sizes,
                                source_ptr,
                                src_stride_ar,
@@ -203,7 +203,7 @@ int A1DI_Direct_puts(int target,
 }
 
 int A1D_PutS(int target,
-             int stride_levels,
+             int stride_level,
              int *block_sizes,
              void* source_ptr,
              int *src_stride_ar,
@@ -220,7 +220,7 @@ int A1D_PutS(int target,
     {
 
         result = A1DI_Direct_puts(target,
-                                  stride_levels,
+                                  stride_level,
                                   block_sizes,
                                   source_ptr,
                                   src_stride_ar,
@@ -242,7 +242,7 @@ int A1D_PutS(int target,
     {
 
         result = A1DI_Packed_puts(target,
-                                  stride_levels,
+                                  stride_level,
                                   block_sizes,
                                   source_ptr,
                                   src_stride_ar,

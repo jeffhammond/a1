@@ -10,9 +10,9 @@
 volatile A1_Settings_t a1_settings;
 volatile A1_Requestpool_info_t a1_requestpool_info;
 
-void A1DI_Read_parameters()
+int A1DI_Read_parameters()
 {
-
+    int result = A1_SUCCESS;
     char* value = NULL;
 
     A1U_FUNC_ENTER();
@@ -101,7 +101,7 @@ void A1DI_Read_parameters()
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return;
+    return result;
 
   fn_fail: 
     goto fn_exit;

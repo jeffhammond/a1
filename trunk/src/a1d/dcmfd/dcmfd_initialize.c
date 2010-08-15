@@ -43,7 +43,8 @@ int A1D_Initialize(int thread_level)
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
 
-    A1DI_Read_parameters();
+    result = A1DI_Read_parameters();
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Read_parameters returned with error \n");
 
     if(!a1_settings.disable_cht) {
         A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;

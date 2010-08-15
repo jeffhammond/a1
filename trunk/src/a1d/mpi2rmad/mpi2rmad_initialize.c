@@ -51,7 +51,8 @@ int A1D_Initialize(int thread_level) {
     MPI_Comm_size( MPI_Comm comm, &(A1D_Process_info.num_ranks) );
     MPI_Comm_rank( MPI_Comm comm, &(A1D_Process_info.my_rank) );
 
-    A1DI_Read_parameters();
+    result = A1DI_Read_parameters();
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Read_parameters failed");
 
     /* FIXME: Need to do stuff here! */
 

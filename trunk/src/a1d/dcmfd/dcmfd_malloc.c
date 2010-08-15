@@ -147,6 +147,7 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes)
 
     A1U_FUNC_ENTER();
 
+    /* TODO: need to use A1D_Malloc here */
     ptr[A1D_Process_info.my_rank] = malloc(bytes);
     A1U_ERR_POP(result = !ptr[A1D_Process_info.my_rank],
                 "memregion allocation failed \n");

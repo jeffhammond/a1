@@ -9,7 +9,7 @@
 void A1DI_Flush_all()
 {
     int result = DCMF_SUCCESS;
-    int b, i, dst;
+    int dst;
     DCMF_Request_t *request;
     DCQuad msginfo;
     DCMF_Callback_t ack_callback;

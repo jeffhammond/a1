@@ -67,7 +67,7 @@ int A1D_Release_segments(A1_group_t* group, void *ptr);
  *
  * \ingroup  SYNCHRONIZATION
  */
-void A1D_Barrier_group(A1_group_t* group);
+int A1D_Barrier_group(A1_group_t* group);
 
 /**
  * \brief Device level implementation of A1_Sync_group.
@@ -79,7 +79,7 @@ void A1D_Barrier_group(A1_group_t* group);
  *
  * \ingroup  SYNCHRONIZATION
  */
-void A1D_Sync_group(A1_group_t* group);
+int A1D_Sync_group(A1_group_t* group);
 
 /**
  * \brief Device level implementation of A1_Put.
@@ -103,7 +103,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes);
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
- * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  stride_level   The number of levels of stride.
  * \param[in]  block_sizes     Block size in each dimension, in bytes.
  * \param[in]  source_ptr      Starting address in the (local) source memory.
  * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
@@ -113,7 +113,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes);
  * \ingroup COPY OPERATIONS
  */
 int A1D_PutS(int target,
-             int stride_levels,
+             int stride_level,
              int block_sizes[],
              void* source_ptr,
              int src_stride_ar[],
@@ -142,7 +142,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes);
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
- * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  stride_level   The number of levels of stride.
  * \param[in]  block_sizes     Block size in each dimension, in bytes.
  * \param[in]  source_ptr      Starting address in the (remote) source memory.
  * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
@@ -152,7 +152,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes);
  * \ingroup COPY OPERATIONS
  */
 int A1D_GetS(int target,
-             int stride_levels,
+             int stride_level,
              int block_sizes[],
              void* source_ptr,
              int src_stride_ar[],
@@ -188,7 +188,7 @@ int A1D_PutAcc(int target,
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
- * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  stride_level   The number of levels of stride.
  * \param[in]  block_sizes     Block size in each dimension, in bytes.
  * \param[in]  source_ptr      Starting address in the (local) source memory.
  * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
@@ -200,7 +200,7 @@ int A1D_PutAcc(int target,
  * \ingroup COPY OPERATIONS
  */
 int A1D_PutAccS(int target,
-                int stride_levels,
+                int stride_level,
                 int block_sizes[],
                 void* source_ptr,
                 int *src_stride_ar,

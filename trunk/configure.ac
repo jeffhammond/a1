@@ -112,7 +112,7 @@ for dev in `echo $a1_device | sed -e 's/:/ /g' -e 's/,/ /g'` ; do
     	 dcmfd)
 		PAC_SET_HEADER_LIB_PATH(dcmf)
                 PAC_SET_HEADER_LIB_PATH(spi)
-		PAC_CHECK_HEADER_LIB(spi,DMA_Addressing.h,SPI.cna,DMA_AddressingGetHandle,
+		PAC_CHECK_HEADER_LIB(spi,spi/DMA_Addressing.h,SPI.cna,DMA_AddressingGetHandle,
 				got_spi=yes,got_spi=no)
 		got_dcmf=no
 		if test "$got_spi" = "yes" ; then

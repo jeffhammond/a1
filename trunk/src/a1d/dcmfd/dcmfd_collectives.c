@@ -31,7 +31,7 @@ DCMF_Result A1DI_GlobalBarrier_initialize()
     goto fn_exit;
 }
 
-void A1DI_GlobalBarrier()
+int A1DI_GlobalBarrier()
 {
 
     int result = DCMF_SUCCESS;
@@ -54,22 +54,25 @@ void A1DI_GlobalBarrier()
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
+    return result;
 
   fn_fail: 
     goto fn_exit;
 
 }
 
-void A1D_Barrier_group(A1_group_t* group)
+int A1D_Barrier_group(A1_group_t* group)
 {
+    int result = A1_SUCCESS;
+
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        A1DI_GlobalBarrier();
+        result = A1DI_GlobalBarrier();
+        A1U_ERR_ABORT(result != A1_SUCCESS, "DCMF_GlobalBarrier returned with an error");
         goto fn_exit;
     }
     else
@@ -82,7 +85,7 @@ void A1D_Barrier_group(A1_group_t* group)
   fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return;
+    return result;
 
   fn_fail: 
     goto fn_exit;
@@ -90,8 +93,10 @@ void A1D_Barrier_group(A1_group_t* group)
 }
 
 
-void A1D_Sync_group(A1_group_t* group)
+int A1D_Sync_group(A1_group_t* group)
 {
+
+    int result = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
@@ -99,8 +104,10 @@ void A1D_Sync_group(A1_group_t* group)
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        A1DI_Flush_all();
-        A1DI_GlobalBarrier();
+        result = A1DI_Flush_all();
+        A1U_ERR_ABORT(result != A1_SUCCESS, "A1DI_Flush_all returned with an error");
+        result = A1DI_GlobalBarrier();
+        A1U_ERR_ABORT(result != A1_SUCCESS, "A1DI_GlobalBarrier returned with an error");
         goto fn_exit;
     }
     else
@@ -112,7 +119,7 @@ void A1D_Sync_group(A1_group_t* group)
   fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return;
+    return result;
 
   fn_fail: 
     goto fn_exit;

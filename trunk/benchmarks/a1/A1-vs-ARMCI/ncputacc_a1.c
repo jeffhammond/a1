@@ -64,7 +64,7 @@ int main() {
    unsigned long bufsize;
    double **buffer;
    double t_start, t_stop, t_latency;
-   int count[2], src_stride, trg_stride, stride_levels;
+   int count[2], src_stride, trg_stride, stride_level;
    double scaling;
    
    A1_Initialize(A1_THREAD_SINGLE); 
@@ -90,7 +90,7 @@ int main() {
 
    src_stride = MAX_YDIM*sizeof(double);
    trg_stride = MAX_YDIM*sizeof(double);
-   stride_levels = 1;
+   stride_level = 1;
 
    A1_Barrier_group(A1_GROUP_WORLD);
 
@@ -112,7 +112,7 @@ int main() {
                    t_start = A1_Time_seconds();              
  
                A1_PutAccS(1, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride, 
-                        count, stride_levels, A1_DOUBLE, (void *) &scaling); 
+                        count, stride_level, A1_DOUBLE, (void *) &scaling); 
  
             }
             t_stop = A1_Time_seconds();
@@ -133,7 +133,7 @@ int main() {
                    t_start = A1_Time_seconds();
  
                A1_PutAccS(1, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride, 
-                        count, stride_levels, A1_DOUBLE, (void *) &scaling);
+                        count, stride_level, A1_DOUBLE, (void *) &scaling);
                A1_Flush(1);
  
             }

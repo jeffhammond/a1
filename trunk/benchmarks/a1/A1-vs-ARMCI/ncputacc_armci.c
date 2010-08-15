@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
    unsigned long bufsize;
    double **buffer;
    double t_start, t_stop, t_latency;
-   int count[2], src_stride, trg_stride, stride_levels;
+   int count[2], src_stride, trg_stride, stride_level;
    double scaling;
    int provided;
 
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 
    src_stride = MAX_YDIM*sizeof(double);
    trg_stride = MAX_YDIM*sizeof(double);
-   stride_levels = 1;
+   stride_level = 1;
 
    MPI_Barrier(MPI_COMM_WORLD);
 
@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
                    t_start = MPI_Wtime();              
  
                ARMCI_AccS(ARMCI_ACC_DBL, (void *) &scaling, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride, 
-                        count, stride_levels, 1); 
+                        count, stride_level, 1); 
 
 
             }
@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
                    t_start = MPI_Wtime();
 
                ARMCI_AccS(ARMCI_ACC_DBL, (void *) &scaling, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride,
-                        count, stride_levels, 1);  
+                        count, stride_level, 1);  
                ARMCI_Fence(1);
  
             }

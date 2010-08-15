@@ -9,7 +9,7 @@
 #include "a1u.h"
 
 int A1_PutAccS(int target,
-               int stride_levels,
+               int stride_level,
                int *block_sizes,
                void* source_ptr,
                int *src_stride_ar,
@@ -30,7 +30,7 @@ int A1_PutAccS(int target,
 #   endif
 
     status = A1D_PutAccS(target,
-                         stride_levels,
+                         stride_level,
                          block_sizes,
                          source_ptr,
                          src_stride_ar,

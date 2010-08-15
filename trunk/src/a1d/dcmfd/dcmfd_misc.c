@@ -113,8 +113,6 @@ int A1D_Node_total(A1_group_t* group)
 
 double A1D_Time_seconds()
 {
-    double time;
-
     A1U_FUNC_ENTER();
 
   fn_exit: 

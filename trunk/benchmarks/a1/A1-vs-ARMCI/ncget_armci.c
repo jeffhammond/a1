@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
    long bufsize;
    double **buffer;
    double t_start, t_stop, t_latency;
-   int count[2], src_stride, trg_stride, stride_levels;
+   int count[2], src_stride, trg_stride, stride_level;
    int provided;
  
    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);  
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 
      src_stride = MAX_YDIM*sizeof(double);
      trg_stride = MAX_YDIM*sizeof(double);
-     stride_levels = 1;
+     stride_level = 1;
 
      for(xdim=1; xdim<=MAX_XDIM; xdim*=2) 
      {
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
              if(i == SKIP)
                  t_start = MPI_Wtime();              
 
-             ARMCI_GetS((void *) buffer[dest], &src_stride, (void *) buffer[rank], &trg_stride, count, stride_levels, 1); 
+             ARMCI_GetS((void *) buffer[dest], &src_stride, (void *) buffer[rank], &trg_stride, count, stride_level, 1); 
  
           }
           t_stop = MPI_Wtime();

@@ -15,7 +15,7 @@
 #if defined A1D_IMPLEMENTS_PUTS
 
 int A1_PutS(int target,
-            int stride_levels,
+            int stride_level,
             int *block_sizes,
             void* source_ptr,
             int *src_stride_ar,
@@ -34,7 +34,7 @@ int A1_PutS(int target,
 #   endif
 
     status = A1D_PutS(target,
-                      stride_levels,
+                      stride_level,
                       block_sizes,
                       source_ptr,
                       src_stride_ar,
