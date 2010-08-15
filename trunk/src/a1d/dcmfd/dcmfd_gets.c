@@ -11,7 +11,7 @@ DCMF_Protocol_t A1D_Packed_gets_response_protocol;
 volatile int A1D_Expecting_getresponse;
 
 int A1DI_Packed_gets_response(int target,
-                              int stride_levels,
+                              int stride_level,
                               int *block_sizes,
                               void* source_ptr,
                               int *src_stride_ar,
@@ -31,7 +31,7 @@ int A1DI_Packed_gets_response(int target,
 
     result = A1DI_Pack_strided(&packet,
                                &size_packet,
-                               stride_levels,
+                               stride_level,
                                block_sizes,
                                source_ptr,
                                src_stride_ar,
@@ -157,7 +157,7 @@ void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
     A1D_Packed_gets_header_t *header = (A1D_Packed_gets_header_t *) src;
 
     A1DI_Packed_gets_response(header->target,
-                              header->stride_levels,
+                              header->stride_level,
                               header->block_sizes,
                               header->source_ptr,
                               header->src_stride_ar,
@@ -195,7 +195,7 @@ DCMF_Result A1DI_Packed_gets_initialize()
 }
 
 int A1DI_Packed_gets(int target,
-                     int stride_levels,
+                     int stride_level,
                      int *block_sizes,
                      void* source_ptr,
                      int *src_stride_ar,
@@ -214,12 +214,12 @@ int A1DI_Packed_gets(int target,
     packet.target = A1D_Process_info.my_rank;
     packet.source_ptr = source_ptr;
     packet.target_ptr = target_ptr;
-    packet.stride_levels = stride_levels;
-    memcpy(packet.src_stride_ar, src_stride_ar, stride_levels
+    packet.stride_level = stride_level;
+    memcpy(packet.src_stride_ar, src_stride_ar, stride_level
             * sizeof(uint32_t));
-    memcpy(packet.trg_stride_ar, trg_stride_ar, stride_levels
+    memcpy(packet.trg_stride_ar, trg_stride_ar, stride_level
             * sizeof(uint32_t));
-    memcpy(packet.block_sizes, block_sizes, (stride_levels + 1) * sizeof(uint32_t));
+    memcpy(packet.block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
 
     request = A1DI_Get_request();
 
@@ -266,7 +266,7 @@ int A1DI_Direct_gets(int target,
         for (i = 0; i < block_sizes[stride_level]; i++)
         {
             A1DI_Direct_gets(target,
-                             stride_levels -1,
+                             stride_level -1,
                              block_sizes,
                              (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
                              src_stride_ar,
@@ -312,7 +312,7 @@ int A1DI_Direct_gets(int target,
 }
 
 int A1D_GetS(int target,
-             int stride_levels,
+             int stride_level,
              int *block_sizes,
              void* source_ptr,
              int *src_stride_ar,
@@ -333,7 +333,7 @@ int A1D_GetS(int target,
         get_active = 0;
 
         result = A1DI_Direct_gets(target,
-                                  stride_levels,
+                                  stride_level,
                                   block_sizes,
                                   source_ptr,
                                   src_stride_ar,
@@ -351,7 +351,7 @@ int A1D_GetS(int target,
         A1D_Expecting_getresponse = 1;
 
         result = A1DI_Packed_gets(target,
-                                  stride_levels,
+                                  stride_level,
                                   block_sizes,
                                   source_ptr,
                                   src_stride_ar,
