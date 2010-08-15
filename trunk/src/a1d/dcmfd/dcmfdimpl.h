@@ -367,7 +367,7 @@ int A1DI_Pack_strided(void **packet,
 
 int A1DI_Pack_strided_putaccs(void **packet,
                               int *size_packet,
-                              int stride_levels,
+                              int stride_level,
                               int *block_sizes,
                               void *source_ptr,
                               int *src_stride_ar,
