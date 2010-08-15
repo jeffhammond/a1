@@ -33,7 +33,7 @@ void A1DI_Flush_all()
             if (A1D_Connection_send_active[dst] > 0)
             {
 
-                A1D_Control_flushack_info.active++;
+                A1D_Control_flushack_active++;
 
                 result = DCMF_Send(&A1D_Send_flush_protocol,
                                    &request[pending_count],
@@ -76,13 +76,13 @@ void A1DI_Flush_all()
 
             if (pending_count >= a1_settings.flushall_pending_limit)
             {
-                A1DI_Conditional_advance(A1D_Control_flushack_info.active > 0 || A1D_Put_flushack_active > 0);
+                A1DI_Conditional_advance(A1D_Control_flushack_active > 0 || A1D_Put_flushack_active > 0);
                 pending_count = 0;
             }
 
         }
     }
-    A1DI_Conditional_advance(A1D_Control_flushack_info.active > 0 || A1D_Put_flushack_active > 0);
+    A1DI_Conditional_advance(A1D_Control_flushack_active > 0 || A1D_Put_flushack_active > 0);
 
     A1DI_Memset((void *) A1D_Connection_send_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
     A1DI_Memset((void *) A1D_Connection_put_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);

@@ -7,8 +7,12 @@ int main(int argc, char **argv)
 {
  
    int i;
-   double source[SIZE], target[SIZE], scaling[2]; 
-   double _Complex csource, cscaling, ctarget;
+   double source[SIZE] __attribute__((__aligned__(16)));
+   double target[SIZE] __attribute__((__aligned__(16)));
+   double scaling[2] __attribute__((__aligned__(16))); 
+   double _Complex csource __attribute__((__aligned__(16))); 
+   double _Complex cscaling __attribute__((__aligned__(16)));
+   double _Complex ctarget __attribute__((__aligned__(16)));
    double t_start, t_stop;
 
    MPI_Init(&argc, &argv);

@@ -73,7 +73,7 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
   
     header = (A1D_Putacc_header_t *) msginfo;
 
-    result = A1D_Acc_process(src,
+    result = A1D_Acc_process((void *) src,
                              bytes,
                              header);
     A1U_ERR_ABORT(result,

@@ -13,7 +13,7 @@ DCMF_Callback_t A1D_Nocallback;
 
 pthread_t A1DI_CHT_pthread;
 
-void A1DI_CHT_advance_function(void * dummy)
+void *A1DI_CHT_advance_function(void * dummy)
 {
     DCMF_CriticalSection_enter(0);
     while (1)

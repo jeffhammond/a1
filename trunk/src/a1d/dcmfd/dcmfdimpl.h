@@ -74,6 +74,10 @@
  *          Critical Section Macros              *
  *************************************************/
 
+#define A1DI_ACQUIRE_GLOBABL_LOCK() while(testandset(&global_lock));
+
+#define A1DI_RELEASE_GLOBABL_LOCK() while(release(&global_lock));
+
 #define A1DI_CRITICAL_CALL(call)                                  \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
@@ -263,30 +267,26 @@ typedef struct
 typedef struct
 {
     DCMF_Protocol_t protocol;
-    volatile size_t rcv_active;
+    volatile int rcv_active;
     void **xchange_ptr;
     size_t xchange_size;
 } A1D_Control_xchange_info_t;
 
-typedef struct
-{
-    DCMF_Protocol_t protocol;
-    uint32_t active;
-} A1D_Control_flushack_info_t;
-
 /*************************************************
  *             Global variables                  *
  ************************************************/
+
+volatile uint32_t global_lock=0;
 
 /* TODO: is extern rather than static the right declaration here? */
 extern pthread_t A1DI_CHT_pthread;
 
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
-extern volatile A1D_Control_flushack_info_t A1D_Control_flushack_info;
 extern A1D_Request_pool_t A1D_Request_pool;
 
 extern DCMF_Configure_t A1D_Messager_info;
+extern DCMF_Protocol_t A1D_Control_flushack_protocol;
 extern DCMF_Protocol_t A1D_Send_flush_protocol;
 extern DCMF_Protocol_t A1D_GlobalBarrier_protocol;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
@@ -303,6 +303,7 @@ extern void **A1D_Membase_global;
 extern void **A1D_Put_Flushcounter_ptr;
 extern volatile int *A1D_Connection_send_active;
 extern volatile int *A1D_Connection_put_active;
+extern volatile int A1D_Control_flushack_active;
 extern volatile int A1D_Put_flushack_active;
 extern volatile int A1D_Expecting_getresponse;
 
