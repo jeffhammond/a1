@@ -370,7 +370,7 @@ int A1_Register_segment(void** pointer, int bytes);
  *
  * \ingroup MEMORY
  */
-int A1_Exchange_segments(A1_group_t* group, void* ptr[], int bytes);
+int A1_Exchange_segments(A1_group_t* group, void* *ptr, int bytes);
 
 /**
  * \brief A collective operation to invalidate and de-register memory segments
@@ -434,10 +434,10 @@ int A1_Put(int target,
  */
 
 int A1_MultiPut(int count,
-                int targets[],
-                void* source_ptr[],
-                void* target_ptr[],
-                int bytes[]);
+                int *targets,
+                void* *source_ptr,
+                void* *target_ptr,
+                int *bytes);
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -458,11 +458,11 @@ int A1_MultiPut(int count,
 
 int A1_PutS(int target,
             int stride_levels,
-            int block_sizes[],
+            int *block_sizes,
             void* source_ptr,
-            int src_stride_ar[],
+            int *src_stride_ar,
             void* target_ptr,
-            int trg_stride_ar[]);
+            int *trg_stride_ar);
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -485,13 +485,13 @@ int A1_PutS(int target,
  */
 
 int A1_MultiPutS(int count,
-                 int targets[],
+                 int *targets,
                  int stride_levels,
-                 int* block_sizes[],
+                 int* *block_sizes,
                  void* source_ptr,
-                 int src_stride_ar[],
+                 int *src_stride_ar,
                  void* target_ptr,
-                 int trg_stride_ar[]);
+                 int *trg_stride_ar);
 
 /**
  * \brief Blocking accumulate of contiguous data from local memory onto remote memory.
@@ -535,7 +535,7 @@ int A1_PutAcc(int target,
 
 int A1_PutAccS(int target,
                int stride_levels,
-               int block_sizes[],
+               int *block_sizes,
                void* source_ptr,
                int *src_stride_ar,
                void* target_ptr,
@@ -575,10 +575,10 @@ int A1_Get(int target, void* source_ptr, void* target_ptr, int bytes);
  */
 
 int A1_MultiGet(int count,
-                int target[],
-                void* source_ptr[],
-                void* target_ptr[],
-                int bytes[]);
+                int *target,
+                void* *source_ptr,
+                void* *target_ptr,
+                int *bytes);
 
 /**
  * \brief Blocking copy of strided data from remote memory to local memory.
@@ -598,12 +598,12 @@ int A1_MultiGet(int count,
  */
 
 int A1_GetS(int target,
+            int stride_levels,
+            int *block_sizes,
             void* source_ptr,
-            int src_stride_ar[],
+            int *src_stride_ar,
             void* target_ptr,
-            int trg_stride_ar[],
-            int count[],
-            int stride_levels);
+            int *trg_stride_ar);
 
 /**
  * \brief Blocking copy of stided data from remote memory to local memory.
@@ -624,13 +624,13 @@ int A1_GetS(int target,
  */
 
 int A1_MultiGetS(int target_count,
-                 int target[],
-                 void* source_ptr[],
-                 int **src_stride_ar,
-                 void* target_ptr[],
-                 int **trg_stride_ar,
+                 int *target,
+                 int stride_levels,
                  int **count,
-                 int stride_levels);
+                 void* *source_ptr,
+                 int **src_stride_ar,
+                 void* *target_ptr,
+                 int **trg_stride_ar);
 
 /**
  * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
@@ -795,7 +795,7 @@ void A1_Flush(int proc);
  * \ingroup COMPLETION
  */
 
-void A1_Flush_list(int count, int proc_list[]);
+void A1_Flush_list(int count, int *proc_list);
 
 /**
  * \brief On return, this call ensures that all outstanding blocking put or accumulate
@@ -836,7 +836,7 @@ int A1_Wait_handle(A1_handle_t* handle);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Wait_handle_list(int count, A1_handle_t* handles[]);
+int A1_Wait_handle_list(int count, A1_handle_t* *handles);
 
 /**
  * \brief Blocks on completion of a non-blocking handle.
@@ -864,8 +864,8 @@ int A1_Test_handle(A1_handle_t* handle, A1_bool_t* completed);
  */
 
 int A1_Test_handle_list(int count,
-                        A1_handle_t* handles[],
-                        A1_bool_t* completed[]);
+                        A1_handle_t* *handles,
+                        A1_bool_t* *completed);
 
 /**
  * \brief Resets a non-blocking handle.
