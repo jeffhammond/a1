@@ -145,7 +145,7 @@ int A1DI_Direct_puts(int target,
                      void* source_ptr,
                      int *src_stride_ar,
                      void* target_ptr,
-                     int *trg_stride_ar,
+                     int *trg_stride_ar)
 {
     int result = A1_SUCCESS;
     DCMF_Request_t *request;
