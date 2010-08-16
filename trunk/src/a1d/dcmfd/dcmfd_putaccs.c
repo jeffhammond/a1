@@ -186,31 +186,35 @@ int A1DI_Direct_putaccs(int target,
 
         header.target_ptr = target_ptr;
         header.datatype = a1_type;
-        switch (a1_type)
+        likely_if(a1_type == A1_DOUBLE) 
         {
-        case A1_INT32:
-            (header.scaling).int32_value = *((int32_t *) scaling);
-            break;
-        case A1_INT64:
-            (header.scaling).int64_value = *((int64_t *) scaling);
-            break;
-        case A1_UINT32:
-            (header.scaling).uint32_value = *((uint32_t *) scaling);
-            break;
-        case A1_UINT64:
-            (header.scaling).uint64_value = *((uint64_t *) scaling);
-            break;
-        case A1_FLOAT:
-            (header.scaling).float_value = *((float *) scaling);
-            break;
-        case A1_DOUBLE:
             (header.scaling).double_value = *((double *) scaling);
-            break;
-        default:
-            result = A1_ERROR;
-            A1U_ERR_POP((result != A1_SUCCESS),
-                        "Invalid data type in putacc \n");
-            break;
+        } 
+        else 
+        {
+            switch (a1_type)
+            {
+            case A1_INT32:
+                (header.scaling).int32_value = *((int32_t *) scaling);
+                break;
+            case A1_INT64:
+                (header.scaling).int64_value = *((int64_t *) scaling);
+                break;
+            case A1_UINT32:
+                (header.scaling).uint32_value = *((uint32_t *) scaling);
+                break;
+            case A1_UINT64:
+                (header.scaling).uint64_value = *((uint64_t *) scaling);
+                break;
+            case A1_FLOAT:
+                (header.scaling).float_value = *((float *) scaling);
+                break;
+            default:
+                result = A1_ERROR;
+                A1U_ERR_POP((result != A1_SUCCESS),
+                            "Invalid data type in putacc \n");
+                break;
+            }
         }
 
         result = DCMF_Send(&A1D_Generic_putacc_protocol,

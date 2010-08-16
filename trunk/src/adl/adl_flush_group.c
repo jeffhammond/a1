@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-void A1_Flush_group(A1_group_t * group)
+int A1_Flush_group(A1_group_t * group)
 {
     int status = A1_SUCCESS;
 

@@ -213,54 +213,58 @@ void* A1DI_Unpack_data_strided_acc(void *pointer,
     }
     else
     {
-        switch (a1_type)
+        likely_if(a1_type == A1_DOUBLE) 
         {
-        case A1_INT32:
-            A1DI_ACC_EXECUTE(int32_t,
-                             pointer,
-                             trg_ptr,
-                             *((int32_t *) scaling),
-                             block_sizes[0] / sizeof(int32_t));
-            break;
-        case A1_INT64:
-            A1DI_ACC_EXECUTE(int64_t,
-                             pointer,
-                             trg_ptr,
-                             *((int64_t *) scaling),
-                             block_sizes[0] / sizeof(int64_t));
-            break;
-        case A1_UINT32:
-            A1DI_ACC_EXECUTE(uint32_t,
-                             pointer,
-                             trg_ptr,
-                             *((uint32_t *) scaling),
-                             block_sizes[0] / sizeof(uint32_t));
-            break;
-        case A1_UINT64:
-            A1DI_ACC_EXECUTE(uint64_t,
-                             pointer,
-                             trg_ptr,
-                             *((uint64_t *) scaling),
-                             block_sizes[0] / sizeof(uint64_t));
-            break;
-        case A1_FLOAT:
-            A1DI_ACC_EXECUTE(float,
-                    pointer,
-                    trg_ptr,
-                    *((float *) scaling),
-                    block_sizes[0]/sizeof(float));
-            break;
-        case A1_DOUBLE:
             A1DI_ACC_EXECUTE(double,
-                    pointer,
-                    trg_ptr,
-                    *((double *) scaling),
-                    block_sizes[0]/sizeof(double));
-            break;
-        default:
-            A1U_ERR_ABORT(A1_ERROR,
-                          "Invalid datatype received in Putacc operation \n");
-            break;
+                             pointer,
+                             trg_ptr,
+                             *((double *) scaling),
+                             block_sizes[0]/sizeof(double));
+        }
+        else
+        {
+            switch (a1_type)
+            {
+            case A1_INT32:
+                A1DI_ACC_EXECUTE(int32_t,
+                                 pointer,
+                                 trg_ptr,
+                                 *((int32_t *) scaling),
+                                 block_sizes[0] / sizeof(int32_t));
+                break;
+            case A1_INT64:
+                A1DI_ACC_EXECUTE(int64_t,
+                                 pointer,
+                                 trg_ptr,
+                                 *((int64_t *) scaling),
+                                 block_sizes[0] / sizeof(int64_t));
+                break;
+            case A1_UINT32:
+                A1DI_ACC_EXECUTE(uint32_t,
+                                 pointer,
+                                 trg_ptr,
+                                 *((uint32_t *) scaling),
+                                 block_sizes[0] / sizeof(uint32_t));
+                break;
+            case A1_UINT64:
+                A1DI_ACC_EXECUTE(uint64_t,
+                                 pointer,
+                                 trg_ptr,
+                                 *((uint64_t *) scaling),
+                                 block_sizes[0] / sizeof(uint64_t));
+                break;
+            case A1_FLOAT:
+                A1DI_ACC_EXECUTE(float,
+                        pointer,
+                        trg_ptr,
+                        *((float *) scaling),
+                        block_sizes[0]/sizeof(float));
+                break;
+            default:
+                A1U_ERR_ABORT(A1_ERROR,
+                              "Invalid datatype received in Putacc operation \n");
+                break;
+            }
         }
         pointer = (void *) ((size_t) pointer + block_sizes[0]);
     }
@@ -329,29 +333,33 @@ int A1DI_Pack_strided_putaccs(void **packet,
     memcpy(header.trg_stride_ar, trg_stride_ar, stride_level * sizeof(uint32_t));
     memcpy(header.block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
     header.datatype = a1_type;
-    switch (a1_type)
+    likely_if(a1_type == A1_DOUBLE) 
     {
-    case A1_INT32:
-        memcpy((void *) &(header.scaling), scaling, sizeof(int32_t));
-        break;
-    case A1_INT64:
-        memcpy((void *) &(header.scaling), scaling, sizeof(int64_t));
-        break;
-    case A1_UINT32:
-        memcpy((void *) &(header.scaling), scaling, sizeof(uint32_t));
-        break;
-    case A1_UINT64:
-        memcpy((void *) &(header.scaling), scaling, sizeof(uint64_t));
-        break;
-    case A1_FLOAT:
-        memcpy((void *) &(header.scaling), scaling, sizeof(float));
-        break;
-    case A1_DOUBLE:
         memcpy((void *) &(header.scaling), scaling, sizeof(double));
-        break;
-    default:
-        A1U_ERR_POP(result, "Invalid a1_type received in Putacc operation \n");
-        break;
+    }
+    else
+    {
+        switch (a1_type)
+        {
+        case A1_INT32:
+            memcpy((void *) &(header.scaling), scaling, sizeof(int32_t));
+            break;
+        case A1_INT64:
+            memcpy((void *) &(header.scaling), scaling, sizeof(int64_t));
+            break;
+        case A1_UINT32:
+            memcpy((void *) &(header.scaling), scaling, sizeof(uint32_t));
+            break;
+        case A1_UINT64:
+            memcpy((void *) &(header.scaling), scaling, sizeof(uint64_t));
+            break;
+        case A1_FLOAT:
+            memcpy((void *) &(header.scaling), scaling, sizeof(float));
+            break;
+        default:
+            A1U_ERR_POP(result, "Invalid a1_type received in Putacc operation \n");
+            break;
+        }
     }
     memcpy(*packet, &header, sizeof(A1D_Packed_putaccs_header_t));
 

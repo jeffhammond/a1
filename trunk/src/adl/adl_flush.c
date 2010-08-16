@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-void A1_Flush(int proc) 
+int A1_Flush(int proc) 
 {
     int status = A1_SUCCESS;
 
