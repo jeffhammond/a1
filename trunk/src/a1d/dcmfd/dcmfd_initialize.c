@@ -6,6 +6,8 @@
 
 #include "dcmfdimpl.h"
 
+volatile uint32_t global_lock=0;
+
 DCMF_Configure_t A1D_Messager_info;
 A1D_Process_info_t A1D_Process_info;
 

@@ -83,7 +83,7 @@
 
 #define A1DI_ACQUIRE_GLOBABL_LOCK() while(testandset(&global_lock));
 
-#define A1DI_RELEASE_GLOBABL_LOCK() while(release(&global_lock));
+#define A1DI_RELEASE_GLOBABL_LOCK() release(&global_lock);
 
 #define A1DI_CRITICAL_CALL(call)                                  \
     do {                                                          \
@@ -283,7 +283,7 @@ typedef struct
  *             Global variables                  *
  ************************************************/
 
-volatile uint32_t global_lock=0;
+extern volatile uint32_t global_lock;
 
 /* TODO: is extern rather than static the right declaration here? */
 extern pthread_t A1DI_CHT_pthread;

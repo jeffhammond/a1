@@ -88,7 +88,7 @@ DCMF_Result A1DI_Putacc_initialize()
 
     A1U_FUNC_ENTER();
 
-    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.protocol = DCMF_EAGER_SEND_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
     conf.cb_recv_short = A1DI_RecvSendShort_putacc_callback;
     conf.cb_recv_short_clientdata = NULL;
