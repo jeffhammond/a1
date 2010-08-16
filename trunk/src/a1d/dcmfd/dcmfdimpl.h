@@ -284,7 +284,7 @@ typedef struct
 typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
-    volatile int bunch;
+    DCMF_Request_t *request_list;
     volatile int done_active;
     volatile int ack_active;
     struct A1D_Request_t *next;
@@ -296,7 +296,7 @@ typedef struct
     A1D_Request_t *head;
     A1D_Request_t *current;
     A1D_Request_t *tail;
-    void** region_ptr;
+    A1D_Request_t** region_ptr;
     uint32_t region_count;
 } A1D_Request_pool_t;
 

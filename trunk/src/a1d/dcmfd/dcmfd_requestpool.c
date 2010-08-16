@@ -10,27 +10,26 @@ A1D_Request_pool_t A1D_Request_pool;
 
 void A1DI_Reset_request_pool()
 {
-    int i;
+    A1D_Request_t* a1_request; 
 
     A1U_FUNC_ENTER();
 
+    a1_request = A1D_Request_pool.head;
+    while(a1_request != NULL) 
+    {
+       a1_request->done_active = 0;
+       a1_request->ack_active = 0;
+       a1_reqeust->more_requests = NULL;
+    }   
+
     A1D_Request_pool.current = A1D_Request_pool.head;
 
-    A1DI_Memset(A1D_Request_pool.region_ptr[0], 
-                0,  
-                sizeof(A1D_Request_t) * a1_requestpool_info.initial_size);
-
-    for(i=1; i<A1D_Request_pool.region_count; i++) 
-    {
-        A1DI_Memset(A1D_Request_pool.region_ptr[0],
-                    0,
-                    sizeof(A1D_Request_t) * a1_requestpool_info.increment_size);        
-    }
-
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 A1D_Request_t* A1DI_Get_request()
@@ -70,11 +69,16 @@ void A1DI_Release_request(A1D_Request_t *a1_request)
 
     a1_request->done_active = 0;
     a1_request->ack_active = 0;
+    if(a1_request->more_requests != NULL) {
+        A1DI_Free(a1_request->more_requests);
+        a1_request->more_requests = NULL; 
+    }
 
     (a1_request->prev)->next = a1_request->next;
     (A1D_Request_pool.tail)->next = a1_request;
     a1_request->prev = A1D_Request_pool.tail;
     A1D_Request_pool.tail = a1_request;
+
 
     if (!A1D_Request_pool.current) 
           A1D_Request_pool.current = a1_request;
@@ -103,9 +107,12 @@ int A1DI_Request_pool_increment()
     a1_requestpool_info.total_size = a1_requestpool_info.total_size
             + a1_requestpool_info.increment_size;
 
-    A1DI_Memset(request,
-                0,
-                sizeof(A1D_Request_t) * a1_requestpool_info.increment_size);
+    for(i=0; i<a1_requestpool_info.initial_size; i++)
+    {
+       request[i].done_active = 0;
+       request[i].ack_active = 0;
+       request[i].more_requests = NULL;
+    }
 
     A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *) request;
     A1D_Request_pool.region_count++;
@@ -152,9 +159,12 @@ int A1DI_Request_pool_initialize()
                       in A1DI_Request_pool_initialize\n");
     a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
 
-    A1DI_Memset(request,
-                0,
-                sizeof(A1D_Request_t) * a1_requestpool_info.initial_size);
+    for(i=0; i<a1_requestpool_info.initial_size; i++)
+    {
+       request[i].done_active = 0;
+       request[i].ack_active = 0;
+       request[i].more_requests = NULL;
+    } 
 
     A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *) request;
     A1D_Request_pool.region_count++;

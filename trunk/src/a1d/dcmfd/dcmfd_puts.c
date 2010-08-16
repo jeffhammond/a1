@@ -148,10 +148,12 @@ int A1DI_Direct_puts(int target,
                      void* source_ptr,
                      int *src_stride_ar,
                      void* target_ptr,
-                     int *trg_stride_ar)
+                     int *trg_stride_ar,
+                     int *put_index,
+                     A1_Request_t* a1_request,
+                     DCMF_Callback_t* callback)
 {
     int result = A1_SUCCESS;
-    A1D_Request_t *a1_request;
     int i, size;
     size_t src_disp, dst_disp;
 
@@ -168,14 +170,14 @@ int A1DI_Direct_puts(int target,
                              (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
                              src_stride_ar,
                              (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
-                             trg_stride_ar);
+                             trg_stride_ar, 
+                             put_index,
+                             a1_request);
         }
 
     }
     else
     {
-
-        a1_request = A1DI_Get_request();
 
         src_disp = (size_t) source_ptr
                  - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
@@ -183,8 +185,8 @@ int A1DI_Direct_puts(int target,
                  - (size_t) A1D_Membase_global[target];
 
         result = DCMF_Put(&A1D_Generic_put_protocol,
-                          &(a1_request->request),
-                          A1D_Nocallback,
+                          &(a1_request->request_list[*put_index]),
+                          *callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
                           block_sizes[0],
@@ -194,6 +196,8 @@ int A1DI_Direct_puts(int target,
                           dst_disp,
                           A1D_Nocallback);
         A1U_ERR_POP(result, "DCMF_Put returned with an error \n");
+
+        *put_index = *put_index + 1;
 
         A1D_Connection_put_active[target]++;
 
@@ -216,13 +220,28 @@ int A1D_PutS(int target,
              int *trg_stride_ar)
 {
     DCMF_Result result = A1_SUCCESS;
+    DCMF_Callback_t callback;
+    A1D_Request_t *a1_request;
+    int i, put_count, put_index;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
+    a1_request = A1DI_Get_request();
+
     if (block_sizes[0] >= a1_settings.direct_noncontig_put_threshold)
     {
+
+        put_index=0;
+        put_count=1;   
+        for (i=1; i<=stride_level; i++) 
+        {
+            put_count *= block_sizes[i];  
+        }
+        A1DI_Malloc_aligned(&(a1_request->request_list), (put_count)*sizeof(DCMF_Request_t));
+
+        callback.function = 
 
         result = A1DI_Direct_puts(target,
                                   stride_level,
@@ -230,7 +249,10 @@ int A1D_PutS(int target,
                                   source_ptr,
                                   src_stride_ar,
                                   target_ptr,
-                                  trg_stride_ar);
+                                  trg_stride_ar,
+                                  &put_index,
+                                  a1_request,
+                                  callback);
         A1U_ERR_POP(result, "A1DI_Direct_puts returned with an error \n");
 
         if (a1_settings.enable_immediate_flush)
@@ -245,6 +267,8 @@ int A1D_PutS(int target,
     }
     else
     {
+
+        
 
         result = A1DI_Packed_puts(target,
                                   stride_level,
@@ -262,7 +286,8 @@ int A1D_PutS(int target,
 
     }
 
-  fn_exit: 
+  fn_exit:
+    A1DI_Release_request(); 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
