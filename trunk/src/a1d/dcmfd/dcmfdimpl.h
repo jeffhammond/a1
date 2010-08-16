@@ -300,6 +300,12 @@ typedef struct
     uint32_t region_count;
 } A1D_Request_pool_t;
 
+typedef struct A1D_Request_info_t
+{
+    DCMF_Request_t request;
+    volatile int active;
+} A1D_NBRequest_info_t;
+
 typedef struct
 {
     DCMF_Protocol_t protocol;
