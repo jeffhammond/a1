@@ -12,13 +12,7 @@
 #include <dcmf_collectives.h>
 #include <assert.h>
 #include <pthread.h>
-
-/*************************************************
-*           Likely and Unlikely Ifs              *
-*************************************************/
-
-#define likely_if(x) if(__builtin_expect(x,1))
-#define unlikely_if(x) if(__builtin_expect(x,0))
+#include <bpcore/bgp_atomic_ops.h>
 
 /*************************************************
  *                 Constants                     *
@@ -43,6 +37,23 @@
 #define A1C_REQUEST_POOL_LIMIT 500
 
 #define A1C_MAX_STRIDED_DIM 4
+
+/*************************************************
+*                  BGP Atomics                   *
+*************************************************/
+
+_BGP_Atomic global_atomic = _BGP_ATOMIC_INIT(0);
+
+#define A1DI_ATOMIC_ACQUIRE() while(!_bgp_test_and_set(&global_atomic, 1))
+
+#define A1DI_ATOMIC_RELEASE() do{ global_atomic.atom = 0; }while(0)
+
+/*************************************************
+*           Likely and Unlikely Ifs              *
+*************************************************/
+
+#define likely_if(x) if(__builtin_expect(x,1))
+#define unlikely_if(x) if(__builtin_expect(x,0))
 
 /*************************************************
  *          Generic  Macros                      *
@@ -100,6 +111,7 @@
       }                                                           \
     } while (0)                                                   \
 
+/*
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
@@ -108,13 +120,34 @@
         DCMF_CriticalSection_enter(0);                            \
       }                                                           \
     } while (0)                                                   \
+*/
 
+#define A1DI_CRITICAL_ENTER()                                     \
+    do {                                                          \
+      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
+            || !a1_settings.disable_cht)                          \
+      {                                                           \
+        A1DI_ATOMIC_ACQUIRE();                                    \
+      }                                                           \
+    } while (0)                                                   \
+
+/*
 #define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
             || !a1_settings.disable_cht)                          \
       {                                                           \
         DCMF_CriticalSection_exit(0);                             \
+      }                                                           \
+    } while (0)                                                   \
+*/
+
+#define A1DI_CRITICAL_EXIT()                                      \
+    do {                                                          \
+      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
+            || !a1_settings.disable_cht)                          \
+      {                                                           \
+        A1DI_ATOMIC_RELEASE();                                    \
       }                                                           \
     } while (0)                                                   \
 
@@ -282,6 +315,8 @@ typedef struct
 /*************************************************
  *             Global variables                  *
  ************************************************/
+
+extern _BGP_Atomic global_atomic;
 
 extern volatile uint32_t global_lock;
 
