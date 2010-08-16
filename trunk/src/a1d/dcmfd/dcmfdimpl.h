@@ -42,11 +42,11 @@
 *                  BGP Atomics                   *
 *************************************************/
 
-_BGP_Atomic global_atomic = _BGP_ATOMIC_INIT(0);
+extern _BGP_Atomic global_atomic;
 
-#define A1DI_ATOMIC_ACQUIRE() while(!_bgp_test_and_set(&global_atomic, 1))
+#define A1DI_GLOBAL_ATOMIC_ACQUIRE() while(!_bgp_test_and_set(&global_atomic, 1))
 
-#define A1DI_ATOMIC_RELEASE() do{ global_atomic.atom = 0; }while(0)
+#define A1DI_GLOBAL_ATOMIC_RELEASE() do{ global_atomic.atom = 0; }while(0)
 
 /*************************************************
 *           Likely and Unlikely Ifs              *
@@ -92,10 +92,6 @@ _BGP_Atomic global_atomic = _BGP_ATOMIC_INIT(0);
  *          Critical Section Macros              *
  *************************************************/
 
-#define A1DI_ACQUIRE_GLOBABL_LOCK() while(testandset(&global_lock));
-
-#define A1DI_RELEASE_GLOBABL_LOCK() release(&global_lock);
-
 #define A1DI_CRITICAL_CALL(call)                                  \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
@@ -111,7 +107,6 @@ _BGP_Atomic global_atomic = _BGP_ATOMIC_INIT(0);
       }                                                           \
     } while (0)                                                   \
 
-/*
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
@@ -120,14 +115,24 @@ _BGP_Atomic global_atomic = _BGP_ATOMIC_INIT(0);
         DCMF_CriticalSection_enter(0);                            \
       }                                                           \
     } while (0)                                                   \
-*/
 
+/*
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
             || !a1_settings.disable_cht)                          \
       {                                                           \
-        A1DI_ATOMIC_ACQUIRE();                                    \
+        A1DI_GLOBAL_ATOMIC_ACQUIRE();                             \
+      }                                                           \
+    } while (0)                                                   \
+*/
+
+#define A1DI_CRITICAL_EXIT()                                      \
+    do {                                                          \
+      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
+            || !a1_settings.disable_cht)                          \
+      {                                                           \
+        DCMF_CriticalSection_exit(0);                             \
       }                                                           \
     } while (0)                                                   \
 
@@ -137,19 +142,10 @@ _BGP_Atomic global_atomic = _BGP_ATOMIC_INIT(0);
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
             || !a1_settings.disable_cht)                          \
       {                                                           \
-        DCMF_CriticalSection_exit(0);                             \
+        A1DI_GLOBAL_ATOMIC_RELEASE();                             \
       }                                                           \
     } while (0)                                                   \
 */
-
-#define A1DI_CRITICAL_EXIT()                                      \
-    do {                                                          \
-      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || !a1_settings.disable_cht)                          \
-      {                                                           \
-        A1DI_ATOMIC_RELEASE();                                    \
-      }                                                           \
-    } while (0)                                                   \
 
 #define A1DI_CRITICAL_CYCLE()                                     \
     do {                                                          \
@@ -355,6 +351,10 @@ extern volatile A1_Requestpool_info_t a1_requestpool_info;
 /************************************************* 
  *             Function Prototypes               *
  ************************************************/
+
+void A1DI_Global_lock_acquire();
+
+void A1DI_Global_lock_release();
 
 void A1DI_Generic_done(void *, DCMF_Error_t *);
 
