@@ -77,10 +77,12 @@ DCMF_Result A1DI_Packed_puts_initialize()
                 "DCMF_Send_register returned with error %d \n",
                 result);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail:  
+    goto fn_exit;
 }
 
 int A1DI_Packed_puts(int target,
@@ -93,7 +95,7 @@ int A1DI_Packed_puts(int target,
 {
 
     DCMF_Result result = DCMF_SUCCESS;
-    DCMF_Request_t *request;
+    DCMF_Request_t request;
     DCMF_Callback_t callback;
     void *packet;
     int size_packet;
@@ -112,13 +114,12 @@ int A1DI_Packed_puts(int target,
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "A1DI_Pack_strided returned with an error\n");
 
-    request = A1DI_Get_request();
     callback.function = A1DI_Generic_done;
     callback.clientdata = (void *) &active;
     active = 1;
 
     result = DCMF_Send(&A1D_Packed_puts_protocol,
-                       request,
+                       &request,
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
@@ -130,12 +131,14 @@ int A1DI_Packed_puts(int target,
 
     A1D_Connection_send_active[target]++;
     A1DI_Conditional_advance(active > 0);
-    A1DI_Free(packet);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit:
+    A1DI_Free(packet); 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 
@@ -148,7 +151,7 @@ int A1DI_Direct_puts(int target,
                      int *trg_stride_ar)
 {
     int result = A1_SUCCESS;
-    DCMF_Request_t *request;
+    A1D_Request_t *a1_request;
     int i, size;
     size_t src_disp, dst_disp;
 
@@ -172,7 +175,7 @@ int A1DI_Direct_puts(int target,
     else
     {
 
-        request = A1DI_Get_request();
+        a1_request = A1DI_Get_request();
 
         src_disp = (size_t) source_ptr
                  - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
@@ -180,7 +183,7 @@ int A1DI_Direct_puts(int target,
                  - (size_t) A1D_Membase_global[target];
 
         result = DCMF_Put(&A1D_Generic_put_protocol,
-                          request,
+                          &(a1_request->request),
                           A1D_Nocallback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
@@ -196,10 +199,12 @@ int A1DI_Direct_puts(int target,
 
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_PutS(int target,
@@ -257,9 +262,11 @@ int A1D_PutS(int target,
 
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

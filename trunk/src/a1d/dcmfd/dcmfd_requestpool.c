@@ -33,7 +33,7 @@ void A1DI_Reset_request_pool()
     fn_fail: goto fn_exit;
 }
 
-DCMF_Request_t* A1DI_Get_request()
+A1D_Request_t* A1DI_Get_request()
 {
 
     int index;

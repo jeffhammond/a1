@@ -204,7 +204,7 @@ int A1DI_Packed_gets(int target,
 {
 
     DCMF_Result result = DCMF_SUCCESS;
-    DCMF_Request_t *request;
+    A1D_Request_t *a1_request;
     A1D_Packed_gets_header_t packet;
     volatile int active;
 
@@ -221,10 +221,10 @@ int A1DI_Packed_gets(int target,
             * sizeof(uint32_t));
     memcpy(packet.block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
 
-    request = A1DI_Get_request();
+    a1_request = A1DI_Get_request();
 
     result = DCMF_Send(&A1D_Packed_gets_protocol,
-                       request,
+                       &(a1_request->request),
                        A1D_Nocallback,
                        DCMF_RELAXED_CONSISTENCY,
                        target,
@@ -236,10 +236,12 @@ int A1DI_Packed_gets(int target,
 
     A1D_Connection_send_active[target]++;
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 
@@ -253,7 +255,7 @@ int A1DI_Direct_gets(int target,
                      volatile int *get_active)
 {
     int result = A1_SUCCESS;
-    DCMF_Request_t *request;
+    A1D_Request_t *a1_request;
     DCMF_Callback_t callback;
     int i, size;
     size_t src_disp, dst_disp;
@@ -279,7 +281,7 @@ int A1DI_Direct_gets(int target,
     else
     {
 
-        request = A1DI_Get_request();
+        a1_request = A1DI_Get_request();
 
         src_disp = (size_t) source_ptr
                  - (size_t) A1D_Membase_global[target];
@@ -291,7 +293,7 @@ int A1DI_Direct_gets(int target,
         callback.clientdata = (void *) get_active;
 
         result = DCMF_Get(&A1D_Generic_get_protocol,
-                          request,
+                          &(a1_request->request),
                           callback,
                           DCMF_RELAXED_CONSISTENCY,
                           target,
@@ -305,10 +307,12 @@ int A1DI_Direct_gets(int target,
         A1D_Connection_send_active[target]++;
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_GetS(int target,
@@ -363,9 +367,11 @@ int A1D_GetS(int target,
 
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

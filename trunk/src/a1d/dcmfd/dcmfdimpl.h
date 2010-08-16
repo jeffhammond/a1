@@ -367,7 +367,7 @@ DCMF_Result A1DI_Packed_puts_initialize();
 
 DCMF_Result A1DI_Get_initialize();
 
-DCMF_Request_t* A1DI_Get_request();
+A1D_Request_t* A1DI_Get_request();
 
 void A1DI_Release_request(A1D_Request_t *request);
 

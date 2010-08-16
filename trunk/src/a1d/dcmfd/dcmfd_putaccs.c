@@ -95,11 +95,11 @@ int A1DI_Packed_putaccs(int target,
 {
 
     DCMF_Result result = DCMF_SUCCESS;
-    DCMF_Request_t *request;
+    DCMF_Request_t request;
     DCMF_Callback_t callback;
     void *packet;
-    int size_packet;
     volatile int active;
+    int size_packet;
 
     A1U_FUNC_ENTER();
 
@@ -116,13 +116,12 @@ int A1DI_Packed_putaccs(int target,
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "Pack acc function returned with an error \n");
 
-    request = A1DI_Get_request();
     callback.function = A1DI_Generic_done;
     callback.clientdata = (void *) &active;
     active = 1;
 
     result = DCMF_Send(&A1D_Packed_putaccs_protocol,
-                       request,
+                       &request,
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
@@ -136,10 +135,12 @@ int A1DI_Packed_putaccs(int target,
     A1DI_Conditional_advance(active > 0);
     A1DI_Free(packet);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 
@@ -155,6 +156,8 @@ int A1DI_Direct_putaccs(int target,
 {
     int result = A1_SUCCESS;
     int i;
+    A1D_Request_t *a1_request;
+    A1D_Putacc_header_t header;
 
     A1U_FUNC_ENTER();
 
@@ -179,10 +182,7 @@ int A1DI_Direct_putaccs(int target,
     else
     {
 
-        DCMF_Request_t *request;
-        A1D_Putacc_header_t header;
-
-        request = A1DI_Get_request();
+        a1_request = A1DI_Get_request();
 
         header.target_ptr = target_ptr;
         header.datatype = a1_type;
@@ -218,7 +218,7 @@ int A1DI_Direct_putaccs(int target,
         }
 
         result = DCMF_Send(&A1D_Generic_putacc_protocol,
-                           request,
+                           &(a1_request->request),
                            A1D_Nocallback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,
@@ -232,10 +232,12 @@ int A1DI_Direct_putaccs(int target,
 
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_PutAccS(int target,

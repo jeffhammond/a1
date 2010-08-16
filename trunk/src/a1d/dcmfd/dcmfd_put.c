@@ -95,7 +95,7 @@ int A1D_NbPut(int target,
               void* src, 
               void* dst, 
               int bytes,
-              A1_handle_t *handle)
+              A1_handle_t* handle)
 {
     DCMF_Result result = DCMF_SUCCESS;
     A1D_Request_t *a1_request;
@@ -130,7 +130,7 @@ int A1D_NbPut(int target,
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
     result = DCMF_Put(&A1D_Generic_put_protocol,
-                      &request,
+                      &(a1_request->request),
                       done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,
