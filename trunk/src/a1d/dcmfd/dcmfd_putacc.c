@@ -251,3 +251,82 @@ int A1D_PutAcc(int target,
   fn_fail: 
     goto fn_exit;
 }
+
+int A1D_NbPutAcc(int target,
+                 void* source_ptr,
+                 void* target_ptr,
+                 int bytes,
+                 A1_datatype_t a1_type,
+                 void* scaling,
+                 A1_handle_t* handle)
+{
+    DCMF_Result result = A1_SUCCESS;
+    A1D_Request_t *a1_request;
+    DCMF_Callback_t callback;
+    A1D_Putacc_header_t header;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    a1_request = A1D_Get_request();
+    *handle = (A1_handle_t) a1_request;
+
+    callback.function = A1DI_Generic_done;
+    callback.clientdata = (void *) &(a1_request->done_active);
+    a1_request->done_active++;
+
+    header.target_ptr = target_ptr;
+    header.datatype = a1_type;
+
+    likely_if(a1_type == A1_DOUBLE) 
+    {
+       (header.scaling).double_value = *((double *) scaling);
+    } 
+    else
+    {
+       switch (a1_type)
+       {
+       case A1_INT32:
+           (header.scaling).int32_value = *((int32_t *) scaling);
+           break;
+       case A1_INT64:
+           (header.scaling).int64_value = *((int64_t *) scaling);
+           break;
+       case A1_UINT32:
+           (header.scaling).uint32_value = *((uint32_t *) scaling);
+           break;
+       case A1_UINT64:
+           (header.scaling).uint64_value = *((uint64_t *) scaling);
+           break;
+       case A1_FLOAT:
+           (header.scaling).float_value = *((float *) scaling);
+           break;
+       default:
+           result = A1_ERROR;
+           A1U_ERR_POP((result != A1_SUCCESS), "Invalid data type in putacc \n");
+           break;
+       }
+    }
+
+    result = DCMF_Send(&A1D_Generic_putacc_protocol,
+                       &(a1_request->request),
+                       callback,
+                       DCMF_SEQUENTIAL_CONSISTENCY,
+                       target,
+                       bytes,
+                       source_ptr,
+                       (DCQuad *) &header,
+                       (unsigned) 2);
+    A1U_ERR_POP((result != A1_SUCCESS), "Putacc returned with an error \n");
+
+    A1D_Connection_send_active[target]++;
+
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail: 
+    goto fn_exit;
+}

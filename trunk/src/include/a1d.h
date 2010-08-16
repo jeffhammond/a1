@@ -214,6 +214,30 @@ int A1D_PutAcc(int target,
                void* scaling);
 
 /**
+ * \brief Device level implementation of A1_NbPutAcc
+ * 
+ * Non-Blocking accumulate of contiguous data from local memory onto remote memory.
+ * 
+ * \param[out] rc            The error code.
+ * \param[in]  target        Rank of the remote process.
+ * \param[in]  source_ptr    Starting address in the (local) source memory.
+ * \param[in]  target_ptr    Starting address in the (remote) target memory.
+ * \param[in]  bytes         Amount of data to transfer, in bytes.
+ * \param[in]  a1_type       Amount of data to transfer, in bytes.
+ * \param[in]  scaling       Factor for scaling source
+ * \param[in]  handle        Opaque A1 handle
+ *
+ * \ingroup COPY OPERATIONS
+ */
+int A1D_NbPutAcc(int target,
+                 void* source_ptr,
+                 void* target_ptr,
+                 int bytes,
+                 A1_datatype_t a1_type,
+                 void* scaling,
+                 A1_handle_t* handle);
+
+/**
  * \brief Device level implementation of A1_PutAccS 
  *
  * Blocking accumulate of non-contiguous (strided) data from local memory to remote memory.

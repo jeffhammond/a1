@@ -284,6 +284,7 @@ typedef struct
 typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
+    volatile int bunch;
     volatile int done_active;
     volatile int ack_active;
     struct A1D_Request_t *next;

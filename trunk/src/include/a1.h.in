@@ -536,6 +536,31 @@ int A1_PutAcc(int target,
               void* scaling);
 
 /**
+ * \brief Non-Blocking accumulate of contiguous data from local memory onto remote memory.
+ * 
+ * \param[out] rc            The error code.
+ * \param[in]  target        Rank of the remote process.
+ * \param[in]  source_ptr    Starting address in the (local) source memory.
+ * \param[in]  target_ptr    Starting address in the (remote) target memory.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
+ * \param[in]  a1_type       Datatype of buffer and scaling factor.
+ * \param[in]  scaling       Factor for scaling source
+ * \param[in]  handle        Opaque A1 handle 
+ *
+ * \see A1_Put, A1_Copy, A1_CopyAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbPutAcc(int target,
+                void* source_ptr,
+                void* target_ptr,
+                int bytes,
+                A1_datatype_t a1_type,
+                void* scaling,
+                A1_handle_t* handle);
+
+/**
  * \brief Blocking accumulate of contiguous data from local memory to remote memory.
  *
  * \param[out] rc              The error code.
