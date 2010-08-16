@@ -72,3 +72,46 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
   fn_fail: 
     goto fn_exit;
 }
+
+
+int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* handle)
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    A1_Request_t* request;
+    DCMF_Callback_t callback;
+    unsigned src_disp, dst_disp;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    request = A1DI_Get_request(); 
+    *handle = (A1_handle_t) request;
+
+    callback.function = A1DI_Generic_done;
+    callback.clientdata = (void *) &(request->active);
+    request->active++;
+
+    src_disp = (size_t) src - (size_t) A1D_Membase_global[target];
+    dst_disp = (size_t) dst - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
+
+    result = DCMF_Get(&A1D_Generic_get_protocol,
+                      &request,
+                      callback,
+                      DCMF_RELAXED_CONSISTENCY,
+                      target,
+                      bytes,
+                      &A1D_Memregion_global[target],
+                      &A1D_Memregion_global[A1D_Process_info.my_rank],
+                      src_disp,
+                      dst_disp);
+    A1U_ERR_POP(result, "DCMF_Get returned with an error \n");
+
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail: 
+    goto fn_exit;
+}

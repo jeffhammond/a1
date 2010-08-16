@@ -158,10 +158,7 @@ extern _BGP_Atomic global_atomic;
 
 #define A1DI_Advance()                                            \
     do {                                                          \
-      if(a1_settings.disable_cht)                                 \
-      {                                                           \
         DCMF_Messager_advance(0);                                 \
-      }                                                           \
     } while (0)                                                   \
 
 #define A1DI_Conditional_advance(boolean)                         \
@@ -284,27 +281,23 @@ typedef struct
     A1D_Putacc_header_t header;
 } A1D_Putacc_recv_info_t;
 
-typedef struct A1D_Request_info_t
+typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
-    struct A1D_Request_info_t *next;
-    struct A1D_Request_info_t *prev;
-} A1D_Request_info_t;
+    volatile int done_active;
+    volatile int ack_active;
+    struct A1D_Request_t *next;
+    struct A1D_Request_t *prev;
+} A1D_Request_t;
 
 typedef struct
 {
-    A1D_Request_info_t *head;
-    A1D_Request_info_t *current;
-    A1D_Request_info_t *tail;
+    A1D_Request_t *head;
+    A1D_Request_t *current;
+    A1D_Request_t *tail;
     void** region_ptr;
     uint32_t region_count;
 } A1D_Request_pool_t;
-
-typedef struct A1D_Request_info_t
-{
-    DCMF_Request_t request;
-    volatile int active;
-} A1D_NBRequest_info_t;
 
 typedef struct
 {
@@ -376,6 +369,8 @@ DCMF_Result A1DI_Get_initialize();
 
 DCMF_Request_t* A1DI_Get_request();
 
+void A1DI_Release_request(A1D_Request_t *request);
+
 DCMF_Result A1DI_Packed_gets_initialize();
 
 DCMF_Result A1DI_Putacc_initialize();
@@ -389,8 +384,6 @@ DCMF_Result A1DI_Send_flush_initialize();
 DCMF_Result A1DI_Put_flush_initialize();
 
 DCMF_Result A1DI_Control_flushack_initialize();
-
-void A1DI_Free_request(A1D_Request_info_t *request);
 
 int A1DI_GlobalBarrier();
 
