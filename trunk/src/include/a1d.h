@@ -97,6 +97,22 @@ int A1D_Sync_group(A1_group_t* group);
 int A1D_Put(int target, void* src, void* dst, int bytes);
 
 /**
+ * \brief Device level implementation of A1_NbPut.
+ *
+ * Non-Blocking copy of contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  target        Rank of the remote process.
+ * \param[in]  source_ptr    Starting address in the (local) source memory.
+ * \param[in]  target_ptr    Starting address in the (remote) target memory.
+ * \param[in]  bytes         Amount of data to transfer, in bytes.
+ * \param[in]  handle        Opaque A1 handle for request
+ *
+ * \ingroup  COPY OPERATIONS
+ */
+int A1D_NbPut(int target, void* src, void* dst, int bytes, A1_handle_t* handle);
+
+/**
  * \brief Device level implementation of A1_PutS.
  *
  * Blocking copy of non-contiguous (strided) data from local memory to remote memory.
@@ -134,6 +150,22 @@ int A1D_PutS(int target,
  * \ingroup  COPY OPERATIONS
  */
 int A1D_Get(int target, void* src, void* dst, int bytes);
+
+/**
+ * \brief Device level implementation of A1_Get.
+ *
+ * Non-Blocking copy of contiguous data from remote memory to local memory.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  target        Rank of the remote process.
+ * \param[in]  source_ptr    Starting address in the (remote) source memory.
+ * \param[in]  target_ptr    Starting address in the (local) target memory.
+ * \param[in]  bytes         Amount of data to transfer, in bytes.
+ * \param[in]  handle        Opaque A1 handle for request
+ *
+ * \ingroup  COPY OPERATIONS
+ */
+int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* handle);
 
 /**
  * \brief Device level implementation of A1_PutS.

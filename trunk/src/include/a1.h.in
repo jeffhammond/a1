@@ -121,10 +121,8 @@ typedef int A1_bool_t;
  *
  */
 
-typedef struct
-{
-    volatile int active; /**< can use as aggregate handle by incrementing beyond 1 */
-} A1_handle_t;
+typedef void* A1_handle_t;
+
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -415,6 +413,27 @@ int A1_Put(int target,
            int bytes);
 
 /**
+ * \brief Non-Blocking copy of contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  target        Rank of the remote process.
+ * \param[in]  source_ptr    Starting address in the (local) source memory.
+ * \param[in]  target_ptr    Starting address in the (remote) target memory.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
+ * \param[out] handle        Opaque handle for the request
+ *
+ * \see A1_NbPutS, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbPut(int target,
+            void* source_ptr,
+            void* target_ptr,
+            int bytes,
+            A1_handle_t *handle);
+
+/**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
  *
  * \note A1_MultiPut can be used for single-target non-contiguous put as well,
@@ -552,12 +571,33 @@ int A1_PutAccS(int target,
  * \param[in]  target_ptr    Starting address in the (local) target memory.
  * \param[in]  bytes         Amount of data to transfer in bytes.
  *
- * \see A1_Put, A1_Copy
+ * \see A1_NbGet, A1_Put, A1_Copy
  *
  * \ingroup DATA_TRANSFER
  */
 
 int A1_Get(int target, void* source_ptr, void* target_ptr, int bytes);
+
+/**
+ * \brief Non-Blocking copy of contiguous data from remote memory to local memory.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  target        Rank of the remote process.
+ * \param[in]  source_ptr    Starting address in the (remote) source memory.
+ * \param[in]  target_ptr    Starting address in the (local) target memory.
+ * \param[in]  bytes         Amount of data to transfer in bytes.
+ * \param[out] handle        Opaque handle for the request
+ *
+ * \see A1_Get, A1_Put, A1_Copy
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbGet(int target, 
+             void* source_ptr, 
+             void* target_ptr, 
+             int bytes,
+             A1_handle_t* handle);
 
 /**
  * \brief Blocking copy of contiguous data from remote memory onto local memory.
@@ -829,7 +869,7 @@ int A1_Flush_group(A1_group_t* group);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Wait_handle(A1_handle_t* handle);
+int A1_Wait_handle(A1_handle_t handle);
 
 /**
  * \brief Blocks on completion of all elements in a vector of non-blocking handles.
@@ -842,7 +882,7 @@ int A1_Wait_handle(A1_handle_t* handle);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Wait_handle_list(int count, A1_handle_t* *handles);
+int A1_Wait_handle_list(int count, A1_handle_t* handles);
 
 /**
  * \brief Blocks on completion of a non-blocking handle.
@@ -855,7 +895,7 @@ int A1_Wait_handle_list(int count, A1_handle_t* *handles);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Test_handle(A1_handle_t* handle, A1_bool_t* completed);
+int A1_Test_handle(A1_handle_t handle, A1_bool_t* completed);
 
 /**
  * \brief Blocks on completion of all elements in a vector of non-blocking handles.
@@ -870,7 +910,7 @@ int A1_Test_handle(A1_handle_t* handle, A1_bool_t* completed);
  */
 
 int A1_Test_handle_list(int count,
-                        A1_handle_t* *handles,
+                        A1_handle_t* handles,
                         A1_bool_t* *completed);
 
 /**
