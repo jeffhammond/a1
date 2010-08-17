@@ -274,8 +274,8 @@ int A1D_NbPutAcc(int target,
     {
       a1d_handle = A1DI_Get_handle();
       A1DI_Load_request(a1d_handle);
+      A1DI_Set_user_handle(a1d_handle, a1_handle);
       *a1_handle = (A1_handle_t) a1d_handle;
-      a1d_handle->a1_handle_ptr = a1_handle;
     }
     else
     {
@@ -284,8 +284,8 @@ int A1D_NbPutAcc(int target,
     }
 
     callback.function = A1DI_Handle_done;
-    callback.clientdata = (void *) a1d_handle->done_active;
-    a1d_handle->done_active++;
+    callback.clientdata = (void *) a1d_handle;
+    a1d_handle->active++;
 
     header.target_ptr = target_ptr;
     header.datatype = a1_type;
@@ -321,7 +321,7 @@ int A1D_NbPutAcc(int target,
     }
 
     result = DCMF_Send(&A1D_Generic_putacc_protocol,
-                       &(a1_handle->request_head->request),
+                       &(a1_handle->request_list->request),
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,

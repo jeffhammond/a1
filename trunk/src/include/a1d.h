@@ -137,6 +137,32 @@ int A1D_PutS(int target,
              int trg_stride_ar[]);
 
 /**
+ * \brief Device level implementation of A1_NbPutS.
+ * 
+ * Non-Blocking copy of non-contiguous (strided) data from local memory to remote memory.
+ * 
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  stride_level   The number of levels of stride.
+ * \param[in]  block_sizes     Block size in each dimension, in bytes.
+ * \param[in]  source_ptr      Starting address in the (local) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+ * \param[in]  target_ptr      Starting address in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
+ * \param[in]  handle        Opaque A1 handle for request
+ *
+ * \ingroup COPY OPERATIONS
+ */
+int A1D_NbPutS(int target,
+               int stride_level,
+               int block_sizes[],
+               void* source_ptr,
+               int src_stride_ar[],
+               void* target_ptr,
+               int trg_stride_ar[],
+               A1_handle_t *handle);
+
+/**
  * \brief Device level implementation of A1_Get.
  *
  * Blocking copy of contiguous data from remote memory to local memory.
@@ -168,7 +194,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes);
 int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* handle);
 
 /**
- * \brief Device level implementation of A1_PutS.
+ * \brief Device level implementation of A1_GetS.
  *
  * Blocking copy of non-contiguous (strided) data from remote memory to local memory.
  *
@@ -190,6 +216,32 @@ int A1D_GetS(int target,
              int src_stride_ar[],
              void* target_ptr,
              int trg_stride_ar[]);
+
+/**
+ * \brief Device level implementation of A1_NbGetS.
+ *
+ * Non-Blocking copy of non-contiguous (strided) data from remote memory to local memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  stride_level    The number of levels of stride.
+ * \param[in]  block_sizes     Block size in each dimension, in bytes.
+ * \param[in]  source_ptr      Starting address in the (remote) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+ * \param[in]  target_ptr      Starting address in the (local) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
+ * \param[in]  handle          Opaque A1 handle for request
+ *
+ * \ingroup COPY OPERATIONS
+ */
+int A1D_GetS(int target,
+             int stride_level,
+             int block_sizes[],
+             void* source_ptr,
+             int src_stride_ar[],
+             void* target_ptr,
+             int trg_stride_ar[],
+             A1_handle_t *handle);
 
 /**
  * \brief Device level implementation of A1_PutAcc
@@ -264,6 +316,36 @@ int A1D_PutAccS(int target,
                 int *trg_stride_ar,
                 A1_datatype_t a1_type,
                 void* scaling);
+
+/**
+ * \brief Device level implementation of A1_NbPutAccS
+ *
+ * Non-Blocking accumulate of non-contiguous (strided) data from local memory to remote memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  stride_level   The number of levels of stride.
+ * \param[in]  block_sizes     Block size in each dimension, in bytes.
+ * \param[in]  source_ptr      Starting address in the (local) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source, in bytes.
+ * \param[in]  target_ptr      Starting address in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target, in bytes.
+ * \param[in]  a1_type         Amount of data to transfer, in bytes.
+ * \param[in]  scaling         Factor for scaling source
+ * \param[in]  handle          Opaque A1 handle
+ *
+ * \ingroup COPY OPERATIONS
+ */
+int A1D_NbPutAccS(int target,
+                int stride_level,
+                int block_sizes[],
+                void* source_ptr,
+                int *src_stride_ar,
+                void* target_ptr,
+                int *trg_stride_ar,
+                A1_datatype_t a1_type,
+                void* scaling,
+                A1_Handle_t *handle);
 
 /**
  * \brief Device level implementation of A1_Flush 

@@ -288,7 +288,7 @@ typedef struct
 typedef struct A1D_Handle_t
 {
     A1D_Request_t *request_list;
-    volatile int done_active;
+    volatile int active;
     uintptr_t user_handle_ptr;
     struct A1D_Handle_t *next;
 } A1D_Handle_t;

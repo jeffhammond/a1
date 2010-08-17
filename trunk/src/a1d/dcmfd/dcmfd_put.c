@@ -112,8 +112,8 @@ int A1D_NbPut(int target,
     {
       a1d_handle = A1DI_Get_handle();
       A1DI_Load_request(a1d_handle);
+      A1DI_Set_user_handle(a1d_handle, a1_handle);
       *a1_handle = (A1_handle_t) a1d_handle;
-      a1d_handle->a1_handle_ptr = a1_handle;
     }
     else 
     {
@@ -123,7 +123,7 @@ int A1D_NbPut(int target,
 
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;
-    a1d_handle->done_active++;
+    a1d_handle->active++;
     ack_callback = A1D_Nocallback;
     A1D_Connection_put_active[target]++;
 
@@ -131,7 +131,7 @@ int A1D_NbPut(int target,
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
     result = DCMF_Put(&A1D_Generic_put_protocol,
-                      &(a1d_handle->request_head->request),
+                      &(a1d_handle->request_list->request),
                       done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,

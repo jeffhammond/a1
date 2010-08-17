@@ -91,8 +91,8 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* a1_handl
     {
       a1d_handle = A1DI_Get_handle();
       A1DI_Load_request(a1d_handle);
+      A1DI_Set_user_handle(a1d_handle, a1_handle);
       *a1_handle = (A1_handle_t) a1d_handle;
-      a1d_handle->a1_handle_ptr = a1_handle;
     }
     else
     {
@@ -102,13 +102,13 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* a1_handl
 
     callback.function = A1DI_Handle_done;
     callback.clientdata = (void *) a1d_handle;
-    a1d_handle->done_active++;
+    a1d_handle->active++;
 
     src_disp = (size_t) src - (size_t) A1D_Membase_global[target];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
     result = DCMF_Get(&A1D_Generic_get_protocol,
-                      &(a1d_handle->request_head->request),
+                      &(a1d_handle->request_list->request),
                       callback,
                       DCMF_RELAXED_CONSISTENCY,
                       target,

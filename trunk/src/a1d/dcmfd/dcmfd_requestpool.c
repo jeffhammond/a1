@@ -62,9 +62,19 @@ void A1DI_Release_request_list(A1D_Request_t *a1d_request_list)
 
     tail_request = a1d_request_list;
     while(tail_request->next != NULL) 
+    { 
+        if(tail_request->buffer_ptr != NULL)
+        {
+            A1DI_Free(tail_request->buffer_ptr);
+        }
         tail_request = temp_request->next;
+    }
+    if(tail_request->buffer_ptr != NULL)
+    {
+        A1DI_Free(tail_request->buffer_ptr);
+    }
+    
     tail_request->next = A1D_Request_pool.head;
-
     A1D_Request_pool.head = a1d_request_list;   
 
   fn_exit:

@@ -91,14 +91,13 @@ int A1DI_Packed_putaccs(int target,
                         void* target_ptr,
                         int *trg_stride_ar,
                         A1_datatype_t a1_type,
-                        void *scaling)
+                        void *scaling,
+                        A1D_Handle_t *a1d_handle)
 {
 
     DCMF_Result result = DCMF_SUCCESS;
-    DCMF_Request_t request;
-    DCMF_Callback_t callback;
+    DCMF_Callback_t done_callback;
     void *packet;
-    volatile int active;
     int size_packet;
 
     A1U_FUNC_ENTER();
@@ -116,13 +115,17 @@ int A1DI_Packed_putaccs(int target,
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "Pack acc function returned with an error \n");
 
-    callback.function = A1DI_Generic_done;
-    callback.clientdata = (void *) &active;
-    active = 1;
+    A1DI_Load_request(a1d_handle);
+    done_callback.function = A1DI_Handle_done;
+    done_callback.clientdata = (void *) a1d_handle;
+    a1d_handle->active++;
+    /* Assigning the packing buffer pointer in request so that it can be free when the
+     * request is complete, in the callback */
+    a1d_handle->request_head->request->buffer_ptr = packet;
 
     result = DCMF_Send(&A1D_Packed_putaccs_protocol,
-                       &request,
-                       callback,
+                       &(a1d_handle->request_list->request),
+                       done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
                        size_packet,
@@ -132,8 +135,6 @@ int A1DI_Packed_putaccs(int target,
     A1U_ERR_POP(result, "Send returned with an error \n");
 
     A1D_Connection_send_active[target]++;
-    A1DI_Conditional_advance(active > 0);
-    A1DI_Free(packet);
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -152,12 +153,12 @@ int A1DI_Direct_putaccs(int target,
                         void* target_ptr,
                         int *trg_stride_ar,
                         A1_datatype_t a1_type,
-                        void *scaling)
+                        void *scaling,
+                        A1D_Handle_t *a1d_handle)
 {
-    int result = A1_SUCCESS;
-    int i;
-    A1D_Request_t *a1_request;
+    int i, result = A1_SUCCESS;
     A1D_Putacc_header_t header;
+    DCMF_Callback_t done_callback;
 
     A1U_FUNC_ENTER();
 
@@ -174,7 +175,8 @@ int A1DI_Direct_putaccs(int target,
                                 (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
                                 trg_stride_ar,
                                 a1_type,
-                                scaling);
+                                scaling, 
+                                a1d_handle);
 
         }
 
@@ -182,7 +184,10 @@ int A1DI_Direct_putaccs(int target,
     else
     {
 
-        a1_request = A1DI_Get_request();
+        A1DI_Load_request(a1d_handle);
+        done_callback.function = A1DI_Handle_done;
+        done_callback.clientdata = (void *) a1d_handle;
+        a1d_handle->active++;
 
         header.target_ptr = target_ptr;
         header.datatype = a1_type;
@@ -218,8 +223,8 @@ int A1DI_Direct_putaccs(int target,
         }
 
         result = DCMF_Send(&A1D_Generic_putacc_protocol,
-                           &(a1_request->request),
-                           A1D_Nocallback,
+                           &(a1d_handle->request_ptr->request),
+                           done_callback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,
                            block_sizes[0],
@@ -251,10 +256,13 @@ int A1D_PutAccS(int target,
                 void* scaling)
 {
     DCMF_Result result = DCMF_SUCCESS;
+    A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
+
+    a1d_handle = A1DI_Get_handle();
 
     if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
     {
@@ -267,17 +275,9 @@ int A1D_PutAccS(int target,
                                      target_ptr,
                                      trg_stride_ar,
                                      a1_type,
-                                     scaling);
+                                     scaling,
+                                     a1d_handle);
         A1U_ERR_POP(result, "Direct putaccs function returned with an error \n");
-
-        if (a1_settings.enable_immediate_flush)
-        {
-            A1DI_Send_flush(target);
-        }
-        else
-        {
-            A1DI_Send_flush_local(target);
-        }
 
     }
     else
@@ -291,19 +291,95 @@ int A1D_PutAccS(int target,
                                      target_ptr,
                                      trg_stride_ar,
                                      a1_type,
-                                     scaling);
+                                     scaling,
+                                     a1d_handle);
         A1U_ERR_POP(result, "Packed puts function returned with an error \n");
-
-        if (a1_settings.enable_immediate_flush)
-        {
-            A1DI_Send_flush(target);
-        }
 
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+    A1DI_Conditional_advance(a1d_handle->active > 0);
+
+  fn_exit:
+    A1DI_Release_handle(a1d_handle); 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
+}
+
+int A1D_NbPutAccS(int target,
+                int stride_level,
+                int *block_sizes,
+                void* source_ptr,
+                int *src_stride_ar,
+                void* target_ptr,
+                int *trg_stride_ar,
+                A1_datatype_t a1_type,
+                void* scaling,
+                A1_handle_t *a1_handle)
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    A1D_Handle_t *a1d_handle;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    /* Initializing handle. the handle must have been initialized using *
+     * A1_Init_handle */
+    if(a1_handle == NULL)
+    {
+      a1d_handle = A1DI_Get_handle();
+      A1DI_Load_request(a1d_handle);
+      A1DI_Set_user_handle(a1d_handle, a1_handle);
+      *a1_handle = (A1_handle_t) a1d_handle;
+    }
+    else
+    {
+      a1d_handle = (A1D_handle_t) a1_handle;
+      A1DI_Load_request(a1d_handle);
+    }
+
+    if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
+    {
+
+        result = A1DI_Direct_putaccs(target,
+                                     stride_level,
+                                     block_sizes,
+                                     source_ptr,
+                                     src_stride_ar,
+                                     target_ptr,
+                                     trg_stride_ar,
+                                     a1_type,
+                                     scaling,
+                                     a1d_handle);
+        A1U_ERR_POP(result, "Direct putaccs function returned with an error \n");
+
+    }
+    else
+    {
+
+        result = A1DI_Packed_putaccs(target,
+                                     stride_level,
+                                     block_sizes,
+                                     source_ptr,
+                                     src_stride_ar,
+                                     target_ptr,
+                                     trg_stride_ar,
+                                     a1_type,
+                                     scaling,
+                                     a1d_handle);
+        A1U_ERR_POP(result, "Packed puts function returned with an error \n");
+
+    }
+
+  fn_exit:
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail: 
+    goto fn_exit;
 }

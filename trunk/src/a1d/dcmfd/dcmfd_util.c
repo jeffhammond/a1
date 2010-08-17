@@ -22,9 +22,9 @@ void A1DI_Handle_done(void *clientdata, DCMF_Error_t *error)
 {
     A1D_Handle_t *a1d_handle = (A1D_Handle_t *) clientdata;
 
-    --(a1d_handle->done_active);
+    --(a1d_handle->active);
 
-    if(a1d_handle->done_active == 0) 
+    if(a1d_handle->active == 0) 
     {
        A1DI_Release_handle(a1d_handle);    
     }

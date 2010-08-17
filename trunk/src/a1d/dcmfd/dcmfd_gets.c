@@ -204,11 +204,14 @@ int A1DI_Packed_gets(int target,
                      A1D_Handle_t *a1d_handle)
 {
 
-    DCMF_Result result = DCMF_SUCCESS;
+    int result = A1_SUCCESS;
     DCMF_Callback_t done_callback;
-    A1D_Packed_gets_header_t packet;
+    A1D_Packed_gets_header_t *packet;
 
     A1U_FUNC_ENTER();
+
+    result = A1DI_Malloc_aligned(&packet, sizeof(A1D_Handle_t));
+    A1U_ERR_POP(result,"Malloc failed in A1DI_Packed_gets \n");
 
     /*Copying header information*/
     packet.target = A1D_Process_info.my_rank;
@@ -225,10 +228,13 @@ int A1DI_Packed_gets(int target,
 
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;
-    a1d_handle->done_count++;
+    a1d_handle->active++;
+    /* Assigning the packing buffer pointer in request so that it can be free when the
+     * request is complete, in the callback */
+    a1d_handle->request_head->request->buffer_ptr = packet;
 
     result = DCMF_Send(&A1D_Packed_gets_protocol,
-                       &(a1_handle->request_head->request),
+                       &(a1_handle->request_list->request),
                        done_callback,
                        DCMF_RELAXED_CONSISTENCY,
                        target,
@@ -276,7 +282,7 @@ int A1DI_Direct_gets(int target,
                              src_stride_ar,
                              (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
                              trg_stride_ar,
-                             get_active);
+                             a1d_handle);
         }
 
     }
@@ -292,7 +298,7 @@ int A1DI_Direct_gets(int target,
 
         done_callback.function = A1DI_Handle_done;
         done_callback.clientdata = (void *) a1d_handle;
-        a1d_handle->done_count++;
+        a1d_handle->acitve++;
 
         result = DCMF_Get(&A1D_Generic_get_protocol,
                           &(a1d_handle->request_head->request),
@@ -344,11 +350,10 @@ int A1D_GetS(int target,
                                   src_stride_ar,
                                   target_ptr,
                                   trg_stride_ar,
-                                  &get_active,
                                   a1d_handle);
         A1U_ERR_POP(result, "A1DI_Direct_gets returned with an error \n");
 
-        A1DI_Conditional_advance(get_active > 0);
+        A1DI_Conditional_advance(a1d_handle->active > 0);
 
     }
     else
@@ -365,7 +370,79 @@ int A1D_GetS(int target,
                                   trg_stride_ar);
         A1U_ERR_POP(result, "A1DI_Packed_gets returned with an error \n");
 
-        A1DI_Conditional_advance(A1D_Expecting_getresponse > 0);
+        A1DI_Conditional_advance(a1d_handle->active > 0 || A1D_Expecting_getresponse > 0);
+        A1D_Connection_send_active[target]--;
+
+    }
+
+  fn_exit:
+    A1DI_Release_handle(a1d_handle); 
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail: 
+    goto fn_exit;
+}
+
+int A1D_NbGetS(int target,
+             int stride_level,
+             int *block_sizes,
+             void* source_ptr,
+             int *src_stride_ar,
+             void* target_ptr,
+             int *trg_stride_ar
+             A1_handle_t *handle)
+{
+    DCMF_Result result = DCMF_SUCCESS;
+    A1D_Handle_t *a1d_handle;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    /* Initializing handle. the handle must have been initialized using *
+     * A1_Init_handle */
+    if(a1_handle == NULL)
+    {
+      a1d_handle = A1DI_Get_handle();
+      A1DI_Load_request(a1d_handle);
+      A1DI_Set_user_handle(a1d_handle, a1_handle);
+      *a1_handle = (A1_handle_t) a1d_handle;
+    }
+    else
+    {
+      a1d_handle = (A1D_handle_t) a1_handle;
+      A1DI_Load_request(a1d_handle);
+    }
+
+    if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
+    {
+
+        result = A1DI_Direct_gets(target,
+                                  stride_level,
+                                  block_sizes,
+                                  source_ptr,
+                                  src_stride_ar,
+                                  target_ptr,
+                                  trg_stride_ar,
+                                  a1d_handle);
+        A1U_ERR_POP(result, "A1DI_Direct_gets returned with an error \n");
+
+    }
+    else
+    {
+
+        A1D_Expecting_getresponse = 1;
+
+        result = A1DI_Packed_gets(target,
+                                  stride_level,
+                                  block_sizes,
+                                  source_ptr,
+                                  src_stride_ar,
+                                  target_ptr,
+                                  trg_stride_ar);
+        A1U_ERR_POP(result, "A1DI_Packed_gets returned with an error \n");
 
     }
 

@@ -121,7 +121,7 @@ typedef int A1_bool_t;
  *
  */
 
-typedef void* A1_handle_t;
+typedef uintptr_t A1_handle_t;
 
 
 /* ********************************************************************* */
@@ -484,6 +484,33 @@ int A1_PutS(int target,
             int *trg_stride_ar);
 
 /**
+ * \brief Non-Blocking copy of contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  count           Block size in each dimension in bytes.
+ * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  source_ptr      Starting address in the (local) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source in bytes.
+ * \param[in]  target_ptr      Starting address in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target in bytes.
+ * \param[out] handle        Opaque A1 handle
+ *
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbPutS(int target,
+            int stride_levels,
+            int *block_sizes,
+            void* source_ptr,
+            int *src_stride_ar,
+            void* target_ptr,
+            int *trg_stride_ar,
+            A1_handle_t *handle);
+
+/**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
  *
  * \note This call must be use the same stride-level across all targets.
@@ -545,7 +572,7 @@ int A1_PutAcc(int target,
  * \param[in]  bytes         Amount of data to transfer in bytes.
  * \param[in]  a1_type       Datatype of buffer and scaling factor.
  * \param[in]  scaling       Factor for scaling source
- * \param[in]  handle        Opaque A1 handle 
+ * \param[out] handle        Opaque A1 handle 
  *
  * \see A1_Put, A1_Copy, A1_CopyAcc
  *
@@ -553,12 +580,12 @@ int A1_PutAcc(int target,
  */
 
 int A1_NbPutAcc(int target,
-                void* source_ptr,
-                void* target_ptr,
-                int bytes,
-                A1_datatype_t a1_type,
-                void* scaling,
-                A1_handle_t* handle);
+              void* source_ptr,
+              void* target_ptr,
+              int bytes,
+              A1_datatype_t a1_type,
+              void* scaling,
+              A1_handle_t *handle);
 
 /**
  * \brief Blocking accumulate of contiguous data from local memory to remote memory.
@@ -586,6 +613,35 @@ int A1_PutAccS(int target,
                int *trg_stride_ar,
                A1_datatype_t a1_type,
                void* scaling);
+
+/**
+ * \brief Non-Blocking accumulate of contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  stride_levels   The number of levels of stride.
+ * \param[in]  block_sizes     Block size in each dimension in bytes.
+ * \param[in]  source_ptr      Starting address in the (local) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at source in bytes.
+ * \param[in]  target_ptr      Starting address in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at target in bytes.
+ * \param[out] handle          Opaque A1 handle
+ *
+ * \see A1_Put, A1_PutS, A1_PutAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbPutAccS(int target,
+               int stride_levels,
+               int *block_sizes,
+               void* source_ptr,
+               int *src_stride_ar,
+               void* target_ptr,
+               int *trg_stride_ar,
+               A1_datatype_t a1_type,
+               void* scaling,
+               A1_handle_t *handle);
 
 /**
  * \brief Blocking copy of contiguous data from remote memory to local memory.
@@ -669,6 +725,33 @@ int A1_GetS(int target,
             int *src_stride_ar,
             void* target_ptr,
             int *trg_stride_ar);
+
+/**
+ * \brief Non-Blocking copy of strided data from remote memory to local memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  source_ptr      Starting address in the (remote) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at (remote process) source in bytes.
+ * \param[in]  target_ptr      Starting address in the (local) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at (local process) target in bytes.
+ * \param[in]  count           Block size in each dimension in bytes.
+ * \param[in]  stride_levels   The number of levels of stride.
+ * \param[out] handle          Opaque A1 handle
+ *
+ * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbGetS(int target,
+            int stride_levels,
+            int *block_sizes,
+            void* source_ptr,
+            int *src_stride_ar,
+            void* target_ptr,
+            int *trg_stride_ar,
+            A1_handle_t *handle);
 
 /**
  * \brief Blocking copy of stided data from remote memory to local memory.
