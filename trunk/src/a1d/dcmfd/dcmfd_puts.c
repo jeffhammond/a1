@@ -93,11 +93,11 @@ int A1DI_Packed_puts(void** packet,
                      int *src_stride_ar,
                      void* target_ptr,
                      int *trg_stride_ar,
-                     A1D_Request_t *a1_request,
-                     DCMF_Callback_t callback)
+                     A1D_handle_t *a1d_handle)
 {
 
     DCMF_Result result = DCMF_SUCCESS;
+    DCMF_Callback_t done_callback;
     int size_packet;
 
     A1U_FUNC_ENTER();
@@ -113,9 +113,14 @@ int A1DI_Packed_puts(void** packet,
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "A1DI_Pack_strided returned with an error\n");
 
+    A1DI_Load_request(a1d_handle);
+    done_callback.function = A1DI_Handle_done;
+    done_callback.clientdata = (void *) a1d_handle;
+    a1d_handle->done_count++;
+
     result = DCMF_Send(&A1D_Packed_puts_protocol,
-                       &(a1_request->request),
-                       callback,
+                       &(a1d_handle->request_head->request),
+                       done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
                        size_packet,
@@ -141,14 +146,11 @@ int A1DI_Direct_puts(int target,
                      int *src_stride_ar,
                      void *target_ptr,
                      int *trg_stride_ar,
-                     int *put_index,
-                     A1_Request_t* a1_request,
-                     DCMF_Callback_t done_callback,
-                     DCMF_Callback_t ack_callback)
+                     A1D_Handle_t *a1d_handle)
 {
-    int result = A1_SUCCESS;
-    int i, size;
+    int i, result = A1_SUCCESS;
     size_t src_disp, dst_disp;
+    DCMF_Callback_t done_callback;
 
     A1U_FUNC_ENTER();
 
@@ -164,8 +166,8 @@ int A1DI_Direct_puts(int target,
                              src_stride_ar,
                              (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
                              trg_stride_ar, 
-                             put_index,
-                             a1_request);
+                             put_index, 
+                             a1d_handle);
         }
 
     }
@@ -177,8 +179,14 @@ int A1DI_Direct_puts(int target,
         dst_disp = (size_t) target_ptr
                  - (size_t) A1D_Membase_global[target];
 
+        A1DI_Load_request(a1d_handle);
+
+        done_callback.function = A1DI_Handle_done;
+        done_callback.clientdata = (void *) a1d_handle;
+        a1d_handle->done_count++;
+
         result = DCMF_Put(&A1D_Generic_put_protocol,
-                          &(a1_request->request_list[*put_index]),
+                          &(a1d_handle->request_head->request),
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
@@ -187,7 +195,7 @@ int A1DI_Direct_puts(int target,
                           &A1D_Memregion_global[target],
                           src_disp,
                           dst_disp,
-                          ack_callback);
+                          A1D_Nocallback);
         A1U_ERR_POP(result, "DCMF_Put returned with an error \n");
 
         *put_index = *put_index + 1;
@@ -213,29 +221,16 @@ int A1D_PutS(int target,
              int *trg_stride_ar)
 {
     DCMF_Result result = A1_SUCCESS;
-    DCMF_Callback_t done_callback, ack_callback;
-    A1D_Request_t *a1_request;
-    int i, put_count, put_index;
+    A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
-    a1_request = A1DI_Get_request();
+    a1d_handle = A1DI_Get_handle();
 
     if (block_sizes[0] >= a1_settings.direct_noncontig_put_threshold)
     {
-
-        put_index=0;
-        put_count=1;   
-        for (i=1; i<=stride_level; i++) 
-        {
-            put_count *= block_sizes[i];  
-        }
-        A1DI_Malloc_aligned(&(a1_request->request_list), (put_count)*sizeof(DCMF_Request_t));
-        
-        done_callback = A1D_Nocallback;
-        ack_callback = A1D_Nocallback;
 
         result = A1DI_Direct_puts(target,
                                   stride_level,
@@ -245,28 +240,14 @@ int A1D_PutS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   &put_index,
-                                  a1_request,
-                                  done_callback,
-                                  ack_callback);
+                                  a1d_handle); 
         A1U_ERR_POP(result, "A1DI_Direct_puts returned with an error \n");
 
-        if (a1_settings.enable_immediate_flush)
-        {
-            A1DI_Put_flush(target);
-        }
-        else
-        {
-            A1DI_Put_flush_local(target);
-        }
+        A1DI_Conditional_advance(a1d_handle->done_count > 0);
 
     }
     else
     {
-
-        done_callback.function = A1DI_Generic_done;
-        done_callback.clientdata = &(a1_request->send_done);
-        a1_
-        
 
         result = A1DI_Packed_puts(target,
                                   stride_level,
@@ -275,19 +256,15 @@ int A1D_PutS(int target,
                                   src_stride_ar,
                                   target_ptr,
                                   trg_stride_ar,
-                                  a1_request,
-                                  callback);
+                                  a1d_handle)
         A1U_ERR_POP(result, "A1DI_Packed_puts returned with an error \n");
 
-        if (a1_settings.enable_immediate_flush)
-        {
-            A1DI_Send_flush(target);
-        }
+        A1DI_Conditional_advance(a1d_handle->done_count > 0);
 
     }
 
   fn_exit:
-    A1DI_Release_request(); 
+    A1DI_Release_handle(a1d_handle); 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;

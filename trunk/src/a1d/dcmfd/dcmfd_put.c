@@ -131,7 +131,7 @@ int A1D_NbPut(int target,
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
     result = DCMF_Put(&A1D_Generic_put_protocol,
-                      &(a1d_handle->request_head),
+                      &(a1d_handle->request_head->request),
                       done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,

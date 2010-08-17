@@ -24,7 +24,7 @@ void A1DI_Reset_request_pool()
 
 A1D_Request_t* A1DI_Get_request()
 {
-    A1D_Request_t *a1_request = NULL;
+    A1D_Request_t *a1d_request = NULL;
 
     A1U_FUNC_ENTER();
 
@@ -39,12 +39,12 @@ A1D_Request_t* A1DI_Get_request()
             A1DI_Flush_all();
         }
     }
-    a1_request = A1D_Request_pool.current;
+    a1d_request = A1D_Request_pool.current;
     A1D_Request_pool.current = A1D_Request_pool.current->next;
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return a1_request;
+    return a1d_request;
 
   fn_fail: 
     goto fn_exit;
@@ -52,47 +52,47 @@ A1D_Request_t* A1DI_Get_request()
 
 void A1DI_Load_request(A1D_Handle_t *a1d_handle)
 {
-    A1D_Request_t *a1_request;
+    A1D_Request_t *a1d_request;
 
     A1U_FUNC_ENTER();
 
-    a1_request = A1DI_Get_request();
+    a1d_request = A1DI_Get_request();
 
     if(NULL == a1d_handle->request)
     {
-       a1d_handle->request_head = a1_request;
-       a1d_handle->request_tail = a1_request;
+       a1d_handle->request_head = a1d_request;
+       a1d_handle->request_tail = a1d_request;
     }
     else
     {
        /*Delinking the request from the pool*/
-       if(a1_request != A1D_Request_pool.head) 
+       if(a1d_request != A1D_Request_pool.head) 
        {
-          (a1_request_t->prev)->next = a1_request->next;
+          (a1d_request_t->prev)->next = a1d_request->next;
        } 
        else
        {
-          A1D_Request_pool.head = a1_request->next;
+          A1D_Request_pool.head = a1d_request->next;
        }
-       if(a1_request != A1D_Request_pool.tail)         
+       if(a1d_request != A1D_Request_pool.tail)         
        {
-          (a1_request_t->next)->prev = a1_request->prev; 
+          (a1d_request_t->next)->prev = a1d_request->prev; 
        }  
        else
        {
-          A1D_Request_pool.tail = a1_request->prev;
+          A1D_Request_pool.tail = a1d_request->prev;
        }
 
        /* Relinking the request before the request at the head of *
         * the aggregate handle */
-       a1_request->next = a1d_handle->request_head;
-       a1_request->prev = (a1d_handle->request_head)->prev;
-       (a1d_handle->request_head)->prev = a1_request;
+       a1d_request->next = a1d_handle->request_head;
+       a1d_request->prev = (a1d_handle->request_head)->prev;
+       (a1d_handle->request_head)->prev = a1d_request;
        if(a1d_handle->request == A1D_Request_pool.head)
        {
-            A1D_Request_pool.head = a1_request;  
+            A1D_Request_pool.head = a1d_request;  
        }
-       a1d_handle->request_head = a1_request;
+       a1d_handle->request_head = a1d_request;
     }
 
   fn_exit:
@@ -103,39 +103,39 @@ void A1DI_Load_request(A1D_Handle_t *a1d_handle)
     goto fn_exit;
 }
 
-void A1DI_Release_request(A1D_Request_t *a1_request)
+void A1DI_Release_request(A1D_Request_t *a1d_request)
 {
     A1U_FUNC_ENTER();
 
     /* If this request is the tail, there are no available requests. *
      * Hence, we set current pointer to this request */
-    if(a1_request == A1D_Request_pool.tail)
+    if(a1d_request == A1D_Request_pool.tail)
     {
-       A1D_Request_pool.current = a1_request;
+       A1D_Request_pool.current = a1d_request;
        return;
     }
 
     /* Else, we delinking the request from the pool*/
-    if(a1_request == A1D_Request_pool.head)
+    if(a1d_request == A1D_Request_pool.head)
     {
-       A1D_Request_pool.head = a1_request->next;
+       A1D_Request_pool.head = a1d_request->next;
     }
     else
     {
-       (a1_request->prev)->next = a1_request->next;
+       (a1d_request->prev)->next = a1d_request->next;
     }
-    (a1_request->next)->prev = a1_request->prev;
+    (a1d_request->next)->prev = a1d_request->prev;
 
     /* And, we link it to the tail of the pool*/
-    (A1D_Request_pool.tail)->next = a1_request;
-    a1_request->prev = A1D_Request_pool.tail;
-    a1_request->next = NULL;
-    A1D_Request_pool.tail = a1_request;
+    (A1D_Request_pool.tail)->next = a1d_request;
+    a1d_request->prev = A1D_Request_pool.tail;
+    a1d_request->next = NULL;
+    A1D_Request_pool.tail = a1d_request;
 
     /* Finally, if the current pointer is null, we point it to the *
      * newly available request.
     if (!A1D_Request_pool.current)
-          A1D_Request_pool.current = a1_request;
+          A1D_Request_pool.current = a1d_request;
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -164,9 +164,9 @@ void A1DI_Release_request_list(A1D_Request_t *head, A1D_Request_t *tail)
     }
     else
     {
-       (a1_request->prev)->next = tail->next;
+       (a1d_request->prev)->next = tail->next;
     }
-    tail->prev = a1_request->prev;
+    tail->prev = a1d_request->prev;
 
     /* And, we link it to the tail of the pool*/
     (A1D_Request_pool.tail)->next = head;

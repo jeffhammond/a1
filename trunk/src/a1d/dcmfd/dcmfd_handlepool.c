@@ -34,8 +34,7 @@ A1D_Handle_t* A1DI_Get_handle()
 
     A1U_FUNC_ENTER();
 
-    while(A1D_Handle_pool.head != NULL) 
-        A!DI_Advance();         
+    A1DI_Conditional_advance(A1D_Handle_pool.head == NULL);         
 
     a1d_handle = A1D_Handle_pool.head;
     A1D_Handle_pool.head = A1D_Handle_pool.head->next;

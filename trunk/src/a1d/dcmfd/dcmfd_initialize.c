@@ -131,6 +131,9 @@ int A1D_Initialize(int thread_level)
     result = A1DI_Request_pool_initialize();
     A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Request_pool_initialize failed \n");
 
+    result = A1DI_Handle_pool_initialize();
+    A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Handle_pool_initialize failed \n");
+
     result = A1DI_Memregion_Global_initialize();
     A1U_ERR_POP(result != A1_SUCCESS,"A1DI_Memregion_Global_initialize returned with error \n");
 

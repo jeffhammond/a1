@@ -200,13 +200,13 @@ int A1DI_Packed_gets(int target,
                      void* source_ptr,
                      int *src_stride_ar,
                      void* target_ptr,
-                     int *trg_stride_ar)
+                     int *trg_stride_ar,
+                     A1D_Handle_t *a1d_handle)
 {
 
     DCMF_Result result = DCMF_SUCCESS;
-    A1D_Request_t *a1_request;
+    DCMF_Callback_t done_callback;
     A1D_Packed_gets_header_t packet;
-    volatile int active;
 
     A1U_FUNC_ENTER();
 
@@ -221,11 +221,15 @@ int A1DI_Packed_gets(int target,
             * sizeof(uint32_t));
     memcpy(packet.block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
 
-    a1_request = A1DI_Get_request();
+    A1DI_Load_request(a1d_handle);
+
+    done_callback.function = A1DI_Handle_done;
+    done_callback.clientdata = (void *) a1d_handle;
+    a1d_handle->done_count++;
 
     result = DCMF_Send(&A1D_Packed_gets_protocol,
-                       &(a1_request->request),
-                       A1D_Nocallback,
+                       &(a1_handle->request_head->request),
+                       done_callback,
                        DCMF_RELAXED_CONSISTENCY,
                        target,
                        sizeof(A1D_Packed_gets_header_t),
@@ -252,12 +256,10 @@ int A1DI_Direct_gets(int target,
                      int *src_stride_ar,
                      void* target_ptr,
                      int *trg_stride_ar,
-                     volatile int *get_active)
+                     A1D_Handle_t *a1d_handle)
 {
-    int result = A1_SUCCESS;
-    A1D_Request_t *a1_request;
-    DCMF_Callback_t callback;
-    int i, size;
+    int i, result = A1_SUCCESS;
+    DCMF_Callback_t done_callback;
     size_t src_disp, dst_disp;
 
     A1U_FUNC_ENTER();
@@ -281,20 +283,20 @@ int A1DI_Direct_gets(int target,
     else
     {
 
-        a1_request = A1DI_Get_request();
-
         src_disp = (size_t) source_ptr
                  - (size_t) A1D_Membase_global[target];
         dst_disp = (size_t) target_ptr
                  - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
-        *get_active = *get_active + 1;
-        callback.function = A1DI_Generic_done;
-        callback.clientdata = (void *) get_active;
+        A1DI_Load_request(a1d_handle);
+
+        done_callback.function = A1DI_Handle_done;
+        done_callback.clientdata = (void *) a1d_handle;
+        a1d_handle->done_count++;
 
         result = DCMF_Get(&A1D_Generic_get_protocol,
-                          &(a1_request->request),
-                          callback,
+                          &(a1d_handle->request_head->request),
+                          done_callback,
                           DCMF_RELAXED_CONSISTENCY,
                           target,
                           block_sizes[0],
@@ -324,17 +326,16 @@ int A1D_GetS(int target,
              int *trg_stride_ar)
 {
     DCMF_Result result = DCMF_SUCCESS;
+    A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
+    a1d_handle = A1DI_Get_handle();
+
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {
-
-        volatile int get_active = 0;
-
-        get_active = 0;
 
         result = A1DI_Direct_gets(target,
                                   stride_level,
@@ -343,7 +344,8 @@ int A1D_GetS(int target,
                                   src_stride_ar,
                                   target_ptr,
                                   trg_stride_ar,
-                                  &get_active);
+                                  &get_active,
+                                  a1d_handle);
         A1U_ERR_POP(result, "A1DI_Direct_gets returned with an error \n");
 
         A1DI_Conditional_advance(get_active > 0);

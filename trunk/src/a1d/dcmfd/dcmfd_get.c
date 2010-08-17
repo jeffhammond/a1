@@ -74,7 +74,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
 }
 
 
-int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* handle)
+int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* a1_handle)
 {
     DCMF_Result result = DCMF_SUCCESS;
     A1D_Handle_t* a1d_handle;
@@ -85,18 +85,30 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* handle)
 
     A1DI_CRITICAL_ENTER();
 
-    a1_request = A1DI_Get_request(); 
-    *handle = (A1_handle_t) a1_request;
+    /* Initializing handle. the handle must have been initialized using *
+     * A1_Init_handle */
+    if(a1_handle == NULL)
+    {
+      a1d_handle = A1DI_Get_handle();
+      A1DI_Load_request(a1d_handle);
+      *a1_handle = (A1_handle_t) a1d_handle;
+      a1d_handle->a1_handle_ptr = a1_handle;
+    }
+    else
+    {
+      a1d_handle = (A1D_handle_t) a1_handle;
+      A1DI_Load_request(a1d_handle);
+    }
 
-    callback.function = A1DI_Generic_done;
-    callback.clientdata = (void *) &(a1_request->done_active);
-    a1_request->done_active++;
+    callback.function = A1DI_Handle_done;
+    callback.clientdata = (void *) a1d_handle;
+    a1d_handle->done_active++;
 
     src_disp = (size_t) src - (size_t) A1D_Membase_global[target];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
     result = DCMF_Get(&A1D_Generic_get_protocol,
-                      &(a1_request->request),
+                      &(a1d_handle->request_head->request),
                       callback,
                       DCMF_RELAXED_CONSISTENCY,
                       target,

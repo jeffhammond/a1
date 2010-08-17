@@ -258,23 +258,34 @@ int A1D_NbPutAcc(int target,
                  int bytes,
                  A1_datatype_t a1_type,
                  void* scaling,
-                 A1_handle_t* handle)
+                 A1_handle_t* a1_handle)
 {
     DCMF_Result result = A1_SUCCESS;
-    A1D_Request_t *a1_request;
-    DCMF_Callback_t callback;
+    A1D_Handle_t *a1d_handle;
     A1D_Putacc_header_t header;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
-    a1_request = A1D_Get_request();
-    *handle = (A1_handle_t) a1_request;
+    /* Initializing handle. the handle must have been initialized using *
+     * A1_Init_handle */
+    if(a1_handle == NULL)
+    {
+      a1d_handle = A1DI_Get_handle();
+      A1DI_Load_request(a1d_handle);
+      *a1_handle = (A1_handle_t) a1d_handle;
+      a1d_handle->a1_handle_ptr = a1_handle;
+    }
+    else
+    {
+      a1d_handle = (A1D_handle_t) a1_handle;
+      A1DI_Load_request(a1d_handle);
+    }
 
-    callback.function = A1DI_Generic_done;
-    callback.clientdata = (void *) &(a1_request->done_active);
-    a1_request->done_active++;
+    callback.function = A1DI_Handle_done;
+    callback.clientdata = (void *) a1d_handle->done_active;
+    a1d_handle->done_active++;
 
     header.target_ptr = target_ptr;
     header.datatype = a1_type;
@@ -310,7 +321,7 @@ int A1D_NbPutAcc(int target,
     }
 
     result = DCMF_Send(&A1D_Generic_putacc_protocol,
-                       &(a1_request->request),
+                       &(a1_handle->request_head->request),
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,

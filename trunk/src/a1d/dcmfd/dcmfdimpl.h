@@ -287,8 +287,8 @@ typedef struct A1D_Handle_t
 {
     A1D_Request_t *request_head;
     A1D_Request_t *request_tail;
-    volatile int done_active;
     uintptr_t a1_handle_ptr;
+    volatile int done_active;
     struct A1D_Handle_t *next;
 } A1D_Handle_t;
 
@@ -301,6 +301,7 @@ typedef struct A1D_Handle_pool_t
 typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
+    uintptr_t buffer_ptr;
     struct A1D_Request_t *next;
     struct A1D_Request_t *prev;
 } A1D_Request_t;
