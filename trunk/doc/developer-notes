@@ -11,3 +11,15 @@ the lock is retained and the main thread hits advance until the required communi
 None of the A1DI functions should acquire the lock since these functions are called from within the A1D functions or from inside 
 a DCMF Callback at which point the lock would have already been acquired. 
 
+--------------------------------
+* Request pool and Handle pool *
+--------------------------------
+
+I have implemented DCMF request pool and A1 handle pool separately as a single handle can have multiple requests 
+associated with it (aggregate requests and non-contiguous direct operations). Both the pools are implemented as 
+singly linked lists. They are popped off the head in 
+the Get_handle and Get_request functions and are tracked using callbacks. They are returned to the pool once the 
+local callback in complete. The issued requests/handles are not tracked in any other way. This places a restriction of 
+requiring a local callback on every DCMF operation posted (one exception is non-contiguous direct operations where 
+a callback on the last operation will suffice). When the request/handle pools are dry, A1 waits on advance until there 
+is a free request/handle available. 
