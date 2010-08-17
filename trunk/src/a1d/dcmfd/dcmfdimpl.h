@@ -287,10 +287,9 @@ typedef struct
 
 typedef struct A1D_Handle_t
 {
-    A1D_Request_t *request_head;
-    A1D_Request_t *request_tail;
-    uintptr_t a1_handle_ptr;
+    A1D_Request_t *request_list;
     volatile int done_active;
+    uintptr_t user_handle_ptr;
     struct A1D_Handle_t *next;
 } A1D_Handle_t;
 
@@ -305,14 +304,11 @@ typedef struct A1D_Request_t
     DCMF_Request_t request;
     uintptr_t buffer_ptr;
     struct A1D_Request_t *next;
-    struct A1D_Request_t *prev;
 } A1D_Request_t;
 
 typedef struct
 {
     A1D_Request_t *head;
-    A1D_Request_t *current;
-    A1D_Request_t *tail;
     void** region_ptr;
     uint32_t region_count;
 } A1D_Request_pool_t;
