@@ -36,6 +36,8 @@
 #define A1C_REQUEST_POOL_INCREMENT 100
 #define A1C_REQUEST_POOL_LIMIT 500
 
+#define A1C_HANDLE_POOL_SIZE 100
+
 #define A1C_MAX_STRIDED_DIM 4
 
 /*************************************************
@@ -181,24 +183,24 @@ extern _BGP_Atomic global_atomic;
  *************************************************/
 typedef struct
 {
-    uint32_t disable_cht;
-    uint32_t cht_pause_cycles;
-    uint32_t disable_interrupts;
-    uint32_t enable_immediate_flush;
-    uint32_t direct_noncontig_put_threshold;
-    uint32_t direct_noncontig_get_threshold;
-    uint32_t direct_noncontig_putacc_threshold;
-    uint32_t direct_noncontig_getacc_threshold;
-    uint32_t flushall_pending_limit;
-    uint32_t alignment;
+    volatile uint32_t disable_cht;
+    volatile uint32_t cht_pause_cycles;
+    volatile uint32_t disable_interrupts;
+    volatile uint32_t enable_immediate_flush;
+    volatile uint32_t direct_noncontig_put_threshold;
+    volatile uint32_t direct_noncontig_get_threshold;
+    volatile uint32_t direct_noncontig_putacc_threshold;
+    volatile uint32_t direct_noncontig_getacc_threshold;
+    volatile uint32_t flushall_pending_limit;
+    volatile uint32_t alignment;
 } A1_Settings_t;
 
 typedef struct
 {
-    uint32_t initial_size;
-    uint32_t increment_size;
-    uint32_t limit_size;
-    uint32_t total_size;
+    volatile uint32_t initial_size;
+    volatile uint32_t increment_size;
+    volatile uint32_t limit_size;
+    volatile uint32_t total_size;
 } A1_Requestpool_info_t;
 
 typedef struct
@@ -281,12 +283,24 @@ typedef struct
     A1D_Putacc_header_t header;
 } A1D_Putacc_recv_info_t;
 
+typedef struct A1D_Handle_t
+{
+    A1D_Request_t *request_head;
+    A1D_Request_t *request_tail;
+    volatile int done_active;
+    uintptr_t a1_handle_ptr;
+    struct A1D_Handle_t *next;
+} A1D_Handle_t;
+
+typedef struct A1D_Handle_pool_t
+{
+    A1D_Handle_t *head;
+    void *region_ptr;
+} A1D_Handle_pool_t;
+
 typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
-    DCMF_Request_t *request_list;
-    volatile int done_active;
-    volatile int ack_active;
     struct A1D_Request_t *next;
     struct A1D_Request_t *prev;
 } A1D_Request_t;
@@ -296,7 +310,7 @@ typedef struct
     A1D_Request_t *head;
     A1D_Request_t *current;
     A1D_Request_t *tail;
-    A1D_Request_t** region_ptr;
+    void** region_ptr;
     uint32_t region_count;
 } A1D_Request_pool_t;
 
@@ -322,6 +336,7 @@ extern pthread_t A1DI_CHT_pthread;
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
 extern A1D_Request_pool_t A1D_Request_pool;
+exterm A1D_Handle_pool_t A1D_Handle_pool;
 
 extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Control_flushack_protocol;
@@ -345,8 +360,8 @@ extern volatile int A1D_Control_flushack_active;
 extern volatile int A1D_Put_flushack_active;
 extern volatile int A1D_Expecting_getresponse;
 
-extern volatile A1_Settings_t a1_settings;
-extern volatile A1_Requestpool_info_t a1_requestpool_info;
+extern A1_Settings_t a1_settings;
+extern A1_Requestpool_info_t a1_requestpool_info;
 
 /************************************************* 
  *             Function Prototypes               *

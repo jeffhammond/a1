@@ -77,7 +77,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
 int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* handle)
 {
     DCMF_Result result = DCMF_SUCCESS;
-    A1D_Request_t* a1_request;
+    A1D_Handle_t* a1d_handle;
     DCMF_Callback_t callback;
     unsigned src_disp, dst_disp;
 

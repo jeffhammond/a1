@@ -10,17 +10,7 @@ A1D_Request_pool_t A1D_Request_pool;
 
 void A1DI_Reset_request_pool()
 {
-    A1D_Request_t* a1_request; 
-
     A1U_FUNC_ENTER();
-
-    a1_request = A1D_Request_pool.head;
-    while(a1_request != NULL) 
-    {
-       a1_request->done_active = 0;
-       a1_request->ack_active = 0;
-       a1_reqeust->more_requests = NULL;
-    }   
 
     A1D_Request_pool.current = A1D_Request_pool.head;
 
@@ -34,8 +24,6 @@ void A1DI_Reset_request_pool()
 
 A1D_Request_t* A1DI_Get_request()
 {
-
-    int index;
     A1D_Request_t *a1_request = NULL;
 
     A1U_FUNC_ENTER();
@@ -56,38 +44,146 @@ A1D_Request_t* A1DI_Get_request()
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return &(a1_request->request);
+    return a1_request;
 
   fn_fail: 
     goto fn_exit;
 }
 
-void A1DI_Release_request(A1D_Request_t *a1_request)
+void A1DI_Load_request(A1D_Handle_t *a1d_handle)
 {
+    A1D_Request_t *a1_request;
 
     A1U_FUNC_ENTER();
 
-    a1_request->done_active = 0;
-    a1_request->ack_active = 0;
-    if(a1_request->more_requests != NULL) {
-        A1DI_Free(a1_request->more_requests);
-        a1_request->more_requests = NULL; 
+    a1_request = A1DI_Get_request();
+
+    if(NULL == a1d_handle->request)
+    {
+       a1d_handle->request_head = a1_request;
+       a1d_handle->request_tail = a1_request;
+    }
+    else
+    {
+       /*Delinking the request from the pool*/
+       if(a1_request != A1D_Request_pool.head) 
+       {
+          (a1_request_t->prev)->next = a1_request->next;
+       } 
+       else
+       {
+          A1D_Request_pool.head = a1_request->next;
+       }
+       if(a1_request != A1D_Request_pool.tail)         
+       {
+          (a1_request_t->next)->prev = a1_request->prev; 
+       }  
+       else
+       {
+          A1D_Request_pool.tail = a1_request->prev;
+       }
+
+       /* Relinking the request before the request at the head of *
+        * the aggregate handle */
+       a1_request->next = a1d_handle->request_head;
+       a1_request->prev = (a1d_handle->request_head)->prev;
+       (a1d_handle->request_head)->prev = a1_request;
+       if(a1d_handle->request == A1D_Request_pool.head)
+       {
+            A1D_Request_pool.head = a1_request;  
+       }
+       a1d_handle->request_head = a1_request;
     }
 
-    (a1_request->prev)->next = a1_request->next;
-    (A1D_Request_pool.tail)->next = a1_request;
-    a1_request->prev = A1D_Request_pool.tail;
-    A1D_Request_pool.tail = a1_request;
-
-
-    if (!A1D_Request_pool.current) 
-          A1D_Request_pool.current = a1_request;
-
-  fn_exit: 
+  fn_exit:
     A1U_FUNC_EXIT();
     return;
 
-  fn_fail: 
+  fn_fail:
+    goto fn_exit;
+}
+
+void A1DI_Release_request(A1D_Request_t *a1_request)
+{
+    A1U_FUNC_ENTER();
+
+    /* If this request is the tail, there are no available requests. *
+     * Hence, we set current pointer to this request */
+    if(a1_request == A1D_Request_pool.tail)
+    {
+       A1D_Request_pool.current = a1_request;
+       return;
+    }
+
+    /* Else, we delinking the request from the pool*/
+    if(a1_request == A1D_Request_pool.head)
+    {
+       A1D_Request_pool.head = a1_request->next;
+    }
+    else
+    {
+       (a1_request->prev)->next = a1_request->next;
+    }
+    (a1_request->next)->prev = a1_request->prev;
+
+    /* And, we link it to the tail of the pool*/
+    (A1D_Request_pool.tail)->next = a1_request;
+    a1_request->prev = A1D_Request_pool.tail;
+    a1_request->next = NULL;
+    A1D_Request_pool.tail = a1_request;
+
+    /* Finally, if the current pointer is null, we point it to the *
+     * newly available request.
+    if (!A1D_Request_pool.current)
+          A1D_Request_pool.current = a1_request;
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void A1DI_Release_request_list(A1D_Request_t *head, A1D_Request_t *tail)
+{
+    A1U_FUNC_ENTER();
+
+    /* If this request list is the tail, there are no available requests. *
+     * Hence, we set current pointer to this request */
+    if(tail == A1D_Request_pool.tail)
+    {
+       A1D_Request_pool.current = head;
+       return;
+    }
+
+    /* Else, we delink the request from the pool*/
+    if(head == A1D_Request_pool.head)
+    {
+       A1D_Request_pool.head = tail->next;
+    }
+    else
+    {
+       (a1_request->prev)->next = tail->next;
+    }
+    tail->prev = a1_request->prev;
+
+    /* And, we link it to the tail of the pool*/
+    (A1D_Request_pool.tail)->next = head;
+    head->prev = A1D_Request_pool.tail;
+    tail->next = NULL;
+    A1D_Request_pool.tail = tail; 
+
+    /* Finally, if the current pointer is null, we point it to the *
+     * newly available request. 
+    if (!A1D_Request_pool.current)
+          A1D_Request_pool.current = head; 
+
+  fn_exit:
+    A1U_FUNC_EXIT(); 
+    return;
+
+  fn_fail:
     goto fn_exit;
 }
 
@@ -107,13 +203,6 @@ int A1DI_Request_pool_increment()
     a1_requestpool_info.total_size = a1_requestpool_info.total_size
             + a1_requestpool_info.increment_size;
 
-    for(i=0; i<a1_requestpool_info.initial_size; i++)
-    {
-       request[i].done_active = 0;
-       request[i].ack_active = 0;
-       request[i].more_requests = NULL;
-    }
-
     A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *) request;
     A1D_Request_pool.region_count++;
 
@@ -128,10 +217,12 @@ int A1DI_Request_pool_increment()
         request[index].prev = &request[index - 1];
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Request_pool_initialize()
@@ -158,13 +249,6 @@ int A1DI_Request_pool_initialize()
                 "A1DI_Malloc_aligned failed while allocating request pool\
                       in A1DI_Request_pool_initialize\n");
     a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
-
-    for(i=0; i<a1_requestpool_info.initial_size; i++)
-    {
-       request[i].done_active = 0;
-       request[i].ack_active = 0;
-       request[i].more_requests = NULL;
-    } 
 
     A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *) request;
     A1D_Request_pool.region_count++;

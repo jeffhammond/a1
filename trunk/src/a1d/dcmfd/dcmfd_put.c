@@ -50,7 +50,7 @@ int A1D_Put(int target,
     {
         done_callback = A1D_Nocallback;
         done_active = 0;
-        ack_callback.function = A1DI_Generic_done;
+        ack_callback.function = A1DI_Generic_ack;
         ack_callback.clientdata = (void *) &ack_active;
         ack_active = 1;
     }
@@ -95,10 +95,10 @@ int A1D_NbPut(int target,
               void* src, 
               void* dst, 
               int bytes,
-              A1_handle_t* handle)
+              A1_handle_t* a1_handle)
 {
     DCMF_Result result = DCMF_SUCCESS;
-    A1D_Request_t *a1_request;
+    A1D_Handle_t *a1d_handle;
     DCMF_Callback_t done_callback, ack_callback;
     size_t src_disp, dst_disp;
 
@@ -106,31 +106,32 @@ int A1D_NbPut(int target,
 
     A1DI_CRITICAL_ENTER();   
 
-    a1_request = A1DI_Get_request();
-    *handle = (A1_handle_t) a1_request; 
+    /* Initializing handle. the handle must have been initialized using *
+     * A1_Init_handle */  
+    if(a1_handle == NULL) 
+    {
+      a1d_handle = A1DI_Get_handle();
+      A1DI_Load_request(a1d_handle);
+      *a1_handle = (A1_handle_t) a1d_handle;
+      a1d_handle->a1_handle_ptr = a1_handle;
+    }
+    else 
+    {
+      a1d_handle = (A1D_handle_t) a1_handle;
+      A1DI_Load_request(a1d_handle);
+    } 
 
-    /* TODO: don't we need logic to decide when to do immediate completion??? */
-    if (a1_settings.enable_immediate_flush)
-    {
-        done_callback = A1D_Nocallback;
-        ack_callback.function = A1DI_Generic_done;
-        ack_callback.clientdata = (void *) &(a1_request->ack_active);
-        a1_request->ack_active++;
-    }
-    else
-    {
-        done_callback.function = A1DI_Generic_done;
-        done_callback.clientdata = (void *) &(a1_request->done_active);
-        a1_request->done_active++;
-        ack_callback = A1D_Nocallback;
-        A1D_Connection_put_active[target]++;
-    }
+    done_callback.function = A1DI_Handle_done;
+    done_callback.clientdata = (void *) a1d_handle;
+    a1d_handle->done_active++;
+    ack_callback = A1D_Nocallback;
+    A1D_Connection_put_active[target]++;
 
     src_disp = (size_t) src - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
     result = DCMF_Put(&A1D_Generic_put_protocol,
-                      &(a1_request->request),
+                      &(a1d_handle->request_head),
                       done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,
@@ -148,53 +149,5 @@ int A1D_NbPut(int target,
     return result;
 
   fn_fail: 
-    goto fn_exit;
-}
-
-int A1_Wait_handle(A1_handle_t handle) 
-{
-    DCMF_Result result = DCMF_SUCCESS;
-    A1D_Request_t *a1_request;
-
-    A1U_FUNC_ENTER();
-
-    A1DI_CRITICAL_ENTER();
-
-    a1_request = (A1D_Request_t *) handle;
-    A1DI_Conditional_advance(a1_request->done_active > 0 || a1_request->ack_active > 0);
-   
-    A1DI_Release_request(a1_request);
-
-  fn_exit:
-    A1DI_CRITICAL_EXIT();
-    A1U_FUNC_EXIT();
-    return result;
-
-  fn_fail:
-    goto fn_exit;
-}
-
-int A1_Test_handle(A1_handle_t handle, A1_bool_t* completed)
-{
-    DCMF_Result result = DCMF_SUCCESS;
-    A1D_Request_t *a1_request;
-
-    A1U_FUNC_ENTER();
-
-    A1DI_CRITICAL_ENTER();
-
-    a1_request = (A1D_Request_t *) handle;
-    A1DI_Advance();
-    *completed = (a1_request->done_active > 0 || a1_request->ack_active > 0) ? A1_FALSE : A1_TRUE;
-
-    if(*completed == A1_TRUE)
-         A1DI_Release_request(a1_request);  
-
-  fn_exit:
-    A1DI_CRITICAL_EXIT();
-    A1U_FUNC_EXIT();
-    return result;
-
-  fn_fail:
     goto fn_exit;
 }

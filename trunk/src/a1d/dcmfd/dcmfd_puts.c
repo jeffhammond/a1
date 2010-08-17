@@ -85,25 +85,24 @@ DCMF_Result A1DI_Packed_puts_initialize()
     goto fn_exit;
 }
 
-int A1DI_Packed_puts(int target,
+int A1DI_Packed_puts(void** packet,
+                     int target,
                      int stride_level,
                      int *block_sizes,
                      void* source_ptr,
                      int *src_stride_ar,
                      void* target_ptr,
-                     int *trg_stride_ar)
+                     int *trg_stride_ar,
+                     A1D_Request_t *a1_request,
+                     DCMF_Callback_t callback)
 {
 
     DCMF_Result result = DCMF_SUCCESS;
-    DCMF_Request_t request;
-    DCMF_Callback_t callback;
-    void *packet;
     int size_packet;
-    volatile int active;
 
     A1U_FUNC_ENTER();
 
-    result = A1DI_Pack_strided(&packet,
+    result = A1DI_Pack_strided(packet,
                                &size_packet,
                                stride_level,
                                block_sizes,
@@ -114,23 +113,16 @@ int A1DI_Packed_puts(int target,
     A1U_ERR_POP(result != DCMF_SUCCESS,
                 "A1DI_Pack_strided returned with an error\n");
 
-    callback.function = A1DI_Generic_done;
-    callback.clientdata = (void *) &active;
-    active = 1;
-
     result = DCMF_Send(&A1D_Packed_puts_protocol,
-                       &request,
+                       &(a1_request->request),
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
                        size_packet,
-                       packet,
+                       *packet,
                        NULL,
                        0);
     A1U_ERR_POP(result != DCMF_SUCCESS, "DCMF_Send returned with an error \n");
-
-    A1D_Connection_send_active[target]++;
-    A1DI_Conditional_advance(active > 0);
 
   fn_exit:
     A1DI_Free(packet); 
@@ -145,13 +137,14 @@ int A1DI_Packed_puts(int target,
 int A1DI_Direct_puts(int target,
                      int stride_level,
                      int *block_sizes,
-                     void* source_ptr,
+                     void *source_ptr,
                      int *src_stride_ar,
-                     void* target_ptr,
+                     void *target_ptr,
                      int *trg_stride_ar,
                      int *put_index,
                      A1_Request_t* a1_request,
-                     DCMF_Callback_t* callback)
+                     DCMF_Callback_t done_callback,
+                     DCMF_Callback_t ack_callback)
 {
     int result = A1_SUCCESS;
     int i, size;
@@ -186,7 +179,7 @@ int A1DI_Direct_puts(int target,
 
         result = DCMF_Put(&A1D_Generic_put_protocol,
                           &(a1_request->request_list[*put_index]),
-                          *callback,
+                          done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
                           block_sizes[0],
@@ -194,7 +187,7 @@ int A1DI_Direct_puts(int target,
                           &A1D_Memregion_global[target],
                           src_disp,
                           dst_disp,
-                          A1D_Nocallback);
+                          ack_callback);
         A1U_ERR_POP(result, "DCMF_Put returned with an error \n");
 
         *put_index = *put_index + 1;
@@ -220,7 +213,7 @@ int A1D_PutS(int target,
              int *trg_stride_ar)
 {
     DCMF_Result result = A1_SUCCESS;
-    DCMF_Callback_t callback;
+    DCMF_Callback_t done_callback, ack_callback;
     A1D_Request_t *a1_request;
     int i, put_count, put_index;
 
@@ -240,8 +233,9 @@ int A1D_PutS(int target,
             put_count *= block_sizes[i];  
         }
         A1DI_Malloc_aligned(&(a1_request->request_list), (put_count)*sizeof(DCMF_Request_t));
-
-        callback.function = 
+        
+        done_callback = A1D_Nocallback;
+        ack_callback = A1D_Nocallback;
 
         result = A1DI_Direct_puts(target,
                                   stride_level,
@@ -252,7 +246,8 @@ int A1D_PutS(int target,
                                   trg_stride_ar,
                                   &put_index,
                                   a1_request,
-                                  callback);
+                                  done_callback,
+                                  ack_callback);
         A1U_ERR_POP(result, "A1DI_Direct_puts returned with an error \n");
 
         if (a1_settings.enable_immediate_flush)
@@ -268,6 +263,9 @@ int A1D_PutS(int target,
     else
     {
 
+        done_callback.function = A1DI_Generic_done;
+        done_callback.clientdata = &(a1_request->send_done);
+        a1_
         
 
         result = A1DI_Packed_puts(target,
@@ -276,7 +274,9 @@ int A1D_PutS(int target,
                                   source_ptr,
                                   src_stride_ar,
                                   target_ptr,
-                                  trg_stride_ar);
+                                  trg_stride_ar,
+                                  a1_request,
+                                  callback);
         A1U_ERR_POP(result, "A1DI_Packed_puts returned with an error \n");
 
         if (a1_settings.enable_immediate_flush)

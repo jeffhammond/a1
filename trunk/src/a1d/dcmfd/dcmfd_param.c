@@ -7,8 +7,8 @@
 #include "dcmfdimpl.h"
 
 
-volatile A1_Settings_t a1_settings;
-volatile A1_Requestpool_info_t a1_requestpool_info;
+A1_Settings_t a1_settings;
+A1_Requestpool_info_t a1_requestpool_info;
 
 int A1DI_Read_parameters()
 {
