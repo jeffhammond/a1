@@ -46,6 +46,8 @@
 
 extern _BGP_Atomic global_atomic;
 
+/* TODO: we should have a more general lock system which can do test-test-and-set,
+ *        backoff and other lock designs. */
 #define A1DI_GLOBAL_ATOMIC_ACQUIRE() while(!_bgp_test_and_set(&global_atomic, 1))
 
 #define A1DI_GLOBAL_ATOMIC_RELEASE() do{ global_atomic.atom = 0; }while(0)
