@@ -15,9 +15,6 @@ DCMF_Callback_t A1D_Nocallback;
 
 pthread_t A1DI_CHT_pthread;
 
-/** Using raw BGP atomics has shown degradation when 
- *  compared to using DCMF_Critical_section. So, I am 
- *  commenting these out.*/
 void *A1DI_CHT_advance_function(void * dummy)
 {
     A1DI_GLOBAL_ATOMIC_ACQUIRE();
