@@ -442,7 +442,8 @@ int A1D_NbGetS(int target,
                                   source_ptr,
                                   src_stride_ar,
                                   target_ptr,
-                                  trg_stride_ar);
+                                  trg_stride_ar,
+                                  a1d_handle);
         A1U_ERR_POP(status, "A1DI_Packed_gets returned with an error \n");
 
     }

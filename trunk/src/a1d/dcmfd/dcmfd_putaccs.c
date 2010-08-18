@@ -121,7 +121,7 @@ int A1DI_Packed_putaccs(int target,
     a1d_handle->active++;
     /* Assigning the packing buffer pointer in request so that it can be free when the
      * request is complete, in the callback */
-    a1d_handle->request_head->request->buffer_ptr = packet;
+    a1d_handle->request_list->buffer_ptr = packet;
 
     status = DCMF_Send(&A1D_Packed_putaccs_protocol,
                        &(a1d_handle->request_list->request),
@@ -223,7 +223,7 @@ int A1DI_Direct_putaccs(int target,
         }
 
         status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                           &(a1d_handle->request_ptr->request),
+                           &(a1d_handle->request_list->request),
                            done_callback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,

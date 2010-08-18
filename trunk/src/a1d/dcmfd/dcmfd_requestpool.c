@@ -67,7 +67,7 @@ void A1DI_Release_request_list(A1D_Request_t *a1d_request_list)
         {
             A1DI_Free(tail_request->buffer_ptr);
         }
-        tail_request = temp_request->next;
+        tail_request = tail_request->next;
     }
     if(tail_request->buffer_ptr != NULL)
     {
@@ -107,9 +107,9 @@ int A1DI_Request_pool_increment()
     A1D_Request_pool.head = a1d_request;
     for (index = 0; index < a1_requestpool_info.increment_size-1; index++)
     {
-        a1d_request[index - 1].next = &a1d_request[index];
+        a1d_request[index].next = &a1d_request[index+1];
     } 
-    a1d_request[index] = NULL;
+    a1d_request[index].next = NULL;
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -152,7 +152,7 @@ int A1DI_Request_pool_initialize()
     {
         a1d_request[index].next = &a1d_request[index+1];
     }
-    a1d_request[index]->next = NULL;
+    a1d_request[index].next = NULL;
 
   fn_exit: 
     A1U_FUNC_EXIT();

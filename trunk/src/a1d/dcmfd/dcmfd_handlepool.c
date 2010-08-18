@@ -70,7 +70,7 @@ A1D_Handle_t* A1DI_Get_handle()
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return a1_handle;
+    return a1d_handle;
 
   fn_fail:
     goto fn_exit;
@@ -94,11 +94,11 @@ int A1DI_Handle_pool_initialize()
 
     A1D_Handle_pool.region_ptr = (void *) a1d_handle;
     A1D_Handle_pool.head = a1d_handle;
-    for (index = 1; index < a1_requestpool_info.initial_size-1; index++)
+    for (index = 0; index < a1_requestpool_info.initial_size-1; index++)
     {
-        a1d_handle[index - 1].next = &request[index];
+        a1d_handle[index].next = &a1d_handle[index+1];
     } 
-    a1d_handle[index] = NULL; 
+    a1d_handle[index].next = NULL; 
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -118,7 +118,7 @@ int A1D_Wait_handle(A1_handle_t a1_handle)
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
-    A1DI_Conditional_advance(a1_request->active > 0);
+    A1DI_Conditional_advance(a1d_handle->active > 0);
 
     A1DI_Release_handle(a1_handle);
 
@@ -134,7 +134,7 @@ int A1D_Wait_handle(A1_handle_t a1_handle)
 int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
 {
     int status = A1_SUCCESS;
-    A1D_handle_t *a1d_handle;
+    A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
 
@@ -145,7 +145,7 @@ int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
     *completed = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
 
     if(*completed == A1_TRUE)
-         A1DI_Release_handle(a1_request);
+         A1DI_Release_handle(a1d_handle);
 
   fn_exit:
     A1DI_CRITICAL_EXIT();

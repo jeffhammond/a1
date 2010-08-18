@@ -144,7 +144,7 @@ int A1D_Init_handle(A1_handle_t *a1_handle)
 
     A1DI_CRITICAL_ENTER();
 
-    A1U_ASSERT(a1_handle != NULL, A1_ERROR)
+    A1U_ASSERT(a1_handle != NULL, status)
 
     *a1_handle = NULL;
 

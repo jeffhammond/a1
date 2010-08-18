@@ -184,7 +184,7 @@ int A1D_PutAcc(int target,
 {
     int status = A1_SUCCESS;
     DCMF_Request_t request;
-    DCMF_Callback_t callback;
+    DCMF_Callback_t done_callback;
     volatile int active;
     A1D_Putacc_header_t header;
 
@@ -192,8 +192,8 @@ int A1D_PutAcc(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    callback.function = A1DI_Generic_done;
-    callback.clientdata = (void *) &active;
+    done_callback.function = A1DI_Generic_done;
+    done_callback.clientdata = (void *) &active;
     active = 1;
 
     header.target_ptr = target_ptr;
@@ -231,7 +231,7 @@ int A1D_PutAcc(int target,
 
     status = DCMF_Send(&A1D_Generic_putacc_protocol,
                        &request,
-                       callback,
+                       done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
                        bytes,
@@ -262,6 +262,7 @@ int A1D_NbPutAcc(int target,
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
+    DCMF_Callback_t done_callback;
     A1D_Putacc_header_t header;
 
     A1U_FUNC_ENTER();
@@ -283,8 +284,8 @@ int A1D_NbPutAcc(int target,
       A1DI_Load_request(a1d_handle);
     }
 
-    callback.function = A1DI_Handle_done;
-    callback.clientdata = (void *) a1d_handle;
+    done_callback.function = A1DI_Handle_done;
+    done_callback.clientdata = (void *) a1d_handle;
     a1d_handle->active++;
 
     header.target_ptr = target_ptr;
@@ -321,8 +322,8 @@ int A1D_NbPutAcc(int target,
     }
 
     status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                       &(a1_handle->request_list->request),
-                       callback,
+                       &(a1d_handle->request_list->request),
+                       done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
                        bytes,

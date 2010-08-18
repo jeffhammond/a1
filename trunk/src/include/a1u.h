@@ -92,7 +92,7 @@
 #define A1U_ASSERT(x, status)                                           \
     {                                                                   \
         if (!(x)) {                                                     \
-            A1U_ERR_SETANDJUMP(status, A1_INTERNAL_ERROR,               \
+            A1U_ERR_SETANDJUMP(status, A1_ERROR,                        \
                                "assert (%s) failed\n", #x);             \
         }                                                               \
     }
