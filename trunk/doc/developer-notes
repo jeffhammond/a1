@@ -15,10 +15,15 @@ a DCMF Callback at which point the lock would have already been acquired.
 * CHT, Interrupts and DCMF Thread levels *
 ------------------------------------------
 
-When CHT is enabled, we have to configure DCMF in THREAD_MULTIPLE mode as the library will be inherently multi-threaded. I have 
-tried using BGP_Atomics to implement my own locks (configuring DCMF to THREAD_SERIALIZED) but that had show worse performance. 
+When CHT is enabled, we use our own global lock using BGP Atomics. So, we configure DCMF in THREAD_SERIALIZED mode as only one 
+thread will be making a DCMF call at any point of time. 
 
-When CHT is disabled, we configure DCMF based on the user's requested thread safety level.
+Initially, I had implemented a test-and-set lock using the BGP Atomics but this appeared to be causing a lot of contention. On Jeff's 
+suggestion I replaced this with test-test-and-set lock and this seems to be a perfect fit with almost zero contention.
+However, this scheme has an issue when there in no CHT delay (the time for which CHT waits between lock cycles). The main 
+thread never gets the lock leading to starvation. Introducing a CHT delay of around 70 cycles solves this (default is set to 200 
+on the conservative side). One has to keep in mind that this delay required can change from system to system. This parameter 
+can be modified using a run-time parameter, A1_CHT_PAUSE_CYCLES.
 
 --------------------------------
 * Request pool and Handle pool *
@@ -37,14 +42,14 @@ TODO list
 
 done - Introduce API and functions to initialize handle (Application should initialize A1 handles before using 
   them)
-- Verify functionality of Non-blocking operations and evaluate bandwidth performance.
 done - Use enable_cht as the option name for CHT
-- Modify locking macros to switch between Bgp_Atomics for CHT (THREAD_SINGLE) and DCMF_CS for Interrupts. 
+done - Modify locking macros to switch between Bgp_Atomics for CHT (THREAD_SINGLE) and DCMF_CS for Interrupts. 
+- Evaluate lock contention using bgp_atomics and see if contention varies with the processor assginment for
+  CHT
+- Verify functionality of Non-blocking operations and evaluate bandwidth performance.
 - Make cht/interrupts a configure time option. 
 - Implement shared counters using atomics.
 - Optimize accumulate operations using all the floating point registers in double hummer (Kaz' suggestion)
-- Evaluate lock contention using bgp_atomics and see if contention varies with the processor assginment for 
-  CHT
 - Add logic for a scale-free flush design.
 - Implement Vector operations - over simple Put/Get/Accumulate 
 - Implement AllReduce and Reduce using DCMF collectives

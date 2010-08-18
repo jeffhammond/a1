@@ -43,7 +43,7 @@ int A1D_Put(int target,
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();    
+    A1DI_CRITICAL_ENTER();   
 
     /* TODO: don't we need logic to decide when to do immediate completion??? */
     if (a1_settings.enable_immediate_flush)

@@ -22,7 +22,7 @@
 
 #define A1C_ENABLE_CHT 1
 #define A1C_DISABLE_INTERRUPTS 0 
-#define A1C_CHT_PAUSE_CYCLES 750
+#define A1C_CHT_PAUSE_CYCLES 200
 
 #define A1C_DIRECT_NONCONTIG_PUT_THRESHOLD 512
 #define A1C_DIRECT_NONCONTIG_GET_THRESHOLD 512 
@@ -46,9 +46,16 @@
 
 extern _BGP_Atomic global_atomic;
 
-/* TODO: we should have a more general lock system which can do test-test-and-set,
+/* TODO: we should have a more general lock system which can do 
  *        backoff and other lock designs. */
-#define A1DI_GLOBAL_ATOMIC_ACQUIRE() while(!_bgp_test_and_set(&global_atomic, 1))
+#define A1DI_GLOBAL_ATOMIC_ACQUIRE()                 \
+ {                                                   \
+   volatile int done=0;                              \
+   do {                                              \
+     while(global_atomic.atom);                      \
+     done = _bgp_test_and_set(&global_atomic, 1);    \
+   } while(!done);                                   \
+ }                                                   \
 
 #define A1DI_GLOBAL_ATOMIC_RELEASE() do{ global_atomic.atom = 0; }while(0)
 
@@ -97,10 +104,6 @@ extern _BGP_Atomic global_atomic;
  *          Critical Section Macros              *
  *************************************************/
 
-/** Using raw BGP atomics has shown degradation when
- *  compared to using DCMF_Critical_section. So, I am
- *  reverting back.*/
-/*
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if(a1_settings.enable_cht)                                  \
@@ -124,11 +127,12 @@ extern _BGP_Atomic global_atomic;
         DCMF_CriticalSection_exit(0);                             \
       }                                                           \
     } while (0)                                                   \
+
+/*
+#define A1DI_CRITICAL_ENTER() DCMF_CriticalSection_enter(0);
+
+#define A1DI_CRITICAL_EXIT() DCMF_CriticalSection_exit(0);
 */
-
-#define A1DI_CRITICAL_ENTER() DCMF_CriticalSection_enter(0)
-
-#define A1DI_CRITICAL_EXIT() DCMF_CriticalSection_exit(0)
 
 #define A1DI_Advance() DCMF_Messager_advance(0) 
 

@@ -17,8 +17,7 @@ pthread_t A1DI_CHT_pthread;
 
 /** Using raw BGP atomics has shown degradation when 
  *  compared to using DCMF_Critical_section. So, I am 
- *  reverting back.*/
-/*
+ *  commenting these out.*/
 void *A1DI_CHT_advance_function(void * dummy)
 {
     A1DI_GLOBAL_ATOMIC_ACQUIRE();
@@ -31,8 +30,8 @@ void *A1DI_CHT_advance_function(void * dummy)
     }
     A1DI_GLOBAL_ATOMIC_RELEASE();
 }
-*/
 
+/*
 void *A1DI_CHT_advance_function(void * dummy)
 {
     A1DI_CRITICAL_ENTER();
@@ -45,6 +44,7 @@ void *A1DI_CHT_advance_function(void * dummy)
     }
     A1DI_CRITICAL_EXIT();
 }
+*/
 
 int A1D_Initialize(int thread_level)
 {
@@ -68,7 +68,9 @@ int A1D_Initialize(int thread_level)
 
     if(a1_settings.enable_cht) 
     {
-        A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
+        /* We can use THREAD_SERIALIZED if we are implementing out own locks */
+        A1D_Messager_info.thread_level = DCMF_THREAD_SERIALIZED;
+        /* A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE; */   
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
     } 
     else 
