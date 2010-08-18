@@ -189,8 +189,6 @@ int A1DI_Send_flush(int proc)
 
     A1U_FUNC_ENTER();
 
-    A1D_Connection_send_active[proc] = 0;
-    A1D_Connection_put_active[proc] = 0;
     A1D_Control_flushack_active++;
 
     status = DCMF_Send(&A1D_Send_flush_protocol,
@@ -206,6 +204,9 @@ int A1DI_Send_flush(int proc)
 
     A1DI_Conditional_advance(A1D_Control_flushack_active > 0);
 
+    A1D_Connection_send_active[proc] = 0;
+    A1D_Connection_put_active[proc] = 0;
+
   fn_exit: 
     A1U_FUNC_EXIT();
     return status;
@@ -214,27 +215,20 @@ int A1DI_Send_flush(int proc)
     goto fn_exit;
 }
 
-int A1DI_Send_flush_local(int proc)
+int A1DI_Send_flush_start(int proc)
 {
     int status = A1_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t callback;
-    volatile int active;
     DCQuad msginfo;
 
     A1U_FUNC_ENTER();
 
-    callback.function = A1DI_Generic_done;
-    callback.clientdata = (void *) &active;
-
-    active = 1;
-    A1D_Connection_send_active[proc] = 0;
-    A1D_Connection_put_active[proc] = 0;
     A1D_Control_flushack_active++;
 
     status = DCMF_Send(&A1D_Send_flush_protocol,
                        &request,
-                       callback,
+                       A1D_Nocallback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        proc,
                        0,
@@ -243,7 +237,8 @@ int A1DI_Send_flush_local(int proc)
                        1);
     A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Send returned with an error \n");
 
-    A1DI_Conditional_advance(active > 0);
+    A1D_Connection_send_active[proc] = 0;
+    A1D_Connection_put_active[proc] = 0;
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -264,7 +259,7 @@ int A1DI_Put_flush(int proc)
     A1U_FUNC_ENTER();
 
     callback.function = A1DI_Generic_done;
-    callback.clientdata = (void *) &active;
+    callback.clientdata = (void *) &A1D_Put_flushack_active;
 
     src_disp = (size_t)(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank])
              - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
@@ -297,19 +292,15 @@ int A1DI_Put_flush(int proc)
     goto fn_exit;
 }
 
-int A1DI_Put_flush_local(int proc)
+int A1DI_Put_flush_start(int proc)
 {
     int status = A1_SUCCESS;
     DCMF_Request_t request;
-    DCMF_Callback_t done_callback;
     DCMF_Callback_t ack_callback;
-    volatile int active;
     size_t src_disp, dst_disp;
 
     A1U_FUNC_ENTER();
 
-    done_callback.function = A1DI_Generic_done;
-    done_callback.clientdata = (void *) &active;
     ack_callback.function = A1DI_Generic_done;
     ack_callback.clientdata = (void *) &A1D_Put_flushack_active;
 
@@ -318,13 +309,11 @@ int A1DI_Put_flush_local(int proc)
     dst_disp = (size_t)(A1D_Put_Flushcounter_ptr[proc])
              - (size_t) A1D_Membase_global[proc] + 1;
 
-    active = 1;
-    A1D_Connection_put_active[proc] = 0;
     A1D_Put_flushack_active++;
 
     status = DCMF_Put(&A1D_Generic_put_protocol,
                       &request,
-                      done_callback,
+                      A1D_Nocallback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       proc,
                       1,
@@ -335,7 +324,7 @@ int A1DI_Put_flush_local(int proc)
                       ack_callback);
     A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put returned with an error \n");
 
-    A1DI_Conditional_advance(active > 0);
+    A1D_Connection_put_active[proc] = 0;
 
   fn_exit: 
     A1U_FUNC_EXIT();

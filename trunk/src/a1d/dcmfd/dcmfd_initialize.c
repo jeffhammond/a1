@@ -15,17 +15,35 @@ DCMF_Callback_t A1D_Nocallback;
 
 pthread_t A1DI_CHT_pthread;
 
+/** Using raw BGP atomics has shown degradation when 
+ *  compared to using DCMF_Critical_section. So, I am 
+ *  reverting back.*/
+/*
 void *A1DI_CHT_advance_function(void * dummy)
 {
-    DCMF_CriticalSection_enter(0);
+    A1DI_GLOBAL_ATOMIC_ACQUIRE();
     while (1)
     {
         DCMF_Messager_advance(0);
-        DCMF_CriticalSection_exit(0);
+        A1DI_GLOBAL_ATOMIC_RELEASE();
         A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
-        DCMF_CriticalSection_enter(0);        
+        A1DI_GLOBAL_ATOMIC_ACQUIRE();
     }
-    DCMF_CriticalSection_exit(0);
+    A1DI_GLOBAL_ATOMIC_RELEASE();
+}
+*/
+
+void *A1DI_CHT_advance_function(void * dummy)
+{
+    A1DI_CRITICAL_ENTER();
+    while (1)
+    {
+        DCMF_Messager_advance(0);
+        A1DI_CRITICAL_EXIT();
+        A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
+        A1DI_CRITICAL_ENTER();
+    }
+    A1DI_CRITICAL_EXIT();
 }
 
 int A1D_Initialize(int thread_level)
@@ -48,34 +66,38 @@ int A1D_Initialize(int thread_level)
     status = A1DI_Read_parameters();
     A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Read_parameters returned with error \n");
 
-    if(a1_settings.enable_cht) {
+    if(a1_settings.enable_cht) 
+    {
         A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
-    } else if(!a1_settings.disable_interrupts) {
-        A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
-        A1D_Messager_info.interrupts = DCMF_INTERRUPTS_ON;
-    } else {
-        switch(thread_level) 
+    } 
+    else 
+    {
+        switch(thread_level)
         {
            case A1_THREAD_SINGLE:
-                 thread_level = DCMF_THREAD_SINGLE; 
+                 thread_level = DCMF_THREAD_SINGLE;
                  break;
            case A1_THREAD_FUNNELED:
                  thread_level = DCMF_THREAD_FUNNELED;
-                 break;           
+                 break;
            case A1_THREAD_SERIALIZED:
                  thread_level = DCMF_THREAD_SERIALIZED;
                  break;
            case A1_THREAD_GENERAL:
                  thread_level = DCMF_THREAD_MULTIPLE;
-                 break;      
-           default: 
-                 A1U_ERR_POP(A1_ERROR, 
+                 break;
+           default:
+                 A1U_ERR_POP(A1_ERROR,
                              "Unsupported thread level provided in Initialize \n");
                  break;
         }
-        A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
-    }
+
+        if(a1_settings.disable_interrupts) 
+            A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
+        else
+            A1D_Messager_info.interrupts = DCMF_INTERRUPTS_ON;
+    } 
 
     status = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
     A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Messager_configure returned with error \n");

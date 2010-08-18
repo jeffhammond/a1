@@ -11,6 +11,15 @@ the lock is retained and the main thread hits advance until the required communi
 None of the A1DI functions should acquire the lock since these functions are called from within the A1D functions or from inside 
 a DCMF Callback at which point the lock would have already been acquired. 
 
+------------------------------------------
+* CHT, Interrupts and DCMF Thread levels *
+------------------------------------------
+
+When CHT is enabled, we have to configure DCMF in THREAD_MULTIPLE mode as the library will be inherently multi-threaded. I have 
+tried using BGP_Atomics to implement my own locks (configuring DCMF to THREAD_SERIALIZED) but that had show worse performance. 
+
+When CHT is disabled, we configure DCMF based on the user's requested thread safety level.
+
 --------------------------------
 * Request pool and Handle pool *
 --------------------------------
@@ -23,12 +32,6 @@ local callback in complete. The issued requests/handles are not tracked in any o
 requiring a local callback on every DCMF operation posted (one exception is non-contiguous direct operations where 
 a callback on the last operation will suffice). When the request/handle pools are dry, A1 waits on advance until there 
 is a free request/handle available. 
-
-------------------------------------------
-* CHT, Interrupts and DCMF Thread levels *
-------------------------------------------
-
-When CHT is enabled, we use our own atomic locks to  
 
 TODO list 
 

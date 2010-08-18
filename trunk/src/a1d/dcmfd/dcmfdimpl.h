@@ -97,74 +97,40 @@ extern _BGP_Atomic global_atomic;
  *          Critical Section Macros              *
  *************************************************/
 
-#define A1DI_CRITICAL_CALL(call)                                  \
-    do {                                                          \
-      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
-      {                                                           \
-        DCMF_CriticalSection_enter(0);                            \
-        call;                                                     \
-        DCMF_CriticalSection_exit(0);                             \
-      }                                                           \
-      else                                                        \
-      {                                                           \
-        call;                                                     \
-      }                                                           \
-    } while (0)                                                   \
-
-#define A1DI_CRITICAL_ENTER()                                     \
-    do {                                                          \
-      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
-      {                                                           \
-        DCMF_CriticalSection_enter(0);                            \
-      }                                                           \
-    } while (0)                                                   \
-
+/** Using raw BGP atomics has shown degradation when
+ *  compared to using DCMF_Critical_section. So, I am
+ *  reverting back.*/
 /*
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
-      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
+      if(a1_settings.enable_cht)                                  \
       {                                                           \
         A1DI_GLOBAL_ATOMIC_ACQUIRE();                             \
-      }                                                           \
-    } while (0)                                                   \
-*/
-
-#define A1DI_CRITICAL_EXIT()                                      \
-    do {                                                          \
-      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
+      }     							  \
+      else 							  \
       {                                                           \
-        DCMF_CriticalSection_exit(0);                             \
+        DCMF_CriticalSection_enter(0);                            \
       }                                                           \
     } while (0)                                                   \
 
-/*
 #define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
-      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
+      if(a1_settings.enable_cht)                                  \
       {                                                           \
         A1DI_GLOBAL_ATOMIC_RELEASE();                             \
       }                                                           \
+      else                                                        \
+      {                                                           \
+        DCMF_CriticalSection_exit(0);                             \
+      }                                                           \
     } while (0)                                                   \
 */
 
-#define A1DI_CRITICAL_CYCLE()                                     \
-    do {                                                          \
-      if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || a1_settings.enable_cht)                            \
-      {                                                           \
-        DCMF_CriticalSection_cycle(0);                            \
-      }                                                           \
-    } while (0)
+#define A1DI_CRITICAL_ENTER() DCMF_CriticalSection_enter(0)
 
-#define A1DI_Advance()                                            \
-    do {                                                          \
-        DCMF_Messager_advance(0);                                 \
-    } while (0)                                                   \
+#define A1DI_CRITICAL_EXIT() DCMF_CriticalSection_exit(0)
+
+#define A1DI_Advance() DCMF_Messager_advance(0) 
 
 #define A1DI_Conditional_advance(boolean)                         \
     while(boolean) {                                              \

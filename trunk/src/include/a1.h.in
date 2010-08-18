@@ -121,7 +121,7 @@ typedef int A1_bool_t;
  *
  */
 
-typedef uintptr_t A1_handle_t;
+typedef void* A1_handle_t;
 
 
 /* ********************************************************************* */
