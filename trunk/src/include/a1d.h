@@ -167,6 +167,7 @@ int A1D_PutS(int target,
  *
  * \ingroup COPY OPERATIONS
  */
+
 int A1D_NbPutS(int target,
                int stride_level,
                int block_sizes[],
@@ -248,14 +249,14 @@ int A1D_GetS(int target,
  *
  * \ingroup COPY OPERATIONS
  */
-int A1D_GetS(int target,
-             int stride_level,
-             int block_sizes[],
-             void* source_ptr,
-             int src_stride_ar[],
-             void* target_ptr,
-             int trg_stride_ar[],
-             A1_handle_t *handle);
+int A1D_NbGetS(int target,
+               int stride_level,
+               int block_sizes[],
+               void* source_ptr,
+               int src_stride_ar[],
+               void* target_ptr,
+               int trg_stride_ar[],
+               A1_handle_t *handle);
 
 /**
  * \brief Device level implementation of A1_PutAcc
@@ -351,15 +352,15 @@ int A1D_PutAccS(int target,
  * \ingroup COPY OPERATIONS
  */
 int A1D_NbPutAccS(int target,
-                int stride_level,
-                int block_sizes[],
-                void* source_ptr,
-                int *src_stride_ar,
-                void* target_ptr,
-                int *trg_stride_ar,
-                A1_datatype_t a1_type,
-                void* scaling,
-                A1_Handle_t *handle);
+                  int stride_level,
+                  int block_sizes[],
+                  void* source_ptr,
+                  int *src_stride_ar,
+                  void* target_ptr,
+                  int *trg_stride_ar,
+                  A1_datatype_t a1_type,
+                  void* scaling,
+                  A1_handle_t *handle);
 
 /**
  * \brief Device level implementation of A1_Flush 

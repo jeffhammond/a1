@@ -111,7 +111,7 @@ int A1DI_Send_flush_initialize()
                 0,
                 sizeof(int) * A1D_Process_info.num_ranks);
 
-  fn_exit: A
+  fn_exit: 
     A1U_FUNC_EXIT();
     return status;
 

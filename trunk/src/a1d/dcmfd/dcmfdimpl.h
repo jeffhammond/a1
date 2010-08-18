@@ -285,20 +285,6 @@ typedef struct
     A1D_Putacc_header_t header;
 } A1D_Putacc_recv_info_t;
 
-typedef struct A1D_Handle_t
-{
-    A1D_Request_t *request_list;
-    volatile int active;
-    uintptr_t user_handle_ptr;
-    struct A1D_Handle_t *next;
-} A1D_Handle_t;
-
-typedef struct A1D_Handle_pool_t
-{
-    A1D_Handle_t *head;
-    void *region_ptr;
-} A1D_Handle_pool_t;
-
 typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
@@ -312,6 +298,20 @@ typedef struct
     void** region_ptr;
     uint32_t region_count;
 } A1D_Request_pool_t;
+
+typedef struct A1D_Handle_t
+{
+    A1D_Request_t *request_list;
+    volatile int active;
+    uintptr_t user_handle_ptr;
+    struct A1D_Handle_t *next;
+} A1D_Handle_t;
+
+typedef struct A1D_Handle_pool_t
+{
+    A1D_Handle_t *head;
+    void *region_ptr;
+} A1D_Handle_pool_t;
 
 typedef struct
 {
@@ -335,7 +335,7 @@ extern pthread_t A1DI_CHT_pthread;
 extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
 extern A1D_Request_pool_t A1D_Request_pool;
-exterm A1D_Handle_pool_t A1D_Handle_pool;
+extern A1D_Handle_pool_t A1D_Handle_pool;
 
 extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Control_flushack_protocol;
@@ -372,6 +372,8 @@ void A1DI_Global_lock_release();
 
 void A1DI_Generic_done(void *, DCMF_Error_t *);
 
+void A1DI_Handle_done(void *, DCMF_Error_t *);
+
 void A1DI_Free_done(void *, DCMF_Error_t *);
 
 int A1DI_Memregion_Global_initialize();
@@ -383,6 +385,8 @@ int A1DI_Packed_puts_initialize();
 int A1DI_Get_initialize();
 
 A1D_Request_t* A1DI_Get_request();
+
+A1D_Handle_t* A1DI_Get_handle();
 
 void A1DI_Release_request(A1D_Request_t *request);
 
@@ -405,14 +409,6 @@ int A1DI_GlobalBarrier();
 int A1DI_Read_parameters();
 
 int A1DI_Send_flush(int proc);
-
-int A1DI_Packed_puts(int target,
-                     int stride_level,
-                     int *block_sizes,
-                     void* source_ptr,
-                     int *src_stride_ar,
-                     void* target_ptr,
-                     int *trg_stride_ar);
 
 int A1DI_Pack_strided(void **packet,
                       int *size_packet,

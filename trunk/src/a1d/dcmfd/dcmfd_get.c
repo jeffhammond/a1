@@ -87,7 +87,7 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* a1_handl
 
     /* Initializing handle. the handle must have been initialized using *
      * A1_Init_handle */
-    if(a1_handle == NULL)
+    if(*a1_handle == NULL)
     {
       a1d_handle = A1DI_Get_handle();
       A1DI_Load_request(a1d_handle);
@@ -96,7 +96,7 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* a1_handl
     }
     else
     {
-      a1d_handle = (A1D_handle_t) a1_handle;
+      a1d_handle = (A1D_Handle_t *) *a1_handle;
       A1DI_Load_request(a1d_handle);
     }
 

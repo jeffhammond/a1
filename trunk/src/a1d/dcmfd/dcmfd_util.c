@@ -13,11 +13,6 @@ void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
     --(*((uint32_t *) clientdata));
 }
 
-void A1DI_Generic_ack(void *clientdata, DCMF_Error_t *error)
-{
-    --(*((uint32_t *) clientdata));
-}
-
 void A1DI_Handle_done(void *clientdata, DCMF_Error_t *error)
 {
     A1D_Handle_t *a1d_handle = (A1D_Handle_t *) clientdata;

@@ -50,7 +50,7 @@ int A1D_Put(int target,
     {
         done_callback = A1D_Nocallback;
         done_active = 0;
-        ack_callback.function = A1DI_Generic_ack;
+        ack_callback.function = A1DI_Generic_done;
         ack_callback.clientdata = (void *) &ack_active;
         ack_active = 1;
     }
@@ -108,7 +108,7 @@ int A1D_NbPut(int target,
 
     /* Initializing handle. the handle must have been initialized using *
      * A1_Init_handle */  
-    if(a1_handle == NULL) 
+    if(*a1_handle == NULL) 
     {
       a1d_handle = A1DI_Get_handle();
       A1DI_Load_request(a1d_handle);
@@ -117,7 +117,7 @@ int A1D_NbPut(int target,
     }
     else 
     {
-      a1d_handle = (A1D_handle_t) a1_handle;
+      a1d_handle = (A1D_Handle_t *) *a1_handle;
       A1DI_Load_request(a1d_handle);
     } 
 

@@ -70,7 +70,7 @@ A1D_Handle_t* A1DI_Get_handle()
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return a1_request;
+    return a1_handle;
 
   fn_fail:
     goto fn_exit;

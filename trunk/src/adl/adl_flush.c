@@ -26,7 +26,7 @@ int A1_Flush(int proc)
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
+    return status;
 
   fn_fail:
     goto fn_exit;

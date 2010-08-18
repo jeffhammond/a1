@@ -27,10 +27,10 @@ is a free request/handle available.
 
 TODOs 
 
-- Introduce API and functions to initialize handle (Application should initialize A1 handles before using 
+done - Introduce API and functions to initialize handle (Application should initialize A1 handles before using 
   them)
 - Verify functionality of Non-blocking operations and evaluate bandwidth performance.
-- Use enable_cht as the option name for CHT
+done - Use enable_cht as the option name for CHT
 - Modify locking macros to switch between Bgp_Atomics for CHT (THREAD_SINGLE) and DCMF_CS for Interrupts. 
 - Make cht/interrupts a configure time option. 
 - Implement shared counters using atomics.

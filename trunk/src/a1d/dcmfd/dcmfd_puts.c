@@ -92,7 +92,7 @@ int A1DI_Packed_puts(int target,
                      int *src_stride_ar,
                      void* target_ptr,
                      int *trg_stride_ar,
-                     A1D_handle_t *a1d_handle)
+                     A1D_Handle_t *a1d_handle)
 {
 
     int status = A1_SUCCESS;
@@ -119,7 +119,7 @@ int A1DI_Packed_puts(int target,
     a1d_handle->active++; 
     /* Assigning the packing buffer pointer in request so that it can be free when the 
      * request is complete, in the callback */
-    a1d_handle->request_head->request->buffer_ptr = packet;
+    a1d_handle->request_list->buffer_ptr = packet;
 
     status = DCMF_Send(&A1D_Packed_puts_protocol,
                        &(a1d_handle->request_list->request),
@@ -127,7 +127,7 @@ int A1DI_Packed_puts(int target,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
                        size_packet,
-                       *packet,
+                       packet,
                        NULL,
                        0);
     A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Send returned with an error \n");
@@ -253,7 +253,7 @@ int A1D_PutS(int target,
                                   src_stride_ar,
                                   target_ptr,
                                   trg_stride_ar,
-                                  a1d_handle)
+                                  a1d_handle);
         A1U_ERR_POP(status, "A1DI_Packed_puts returned with an error \n");
 
     }
@@ -277,7 +277,7 @@ int A1D_NbPutS(int target,
              int *src_stride_ar,
              void* target_ptr,
              int *trg_stride_ar,
-             A1_Handle_t *a1_handle)
+             A1_handle_t *a1_handle)
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
@@ -288,7 +288,7 @@ int A1D_NbPutS(int target,
 
     /* Initializing handle. the handle must have been initialized using *
      * A1_Init_handle */
-    if(a1_handle == NULL)
+    if(*a1_handle == NULL)
     {
       a1d_handle = A1DI_Get_handle();
       A1DI_Load_request(a1d_handle);
@@ -297,7 +297,7 @@ int A1D_NbPutS(int target,
     }
     else
     {
-      a1d_handle = (A1D_handle_t) a1_handle;
+      a1d_handle = (A1D_Handle_t *) *a1_handle;
       A1DI_Load_request(a1d_handle);
     }
 
@@ -325,7 +325,7 @@ int A1D_NbPutS(int target,
                                   src_stride_ar,
                                   target_ptr,
                                   trg_stride_ar,
-                                  a1d_handle)
+                                  a1d_handle);
         A1U_ERR_POP(status, "A1DI_Packed_puts returned with an error \n");
 
     }

@@ -43,7 +43,7 @@ int A1_NbPutAcc(int target,
               void* target_ptr,
               int bytes,
               A1_datatype_t a1_type,
-              void* scaling
+              void* scaling,
               A1_handle_t *a1_handle)
 {
     int status = A1_SUCCESS;

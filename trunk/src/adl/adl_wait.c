@@ -21,18 +21,18 @@ int A1_Wait_handle(A1_handle_t handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Wait_handle(A1_handle_t handle); 
+    status = A1D_Wait_handle(handle); 
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned an error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
+    return status;
 
   fn_fail:
     goto fn_exit;
 }
 
-int A1_Test_handle(A1_handle_t handle)
+int A1_Test_handle(A1_handle_t handle, A1_bool_t* completed)
 {
     int status = A1_SUCCESS;
 
@@ -45,7 +45,7 @@ int A1_Test_handle(A1_handle_t handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Test_handle(A1_handle_t handle);
+    status = A1D_Test_handle(handle, completed);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Test_handle returned an error\n");
 
   fn_exit:

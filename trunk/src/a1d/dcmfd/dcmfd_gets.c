@@ -210,19 +210,19 @@ int A1DI_Packed_gets(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned(&packet, sizeof(A1D_Handle_t));
+    status = A1DI_Malloc_aligned((void **) &packet, sizeof(A1D_Handle_t));
     A1U_ERR_POP(status,"Malloc failed in A1DI_Packed_gets \n");
 
     /*Copying header information*/
-    packet.target = A1D_Process_info.my_rank;
-    packet.source_ptr = source_ptr;
-    packet.target_ptr = target_ptr;
-    packet.stride_level = stride_level;
-    memcpy(packet.src_stride_ar, src_stride_ar, stride_level
+    packet->target = A1D_Process_info.my_rank;
+    packet->source_ptr = source_ptr;
+    packet->target_ptr = target_ptr;
+    packet->stride_level = stride_level;
+    memcpy(packet->src_stride_ar, src_stride_ar, stride_level
             * sizeof(uint32_t));
-    memcpy(packet.trg_stride_ar, trg_stride_ar, stride_level
+    memcpy(packet->trg_stride_ar, trg_stride_ar, stride_level
             * sizeof(uint32_t));
-    memcpy(packet.block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
+    memcpy(packet->block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
 
     A1DI_Load_request(a1d_handle);
 
@@ -231,15 +231,15 @@ int A1DI_Packed_gets(int target,
     a1d_handle->active++;
     /* Assigning the packing buffer pointer in request so that it can be free when the
      * request is complete, in the callback */
-    a1d_handle->request_head->request->buffer_ptr = packet;
+    a1d_handle->request_list->buffer_ptr = (void *) packet;
 
     status = DCMF_Send(&A1D_Packed_gets_protocol,
-                       &(a1_handle->request_list->request),
+                       &(a1d_handle->request_list->request),
                        done_callback,
                        DCMF_RELAXED_CONSISTENCY,
                        target,
                        sizeof(A1D_Packed_gets_header_t),
-                       (void *) &packet,
+                       (void *) packet,
                        NULL,
                        0);
     A1U_ERR_POP(status, "Send returned with an error \n");
@@ -298,10 +298,10 @@ int A1DI_Direct_gets(int target,
 
         done_callback.function = A1DI_Handle_done;
         done_callback.clientdata = (void *) a1d_handle;
-        a1d_handle->acitve++;
+        a1d_handle->active++;
 
         status = DCMF_Get(&A1D_Generic_get_protocol,
-                          &(a1d_handle->request_head->request),
+                          &(a1d_handle->request_list->request),
                           done_callback,
                           DCMF_RELAXED_CONSISTENCY,
                           target,
@@ -367,7 +367,8 @@ int A1D_GetS(int target,
                                   source_ptr,
                                   src_stride_ar,
                                   target_ptr,
-                                  trg_stride_ar);
+                                  trg_stride_ar, 
+                                  a1d_handle);
         A1U_ERR_POP(status, "A1DI_Packed_gets returned with an error \n");
 
         A1DI_Conditional_advance(a1d_handle->active > 0 || A1D_Expecting_getresponse > 0);
@@ -391,8 +392,8 @@ int A1D_NbGetS(int target,
              void* source_ptr,
              int *src_stride_ar,
              void* target_ptr,
-             int *trg_stride_ar
-             A1_handle_t *handle)
+             int *trg_stride_ar,
+             A1_handle_t *a1_handle)
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
@@ -412,7 +413,7 @@ int A1D_NbGetS(int target,
     }
     else
     {
-      a1d_handle = (A1D_handle_t) a1_handle;
+      a1d_handle = (A1D_Handle_t *) *a1_handle;
       A1DI_Load_request(a1d_handle);
     }
 

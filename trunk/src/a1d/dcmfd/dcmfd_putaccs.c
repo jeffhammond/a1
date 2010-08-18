@@ -338,7 +338,7 @@ int A1D_NbPutAccS(int target,
     }
     else
     {
-      a1d_handle = (A1D_handle_t) a1_handle;
+      a1d_handle = (A1D_Handle_t *) *a1_handle;
       A1DI_Load_request(a1d_handle);
     }
 
