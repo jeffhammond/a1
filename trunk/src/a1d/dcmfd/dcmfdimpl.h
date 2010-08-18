@@ -20,7 +20,7 @@
 
 #define A1C_ALIGNMENT 16
 
-#define A1C_DISABLE_CHT 0
+#define A1C_ENABLE_CHT 1
 #define A1C_DISABLE_INTERRUPTS 0 
 #define A1C_CHT_PAUSE_CYCLES 750
 
@@ -99,7 +99,7 @@ extern _BGP_Atomic global_atomic;
 #define A1DI_CRITICAL_CALL(call)                                  \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || !a1_settings.disable_cht)                          \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         DCMF_CriticalSection_enter(0);                            \
         call;                                                     \
@@ -114,7 +114,7 @@ extern _BGP_Atomic global_atomic;
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || !a1_settings.disable_cht)                          \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         DCMF_CriticalSection_enter(0);                            \
       }                                                           \
@@ -124,7 +124,7 @@ extern _BGP_Atomic global_atomic;
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || !a1_settings.disable_cht)                          \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         A1DI_GLOBAL_ATOMIC_ACQUIRE();                             \
       }                                                           \
@@ -134,7 +134,7 @@ extern _BGP_Atomic global_atomic;
 #define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || !a1_settings.disable_cht)                          \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         DCMF_CriticalSection_exit(0);                             \
       }                                                           \
@@ -144,7 +144,7 @@ extern _BGP_Atomic global_atomic;
 #define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || !a1_settings.disable_cht)                          \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         A1DI_GLOBAL_ATOMIC_RELEASE();                             \
       }                                                           \
@@ -154,7 +154,7 @@ extern _BGP_Atomic global_atomic;
 #define A1DI_CRITICAL_CYCLE()                                     \
     do {                                                          \
       if((A1D_Messager_info.thread_level > A1_THREAD_MATCHED)     \
-            || !a1_settings.disable_cht)                          \
+            || a1_settings.enable_cht)                            \
       {                                                           \
         DCMF_CriticalSection_cycle(0);                            \
       }                                                           \
@@ -185,7 +185,7 @@ extern _BGP_Atomic global_atomic;
  *************************************************/
 typedef struct
 {
-    volatile uint32_t disable_cht;
+    volatile uint32_t enable_cht;
     volatile uint32_t cht_pause_cycles;
     volatile uint32_t disable_interrupts;
     volatile uint32_t enable_immediate_flush;
@@ -376,29 +376,29 @@ void A1DI_Free_done(void *, DCMF_Error_t *);
 
 int A1DI_Memregion_Global_initialize();
 
-DCMF_Result A1DI_Put_initialize();
+int A1DI_Put_initialize();
 
-DCMF_Result A1DI_Packed_puts_initialize();
+int A1DI_Packed_puts_initialize();
 
-DCMF_Result A1DI_Get_initialize();
+int A1DI_Get_initialize();
 
 A1D_Request_t* A1DI_Get_request();
 
 void A1DI_Release_request(A1D_Request_t *request);
 
-DCMF_Result A1DI_Packed_gets_initialize();
+int A1DI_Packed_gets_initialize();
 
-DCMF_Result A1DI_Putacc_initialize();
+int A1DI_Putacc_initialize();
 
-DCMF_Result A1DI_Packed_putaccs_initialize();
+int A1DI_Packed_putaccs_initialize();
 
-DCMF_Result A1DI_GlobalBarrier_initialize();
+int A1DI_GlobalBarrier_initialize();
 
-DCMF_Result A1DI_Send_flush_initialize();
+int A1DI_Send_flush_initialize();
 
-DCMF_Result A1DI_Put_flush_initialize();
+int A1DI_Put_flush_initialize();
 
-DCMF_Result A1DI_Control_flushack_initialize();
+int A1DI_Control_flushack_initialize();
 
 int A1DI_GlobalBarrier();
 

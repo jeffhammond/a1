@@ -49,9 +49,9 @@ void A1DI_Control_xchange_callback(void *clientdata,
     --(*((uint32_t *) clientdata));
 }
 
-DCMF_Result A1DI_Control_xchange_initialize()
+int A1DI_Control_xchange_initialize()
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Control_Configuration_t conf;
 
     A1U_FUNC_ENTER();
@@ -61,15 +61,17 @@ DCMF_Result A1DI_Control_xchange_initialize()
     conf.cb_recv = A1DI_Control_xchange_callback;
     conf.cb_recv_clientdata = (void *) &A1D_Control_xchange_info.rcv_active;
 
-    result = DCMF_Control_register(&A1D_Control_xchange_info.protocol, &conf);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    status = DCMF_Control_register(&A1D_Control_xchange_info.protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
                 "Control xchange registartion returned with error %d \n",
-                result);
+                status);
 
-    fn_exit: A1U_FUNC_EXIT();
-    return result;
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 void* A1DI_Unpack_data_strided(void *pointer,
@@ -99,15 +101,17 @@ void* A1DI_Unpack_data_strided(void *pointer,
         pointer = (void *) ((size_t) pointer + block_sizes[0]);
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return pointer;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Unpack_strided(void *packet)
 {
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     void *temp;
     A1D_Packed_puts_header_t *header;
 
@@ -123,10 +127,12 @@ int A1DI_Unpack_strided(void *packet)
                              header->target_ptr,
                              header->trg_stride_ar);
 
-    fn_exit: A1U_FUNC_EXIT();
-    return result;
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 void* A1DI_Pack_data_strided(void *pointer,
@@ -156,10 +162,12 @@ void* A1DI_Pack_data_strided(void *pointer,
         pointer = (void *) ((size_t) pointer + block_sizes[0]);
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return pointer;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Pack_strided(void **packet,
@@ -171,7 +179,7 @@ int A1DI_Pack_strided(void **packet,
                       void *target_ptr,
                       int *trg_stride_ar)
 {
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     int i, size_data;
     void *temp;
     A1D_Packed_puts_header_t header;
@@ -183,8 +191,8 @@ int A1DI_Pack_strided(void **packet,
         size_data *= block_sizes[i];
     *size_packet = sizeof(A1D_Packed_puts_header_t) + size_data;
 
-    result = A1DI_Malloc_aligned(packet, *size_packet);
-    A1U_ERR_POP(result != A1_SUCCESS,
+    status = A1DI_Malloc_aligned(packet, *size_packet);
+    A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Malloc_aligned failed while allocating packet\
                in A1DI_Pack_strided\n");
 
@@ -203,10 +211,12 @@ int A1DI_Pack_strided(void **packet,
                            source_ptr,
                            src_stride_ar);
 
-    fn_exit: A1U_FUNC_EXIT();
-    return result;
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 void* A1DI_Unpack_data_strided_acc(void *pointer,
@@ -292,15 +302,17 @@ void* A1DI_Unpack_data_strided_acc(void *pointer,
         pointer = (void *) ((size_t) pointer + block_sizes[0]);
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return pointer;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Unpack_strided_putaccs(void *packet)
 {
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     void *temp;
     A1D_Packed_putaccs_header_t *header;
 
@@ -318,10 +330,12 @@ int A1DI_Unpack_strided_putaccs(void *packet)
                                  header->datatype,
                                  (void *) &(header->scaling));
 
-    fn_exit: A1U_FUNC_EXIT();
-    return result;
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Pack_strided_putaccs(void **packet,
@@ -335,7 +349,7 @@ int A1DI_Pack_strided_putaccs(void **packet,
                               A1_datatype_t a1_type,
                               void *scaling)
 {
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     int i, size_data;
     void *temp;
     A1D_Packed_putaccs_header_t header;
@@ -346,8 +360,8 @@ int A1DI_Pack_strided_putaccs(void **packet,
     for (i = 1; i <= stride_level; i++) size_data *= block_sizes[i];
     *size_packet = sizeof(A1D_Packed_putaccs_header_t) + size_data;
 
-    result = A1DI_Malloc_aligned(packet, *size_packet);
-    A1U_ERR_POP(result != A1_SUCCESS,
+    status = A1DI_Malloc_aligned(packet, *size_packet);
+    A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Malloc_aligned while allocating packet in A1DI_Pack_strided_putaccs\n");
 
     /*Copying header information*/
@@ -380,7 +394,7 @@ int A1DI_Pack_strided_putaccs(void **packet,
             memcpy((void *) &(header.scaling), scaling, sizeof(float));
             break;
         default:
-            A1U_ERR_POP(result, "Invalid a1_type received in Putacc operation \n");
+            A1U_ERR_POP(status, "Invalid a1_type received in Putacc operation \n");
             break;
         }
     }
@@ -394,8 +408,10 @@ int A1DI_Pack_strided_putaccs(void **packet,
                            source_ptr,
                            src_stride_ar);
 
-    fn_exit: A1U_FUNC_EXIT();
-    return result;
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

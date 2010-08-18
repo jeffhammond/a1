@@ -134,3 +134,25 @@ unsigned long long A1D_Time_cycles()
   fn_fail: 
     goto fn_exit;
 }
+
+int A1D_Init_handle(A1_handle_t *a1_handle)
+{
+    int status = A1_SUCCESS;
+    A1D_Handle_t *a1d_handle;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    A1U_ASSERT(a1_handle != NULL, A1_ERROR)
+
+    *a1_handle = NULL;
+
+  fn_exit:
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}

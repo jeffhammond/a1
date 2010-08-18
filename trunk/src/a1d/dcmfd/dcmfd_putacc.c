@@ -10,17 +10,17 @@ DCMF_Protocol_t A1D_Generic_putacc_protocol;
 
 void A1DI_RecvDone_putacc_callback(void *clientdata, DCMF_Error_t *error)
 {
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
 
     A1D_Putacc_recv_info_t *putacc_recv_info =
             (A1D_Putacc_recv_info_t *) clientdata;
     A1D_Putacc_header_t *header = &(putacc_recv_info->header);
     A1D_Buffer_info_t *buffer_info = &(putacc_recv_info->buffer_info);
 
-    result = A1D_Acc_process(buffer_info->buffer_ptr,
+    status = A1D_Acc_process(buffer_info->buffer_ptr,
                              buffer_info->bytes,
                              header);
-    A1U_ERR_ABORT(result,
+    A1U_ERR_ABORT(status,
                   "A1D_Acc_process failed in A1DI_RecvDone_putacc_callback\n");
 
     A1DI_Free(buffer_info->buffer_ptr);
@@ -36,20 +36,20 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
                                               char **rcvbuf,
                                               DCMF_Callback_t *cb_done)
 {
-    int result = 0;
+    int status = 0;
     A1D_Putacc_recv_info_t *putacc_recv_info;
 
-    result = A1DI_Malloc_aligned((void **) &putacc_recv_info,
+    status = A1DI_Malloc_aligned((void **) &putacc_recv_info,
                                  sizeof(A1D_Putacc_recv_info_t));
-    A1U_ERR_ABORT(result != 0,
+    A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
     memcpy((void *) &(putacc_recv_info->header), (void *) msginfo, count
             * sizeof(DCQuad));
 
     *rcvlen = sndlen;
-    result = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
-    A1U_ERR_ABORT(result != 0,
+    status = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
+    A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
     (putacc_recv_info->buffer_info).buffer_ptr = (void *) *rcvbuf;
@@ -68,22 +68,22 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
                                         const char *src,
                                         size_t bytes)
 {
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_Putacc_header_t *header;
   
     header = (A1D_Putacc_header_t *) msginfo;
 
-    result = A1D_Acc_process((void *) src,
+    status = A1D_Acc_process((void *) src,
                              bytes,
                              header);
-    A1U_ERR_ABORT(result,
+    A1U_ERR_ABORT(status,
                   "A1D_Acc_process failed in A1DI_RecvSendShort_putacc_callback\n");
 
 }
 
-DCMF_Result A1DI_Putacc_initialize()
+int A1DI_Putacc_initialize()
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Send_Configuration_t conf;
 
     A1U_FUNC_ENTER();
@@ -95,14 +95,14 @@ DCMF_Result A1DI_Putacc_initialize()
     conf.cb_recv = A1DI_RecvSend_putacc_callback;
     conf.cb_recv_clientdata = NULL;
 
-    result = DCMF_Send_register(&A1D_Generic_putacc_protocol, &conf);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    status = DCMF_Send_register(&A1D_Generic_putacc_protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
                 "putacc registartion returned with error %d \n",
-                result);
+                status);
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail:
     goto fn_exit;
@@ -110,7 +110,7 @@ DCMF_Result A1DI_Putacc_initialize()
 
 int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header)
 {
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
@@ -162,14 +162,14 @@ int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header)
                             bytes/sizeof(float));
            break;
        default:
-           A1U_ERR_POP(result, "Invalid datatype received in Putacc operation \n");
+           A1U_ERR_POP(status, "Invalid datatype received in Putacc operation \n");
            break;
        }
     }
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -182,7 +182,7 @@ int A1D_PutAcc(int target,
                A1_datatype_t a1_type,
                void* scaling)
 {
-    DCMF_Result result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t callback;
     volatile int active;
@@ -223,13 +223,13 @@ int A1D_PutAcc(int target,
            (header.scaling).float_value = *((float *) scaling);
            break;
        default:
-           result = A1_ERROR;
-           A1U_ERR_POP((result != A1_SUCCESS), "Invalid data type in putacc \n");
+           status = A1_ERROR;
+           A1U_ERR_POP((status != A1_SUCCESS), "Invalid data type in putacc \n");
            break;
        }
     }
 
-    result = DCMF_Send(&A1D_Generic_putacc_protocol,
+    status = DCMF_Send(&A1D_Generic_putacc_protocol,
                        &request,
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
@@ -238,7 +238,7 @@ int A1D_PutAcc(int target,
                        source_ptr,
                        (DCQuad *) &header,
                        (unsigned) 2);
-    A1U_ERR_POP((result != A1_SUCCESS), "Putacc returned with an error \n");
+    A1U_ERR_POP((status != A1_SUCCESS), "Putacc returned with an error \n");
 
     A1D_Connection_send_active[target]++;
     A1DI_Conditional_advance(active > 0);
@@ -246,7 +246,7 @@ int A1D_PutAcc(int target,
   fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -260,7 +260,7 @@ int A1D_NbPutAcc(int target,
                  void* scaling,
                  A1_handle_t* a1_handle)
 {
-    DCMF_Result result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
     A1D_Putacc_header_t header;
 
@@ -314,13 +314,13 @@ int A1D_NbPutAcc(int target,
            (header.scaling).float_value = *((float *) scaling);
            break;
        default:
-           result = A1_ERROR;
-           A1U_ERR_POP((result != A1_SUCCESS), "Invalid data type in putacc \n");
+           status = A1_ERROR;
+           A1U_ERR_POP(status, "Invalid data type in putacc \n");
            break;
        }
     }
 
-    result = DCMF_Send(&A1D_Generic_putacc_protocol,
+    status = DCMF_Send(&A1D_Generic_putacc_protocol,
                        &(a1_handle->request_list->request),
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
@@ -329,14 +329,14 @@ int A1D_NbPutAcc(int target,
                        source_ptr,
                        (DCQuad *) &header,
                        (unsigned) 2);
-    A1U_ERR_POP((result != A1_SUCCESS), "Putacc returned with an error \n");
+    A1U_ERR_POP((status != DCMF_SUCCESS), "Putacc returned with an error \n");
 
     A1D_Connection_send_active[target]++;
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;

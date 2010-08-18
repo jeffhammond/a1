@@ -8,23 +8,23 @@
 
 DCMF_Protocol_t A1D_Generic_put_protocol;
 
-DCMF_Result A1DI_Put_initialize()
+int A1DI_Put_initialize()
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Put_Configuration_t conf;
 
     A1U_FUNC_ENTER();
 
     conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
-    result = DCMF_Put_register(&A1D_Generic_put_protocol, &conf);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    status = DCMF_Put_register(&A1D_Generic_put_protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
                 "put registartion returned with error %d \n",
-                result);
+                status);
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail:
     goto fn_exit;
@@ -35,7 +35,7 @@ int A1D_Put(int target,
             void* dst, 
             int bytes)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t done_callback, ack_callback;
     volatile int done_active, ack_active;
@@ -67,7 +67,7 @@ int A1D_Put(int target,
     src_disp = (size_t) src - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
-    result = DCMF_Put(&A1D_Generic_put_protocol,
+    status = DCMF_Put(&A1D_Generic_put_protocol,
                       &request,
                       done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
@@ -78,14 +78,14 @@ int A1D_Put(int target,
                       src_disp,
                       dst_disp,
                       ack_callback);
-    A1U_ERR_POP(result, "Put returned with an error \n");
+    A1U_ERR_POP(status, "Put returned with an error \n");
 
     A1DI_Conditional_advance(done_active > 0 || ack_active > 0);
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -97,7 +97,7 @@ int A1D_NbPut(int target,
               int bytes,
               A1_handle_t* a1_handle)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
     DCMF_Callback_t done_callback, ack_callback;
     size_t src_disp, dst_disp;
@@ -130,7 +130,7 @@ int A1D_NbPut(int target,
     src_disp = (size_t) src - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
-    result = DCMF_Put(&A1D_Generic_put_protocol,
+    status = DCMF_Put(&A1D_Generic_put_protocol,
                       &(a1d_handle->request_list->request),
                       done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
@@ -141,12 +141,12 @@ int A1D_NbPut(int target,
                       src_disp,
                       dst_disp,
                       ack_callback);
-    A1U_ERR_POP(result, "Put returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "Put returned with an error \n");
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;

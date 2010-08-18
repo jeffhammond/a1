@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Get(int proc, void* src, void* dst, int bytes)
+int A1_Wait_handle(A1_handle_t handle) 
 {
     int status = A1_SUCCESS;
 
@@ -21,19 +21,18 @@ int A1_Get(int proc, void* src, void* dst, int bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Get(proc, src, dst, bytes);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Get returned an error\n");
+    status = A1D_Wait_handle(A1_handle_t handle); 
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned an error\n");
 
-  fn_exit: 
+  fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return;
 
-  fn_fail: 
+  fn_fail:
     goto fn_exit;
 }
 
-
-int A1_NbGet(int proc, void* src, void* dst, int bytes, A1_Handle_t *a1_handle)
+int A1_Test_handle(A1_handle_t handle)
 {
     int status = A1_SUCCESS;
 
@@ -46,13 +45,13 @@ int A1_NbGet(int proc, void* src, void* dst, int bytes, A1_Handle_t *a1_handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_NbGet(proc, src, dst, bytes, a1_handle);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned an error\n");
+    status = A1D_Test_handle(A1_handle_t handle);
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Test_handle returned an error\n");
 
-  fn_exit: 
+  fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return;
 
-  fn_fail: 
+  fn_fail:
     goto fn_exit;
 }

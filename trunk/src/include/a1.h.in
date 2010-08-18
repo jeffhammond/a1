@@ -385,6 +385,18 @@ int A1_Exchange_segments(A1_group_t* group, void* *ptr, int bytes);
 
 int A1_Release_segments(A1_group_t* group, void* ptr);
 
+/**
+ * \brief Initializes the give non-blocking handle.
+ *
+ * \param[in] handle      Non-blocking handle upon which to be waited.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+
+int A1_Init_handle(A1_handle_t *handle);
+
 /* FIXME: More API functions to come */
 
 /* ********************************************************************** */

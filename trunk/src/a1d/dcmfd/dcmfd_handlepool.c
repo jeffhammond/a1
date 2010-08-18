@@ -79,15 +79,15 @@ A1D_Handle_t* A1DI_Get_handle()
 int A1DI_Handle_pool_initialize()
 {
 
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     int index;
     A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
 
-    result = A1DI_Malloc_aligned((void **) &a1d_handle,
+    status = A1DI_Malloc_aligned((void **) &a1d_handle,
                                  sizeof(A1D_Handle_t) * A1C_HANDLE_POOL_SIZE);
-    A1U_ERR_POP(result != 0,
+    A1U_ERR_POP(status != 0,
                 "A1DI_Malloc_aligned failed while allocating handle pool\
                       in A1DI_Handle_pool_initialize\n");
     a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
@@ -102,7 +102,7 @@ int A1DI_Handle_pool_initialize()
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -110,7 +110,7 @@ int A1DI_Handle_pool_initialize()
 
 int A1D_Wait_handle(A1_handle_t a1_handle)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
@@ -125,7 +125,7 @@ int A1D_Wait_handle(A1_handle_t a1_handle)
   fn_exit:
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail:
     goto fn_exit;
@@ -133,7 +133,7 @@ int A1D_Wait_handle(A1_handle_t a1_handle)
 
 int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
@@ -150,7 +150,7 @@ int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
   fn_exit:
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail:
     goto fn_exit;

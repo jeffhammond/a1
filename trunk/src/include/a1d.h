@@ -58,6 +58,20 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes);
 int A1D_Release_segments(A1_group_t* group, void *ptr);
 
 /**
+ * \brief Device level implementation of A1_Init_handle.
+ *
+ * Initializes the give non-blocking handle.
+ *
+ * \param[in] handle      Non-blocking handle upon which to be waited.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+
+int A1D_Init_handle(A1_handle_t *handle);
+
+/**
  * \brief Device level implementation of A1_Barrier_group.
  *
  * On return, this call ensures that all processes within the entire group

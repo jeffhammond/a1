@@ -8,7 +8,7 @@
 
 void A1DI_Flush_all()
 {
-    int result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     int dst;
     DCMF_Request_t *request;
     DCQuad msginfo;
@@ -19,7 +19,7 @@ void A1DI_Flush_all()
     A1U_FUNC_ENTER();
 
     A1DI_Malloc_aligned((void **) &request, sizeof(DCMF_Request_t) * a1_settings.flushall_pending_limit); 
-    A1U_ERR_POP(!result, "A1DI_Malloc_aligned failed in A1DI_Flush_all\n"); 
+    A1U_ERR_POP(!status, "A1DI_Malloc_aligned failed in A1DI_Flush_all\n"); 
 
     pending_count = 0;
     ack_callback.function = A1DI_Generic_done;
@@ -35,7 +35,7 @@ void A1DI_Flush_all()
 
                 A1D_Control_flushack_active++;
 
-                result = DCMF_Send(&A1D_Send_flush_protocol,
+                status = DCMF_Send(&A1D_Send_flush_protocol,
                                    &request[pending_count],
                                    A1D_Nocallback,
                                    DCMF_SEQUENTIAL_CONSISTENCY,
@@ -44,7 +44,7 @@ void A1DI_Flush_all()
                                    NULL,
                                    &msginfo,
                                    1);
-                A1U_ERR_POP(result != DCMF_SUCCESS, "DCMF_Send returned with an error\n");
+                A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Send returned with an error\n");
                 pending_count++;
 
             }
@@ -58,7 +58,7 @@ void A1DI_Flush_all()
 
                 A1D_Put_flushack_active++;
 
-                result = DCMF_Put(&A1D_Generic_put_protocol,
+                status = DCMF_Put(&A1D_Generic_put_protocol,
                                   &request[pending_count],
                                   A1D_Nocallback,
                                   DCMF_SEQUENTIAL_CONSISTENCY,
@@ -69,7 +69,7 @@ void A1DI_Flush_all()
                                   src_disp,
                                   dst_disp,
                                   ack_callback);
-                A1U_ERR_POP(result != DCMF_SUCCESS, "DCMF_Put returned with an error\n");
+                A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put returned with an error\n");
                 pending_count++;
 
             }
@@ -100,7 +100,7 @@ void A1DI_Flush_all()
 
 int A1D_Flush_group(A1_group_t* group)
 {
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
@@ -120,7 +120,7 @@ int A1D_Flush_group(A1_group_t* group)
   fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;

@@ -88,15 +88,15 @@ void A1DI_Release_request_list(A1D_Request_t *a1d_request_list)
 int A1DI_Request_pool_increment()
 {
 
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     int index;
     A1D_Request_t *a1d_request;
 
     A1U_FUNC_ENTER();
 
-    result = A1DI_Malloc_aligned((void **) &a1d_request, 
+    status = A1DI_Malloc_aligned((void **) &a1d_request, 
                                  sizeof(A1D_Request_t) * a1_requestpool_info.increment_size);
-    A1U_ERR_POP(result = !a1d_request,
+    A1U_ERR_POP(status = !a1d_request,
                 "memory allocation for request pool failed \n");
     a1_requestpool_info.total_size = a1_requestpool_info.total_size
             + a1_requestpool_info.increment_size;
@@ -113,7 +113,7 @@ int A1DI_Request_pool_increment()
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -122,7 +122,7 @@ int A1DI_Request_pool_increment()
 int A1DI_Request_pool_initialize()
 {
 
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     int index, max_regions;
     A1D_Request_t *a1d_request;
 
@@ -131,15 +131,15 @@ int A1DI_Request_pool_initialize()
     max_regions = (a1_requestpool_info.limit_size
             - a1_requestpool_info.initial_size)
             / a1_requestpool_info.increment_size + 1;
-    result = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr),
+    status = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr),
                                  sizeof(void *) * max_regions);
-    A1U_ERR_POP(result != 0,
+    A1U_ERR_POP(status != 0,
                 "A1DI_Malloc_aligned failed while allocating request pool\
                        regions list in A1DI_Request_pool_initialize\n");
 
-    result = A1DI_Malloc_aligned((void **) &a1d_request, 
+    status = A1DI_Malloc_aligned((void **) &a1d_request, 
                                  sizeof(A1D_Request_t) * a1_requestpool_info.initial_size);
-    A1U_ERR_POP(result != 0,
+    A1U_ERR_POP(status != 0,
                 "A1DI_Malloc_aligned failed while allocating request pool\
                       in A1DI_Request_pool_initialize\n");
     a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
@@ -156,7 +156,7 @@ int A1DI_Request_pool_initialize()
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;

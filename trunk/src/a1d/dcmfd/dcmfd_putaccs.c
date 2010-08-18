@@ -27,17 +27,17 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
                                                      char **rcvbuf,
                                                      DCMF_Callback_t *cb_done)
 {
-    int result = 0;
+    int status = 0;
     A1D_Buffer_info_t *buffer_info;
 
-    result = A1DI_Malloc_aligned((void **) &buffer_info,
+    status = A1DI_Malloc_aligned((void **) &buffer_info,
                                  sizeof(A1D_Buffer_info_t));
-    A1U_ERR_ABORT(result != 0,
+    A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputaccs_callback\n");
 
     *rcvlen = sndlen;
-    result = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
-    A1U_ERR_ABORT(result != 0,
+    status = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
+    A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputaccs_callback\n");
 
     buffer_info->buffer_ptr = (void *) *rcvbuf;
@@ -58,9 +58,9 @@ void A1DI_RecvSendShort_packedputaccs_callback(void *clientdata,
     A1DI_Unpack_strided_putaccs((void *) src);
 }
 
-DCMF_Result A1DI_Packed_putaccs_initialize()
+int A1DI_Packed_putaccs_initialize()
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Send_Configuration_t conf;
 
     A1U_FUNC_ENTER();
@@ -72,13 +72,13 @@ DCMF_Result A1DI_Packed_putaccs_initialize()
     conf.cb_recv = A1DI_RecvSend_packedputaccs_callback;
     conf.cb_recv_clientdata = NULL;
 
-    result = DCMF_Send_register(&A1D_Packed_putaccs_protocol, &conf);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    status = DCMF_Send_register(&A1D_Packed_putaccs_protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
                 "DCMF_Send_register returned with error %d \n",
-                result);
+                status);
 
     fn_exit: A1U_FUNC_EXIT();
-    return result;
+    return status;
 
     fn_fail: goto fn_exit;
 }
@@ -95,14 +95,14 @@ int A1DI_Packed_putaccs(int target,
                         A1D_Handle_t *a1d_handle)
 {
 
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
     void *packet;
     int size_packet;
 
     A1U_FUNC_ENTER();
 
-    result = A1DI_Pack_strided_putaccs(&packet,
+    status = A1DI_Pack_strided_putaccs(&packet,
                                        &size_packet,
                                        stride_level,
                                        block_sizes,
@@ -112,7 +112,7 @@ int A1DI_Packed_putaccs(int target,
                                        trg_stride_ar,
                                        a1_type,
                                        scaling);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    A1U_ERR_POP(status != DCMF_SUCCESS,
                 "Pack acc function returned with an error \n");
 
     A1DI_Load_request(a1d_handle);
@@ -123,7 +123,7 @@ int A1DI_Packed_putaccs(int target,
      * request is complete, in the callback */
     a1d_handle->request_head->request->buffer_ptr = packet;
 
-    result = DCMF_Send(&A1D_Packed_putaccs_protocol,
+    status = DCMF_Send(&A1D_Packed_putaccs_protocol,
                        &(a1d_handle->request_list->request),
                        done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
@@ -132,13 +132,13 @@ int A1DI_Packed_putaccs(int target,
                        packet,
                        NULL,
                        0);
-    A1U_ERR_POP(result, "Send returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "Send returned with an error \n");
 
     A1D_Connection_send_active[target]++;
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -156,7 +156,7 @@ int A1DI_Direct_putaccs(int target,
                         void *scaling,
                         A1D_Handle_t *a1d_handle)
 {
-    int i, result = A1_SUCCESS;
+    int i, status = A1_SUCCESS;
     A1D_Putacc_header_t header;
     DCMF_Callback_t done_callback;
 
@@ -215,14 +215,14 @@ int A1DI_Direct_putaccs(int target,
                 (header.scaling).float_value = *((float *) scaling);
                 break;
             default:
-                result = A1_ERROR;
-                A1U_ERR_POP((result != A1_SUCCESS),
+                status = A1_ERROR;
+                A1U_ERR_POP((status != A1_SUCCESS),
                             "Invalid data type in putacc \n");
                 break;
             }
         }
 
-        result = DCMF_Send(&A1D_Generic_putacc_protocol,
+        status = DCMF_Send(&A1D_Generic_putacc_protocol,
                            &(a1d_handle->request_ptr->request),
                            done_callback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
@@ -231,7 +231,7 @@ int A1DI_Direct_putaccs(int target,
                            source_ptr,
                            (DCQuad *) &header,
                            (unsigned) 2);
-        A1U_ERR_POP((result != A1_SUCCESS), "Putacc returned with an error \n");
+        A1U_ERR_POP((status != DCMF_SUCCESS), "Putacc returned with an error \n");
 
         A1D_Connection_send_active[target]++;
 
@@ -239,7 +239,7 @@ int A1DI_Direct_putaccs(int target,
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -255,7 +255,7 @@ int A1D_PutAccS(int target,
                 A1_datatype_t a1_type,
                 void* scaling)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
@@ -267,7 +267,7 @@ int A1D_PutAccS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
     {
 
-        result = A1DI_Direct_putaccs(target,
+        status = A1DI_Direct_putaccs(target,
                                      stride_level,
                                      block_sizes,
                                      source_ptr,
@@ -277,13 +277,13 @@ int A1D_PutAccS(int target,
                                      a1_type,
                                      scaling,
                                      a1d_handle);
-        A1U_ERR_POP(result, "Direct putaccs function returned with an error \n");
+        A1U_ERR_POP(status, "Direct putaccs function returned with an error \n");
 
     }
     else
     {
 
-        result = A1DI_Packed_putaccs(target,
+        status = A1DI_Packed_putaccs(target,
                                      stride_level,
                                      block_sizes,
                                      source_ptr,
@@ -293,7 +293,7 @@ int A1D_PutAccS(int target,
                                      a1_type,
                                      scaling,
                                      a1d_handle);
-        A1U_ERR_POP(result, "Packed puts function returned with an error \n");
+        A1U_ERR_POP(status, "Packed puts function returned with an error \n");
 
     }
 
@@ -303,7 +303,7 @@ int A1D_PutAccS(int target,
     A1DI_Release_handle(a1d_handle); 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -320,7 +320,7 @@ int A1D_NbPutAccS(int target,
                 void* scaling,
                 A1_handle_t *a1_handle)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
@@ -345,7 +345,7 @@ int A1D_NbPutAccS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
     {
 
-        result = A1DI_Direct_putaccs(target,
+        status = A1DI_Direct_putaccs(target,
                                      stride_level,
                                      block_sizes,
                                      source_ptr,
@@ -355,13 +355,13 @@ int A1D_NbPutAccS(int target,
                                      a1_type,
                                      scaling,
                                      a1d_handle);
-        A1U_ERR_POP(result, "Direct putaccs function returned with an error \n");
+        A1U_ERR_POP(status, "Direct putaccs function returned with an error \n");
 
     }
     else
     {
 
-        result = A1DI_Packed_putaccs(target,
+        status = A1DI_Packed_putaccs(target,
                                      stride_level,
                                      block_sizes,
                                      source_ptr,
@@ -371,14 +371,14 @@ int A1D_NbPutAccS(int target,
                                      a1_type,
                                      scaling,
                                      a1d_handle);
-        A1U_ERR_POP(result, "Packed puts function returned with an error \n");
+        A1U_ERR_POP(status, "Packed puts function returned with an error \n");
 
     }
 
   fn_exit:
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;

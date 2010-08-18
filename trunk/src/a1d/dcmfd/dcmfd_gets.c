@@ -18,7 +18,7 @@ int A1DI_Packed_gets_response(int target,
                               void* target_ptr,
                               int *trg_stride_ar)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Request_t *request;
     DCMF_Callback_t callback;
     A1D_Buffer_info_t *buffer_info;
@@ -29,7 +29,7 @@ int A1DI_Packed_gets_response(int target,
 
     A1DI_Malloc_aligned((void **) &buffer_info, sizeof(A1D_Buffer_info_t));
 
-    result = A1DI_Pack_strided(&packet,
+    status = A1DI_Pack_strided(&packet,
                                &size_packet,
                                stride_level,
                                block_sizes,
@@ -37,7 +37,7 @@ int A1DI_Packed_gets_response(int target,
                                src_stride_ar,
                                target_ptr,
                                trg_stride_ar);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    A1U_ERR_POP(status != DCMF_SUCCESS,
                 "A1DI_Pack_strided returned with an error\n");
 
     buffer_info->buffer_ptr = packet;
@@ -45,7 +45,7 @@ int A1DI_Packed_gets_response(int target,
     callback.function = A1DI_Free_done;
     callback.clientdata = (void *) buffer_info;
 
-    result = DCMF_Send(&A1D_Packed_gets_response_protocol,
+    status = DCMF_Send(&A1D_Packed_gets_response_protocol,
                        request,
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
@@ -54,10 +54,10 @@ int A1DI_Packed_gets_response(int target,
                        packet,
                        NULL,
                        0);
-    A1U_ERR_POP(result, "Send returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "Send returned with an error \n");
 
     fn_exit: A1U_FUNC_EXIT();
-    return result;
+    return status;
 
     fn_fail: goto fn_exit;
 
@@ -85,17 +85,17 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
                                                            char **rcvbuf,
                                                            DCMF_Callback_t *cb_done)
 {
-    int result = 0;
+    int status = 0;
     A1D_Buffer_info_t *buffer_info;
 
-    result = A1DI_Malloc_aligned((void **) &buffer_info,
+    status = A1DI_Malloc_aligned((void **) &buffer_info,
                                  sizeof(A1D_Buffer_info_t));
-    A1U_ERR_ABORT(result != 0,
+    A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
     *rcvlen = sndlen;
-    result = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
-    A1U_ERR_ABORT(result != 0,
+    status = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
+    A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
     buffer_info->buffer_ptr = (void *) *rcvbuf;
@@ -118,9 +118,9 @@ void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
     A1D_Expecting_getresponse--;
 }
 
-DCMF_Result A1DI_Packed_gets_response_initialize()
+int A1DI_Packed_gets_response_initialize()
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Send_Configuration_t conf;
 
     A1U_FUNC_ENTER();
@@ -135,13 +135,13 @@ DCMF_Result A1DI_Packed_gets_response_initialize()
     conf.cb_recv = A1DI_RecvSend_packedgets_response_callback;
     conf.cb_recv_clientdata = NULL;
 
-    result = DCMF_Send_register(&A1D_Packed_gets_response_protocol, &conf);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    status = DCMF_Send_register(&A1D_Packed_gets_response_protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
                 "packed puts registartion returned with error %d \n",
-                result);
+                status);
 
     fn_exit: A1U_FUNC_EXIT();
-    return result;
+    return status;
 
     fn_fail: goto fn_exit;
 }
@@ -166,9 +166,9 @@ void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
 
 }
 
-DCMF_Result A1DI_Packed_gets_initialize()
+int A1DI_Packed_gets_initialize()
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Send_Configuration_t conf;
 
     A1U_FUNC_ENTER();
@@ -183,13 +183,13 @@ DCMF_Result A1DI_Packed_gets_initialize()
     conf.cb_recv = NULL;
     conf.cb_recv_clientdata = NULL;
 
-    result = DCMF_Send_register(&A1D_Packed_gets_protocol, &conf);
-    A1U_ERR_POP(result != DCMF_SUCCESS,
+    status = DCMF_Send_register(&A1D_Packed_gets_protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
                 "packed gets registartion returned with error %d \n",
-                result);
+                status);
 
     fn_exit: A1U_FUNC_EXIT();
-    return result;
+    return status;
 
     fn_fail: goto fn_exit;
 }
@@ -204,14 +204,14 @@ int A1DI_Packed_gets(int target,
                      A1D_Handle_t *a1d_handle)
 {
 
-    int result = A1_SUCCESS;
+    int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
     A1D_Packed_gets_header_t *packet;
 
     A1U_FUNC_ENTER();
 
-    result = A1DI_Malloc_aligned(&packet, sizeof(A1D_Handle_t));
-    A1U_ERR_POP(result,"Malloc failed in A1DI_Packed_gets \n");
+    status = A1DI_Malloc_aligned(&packet, sizeof(A1D_Handle_t));
+    A1U_ERR_POP(status,"Malloc failed in A1DI_Packed_gets \n");
 
     /*Copying header information*/
     packet.target = A1D_Process_info.my_rank;
@@ -233,7 +233,7 @@ int A1DI_Packed_gets(int target,
      * request is complete, in the callback */
     a1d_handle->request_head->request->buffer_ptr = packet;
 
-    result = DCMF_Send(&A1D_Packed_gets_protocol,
+    status = DCMF_Send(&A1D_Packed_gets_protocol,
                        &(a1_handle->request_list->request),
                        done_callback,
                        DCMF_RELAXED_CONSISTENCY,
@@ -242,13 +242,13 @@ int A1DI_Packed_gets(int target,
                        (void *) &packet,
                        NULL,
                        0);
-    A1U_ERR_POP(result, "Send returned with an error \n");
+    A1U_ERR_POP(status, "Send returned with an error \n");
 
     A1D_Connection_send_active[target]++;
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -264,7 +264,7 @@ int A1DI_Direct_gets(int target,
                      int *trg_stride_ar,
                      A1D_Handle_t *a1d_handle)
 {
-    int i, result = A1_SUCCESS;
+    int i, status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
     size_t src_disp, dst_disp;
 
@@ -300,7 +300,7 @@ int A1DI_Direct_gets(int target,
         done_callback.clientdata = (void *) a1d_handle;
         a1d_handle->acitve++;
 
-        result = DCMF_Get(&A1D_Generic_get_protocol,
+        status = DCMF_Get(&A1D_Generic_get_protocol,
                           &(a1d_handle->request_head->request),
                           done_callback,
                           DCMF_RELAXED_CONSISTENCY,
@@ -310,14 +310,14 @@ int A1DI_Direct_gets(int target,
                           &A1D_Memregion_global[A1D_Process_info.my_rank],
                           src_disp,
                           dst_disp);
-        A1U_ERR_POP(result, "DCMF_Get returned with an error \n");
+        A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Get returned with an error \n");
 
         A1D_Connection_send_active[target]++;
     }
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -331,7 +331,7 @@ int A1D_GetS(int target,
              void* target_ptr,
              int *trg_stride_ar)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
@@ -343,7 +343,7 @@ int A1D_GetS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {
 
-        result = A1DI_Direct_gets(target,
+        status = A1DI_Direct_gets(target,
                                   stride_level,
                                   block_sizes,
                                   source_ptr,
@@ -351,7 +351,7 @@ int A1D_GetS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   a1d_handle);
-        A1U_ERR_POP(result, "A1DI_Direct_gets returned with an error \n");
+        A1U_ERR_POP(status, "A1DI_Direct_gets returned with an error \n");
 
         A1DI_Conditional_advance(a1d_handle->active > 0);
 
@@ -361,14 +361,14 @@ int A1D_GetS(int target,
 
         A1D_Expecting_getresponse = 1;
 
-        result = A1DI_Packed_gets(target,
+        status = A1DI_Packed_gets(target,
                                   stride_level,
                                   block_sizes,
                                   source_ptr,
                                   src_stride_ar,
                                   target_ptr,
                                   trg_stride_ar);
-        A1U_ERR_POP(result, "A1DI_Packed_gets returned with an error \n");
+        A1U_ERR_POP(status, "A1DI_Packed_gets returned with an error \n");
 
         A1DI_Conditional_advance(a1d_handle->active > 0 || A1D_Expecting_getresponse > 0);
         A1D_Connection_send_active[target]--;
@@ -379,7 +379,7 @@ int A1D_GetS(int target,
     A1DI_Release_handle(a1d_handle); 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
@@ -394,7 +394,7 @@ int A1D_NbGetS(int target,
              int *trg_stride_ar
              A1_handle_t *handle)
 {
-    DCMF_Result result = DCMF_SUCCESS;
+    int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
@@ -419,7 +419,7 @@ int A1D_NbGetS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {
 
-        result = A1DI_Direct_gets(target,
+        status = A1DI_Direct_gets(target,
                                   stride_level,
                                   block_sizes,
                                   source_ptr,
@@ -427,7 +427,7 @@ int A1D_NbGetS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   a1d_handle);
-        A1U_ERR_POP(result, "A1DI_Direct_gets returned with an error \n");
+        A1U_ERR_POP(status, "A1DI_Direct_gets returned with an error \n");
 
     }
     else
@@ -435,21 +435,21 @@ int A1D_NbGetS(int target,
 
         A1D_Expecting_getresponse = 1;
 
-        result = A1DI_Packed_gets(target,
+        status = A1DI_Packed_gets(target,
                                   stride_level,
                                   block_sizes,
                                   source_ptr,
                                   src_stride_ar,
                                   target_ptr,
                                   trg_stride_ar);
-        A1U_ERR_POP(result, "A1DI_Packed_gets returned with an error \n");
+        A1U_ERR_POP(status, "A1DI_Packed_gets returned with an error \n");
 
     }
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
-    return result;
+    return status;
 
   fn_fail: 
     goto fn_exit;
