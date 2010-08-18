@@ -87,9 +87,6 @@ void A1DI_Flush_all()
     A1DI_Memset((void *) A1D_Connection_send_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
     A1DI_Memset((void *) A1D_Connection_put_active, 0, sizeof(uint32_t) * A1D_Process_info.num_ranks);
 
-    /*Reset the request pool*/
-    A1DI_Reset_request_pool();
-
   fn_exit:  
     A1U_FUNC_EXIT();
     return;

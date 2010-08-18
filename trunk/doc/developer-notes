@@ -24,8 +24,13 @@ requiring a local callback on every DCMF operation posted (one exception is non-
 a callback on the last operation will suffice). When the request/handle pools are dry, A1 waits on advance until there 
 is a free request/handle available. 
 
+------------------------------------------
+* CHT, Interrupts and DCMF Thread levels *
+------------------------------------------
 
-TODOs 
+When CHT is enabled, we use our own atomic locks to  
+
+TODO list 
 
 done - Introduce API and functions to initialize handle (Application should initialize A1 handles before using 
   them)

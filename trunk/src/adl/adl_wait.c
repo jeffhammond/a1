@@ -50,7 +50,7 @@ int A1_Test_handle(A1_handle_t handle, A1_bool_t* completed)
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return;
+    return status;
 
   fn_fail:
     goto fn_exit;

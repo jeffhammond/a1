@@ -8,11 +8,6 @@
 
 A1D_Handle_pool_t A1D_Handle_pool;
 
-#define A1DI_Set_user_handle(a1d_handle_ptr, user_handle_ptr) \
-  do {                                                        \
-       a1d_handle_ptr->user_handle_ptr = user_handle_ptr;     \
-     } while(0)                                               \
-
 void A1DI_Release_handle(A1D_Handle_t *a1d_handle)
 {
      

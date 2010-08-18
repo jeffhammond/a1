@@ -6,6 +6,8 @@
 
 #include "dcmfdimpl.h"
 
+_BGP_Atomic global_atomic;
+
 DCMF_Configure_t A1D_Messager_info;
 A1D_Process_info_t A1D_Process_info;
 

@@ -62,21 +62,22 @@ extern _BGP_Atomic global_atomic;
 /*************************************************
  *          Generic  Macros                      *
  *************************************************/
+#define A1DI_Set_user_handle(a1d_handle_ptr, a1_handle_ptr)   \
+  do {                                                        \
+       a1d_handle_ptr->user_handle_ptr = a1_handle_ptr;       \
+     } while(0)                                               \
+
 #define A1DI_Wait_cycles(cycles)                   \
    do {                                            \
       unsigned long long start = DCMF_Timebase();  \
-      unsigned long long stop = DCMF_Timebase();   \
-      while((stop - start) < cycles)               \
-           stop = DCMF_Timebase();                 \
+      while((DCMF_Timebase() - start) < cycles);   \
    } while(0)                                      \
 
-#define A1DI_Wait_seconds(seconds)       \
-   do {                                  \
-      double start = DCMF_Timer();       \
-      double stop = DCMF_Timer();        \
-      while((stop - start) < seconds)    \
-           stop = DCMF_Timer();          \
-   } while(0)                            \
+#define A1DI_Wait_seconds(seconds)               \
+   do {                                          \
+      double start = DCMF_Timer();               \
+      while((DCMF_Timer() - start) < seconds);   \
+   } while(0)                                    \
 
 /*************************************************
  *          Memory Allocation Macros             *
