@@ -21,7 +21,7 @@
 #define A1C_ALIGNMENT 16
 
 #define A1C_ENABLE_CHT 1
-#define A1C_DISABLE_INTERRUPTS 0 
+#define A1C_ENABLE_INTERRUPTS 0
 #define A1C_CHT_PAUSE_CYCLES 200
 
 #define A1C_DIRECT_NONCONTIG_PUT_THRESHOLD 512
@@ -211,8 +211,6 @@ typedef union
     };
 } A1D_Putacc_header_t;
 
-/* TODO: Pack header supports only upto 3D arrays. Need to increase structure or 
- * find a better way to represent it */
 typedef struct
 {
     int stride_level;
