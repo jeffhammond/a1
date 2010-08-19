@@ -158,7 +158,7 @@ typedef struct
 {
     volatile uint32_t enable_cht;
     volatile uint32_t cht_pause_cycles;
-    volatile uint32_t disable_interrupts;
+    volatile uint32_t enable_interrupts;
     volatile uint32_t enable_immediate_flush;
     volatile uint32_t direct_noncontig_put_threshold;
     volatile uint32_t direct_noncontig_get_threshold;

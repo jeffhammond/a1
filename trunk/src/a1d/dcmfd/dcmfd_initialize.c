@@ -92,10 +92,10 @@ int A1D_Initialize(int thread_level)
                  break;
         }
 
-        if(a1_settings.disable_interrupts) 
-            A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
-        else
+        if(a1_settings.enable_interrupts)
             A1D_Messager_info.interrupts = DCMF_INTERRUPTS_ON;
+        else
+            A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
     } 
 
     status = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);

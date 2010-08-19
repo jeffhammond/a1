@@ -31,10 +31,10 @@ int A1DI_Read_parameters()
         a1_settings.cht_pause_cycles = atoi(value);
     }
 
-    a1_settings.disable_interrupts = A1C_DISABLE_INTERRUPTS; 
-    if ((value = getenv("A1_DISABLE_INTERRUPTS")) != NULL)
+    a1_settings.enable_interrupts = A1C_ENABLE_INTERRUPTS;
+    if ((value = getenv("A1_ENABLE_INTERRUPTS")) != NULL)
     {
-        a1_settings.disable_interrupts = atoi(value);
+        a1_settings.enable_interrupts = atoi(value);
     }
 
     a1_settings.flushall_pending_limit = A1C_FLUSHALL_PENDING_LIMIT; 
@@ -47,7 +47,7 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1_DIRECT_NONCONTIG_PUT_THRESHOLD")) != NULL)
     {
         a1_settings.direct_noncontig_put_threshold = atoi(value); 
-        if(a1_settings.enable_cht == 0 && a1_settings.disable_interrupts == 1) {
+        if(a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0) {
             a1_settings.direct_noncontig_put_threshold = 0;
         }
     }
@@ -56,7 +56,7 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1_DIRECT_NONCONTIG_GET_THRESHOLD")) != NULL)
     {
         a1_settings.direct_noncontig_get_threshold = atoi(value);
-        if(a1_settings.enable_cht == 0 && a1_settings.disable_interrupts == 1) {
+        if(a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0) {
             a1_settings.direct_noncontig_get_threshold = 0;
         }
     }
@@ -65,7 +65,7 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1_DIRECT_NONCONTIG_PUTACC_THRESHOLD")) != NULL)
     {
         a1_settings.direct_noncontig_putacc_threshold = atoi(value);
-        if(a1_settings.enable_cht == 0 && a1_settings.disable_interrupts == 1) {
+        if(a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0) {
             a1_settings.direct_noncontig_putacc_threshold = 0;
         }
     }
@@ -74,7 +74,7 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1_DIRECT_NONCONTIG_GETACC_THRESHOLD")) != NULL)
     {
         a1_settings.direct_noncontig_getacc_threshold = atoi(value);
-        if(a1_settings.enable_cht == 0 && a1_settings.disable_interrupts == 1) {
+        if(a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0) {
             a1_settings.direct_noncontig_getacc_threshold = 0;
         }
     }
