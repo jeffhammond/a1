@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <bpcore/bgp_atomic_ops.h>
+#include <spi/bgp_SPI.h>
 
 /*************************************************
  *                 Constants                     *
@@ -40,11 +41,16 @@
 
 #define A1C_MAX_STRIDED_DIM 4
 
+//#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_ATOMIC_ACQUIRE
+//#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_ATOMIC_RELEASE
+
+#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
+#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
+
 /*************************************************
 *                  BGP Atomics                   *
 *************************************************/
 
-/* TODO: this declaration is duplicated below */
 extern _BGP_Atomic global_atomic;
 
 /* TODO: we should have a more general lock system which can do 
@@ -58,7 +64,33 @@ extern _BGP_Atomic global_atomic;
    } while(!done);                                   \
  }                                                   \
 
-#define A1DI_GLOBAL_ATOMIC_RELEASE() do{ global_atomic.atom = 0; } while(0)
+#define A1DI_GLOBAL_ATOMIC_RELEASE() do{ global_atomic.atom = 0; _bgp_mbar(); }while(0)
+
+/*************************************************
+*                  Lockbox                       *
+*************************************************/
+
+extern LockBox_Mutex_t global_lbmutex;
+
+/* Different cores which want to use independent lockbox mutexes should 
+ * use different counters. So we try to find a free counter in a non-overlapping 
+ * range of 200 counters. Counters range from 0-1023 */
+#define A1DI_GLOBAL_LBMUTEX_INITIALIZE()            	     	     \
+ do {                                                  	     	     \
+   int idx, coreid;                                   	     	     \ 
+   coreid = Kernel_PhysicalProcessorID();                            \
+   for(idx=200*coreid; idx<200*(coreid+1); idx++)          	     \
+   {                                                         	     \
+     if(!LockBox_AllocateMutex(idx, &global_lbmutex, coreid, 1, 0))  \
+          break;					     	     \
+   }       						             \	
+   A1U_ERR_POP(idx == 200*(coreid+1),			 	     \	
+         "LockBox_AllocateMutex did not find a free index \n");      \
+ } while(0)	                                                     \
+       
+#define A1DI_GLOBAL_LBMUTEX_ACQUIRE() LockBox_MutexLock(global_lbmutex);
+
+#define A1DI_GLOBAL_LBMUTEX_RELEASE() LockBox_MutexUnlock(global_lbmutex);
 
 /*************************************************
 *           Likely and Unlikely Ifs              *
@@ -104,12 +136,11 @@ extern _BGP_Atomic global_atomic;
 /*************************************************
  *          Critical Section Macros              *
  *************************************************/
-
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if(a1_settings.enable_cht)                                  \
       {                                                           \
-        A1DI_GLOBAL_ATOMIC_ACQUIRE();                             \
+        A1DI_GLOBAL_LOCK_ACQUIRE();                               \ 
       }     							  \
       else 							  \
       {                                                           \
@@ -121,19 +152,13 @@ extern _BGP_Atomic global_atomic;
     do {                                                          \
       if(a1_settings.enable_cht)                                  \
       {                                                           \
-        A1DI_GLOBAL_ATOMIC_RELEASE();                             \
+        A1DI_GLOBAL_LOCK_RELEASE();                               \
       }                                                           \
       else                                                        \
       {                                                           \
         DCMF_CriticalSection_exit(0);                             \
       }                                                           \
     } while (0)                                                   \
-
-/*
-#define A1DI_CRITICAL_ENTER() DCMF_CriticalSection_enter(0);
-
-#define A1DI_CRITICAL_EXIT() DCMF_CriticalSection_exit(0);
-*/
 
 #define A1DI_Advance() DCMF_Messager_advance(0) 
 
@@ -294,12 +319,6 @@ typedef struct
 /*************************************************
  *             Global variables                  *
  ************************************************/
-
-/* TODO: this declaration is duplicated above */
-extern _BGP_Atomic global_atomic;
-
-/* TODO: is this used? */
-extern volatile uint32_t global_lock;
 
 /* TODO: is extern rather than static the right declaration here? */
 extern pthread_t A1DI_CHT_pthread;

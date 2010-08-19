@@ -135,7 +135,7 @@ int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
 
     A1DI_CRITICAL_ENTER();
 
-    a1d_handle = (A1D_Request_t *) a1_handle;
+    a1d_handle = (A1D_Handle_t *) a1_handle;
     A1DI_Advance();
     *completed = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
 

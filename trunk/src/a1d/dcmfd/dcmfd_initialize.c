@@ -7,6 +7,7 @@
 #include "dcmfdimpl.h"
 
 _BGP_Atomic global_atomic;
+LockBox_Mutex_t global_lbmutex;
 
 DCMF_Configure_t A1D_Messager_info;
 A1D_Process_info_t A1D_Process_info;
@@ -15,21 +16,20 @@ DCMF_Callback_t A1D_Nocallback;
 
 pthread_t A1DI_CHT_pthread;
 
-void *A1DI_CHT_advance_function(void * dummy)
+void *A1DI_CHT_advance_lock(void * dummy)
 {
-    A1DI_GLOBAL_ATOMIC_ACQUIRE();
+    A1DI_GLOBAL_LOCK_ACQUIRE();
     while (1)
     {
         DCMF_Messager_advance(0);
-        A1DI_GLOBAL_ATOMIC_RELEASE();
+        A1DI_GLOBAL_LOCK_RELEASE();
         A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
-        A1DI_GLOBAL_ATOMIC_ACQUIRE();
+        A1DI_GLOBAL_LOCK_ACQUIRE();
     }
-    A1DI_GLOBAL_ATOMIC_RELEASE();
+    A1DI_GLOBAL_LOCK_RELEASE();
 }
 
-/*
-void *A1DI_CHT_advance_function(void * dummy)
+void *A1DI_CHT_advance_cs(void * dummy)
 {
     A1DI_CRITICAL_ENTER();
     while (1)
@@ -41,7 +41,6 @@ void *A1DI_CHT_advance_function(void * dummy)
     }
     A1DI_CRITICAL_EXIT();
 }
-*/
 
 int A1D_Initialize(int thread_level)
 {
@@ -67,7 +66,7 @@ int A1D_Initialize(int thread_level)
     {
         /* We can use THREAD_SERIALIZED if we are implementing out own locks */
         A1D_Messager_info.thread_level = DCMF_THREAD_SERIALIZED;
-        /* A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE; */   
+        /*A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;*/
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
     } 
     else 
@@ -103,13 +102,15 @@ int A1D_Initialize(int thread_level)
 
     A1D_Process_info.my_rank = DCMF_Messager_rank();
     A1D_Process_info.num_ranks = DCMF_Messager_size();
+
     /* TODO: initialize node rank/size properly on BGP */
     A1D_Process_info.my_node = DCMF_Messager_rank();
     A1D_Process_info.num_nodes = DCMF_Messager_size();
 
     if (a1_settings.enable_cht)
     {
-        status = pthread_create(&A1DI_CHT_pthread, NULL, &A1DI_CHT_advance_function, NULL);
+        A1DI_GLOBAL_LBMUTEX_INITIALIZE();
+        status = pthread_create(&A1DI_CHT_pthread, NULL, &A1DI_CHT_advance_lock, NULL);
         A1U_ERR_POP(status != 0, "pthread_create returned with error \n");
     }
 

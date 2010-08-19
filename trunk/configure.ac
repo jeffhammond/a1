@@ -116,7 +116,7 @@ for dev in `echo $a1_device | sed -e 's/:/ /g' -e 's/,/ /g'` ; do
 				got_spi=yes,got_spi=no)
 		got_dcmf=no
 		if test "$got_spi" = "yes" ; then
-			PAC_CHECK_HEADER_LIB(dcmf,dcmf.h,dcmf.cnk,DCMF_Messager_initialize,
+			PAC_CHECK_HEADER_LIB(dcmf,dcmf.h,dcmf-fast.cnk,DCMF_Messager_initialize,
 				got_dcmf=yes,got_dcmf=no)
 		fi
 		if test "$got_dcmf" = "yes" ; then
