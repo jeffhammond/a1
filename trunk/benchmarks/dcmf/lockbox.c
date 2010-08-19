@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
-#include <bpcore/bgp_atomic_ops.h>
+#include <spi/bgp_SPI.h>
 #include <dcmf.h>
 #include <pthread.h>
 
@@ -9,21 +9,9 @@
 pthread_t pt[3];
 pthread_barrier_t pt_bar;
 
-_BGP_Atomic global_atomic;
+LockBox_Mutex_t global_mutex;
 volatile int shared[4*NITERS] __attribute__((__aligned__(16)));
 volatile int shared_idx __attribute__((__aligned__(16)));
-
-#define A1DI_GLOBAL_ATOMIC_ACQUIRE()                    \
- {                                                      \
-   volatile int done __attribute__((__aligned__(16)));  \
-   done = 0;                                            \
-   do {                                                 \
-     while(global_atomic.atom);                         \
-     done = _bgp_test_and_set(&global_atomic, 1);       \
-   } while(!done);                                      \
- }                                                      \
-
-#define A1DI_GLOBAL_ATOMIC_RELEASE() do{ global_atomic.atom = 0; _bgp_mbar(); }while(0)
 
 void *execute(void * dummy)
 {
@@ -31,19 +19,19 @@ void *execute(void * dummy)
    unsigned long long t_start, t_stop;
    coreid = Kernel_PhysicalProcessorID();
    pthread_barrier_wait(&pt_bar);
-   t_start = DCMF_Timebase(); 
+   t_start = DCMF_Timebase();
    for(i=0; i<NITERS; i++)  {
-     A1DI_GLOBAL_ATOMIC_ACQUIRE();
+     LockBox_MutexLock(global_mutex);
      _bgp_dcache_touch_line(&shared_idx);
      idx = shared_idx;
      shared[idx] = coreid;
      idx++;
      shared_idx = idx;
      _bgp_mbar();
-     A1DI_GLOBAL_ATOMIC_RELEASE();
+     LockBox_MutexUnlock(global_mutex);
    }
    t_stop = DCMF_Timebase();
-   printf("Time at id %d is: %lld t_start %lld t_stop %lld\n", 
+   printf("Time per interation at id %d is: %lld t_start %lld t_stop %lld\n", 
              coreid, (t_stop-t_start), t_start, t_stop);
 }
 
@@ -58,6 +46,16 @@ int main()
 
     DCMF_Messager_configure(&conf, &conf);
 
+    int i; 
+    for(i=100; i<1024; i++) { 
+       if(!LockBox_AllocateMutex(i, &global_mutex, 0, 1, 0))
+           break;
+    }
+    if(i==1024) {
+       printf("Lockbox allocation failed \n");
+       return -1;
+    } 
+
     pthread_barrier_init(&pt_bar, NULL, 4);
     shared_idx = 0;
 
@@ -69,7 +67,6 @@ int main()
 
     DCMF_Messager_finalize();
    
-    int i;
     for(i=0; i<4*NITERS; i++) {
       printf("%d \t",shared[i]);
     } 
