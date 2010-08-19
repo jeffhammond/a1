@@ -44,7 +44,7 @@ done - Introduce API and functions to initialize handle (Application should init
   them)
 done - Use enable_cht as the option name for CHT
 done - Modify locking macros to switch between Bgp_Atomics for CHT (THREAD_SINGLE) and DCMF_CS for Interrupts. 
-- Evaluate lock contention using bgp_atomics and see if contention varies with the processor assginment for
+- Evaluate lock contention using bgp_atomics and see if contention varies with the processor assignment for
   CHT
 - Verify functionality of Non-blocking operations and evaluate bandwidth performance.
 - Make cht/interrupts a configure time option. 

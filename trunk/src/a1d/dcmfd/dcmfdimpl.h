@@ -44,6 +44,7 @@
 *                  BGP Atomics                   *
 *************************************************/
 
+/* TODO: this declaration is duplicated below */
 extern _BGP_Atomic global_atomic;
 
 /* TODO: we should have a more general lock system which can do 
@@ -57,7 +58,7 @@ extern _BGP_Atomic global_atomic;
    } while(!done);                                   \
  }                                                   \
 
-#define A1DI_GLOBAL_ATOMIC_RELEASE() do{ global_atomic.atom = 0; }while(0)
+#define A1DI_GLOBAL_ATOMIC_RELEASE() do{ global_atomic.atom = 0; } while(0)
 
 /*************************************************
 *           Likely and Unlikely Ifs              *
@@ -294,8 +295,10 @@ typedef struct
  *             Global variables                  *
  ************************************************/
 
+/* TODO: this declaration is duplicated above */
 extern _BGP_Atomic global_atomic;
 
+/* TODO: is this used? */
 extern volatile uint32_t global_lock;
 
 /* TODO: is extern rather than static the right declaration here? */
