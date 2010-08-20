@@ -40,7 +40,7 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
 
     a1d_request = A1DI_Get_request();
 
-    A1U_ERR_ABORT(sizeof(A1D_Putacc_header_t) == count*sizeof(DCQuad), 
+    A1U_ASSERT_ABORT(sizeof(A1D_Putacc_header_t) == count*sizeof(DCQuad), 
         "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n")
 
     a1d_request->buffer_size = sndlen +  sizeof(A1D_Putacc_header_t);

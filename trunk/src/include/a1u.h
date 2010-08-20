@@ -89,6 +89,14 @@
         }
 #endif
 
+#define A1U_ASSERT_ABORT(x, ...)                                        \
+    {                                                                   \
+        if (!(x)) {                                                     \
+            A1U_error_printf(__VA_ARGS__);                              \
+            assert(0);                                                  \
+        }                                                               \
+    }
+
 #define A1U_ASSERT(x, status)                                           \
     {                                                                   \
         if (!(x)) {                                                     \
