@@ -27,9 +27,9 @@ void A1DI_Handle_done(void *clientdata, DCMF_Error_t *error)
 
 void A1DI_Free_done(void *clientdata, DCMF_Error_t *error)
 {
-    A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
-    A1DI_Free(buffer_info->buffer_ptr);
-    A1DI_Free((void *) buffer_info);
+    A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
+    A1DI_Free(a1d_request->buffer_ptr);
+    A1DI_Release_request(a1d_request);
 }
 
 void A1DI_Control_xchange_callback(void *clientdata,

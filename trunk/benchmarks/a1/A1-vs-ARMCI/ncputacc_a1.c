@@ -92,7 +92,13 @@ int main() {
    trg_stride = MAX_YDIM*sizeof(double);
    stride_level = 1;
 
+   printf("[%d] Before barrier \n", rank);
+   fflush(stdout);
+
    A1_Barrier_group(A1_GROUP_WORLD);
+
+   printf("[%d] After barrier \n", rank);
+   fflush(stdout);
 
    for(xdim=1; xdim<=MAX_XDIM; xdim*=2) {
 
@@ -110,9 +116,14 @@ int main() {
  
                if(i == SKIP)
                    t_start = A1_Time_seconds();              
+
+               printf("In Iteration %d \n", i);
+               fflush(stdout);
  
-               A1_PutAccS(1, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride, 
-                        count, stride_level, A1_DOUBLE, (void *) &scaling); 
+               A1_PutAccS(1, stride_level, count, (void *) buffer[rank], &src_stride, 
+                         (void *) buffer[peer], &trg_stride, 
+                         A1_DOUBLE, (void *) &scaling);
+                
  
             }
             t_stop = A1_Time_seconds();
@@ -131,9 +142,10 @@ int main() {
  
                if(i == SKIP)
                    t_start = A1_Time_seconds();
- 
-               A1_PutAccS(1, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride, 
-                        count, stride_level, A1_DOUBLE, (void *) &scaling);
+
+               A1_PutAccS(1, stride_level, count, (void *) buffer[rank], &src_stride, 
+                         (void *) buffer[peer], &trg_stride,
+                         A1_DOUBLE, (void *) &scaling);  
                A1_Flush(1);
  
             }

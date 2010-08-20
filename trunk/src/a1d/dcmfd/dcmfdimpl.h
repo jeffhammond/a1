@@ -211,13 +211,6 @@ typedef struct
     DCMF_Hardware_t hw;
 } A1D_Process_info_t;
 
-typedef struct
-{
-    DCMF_Request_t request;
-    void* buffer_ptr;
-    int bytes;
-} A1D_Buffer_info_t;
-
 typedef union
 {
     DCQuad info[2];
@@ -274,16 +267,11 @@ typedef struct
     } scaling;
 } A1D_Packed_putaccs_header_t;
 
-typedef struct
-{
-    A1D_Buffer_info_t buffer_info;
-    A1D_Putacc_header_t header;
-} A1D_Putacc_recv_info_t;
-
 typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
     void* buffer_ptr;
+    uint32_t buffer_size;
     struct A1D_Request_t *next;
 } A1D_Request_t;
 

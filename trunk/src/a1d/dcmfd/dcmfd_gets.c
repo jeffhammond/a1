@@ -21,13 +21,13 @@ int A1DI_Packed_gets_response(int target,
     int status = A1_SUCCESS;
     DCMF_Request_t *request;
     DCMF_Callback_t callback;
-    A1D_Buffer_info_t *buffer_info;
+    A1D_Request_t *a1d_request;
     void *packet;
     int size_packet;
 
     A1U_FUNC_ENTER();
 
-    A1DI_Malloc_aligned((void **) &buffer_info, sizeof(A1D_Buffer_info_t));
+    a1d_request = A1DI_Get_request();
 
     status = A1DI_Pack_strided(&packet,
                                &size_packet,
@@ -40,10 +40,10 @@ int A1DI_Packed_gets_response(int target,
     A1U_ERR_POP(status != DCMF_SUCCESS,
                 "A1DI_Pack_strided returned with an error\n");
 
-    buffer_info->buffer_ptr = packet;
-    request = &(buffer_info->request);
+    a1d_request->buffer_ptr = packet;
+    request = &(a1d_request->request);
     callback.function = A1DI_Free_done;
-    callback.clientdata = (void *) buffer_info;
+    callback.clientdata = (void *) a1d_request;
 
     status = DCMF_Send(&A1D_Packed_gets_response_protocol,
                        request,
@@ -56,24 +56,26 @@ int A1DI_Packed_gets_response(int target,
                        0);
     A1U_ERR_POP(status != DCMF_SUCCESS, "Send returned with an error \n");
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 
 }
 
 void A1DI_RecvDone_packedgets_response_callback(void *clientdata,
                                                 DCMF_Error_t *error)
 {
-    A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
+    A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
 
-    A1DI_Unpack_strided(buffer_info->buffer_ptr);
+    A1DI_Unpack_strided(a1d_request->buffer_ptr);
 
     A1D_Expecting_getresponse--;
 
-    A1DI_Free(buffer_info->buffer_ptr);
-    A1DI_Free((void *) buffer_info);
+    A1DI_Free(a1d_request->buffer_ptr);
+    A1DI_Release_request(a1d_request);
 }
 
 DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
@@ -86,24 +88,21 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
                                                            DCMF_Callback_t *cb_done)
 {
     int status = 0;
-    A1D_Buffer_info_t *buffer_info;
-
-    status = A1DI_Malloc_aligned((void **) &buffer_info,
-                                 sizeof(A1D_Buffer_info_t));
-    A1U_ERR_ABORT(status != 0,
-                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
+    A1D_Request_t *a1d_request;
+ 
+    a1d_request = A1DI_Get_request();
 
     *rcvlen = sndlen;
     status = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
     A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
-    buffer_info->buffer_ptr = (void *) *rcvbuf;
+    a1d_request->buffer_ptr = (void *) *rcvbuf;
 
     cb_done->function = A1DI_RecvDone_packedgets_response_callback;
-    cb_done->clientdata = (void *) buffer_info;
+    cb_done->clientdata = (void *) a1d_request;
 
-    return &(buffer_info->request);
+    return &(a1d_request->request);
 }
 
 void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,

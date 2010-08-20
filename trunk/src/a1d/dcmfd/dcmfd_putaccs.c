@@ -10,12 +10,12 @@ DCMF_Protocol_t A1D_Packed_putaccs_protocol;
 
 void A1DI_RecvDone_packedputaccs_callback(void *clientdata, DCMF_Error_t *error)
 {
-    A1D_Buffer_info_t *buffer_info = (A1D_Buffer_info_t *) clientdata;
+    A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
 
-    A1DI_Unpack_strided_putaccs(buffer_info->buffer_ptr);
+    A1DI_Unpack_strided_putaccs(a1d_request->buffer_ptr);
 
-    A1DI_Free(buffer_info->buffer_ptr);
-    A1DI_Free((void *) buffer_info);
+    A1DI_Free(a1d_request->buffer_ptr);
+    A1DI_Release_request(a1d_request);
 }
 
 DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
@@ -28,24 +28,21 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
                                                      DCMF_Callback_t *cb_done)
 {
     int status = 0;
-    A1D_Buffer_info_t *buffer_info;
+    A1D_Request_t *a1d_request;
 
-    status = A1DI_Malloc_aligned((void **) &buffer_info,
-                                 sizeof(A1D_Buffer_info_t));
-    A1U_ERR_ABORT(status != 0,
-                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputaccs_callback\n");
+    a1d_request = A1DI_Get_request();
 
     *rcvlen = sndlen;
     status = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
     A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputaccs_callback\n");
 
-    buffer_info->buffer_ptr = (void *) *rcvbuf;
+    a1d_request->buffer_ptr = (void *) *rcvbuf;
 
     cb_done->function = A1DI_RecvDone_packedputaccs_callback;
-    cb_done->clientdata = (void *) buffer_info;
+    cb_done->clientdata = (void *) a1d_request;
 
-    return &(buffer_info->request);
+    return &(a1d_request->request);
 }
 
 void A1DI_RecvSendShort_packedputaccs_callback(void *clientdata,

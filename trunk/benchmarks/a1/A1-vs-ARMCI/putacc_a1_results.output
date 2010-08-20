@@ -17,3 +17,17 @@ A1_PutAcc Latency in usec
               131072              1384.06              1171.36 
               262144              1465.09              2320.57 
               524288              3464.08              4621.83 
+A1_PutAcc Latency in usec 
+        Message Size       Local Completion      Remote Completion
+                   8                 2.85                10.07 
+                  16                 2.85                10.12 
+                  32                 2.85                10.17 
+                  64                 2.91                10.46 
+                 128                 2.95                10.91 
+A1_PutAcc Latency in usec 
+        Message Size       Local Completion      Remote Completion
+                   8                 2.85                10.07 
+                  16                 2.85                10.12 
+                  32                 2.85                10.17 
+                  64                 2.91                10.46 
+                 128                 2.95                10.90 
