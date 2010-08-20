@@ -85,6 +85,12 @@ typedef enum
 /**< double-precision */
 } A1_datatype_t;
 
+typedef enum
+{
+    A1_FETCHANDADD,
+    A1_SWAP
+} A1_atomic_op_t;
+
 /* ********************************************************************* */
 /*                                                                       */
 /*               A1 data structures                                      */
@@ -122,6 +128,15 @@ typedef int A1_bool_t;
  */
 
 typedef void* A1_handle_t;
+
+/**
+ * \brief A1 shared counter.
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
+typedef void* A1_counter_t;
 
 /**
  * \brief A1 io vector type.
@@ -413,6 +428,39 @@ int A1_Release_segments(A1_group_t* group, void* ptr);
  */
 
 int A1_Init_handle(A1_handle_t *handle);
+
+/* ********************************************************************** */
+/*                                                                        */
+/*               A1 external API - atomic operations                      */
+/*                                                                        */
+/* ********************************************************************** */
+
+/**
+ * \brief Atomically increments a shared counter.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  counter       A1 shared counter.
+ *
+ * \see A1_Increment_counter, A1_Decrement_counter
+ *
+ * \ingroup Atomics
+ */
+int A1_Allocate_counter(A1_counter_t *counter);
+
+/**
+ * \brief Atomically updates a shared counter and returns the current value.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  counter       A1 shared counter.
+ * \param[in]  op            Operation to be performed.
+ * \param[in]  value         Local buffer containing the value and which will contain 
+ *                           the current value after the operation.
+ *
+ * \see A1_Increment_counter, A1_Decrement_counter
+ *
+ * \ingroup Atomics
+ */
+int A1_RMW(A1_counter_t *counter, A1_atomic_op_t op, void *value);
 
 /* FIXME: More API functions to come */
 
