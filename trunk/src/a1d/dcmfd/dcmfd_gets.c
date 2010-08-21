@@ -93,11 +93,11 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
     a1d_request = A1DI_Get_request();
 
     *rcvlen = sndlen;
-    status = A1DI_Malloc_aligned((void **) rcvbuf, sndlen);
+    status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), sndlen);
     A1U_ERR_ABORT(status != 0,
                   "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
 
-    a1d_request->buffer_ptr = (void *) *rcvbuf;
+    *rcvbuf = (char *) a1d_request->buffer_ptr;
 
     cb_done->function = A1DI_RecvDone_packedgets_response_callback;
     cb_done->clientdata = (void *) a1d_request;

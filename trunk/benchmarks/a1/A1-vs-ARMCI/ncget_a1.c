@@ -108,7 +108,7 @@ int main() {
              if(i == SKIP)
                  t_start = A1_Time_seconds();              
 
-             A1_GetS(1, (void *) buffer[dest], &src_stride, (void *) buffer[rank], &trg_stride, count, stride_level); 
+             A1_GetS(1, stride_level, count, (void *) buffer[dest], &src_stride, (void *) buffer[rank], &trg_stride); 
  
           }
           t_stop = A1_Time_seconds();

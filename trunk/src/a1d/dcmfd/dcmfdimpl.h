@@ -33,16 +33,18 @@
 #define A1C_ENABLE_IMMEDIATE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
-#define A1C_REQUEST_POOL_INITIAL 200
-#define A1C_REQUEST_POOL_INCREMENT 100
-#define A1C_REQUEST_POOL_LIMIT 500
+#define A1C_REQUEST_POOL_INITIAL 100
+#define A1C_REQUEST_POOL_INCREMENT 0
+#define A1C_REQUEST_POOL_LIMIT 100
 
-#define A1C_HANDLE_POOL_SIZE 100
+#define A1C_HANDLE_POOL_SIZE 20
 
 #define A1C_MAX_STRIDED_DIM 4
 
-//#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_ATOMIC_ACQUIRE
-//#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_ATOMIC_RELEASE
+/*
+#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_ATOMIC_ACQUIRE
+#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_ATOMIC_RELEASE
+*/
 
 #define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
 #define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
@@ -123,9 +125,10 @@ extern LockBox_Mutex_t global_lbmutex;
  *          Memory Allocation Macros             *
  *************************************************/
 
-#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
+//#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
+#define A1DI_Malloc_aligned(ptr, num) ((*ptr = malloc(num)) == NULL)
 
-#define A1DI_Malloc(ptr, num)  !(ptr = malloc(num))
+#define A1DI_Malloc(ptr, num)  ((ptr = malloc(num)) == NULL)
 
 #define A1DI_Free(ptr) free(ptr)
 
@@ -363,11 +366,23 @@ int A1DI_Packed_puts_initialize();
 
 int A1DI_Get_initialize();
 
+int A1DI_Request_pool_initialize();
+
+void A1DI_Request_pool_finalize();
+
 A1D_Request_t* A1DI_Get_request();
+
+void A1DI_Release_request(A1D_Request_t *);
+
+void A1DI_Release_request_list(A1D_Request_t *);
+
+int A1DI_Handle_pool_initialize();
+
+void A1DI_Handle_pool_finalize();
 
 A1D_Handle_t* A1DI_Get_handle();
 
-void A1DI_Release_request(A1D_Request_t *request);
+void A1DI_Release_handle(A1D_Handle_t *);
 
 int A1DI_Packed_gets_initialize();
 

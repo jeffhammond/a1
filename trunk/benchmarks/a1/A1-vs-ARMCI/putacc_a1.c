@@ -79,7 +79,6 @@ int main() {
      fflush(stdout);
    }
 
-
    for(i=0; i<(((ITERATIONS+SKIP)*MAX_MSG_SIZE)/sizeof(double)); i++) {
      *(buffer[rank] + i) = 1.0 + rank;
    }

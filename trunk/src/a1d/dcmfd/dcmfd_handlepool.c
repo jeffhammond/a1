@@ -150,3 +150,19 @@ int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
   fn_fail:
     goto fn_exit;
 }
+
+void A1DI_Handle_pool_finalize()
+{
+    int i;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_Free(A1D_Handle_pool.region_ptr);
+  
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+  
+  fn_fail:
+    goto fn_exit;
+}

@@ -22,7 +22,6 @@ void A1DI_RecvDone_putacc_callback(void *clientdata, DCMF_Error_t *error)
     A1U_ERR_ABORT(status,
                   "A1D_Acc_process failed in A1DI_RecvDone_putacc_callback\n");
 
-    A1DI_Free(a1d_request->buffer_ptr);
     A1DI_Release_request(a1d_request); 
 }
 
@@ -41,7 +40,7 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
     a1d_request = A1DI_Get_request();
 
     A1U_ASSERT_ABORT(sizeof(A1D_Putacc_header_t) == count*sizeof(DCQuad), 
-        "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n")
+        "Header of invalid size received in A1DI_RecvSend_putacc_callback\n")
 
     a1d_request->buffer_size = sndlen +  sizeof(A1D_Putacc_header_t);
     status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), 
