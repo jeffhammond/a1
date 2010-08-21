@@ -122,11 +122,11 @@ int A1D_Print_parameters(void)
     A1U_output_printf("=============== A1 Parameters ================\n");
     A1U_output_printf("A1 is using the DCMF (Blue Gene/P) device\n");
 
-    if (A1_Settings_t.enable_cht)
+    if (a1_settings.enable_cht)
     {
         A1U_output_printf("passive-target progress enabled via CHT\n");
     }
-    else if (A1_Settings_t.enable_interrupts)
+    else if (a1_settings.enable_interrupts)
     {
         A1U_output_printf("passive-target progress enabled via DCMF interrupts\n");
     }
@@ -136,17 +136,17 @@ int A1D_Print_parameters(void)
     }
 
     A1U_output_printf("cht_pause_cycles = %u\n",
-                      A1_Settings_t.cht_pause_cycles);
+                      a1_settings.cht_pause_cycles);
     A1U_output_printf("direct_noncontig_put_threshold = %u\n",
-                      A1_Settings_t.direct_noncontig_put_threshold);
+                      a1_settings.direct_noncontig_put_threshold);
     A1U_output_printf("direct_noncontig_get_threshold = %u\n",
-                      A1_Settings_t.direct_noncontig_get_threshold);
+                      a1_settings.direct_noncontig_get_threshold);
     A1U_output_printf("direct_noncontig_putacc_threshold = %u\n",
-                      A1_Settings_t.direct_noncontig_putacc_threshold);
+                      a1_settings.direct_noncontig_putacc_threshold);
     A1U_output_printf("direct_noncontig_getacc_threshold = %u\n",
-                      A1_Settings_t.direct_noncontig_getacc_threshold);
+                      a1_settings.direct_noncontig_getacc_threshold);
     A1U_output_printf("flushall_pending_limit = %u\n",
-                      A1_Settings_t.flushall_pending_limit);
+                      a1_settings.flushall_pending_limit);
 
     fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
