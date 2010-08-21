@@ -6,7 +6,6 @@
 
 #include "dcmfdimpl.h"
 
-
 A1_Settings_t a1_settings;
 A1_Requestpool_info_t a1_requestpool_info;
 
@@ -16,7 +15,7 @@ int A1DI_Read_parameters()
     char* value = NULL;
 
     A1U_FUNC_ENTER();
-   
+
     a1_settings.alignment = A1C_ALIGNMENT;
 
     a1_settings.enable_cht = A1C_ENABLE_CHT;
@@ -37,48 +36,56 @@ int A1DI_Read_parameters()
         a1_settings.enable_interrupts = atoi(value);
     }
 
-    a1_settings.flushall_pending_limit = A1C_FLUSHALL_PENDING_LIMIT; 
+    a1_settings.flushall_pending_limit = A1C_FLUSHALL_PENDING_LIMIT;
     if ((value = getenv("A1_FLUSHALL_PENDING_LIMIT")) != NULL)
     {
         a1_settings.flushall_pending_limit = atoi(value);
     }
 
-    a1_settings.direct_noncontig_put_threshold = A1C_DIRECT_NONCONTIG_PUT_THRESHOLD;
+    a1_settings.direct_noncontig_put_threshold
+            = A1C_DIRECT_NONCONTIG_PUT_THRESHOLD;
     if ((value = getenv("A1_DIRECT_NONCONTIG_PUT_THRESHOLD")) != NULL)
     {
-        a1_settings.direct_noncontig_put_threshold = atoi(value); 
-        if(a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0) {
+        a1_settings.direct_noncontig_put_threshold = atoi(value);
+        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
+        {
             a1_settings.direct_noncontig_put_threshold = 0;
         }
     }
 
-    a1_settings.direct_noncontig_get_threshold = A1C_DIRECT_NONCONTIG_GET_THRESHOLD;
+    a1_settings.direct_noncontig_get_threshold
+            = A1C_DIRECT_NONCONTIG_GET_THRESHOLD;
     if ((value = getenv("A1_DIRECT_NONCONTIG_GET_THRESHOLD")) != NULL)
     {
         a1_settings.direct_noncontig_get_threshold = atoi(value);
-        if(a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0) {
+        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
+        {
             a1_settings.direct_noncontig_get_threshold = 0;
         }
     }
 
-    a1_settings.direct_noncontig_putacc_threshold = A1C_DIRECT_NONCONTIG_PUTACC_THRESHOLD;
+    a1_settings.direct_noncontig_putacc_threshold
+            = A1C_DIRECT_NONCONTIG_PUTACC_THRESHOLD;
     if ((value = getenv("A1_DIRECT_NONCONTIG_PUTACC_THRESHOLD")) != NULL)
     {
         a1_settings.direct_noncontig_putacc_threshold = atoi(value);
-        if(a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0) {
+        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
+        {
             a1_settings.direct_noncontig_putacc_threshold = 0;
         }
     }
 
-    a1_settings.direct_noncontig_getacc_threshold = A1C_DIRECT_NONCONTIG_GETACC_THRESHOLD;
+    a1_settings.direct_noncontig_getacc_threshold
+            = A1C_DIRECT_NONCONTIG_GETACC_THRESHOLD;
     if ((value = getenv("A1_DIRECT_NONCONTIG_GETACC_THRESHOLD")) != NULL)
     {
         a1_settings.direct_noncontig_getacc_threshold = atoi(value);
-        if(a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0) {
+        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
+        {
             a1_settings.direct_noncontig_getacc_threshold = 0;
         }
     }
-  
+
     a1_requestpool_info.initial_size = A1C_REQUEST_POOL_INITIAL;
     if ((value = getenv("A1_REQUEST_POOL_INITIAL")) != NULL)
     {
@@ -99,10 +106,51 @@ int A1DI_Read_parameters()
 
     a1_requestpool_info.total_size = 0;
 
-  fn_exit: 
+    fn_exit: A1U_FUNC_EXIT();
+    return result;
+
+    fn_fail: goto fn_exit;
+}
+
+int A1D_Print_parameters(void)
+{
+    int result = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+    A1DI_CRITICAL_ENTER();
+
+    A1U_output_printf("=============== A1 Parameters ================\n");
+    A1U_output_printf("A1 is using the DCMF (Blue Gene/P) device\n");
+
+    if (A1_Settings_t.enable_cht)
+    {
+        A1U_output_printf("passive-target progress enabled via CHT\n");
+    }
+    else if (A1_Settings_t.enable_interrupts)
+    {
+        A1U_output_printf("passive-target progress enabled via DCMF interrupts\n");
+    }
+    else
+    {
+        A1U_output_printf("passive-target progress disabled (THIS IS BAD)\n");
+    }
+
+    A1U_output_printf("cht_pause_cycles = %u\n",
+                      A1_Settings_t.cht_pause_cycles);
+    A1U_output_printf("direct_noncontig_put_threshold = %u\n",
+                      A1_Settings_t.direct_noncontig_put_threshold);
+    A1U_output_printf("direct_noncontig_get_threshold = %u\n",
+                      A1_Settings_t.direct_noncontig_get_threshold);
+    A1U_output_printf("direct_noncontig_putacc_threshold = %u\n",
+                      A1_Settings_t.direct_noncontig_putacc_threshold);
+    A1U_output_printf("direct_noncontig_getacc_threshold = %u\n",
+                      A1_Settings_t.direct_noncontig_getacc_threshold);
+    A1U_output_printf("flushall_pending_limit = %u\n",
+                      A1_Settings_t.flushall_pending_limit);
+
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

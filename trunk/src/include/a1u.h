@@ -89,6 +89,11 @@
         }
 #endif
 
+#define A1U_output_printf(...)                                         \
+    {                                                                   \
+        fprintf(stderr, __VA_ARGS__);                                   \
+    }
+
 #define A1U_ASSERT_ABORT(x, ...)                                        \
     {                                                                   \
         if (!(x)) {                                                     \

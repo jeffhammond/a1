@@ -24,6 +24,9 @@ int A1_Initialize(int thread_level)
     status = A1D_Initialize(thread_level);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Initialize returned error\n");
 
+    status = A1D_Print_parameters();
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Print_parameters returned error\n");
+
     fn_exit: A1U_FUNC_EXIT();
     return status;
 
