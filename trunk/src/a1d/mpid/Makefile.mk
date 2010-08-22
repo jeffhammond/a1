@@ -4,7 +4,7 @@
 #
 
 liba1_la_SOURCES += $(top_srcdir)/src/a1d/mpid/mpid_param.c \
-        $(top_srcdir)/src/a1d/mpid/mpid_initialize.c \
+    $(top_srcdir)/src/a1d/mpid/mpid_initialize.c \
 	$(top_srcdir)/src/a1d/mpid/mpid_finalize.c \
 	$(top_srcdir)/src/a1d/mpid/mpid_malloc.c \
 	$(top_srcdir)/src/a1d/mpid/mpid_free.c \
