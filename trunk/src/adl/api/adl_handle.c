@@ -32,7 +32,7 @@ int A1_Allocate_handle(A1_handle_t *a1_handle)
     goto fn_exit;
 }
 
-int A1_Release_handle(A1_handle_t *a1_handle)
+int A1_Release_handle(A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
 
@@ -45,7 +45,7 @@ int A1_Release_handle(A1_handle_t *a1_handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Release_handle(*a1_handle);                                        
+    status = A1D_Release_handle(a1_handle);                                        
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Release_handle returned an error\n");
 
   fn_exit:
