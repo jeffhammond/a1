@@ -40,11 +40,14 @@ int A1D_Finalize(void)
         status = pthread_cancel(A1DI_CHT_pthread);
     }
 
+    A1DI_CRITICAL_EXIT();
+
+    /* NOTE: exit critical section before finalize since CS may not work after DCMF is terminated */
+
     count = DCMF_Messager_finalize();
     A1U_WARNING(count == 0,"DCMF_Messager_finalize has been called more than once.");
 
   fn_exit: 
-    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
