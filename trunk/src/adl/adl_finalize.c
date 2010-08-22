@@ -26,3 +26,22 @@ int A1_Finalize(void)
 
     fn_fail: goto fn_exit;
 }
+
+int A1_Abort(int error_code, char error_message[]);
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+    status = A1D_Abort();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Abort returned error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return error_code;
+
+    fn_fail: goto fn_exit;
+}
