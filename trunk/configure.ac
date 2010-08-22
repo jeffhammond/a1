@@ -103,7 +103,11 @@ AC_CHECK_HEADERS(stdio.h stdlib.h string.h strings.h unistd.h stdarg.h sys/types
 
 ## Check what device we want to use
 a1_device_dcmfd=false
-a1_device_mpi2rmad=false
+a1_device_pthreadd=false
+a1_device_mpid=false
+a1_device_geminid=false
+a1_device_lapid=false
+a1_device_ibd=false
 AC_ARG_WITH(device, AC_HELP_STRING([--with-device],[A1 device to use]),
 	a1_device=$withval,a1_device=dcmfd)
 got_device=no
@@ -126,17 +130,17 @@ for dev in `echo $a1_device | sed -e 's/:/ /g' -e 's/,/ /g'` ; do
                 got_device=yes
                 a1_device_dcmfd=true
 		;;
-    	 mpi2rmad)
-		PAC_SET_HEADER_LIB_PATH(mpi2rma)
-		got_mpi2rma=no
+    	 mpid)
+		PAC_SET_HEADER_LIB_PATH(mpi)
+		got_mpi=no
 		PAC_CHECK_HEADER_LIB(mpich,mpi.h,mpich,MPI_Init_thread,
-			got_mpi2rma=yes,got_mpi2rma=no)
-		if test "$got_mpi2rma" = "yes" ; then
+			got_mpi=yes,got_mpi=no)
+		if test "$got_mpi" = "yes" ; then
 		   got_device=yes
-                   a1_device_mpi2rmad=true
+                   a1_device_mpid=true
 		fi
                 got_device=yes
-                a1_device_mpi2rmad=true
+                a1_device_mpid=true
 		;;
 	 *)
 		;;
