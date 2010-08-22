@@ -423,7 +423,19 @@ int A1_Release_segments(A1_group_t* group, void* ptr);
  * \ingroup MEMORY
  */
 
-int A1_Init_handle(A1_handle_t *handle);
+int A1_Allocate_handle(A1_handle_t *handle);
+
+/** 
+ * \brief Initializes the give non-blocking handle.
+ *
+ * \param[in] handle      Non-blocking handle upon which to be waited.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+
+int A1_Release_handle(A1_handle_t handle);
 
 /* ********************************************************************** */
 /*                                                                        */
@@ -504,7 +516,7 @@ int A1_NbPut(int target,
             void* source_ptr,
             void* target_ptr,
             int bytes,
-            A1_handle_t *handle);
+            A1_handle_t handle);
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -581,7 +593,7 @@ int A1_NbPutS(int target,
             int *src_stride_ar,
             void* target_ptr,
             int *trg_stride_ar,
-            A1_handle_t *handle);
+            A1_handle_t handle);
 
 /**
  * \brief Blocking copy of non-contiguous data from local memory to remote memory.
@@ -619,7 +631,7 @@ int A1_PutV(int target,
 int A1_NbPutV(int target,
               A1_iov_t *iov_ar,
               int ar_len,
-              A1_handle_t *handle);
+              A1_handle_t handle);
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -696,7 +708,7 @@ int A1_NbPutAcc(int target,
               int bytes,
               A1_datatype_t a1_type,
               void* scaling,
-              A1_handle_t *handle);
+              A1_handle_t handle);
 
 /**
  * \brief Blocking accumulate of strided data from local memory to remote memory.
@@ -756,7 +768,7 @@ int A1_NbPutAccS(int target,
                int *trg_stride_ar,
                A1_datatype_t a1_type,
                void* scaling,
-               A1_handle_t *handle);
+               A1_handle_t handle);
 
 /**
  * \brief Blocking accumulate of non-contiguous data from local memory to remote memory.
@@ -802,7 +814,7 @@ int A1_NbPutAccV(int target,
                  int ar_len,
                  A1_datatype_t a1_type,
                  void* scaling,
-                 A1_handle_t *handle);
+                 A1_handle_t handle);
 
 /**
  * \brief Blocking copy of contiguous data from remote memory to local memory.
@@ -839,7 +851,7 @@ int A1_NbGet(int target,
              void* source_ptr, 
              void* target_ptr, 
              int bytes,
-             A1_handle_t* handle);
+             A1_handle_t handle);
 
 /**
  * \brief Blocking copy of contiguous data from remote memory onto local memory.
@@ -912,7 +924,7 @@ int A1_NbGetS(int target,
             int *src_stride_ar,
             void* target_ptr,
             int *trg_stride_ar,
-            A1_handle_t *handle);
+            A1_handle_t handle);
 
 /**
  * \brief Blocking copy of non-contiguous data from remote memory to local memory.
@@ -950,7 +962,7 @@ int A1_GetV(int target,
 int A1_NbGetV(int target,
               A1_iov_t *iov_ar,
               int ar_len,
-              A1_handle_t *handle);
+              A1_handle_t handle);
 
 /**
  * \brief Blocking copy of stided data from remote memory to local memory.

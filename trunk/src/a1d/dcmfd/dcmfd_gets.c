@@ -74,7 +74,6 @@ void A1DI_RecvDone_packedgets_response_callback(void *clientdata,
 
     A1D_Expecting_getresponse--;
 
-    A1DI_Free(a1d_request->buffer_ptr);
     A1DI_Release_request(a1d_request);
 }
 
@@ -376,7 +375,6 @@ int A1D_GetS(int target,
     }
 
   fn_exit:
-    A1DI_Release_handle(a1d_handle); 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
@@ -392,7 +390,7 @@ int A1D_NbGetS(int target,
              int *src_stride_ar,
              void* target_ptr,
              int *trg_stride_ar,
-             A1_handle_t *a1_handle)
+             A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
@@ -401,20 +399,7 @@ int A1D_NbGetS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    /* Initializing handle. the handle must have been initialized using *
-     * A1_Init_handle */
-    if(a1_handle == NULL)
-    {
-      a1d_handle = A1DI_Get_handle();
-      A1DI_Load_request(a1d_handle);
-      A1DI_Set_user_handle(a1d_handle, a1_handle);
-      *a1_handle = (A1_handle_t) a1d_handle;
-    }
-    else
-    {
-      a1d_handle = (A1D_Handle_t *) *a1_handle;
-      A1DI_Load_request(a1d_handle);
-    }
+    a1d_handle = (A1D_Handle_t *) a1_handle;
 
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {

@@ -21,7 +21,7 @@ void A1DI_Handle_done(void *clientdata, DCMF_Error_t *error)
 
     if(a1d_handle->active == 0) 
     {
-       A1DI_Release_handle(a1d_handle);    
+       A1DI_Clear_handle(a1d_handle);    
     }
 }
 

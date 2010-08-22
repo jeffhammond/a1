@@ -34,8 +34,8 @@
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
 #define A1C_REQUEST_POOL_INITIAL 100
-#define A1C_REQUEST_POOL_INCREMENT 0
-#define A1C_REQUEST_POOL_LIMIT 100
+#define A1C_REQUEST_POOL_INCREMENT 50
+#define A1C_REQUEST_POOL_LIMIT 500
 
 #define A1C_HANDLE_POOL_SIZE 20
 
@@ -104,11 +104,6 @@ extern LockBox_Mutex_t global_lbmutex;
 /*************************************************
  *          Generic  Macros                      *
  *************************************************/
-
-#define A1DI_Set_user_handle(a1d_handle_ptr, a1_handle_ptr)  \
-  do {                                                        \
-       a1d_handle_ptr->user_handle_ptr = a1_handle_ptr;       \
-     } while(0)                                               \
 
 #define A1DI_Wait_cycles(cycles)                     \
    do {                                               \
@@ -296,7 +291,6 @@ typedef struct A1D_Handle_t
 {
     A1D_Request_t *request_list;
     volatile int active;
-    void** user_handle_ptr;
     struct A1D_Handle_t *next;
 } A1D_Handle_t;
 
@@ -388,6 +382,8 @@ int A1DI_Handle_pool_initialize();
 void A1DI_Handle_pool_finalize();
 
 A1D_Handle_t* A1DI_Get_handle();
+
+void A1DI_Clear_handle(A1D_Handle_t *);
 
 void A1DI_Release_handle(A1D_Handle_t *);
 

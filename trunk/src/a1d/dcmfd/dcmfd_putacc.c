@@ -258,7 +258,7 @@ int A1D_NbPutAcc(int target,
                  int bytes,
                  A1_datatype_t a1_type,
                  void* scaling,
-                 A1_handle_t* a1_handle)
+                 A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
@@ -269,20 +269,8 @@ int A1D_NbPutAcc(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    /* Initializing handle. the handle must have been initialized using *
-     * A1_Init_handle */
-    if(a1_handle == NULL)
-    {
-      a1d_handle = A1DI_Get_handle();
-      A1DI_Load_request(a1d_handle);
-      A1DI_Set_user_handle(a1d_handle, a1_handle);
-      *a1_handle = (A1_handle_t) a1d_handle;
-    }
-    else
-    {
-      a1d_handle = (A1D_Handle_t *) *a1_handle;
-      A1DI_Load_request(a1d_handle);
-    }
+    a1d_handle = (A1D_Handle_t *) a1_handle;
+    a1d_handle = A1DI_Get_handle();
 
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;

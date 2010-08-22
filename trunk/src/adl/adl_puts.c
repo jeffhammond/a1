@@ -56,7 +56,7 @@ int A1_NbPutS(int target,
              int *src_stride_ar,
              void* target_ptr,
              int *trg_stride_ar,
-             A1_handle_t *a1_handle)
+             A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
 

@@ -8,29 +8,78 @@
 
 A1D_Handle_pool_t A1D_Handle_pool;
 
-void A1DI_Release_handle(A1D_Handle_t *a1d_handle)
+int A1D_Allocate_handle(A1_handle_t *a1_handle)
 {
-     
+    int status = A1_SUCCESS;
+    A1D_Handle_t *a1d_handle;
+
     A1U_FUNC_ENTER();
 
-    A1DI_Release_request_list(a1d_handle->request_list);
+    A1DI_CRITICAL_ENTER();
 
-    a1d_handle->request_list = NULL;
-    if(a1d_handle->user_handle_ptr != NULL) 
+    a1d_handle = A1DI_Get_handle();
+    A1U_ERR_POP(a1d_handle == NULL,
+                "A1DI_Get_handle returned NULL in A1D_Allocate_handle. Handles exhausted \n");
+    *a1_handle = (A1_handle_t *) a1d_handle;
+
+  fn_exit:
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int A1D_Release_handle(A1_handle_t a1_handle)
+{
+    int status = A1_SUCCESS;
+    A1D_Handle_t *a1d_handle;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    A1U_ASSERT(a1_handle != NULL, status)
+
+    a1d_handle = (A1D_Handle_t *) a1_handle;
+    if(a1d_handle->request_list != NULL)
     {
-        *(a1d_handle->user_handle_ptr) = NULL;
+        A1DI_Release_request_list(a1d_handle->request_list);
+        a1d_handle->request_list = NULL;
     }
 
     a1d_handle->next = A1D_Handle_pool.head;
     A1D_Handle_pool.head = a1d_handle;
-    
+
+  fn_exit:
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void A1DI_Clear_handle(A1D_Handle_t *a1d_handle)
+{
+
+    A1U_FUNC_ENTER();
+
+    if(a1d_handle->request_list != NULL)
+    {
+        A1DI_Release_request_list(a1d_handle->request_list);
+        a1d_handle->request_list = NULL;
+    }
+    a1d_handle->active = 0;
+
   fn_exit:
     A1U_FUNC_EXIT();
     return;
-    
+
   fn_fail:
     goto fn_exit;
-}  
+} 
 
 void A1DI_Load_request(A1D_Handle_t *a1d_handle)
 {
@@ -57,13 +106,15 @@ A1D_Handle_t* A1DI_Get_handle()
 
     A1U_FUNC_ENTER();
 
-    A1DI_Conditional_advance(A1D_Handle_pool.head == NULL);         
+    if(A1D_Handle_pool.head == NULL)
+    {
+        return NULL;
+    }              
 
     a1d_handle = A1D_Handle_pool.head;
     A1D_Handle_pool.head = A1D_Handle_pool.head->next;
 
     a1d_handle->request_list = NULL;
-    a1d_handle->user_handle_ptr = NULL;
     a1d_handle->active = 0;
 
   fn_exit:
@@ -102,54 +153,6 @@ int A1DI_Handle_pool_initialize()
     return status;
 
   fn_fail: 
-    goto fn_exit;
-}
-
-int A1D_Wait_handle(A1_handle_t a1_handle)
-{
-    int status = A1_SUCCESS;
-    A1D_Handle_t *a1d_handle;
-
-    A1U_FUNC_ENTER();
-
-    A1DI_CRITICAL_ENTER();
-
-    a1d_handle = (A1D_Handle_t *) a1_handle;
-    A1DI_Conditional_advance(a1d_handle->active > 0);
-
-    A1DI_Release_handle(a1_handle);
-
-  fn_exit:
-    A1DI_CRITICAL_EXIT();
-    A1U_FUNC_EXIT();
-    return status;
-
-  fn_fail:
-    goto fn_exit;
-}
-
-int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
-{
-    int status = A1_SUCCESS;
-    A1D_Handle_t *a1d_handle;
-
-    A1U_FUNC_ENTER();
-
-    A1DI_CRITICAL_ENTER();
-
-    a1d_handle = (A1D_Handle_t *) a1_handle;
-    A1DI_Advance();
-    *completed = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
-
-    if(*completed == A1_TRUE)
-         A1DI_Release_handle(a1d_handle);
-
-  fn_exit:
-    A1DI_CRITICAL_EXIT();
-    A1U_FUNC_EXIT();
-    return status;
-
-  fn_fail:
     goto fn_exit;
 }
 

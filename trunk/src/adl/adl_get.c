@@ -33,7 +33,7 @@ int A1_Get(int proc, void* src, void* dst, int bytes)
 }
 
 
-int A1_NbGet(int proc, void* src, void* dst, int bytes, A1_handle_t *a1_handle)
+int A1_NbGet(int proc, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
 

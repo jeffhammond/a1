@@ -27,9 +27,9 @@ A1D_Request_t* A1DI_Get_request()
     }
 
     a1d_request = A1D_Request_pool.head;
+    A1D_Request_pool.head = A1D_Request_pool.head->next;
     a1d_request->next = NULL;
     a1d_request->buffer_ptr = NULL;
-    A1D_Request_pool.head = A1D_Request_pool.head->next;
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -70,7 +70,7 @@ void A1DI_Release_request_list(A1D_Request_t *a1d_request_list)
     { 
         if(tail_request->buffer_ptr != NULL)
         {
-            A1DI_Free((void *) tail_request->buffer_ptr);
+            A1DI_Free(tail_request->buffer_ptr);
             tail_request->buffer_ptr = NULL;
         }
         tail_request = tail_request->next;

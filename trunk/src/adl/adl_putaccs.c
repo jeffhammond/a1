@@ -38,7 +38,7 @@ int A1_PutAccS(int target,
                          trg_stride_ar,
                          a1_type,
                          scaling);
-    A1U_ERR_POP(status, "A1D_NbPutAccs returned error\n");
+    A1U_ERR_POP(status, "A1D_PutAccS returned error\n");
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -57,7 +57,7 @@ int A1_NbPutAccS(int target,
                 int *trg_stride_ar,
                 A1_datatype_t a1_type,
                 void* scaling,
-                A1_handle_t *a1_handle)
+                A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
 
@@ -80,7 +80,7 @@ int A1_NbPutAccS(int target,
                           a1_type,
                           scaling,
                           a1_handle);
-    A1U_ERR_POP(status, "putaccs returned error\n");
+    A1U_ERR_POP(status, "NbPutAccS returned error\n");
 
   fn_exit: 
     A1U_FUNC_EXIT();

@@ -32,7 +32,7 @@ int A1_Put(int proc, void* src, void* dst, int bytes)
     goto fn_exit;
 }
 
-int A1_NbPut(int proc, void* src, void* dst, int bytes, A1_handle_t *a1_handle)
+int A1_NbPut(int proc, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
 

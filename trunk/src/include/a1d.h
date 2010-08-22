@@ -67,9 +67,9 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes);
 int A1D_Release_segments(A1_group_t* group, void *ptr);
 
 /**
- * \brief Device level implementation of A1_Init_handle.
+ * \brief Device level implementation of A1_Allocate_handle.
  *
- * Initializes the give non-blocking handle.
+ * Allocates a non-blocking handle.
  *
  * \param[in] handle      Non-blocking handle upon which to be waited.
  *
@@ -78,7 +78,22 @@ int A1D_Release_segments(A1_group_t* group, void *ptr);
  * \ingroup MEMORY
  */
 
-int A1D_Init_handle(A1_handle_t *handle);
+int A1D_Allocate_handle(A1_handle_t *handle);
+
+
+/**
+ * \brief Device level implementation of A1_Release_handle.
+ * 
+ * Releases a non-blocking handle.
+ * 
+ * \param[in] handle      Non-blocking handle upon which to be waited.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+
+int A1D_Release_handle(A1_handle_t handle);
 
 /**
  * \brief Device level implementation of A1_Barrier_group.
@@ -133,7 +148,7 @@ int A1D_Put(int target, void* src, void* dst, int bytes);
  *
  * \ingroup  COPY OPERATIONS
  */
-int A1D_NbPut(int target, void* src, void* dst, int bytes, A1_handle_t* handle);
+int A1D_NbPut(int target, void* src, void* dst, int bytes, A1_handle_t handle);
 
 /**
  * \brief Device level implementation of A1_PutS.
@@ -184,7 +199,7 @@ int A1D_NbPutS(int target,
                int src_stride_ar[],
                void* target_ptr,
                int trg_stride_ar[],
-               A1_handle_t *handle);
+               A1_handle_t handle);
 
 /**
  * \brief Device level implementation of A1_Get.
@@ -215,7 +230,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes);
  *
  * \ingroup  COPY OPERATIONS
  */
-int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t* handle);
+int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t handle);
 
 /**
  * \brief Device level implementation of A1_GetS.
@@ -265,7 +280,7 @@ int A1D_NbGetS(int target,
                int src_stride_ar[],
                void* target_ptr,
                int trg_stride_ar[],
-               A1_handle_t *handle);
+               A1_handle_t handle);
 
 /**
  * \brief Device level implementation of A1_PutAcc
@@ -311,7 +326,7 @@ int A1D_NbPutAcc(int target,
                  int bytes,
                  A1_datatype_t a1_type,
                  void* scaling,
-                 A1_handle_t* handle);
+                 A1_handle_t handle);
 
 /**
  * \brief Device level implementation of A1_PutAccS 
@@ -369,7 +384,7 @@ int A1D_NbPutAccS(int target,
                   int *trg_stride_ar,
                   A1_datatype_t a1_type,
                   void* scaling,
-                  A1_handle_t *handle);
+                  A1_handle_t handle);
 
 /**
  * \brief Device level implementation of A1_Flush 
