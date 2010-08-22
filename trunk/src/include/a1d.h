@@ -47,7 +47,7 @@ int A1D_Finalize(void);
  * \ingroup MANAGEMENT
  */
 
-int A1_Abort(int error_code, char error_message[]);
+int A1D_Abort(int error_code, char error_message[]);
 
 /**
  * \brief Device level implementation of A1_Exchange_segments.
@@ -106,6 +106,34 @@ int A1D_Allocate_handle(A1_handle_t *handle);
  */
 
 int A1D_Release_handle(A1_handle_t handle);
+
+/**
+ * \brief Device level implementation of A1_Wait_handle.
+ *
+ * Waits for operations on a handle to complete.
+ *
+ * \param[in] handle      Non-blocking handle upon which to be waited.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+
+int A1D_Wait_handle(A1_handle_t handle);
+
+/**
+ * \brief Device level implementation of A1_Test_handle.
+ *
+ * Test for completion of operations on a handle.
+ *
+ * \param[in] handle      Non-blocking handle upon which to be waited.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+
+int A1D_Test_handle(A1_handle_t handle, A1_bool_t* completed);
 
 /**
  * \brief Device level implementation of A1_Barrier_group.
