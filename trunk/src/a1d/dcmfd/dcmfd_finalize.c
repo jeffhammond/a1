@@ -1,7 +1,7 @@
-/* -*- Mode: C; c-basic-offset:4 ; -*- */
+/* *- Mode: C; c-basic-offset:4 ; -*- */
 /*
  *  Copyright (C) 2010 by Argonne National Laboratory.
- *      See COPYRIGHT in top-level directory.
+ *      See COPYRIGHT in toplevel directory.
  */
 
 #include "dcmfdimpl.h"
@@ -54,3 +54,20 @@ int A1D_Finalize(void)
   fn_fail: 
     goto fn_exit;
 }
+
+int A1D_Abort(int error_code, char error_message[])
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(status = A1_ERROR, "User called A1_ABORT, Program terminating abnormally");
+
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail: 
+    goto fn_exit;
+}
+
