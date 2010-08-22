@@ -85,11 +85,10 @@ int A1DI_Handle_pool_initialize()
     A1U_ERR_POP(status != 0,
                 "A1DI_Malloc_aligned failed while allocating handle pool\
                       in A1DI_Handle_pool_initialize\n");
-    a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
 
     A1D_Handle_pool.region_ptr = (void *) a1d_handle;
     A1D_Handle_pool.head = a1d_handle;
-    for (index = 0; index < a1_requestpool_info.initial_size-1; index++)
+    for (index = 0; index < A1C_HANDLE_POOL_SIZE-1; index++)
     {
         a1d_handle[index].next = &a1d_handle[index+1];
     } 

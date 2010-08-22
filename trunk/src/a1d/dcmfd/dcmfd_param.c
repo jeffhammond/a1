@@ -112,12 +112,11 @@ int A1DI_Read_parameters()
     fn_fail: goto fn_exit;
 }
 
-int A1D_Print_parameters(void)
+int A1DI_Print_parameters(void)
 {
     int result = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
-    A1DI_CRITICAL_ENTER();
 
     A1U_output_printf("=============== A1 Parameters ================\n");
     A1U_output_printf("A1 is using the DCMF (Blue Gene/P) device\n");
@@ -148,9 +147,10 @@ int A1D_Print_parameters(void)
     A1U_output_printf("flushall_pending_limit = %u\n",
                       a1_settings.flushall_pending_limit);
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
     A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
