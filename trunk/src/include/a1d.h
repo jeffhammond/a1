@@ -38,6 +38,18 @@ int A1D_Initialize(int A1_thread_level);
 int A1D_Finalize(void);
 
 /**
+ * \brief Device level implementation of A1_Abort.
+ *
+ * \param[out] rc            The error code from terminating A1.  Not sure what one would do with this.
+ * \param[in]  error_code    The error code to be returned to the submitting environment.
+ * \param[in]  error_message Text string to print to stderr upon termination.
+ *
+ * \ingroup MANAGEMENT
+ */
+
+int A1_Abort(int error_code, char error_message[]);
+
+/**
  * \brief Device level implementation of A1_Exchange_segments.
  *
  *  A collective operation to allocate memory to be used in context of A1 copy operations.
