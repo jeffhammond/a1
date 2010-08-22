@@ -355,8 +355,6 @@ extern A1_Requestpool_info_t a1_requestpool_info;
  *             Function Prototypes               *
  ************************************************/
 
-int A1DI_Print_parameters();
-
 void A1DI_Global_lock_acquire();
 
 void A1DI_Global_lock_release();

@@ -10,6 +10,15 @@
 #define A1D_H_INCLUDED
 
 /**
+ * \brief Prints out parameter information
+ *
+ * \param[out] rc               The error code from initalizing A1
+ *
+ * \ingroup MANAGEMENT
+ */
+int A1D_Print_parameters();
+
+/**
  * \brief Device level implementation of A1_Initialize.
  *
  * \param[out] rc               The error code from initalizing A1
