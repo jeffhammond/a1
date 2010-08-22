@@ -52,16 +52,12 @@ extern "C"
 
 typedef enum
 {
-    A1_THREAD_SINGLE, /**< There is only one thread present. */
-    A1_THREAD_FUNNELED, /**< There are multiple threads present but
-     only the main thread makes A1 calls. */
-    A1_THREAD_SERIALIZED, /**< There are multiple threads present and each
-     can make A1 calls, but never simultaneously. */
-    A1_THREAD_MATCHED, /**< Each A1 channel is accessed from only one thread.
-     For example, one thread communicates remotely via
-     the network and another communicates with a GPU. */
-    A1_THREAD_GENERAL
-/**< Any A1 channel can be accessed from any thread. */
+    A1_THREAD_SINGLE,     /**< There is only one thread present. */
+    A1_THREAD_FUNNELED,   /**< There are multiple threads present
+                             but only the main thread makes A1 calls. */
+    A1_THREAD_SERIALIZED, /**< There are multiple threads present and
+                               each can make A1 calls, but never simultaneously. */
+    A1_THREAD_MULTIPLE    /**< Any A1 channel can be accessed from any thread. */
 } A1_thread_level;
 
 /**
@@ -261,7 +257,7 @@ int A1_Node_total(A1_group_t* group);
  *
  * \warning This must be the first A1 call made in any code.
  *
- * \note Unlike MPI, A1_Initialize may be called many times and is thread-safe.
+ * \note Unlike MPI, A1_Initialize may be called many times and but is not thread-safe.
  *       Improper use of A1_Initialize (calling it more than once) shall be
  *       indicated by a non-zero error code and potentially warnings in
  *       stderr.

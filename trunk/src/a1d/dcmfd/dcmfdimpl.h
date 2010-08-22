@@ -104,19 +104,20 @@ extern LockBox_Mutex_t global_lbmutex;
 /*************************************************
  *          Generic  Macros                      *
  *************************************************/
-#define A1DI_Set_user_handle(a1d_handle_ptr, a1_handle_ptr)   \
+
+#define A1DI_Set_user_handle(a1d_handle_ptr, a1_handle_ptr)  \
   do {                                                        \
        a1d_handle_ptr->user_handle_ptr = a1_handle_ptr;       \
      } while(0)                                               \
 
-#define A1DI_Wait_cycles(cycles)                   \
-   do {                                            \
-      unsigned long long start = DCMF_Timebase();  \
-      while((DCMF_Timebase() - start) < cycles);   \
-   } while(0)                                      \
+#define A1DI_Wait_cycles(cycles)                     \
+   do {                                               \
+      unsigned long long start = DCMF_Timebase();   \
+      while((DCMF_Timebase() - start) < cycles);      \
+   } while(0)                                         \
 
 #define A1DI_Wait_seconds(seconds)               \
-   do {                                          \
+   do {                                           \
       double start = DCMF_Timer();               \
       while((DCMF_Timer() - start) < seconds);   \
    } while(0)                                    \
@@ -125,6 +126,7 @@ extern LockBox_Mutex_t global_lbmutex;
  *          Memory Allocation Macros             *
  *************************************************/
 
+ /* TODO: why are we not using posix_memalign? */
 //#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
 #define A1DI_Malloc_aligned(ptr, num) ((*ptr = malloc(num)) == NULL)
 
@@ -139,6 +141,7 @@ extern LockBox_Mutex_t global_lbmutex;
 /*************************************************
  *          Critical Section Macros              *
  *************************************************/
+
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if(a1_settings.enable_cht)                                  \
@@ -169,6 +172,10 @@ extern LockBox_Mutex_t global_lbmutex;
     while(boolean) {                                              \
           DCMF_Messager_advance(0);                               \
     }                                                             \
+
+/*************************************************
+ *          Non-contiguous macros                *
+ *************************************************/
 
 #define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count)          \
    do {                                                                     \

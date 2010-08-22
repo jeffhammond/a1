@@ -82,12 +82,12 @@ int A1D_Initialize(int thread_level)
            case A1_THREAD_SERIALIZED:
                  thread_level = DCMF_THREAD_SERIALIZED;
                  break;
-           case A1_THREAD_GENERAL:
+           case A1_THREAD_MULTIPLE:
                  thread_level = DCMF_THREAD_MULTIPLE;
                  break;
            default:
                  A1U_ERR_POP(A1_ERROR,
-                             "Unsupported thread level provided in Initialize \n");
+                             "Unsupported thread level provided in A1D_Initialize \n");
                  break;
         }
 
