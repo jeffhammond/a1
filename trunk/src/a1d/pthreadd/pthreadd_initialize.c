@@ -4,6 +4,8 @@
  *      See COPYRIGHT in top-level directory.
  */
 
+#include "pthreaddimpl.h"
+
 int A1D_Initialize(int thread_level)
 {
 
