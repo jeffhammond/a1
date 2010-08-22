@@ -346,7 +346,7 @@ int A1D_GetS(int target,
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = A1DI_Get_handle();
-    A1U_ERR_POP(a1d_handle == NULL,
+    A1U_ERR_POP(status = (a1d_handle == NULL),
                 "A1DI_Get_handle returned NULL in A1D_GetS. Handles exhausted \n");
 
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
