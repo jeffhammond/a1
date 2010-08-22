@@ -375,6 +375,7 @@ int A1D_GetS(int target,
     }
 
   fn_exit:
+    A1DI_Release_handle(a1d_handle);
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;

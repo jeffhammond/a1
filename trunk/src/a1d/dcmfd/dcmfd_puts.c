@@ -257,6 +257,7 @@ int A1D_PutS(int target,
     A1DI_Conditional_advance(a1d_handle->active > 0);
 
   fn_exit:
+    A1DI_Release_handle(a1d_handle);
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;

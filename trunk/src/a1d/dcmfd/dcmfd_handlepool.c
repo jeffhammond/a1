@@ -42,15 +42,8 @@ int A1D_Release_handle(A1_handle_t a1_handle)
 
     A1U_ASSERT(a1_handle != NULL, status)
 
-    a1d_handle = (A1D_Handle_t *) a1_handle;
-    if(a1d_handle->request_list != NULL)
-    {
-        A1DI_Release_request_list(a1d_handle->request_list);
-        a1d_handle->request_list = NULL;
-    }
-
-    a1d_handle->next = A1D_Handle_pool.head;
-    A1D_Handle_pool.head = a1d_handle;
+    a1d_handle = (A1D_Handle_t *) a1_handle; 
+    A1DI_Release_handle(a1d_handle);
 
   fn_exit:
     A1DI_CRITICAL_EXIT();
@@ -100,6 +93,7 @@ void A1DI_Load_request(A1D_Handle_t *a1d_handle)
     goto fn_exit;
 }
 
+
 A1D_Handle_t* A1DI_Get_handle()
 {
     A1D_Handle_t *a1d_handle = NULL;
@@ -120,6 +114,27 @@ A1D_Handle_t* A1DI_Get_handle()
   fn_exit:
     A1U_FUNC_EXIT();
     return a1d_handle;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void A1DI_Release_handle(A1D_Handle_t *a1d_handle)
+{
+    A1U_FUNC_ENTER();
+
+    if(a1d_handle->request_list != NULL)
+    {
+        A1DI_Release_request_list(a1d_handle->request_list);
+        a1d_handle->request_list = NULL;
+    }
+
+    a1d_handle->next = A1D_Handle_pool.head;
+    A1D_Handle_pool.head = a1d_handle;
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
   fn_fail:
     goto fn_exit;
