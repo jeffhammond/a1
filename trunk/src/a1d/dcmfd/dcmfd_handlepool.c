@@ -16,7 +16,10 @@ void A1DI_Release_handle(A1D_Handle_t *a1d_handle)
     A1DI_Release_request_list(a1d_handle->request_list);
 
     a1d_handle->request_list = NULL;
-    *(a1d_handle->user_handle_ptr) = NULL;
+    if(a1d_handle->user_handle_ptr != NULL) 
+    {
+        *(a1d_handle->user_handle_ptr) = NULL;
+    }
 
     a1d_handle->next = A1D_Handle_pool.head;
     A1D_Handle_pool.head = a1d_handle;
