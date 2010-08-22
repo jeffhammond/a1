@@ -30,6 +30,8 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
     A1D_Request_t *a1d_request;
 
     a1d_request = A1DI_Get_request();
+    A1U_ERR_ABORT(status = (a1d_request == NULL),
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputaccs_callback. Requests exhausted \n");
 
     *rcvlen = sndlen;
     status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), sndlen);
@@ -109,9 +111,12 @@ int A1DI_Packed_putaccs(int target,
                                        a1_type,
                                        scaling);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-                "Pack acc function returned with an error \n");
+                "A1DI_Packed_putaccs function returned with an error \n");
 
-    A1DI_Load_request(a1d_handle);
+    status = A1DI_Load_request(a1d_handle);
+    A1U_ERR_POP(status != A1_SUCCESS,
+              "A1DI_Load_request returned error in A1DI_Packed_putaccs. Rquests exhausted \n");
+
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;
     a1d_handle->active++;
@@ -259,6 +264,8 @@ int A1D_PutAccS(int target,
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = A1DI_Get_handle();
+    A1U_ERR_POP(a1d_handle == NULL,
+                "A1DI_Get_handle returned NULL in A1D_PutAccS. Handles exhausted \n");
 
     if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
     {

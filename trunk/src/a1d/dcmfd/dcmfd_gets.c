@@ -28,6 +28,8 @@ int A1DI_Packed_gets_response(int target,
     A1U_FUNC_ENTER();
 
     a1d_request = A1DI_Get_request();
+    A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned NULL in A1DI_Packed_gets_response. Requests exhausted \n");
 
     status = A1DI_Pack_strided(&packet,
                                &size_packet,
@@ -90,6 +92,8 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
     A1D_Request_t *a1d_request;
  
     a1d_request = A1DI_Get_request();
+    A1U_ERR_ABORT(status = (a1d_request == NULL),
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_packedgets_response_callback. Requests exhausted \n");
 
     *rcvlen = sndlen;
     status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), sndlen);
@@ -208,7 +212,7 @@ int A1DI_Packed_gets(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &packet, sizeof(A1D_Handle_t));
+    status = A1DI_Malloc_aligned((void **) &packet, sizeof(A1D_Packed_gets_header_t));
     A1U_ERR_POP(status,"Malloc failed in A1DI_Packed_gets \n");
 
     /*Copying header information*/
@@ -222,14 +226,17 @@ int A1DI_Packed_gets(int target,
             * sizeof(uint32_t));
     memcpy(packet->block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
 
-    A1DI_Load_request(a1d_handle);
+    status = A1DI_Load_request(a1d_handle);
+    A1U_ERR_POP(status != A1_SUCCESS,
+                "A1DI_Load_request returned error in A1DI_Packed_gets. Rquests exhausted \n");
+
+    /* Assigning the packing buffer pointer in request so that it can be free when the
+     * request is complete, in the callback */
+    a1d_handle->request_list->buffer_ptr = (void *) packet;
 
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;
     a1d_handle->active++;
-    /* Assigning the packing buffer pointer in request so that it can be free when the
-     * request is complete, in the callback */
-    a1d_handle->request_list->buffer_ptr = (void *) packet;
 
     status = DCMF_Send(&A1D_Packed_gets_protocol,
                        &(a1d_handle->request_list->request),
@@ -292,7 +299,9 @@ int A1DI_Direct_gets(int target,
         dst_disp = (size_t) target_ptr
                  - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
-        A1DI_Load_request(a1d_handle);
+        status = A1DI_Load_request(a1d_handle);
+        A1U_ERR_POP(status != A1_SUCCESS,
+                   "A1DI_Load_request returned error in A1DI_Direct_gets. Rquests exhausted \n");
 
         done_callback.function = A1DI_Handle_done;
         done_callback.clientdata = (void *) a1d_handle;
@@ -337,6 +346,8 @@ int A1D_GetS(int target,
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = A1DI_Get_handle();
+    A1U_ERR_POP(a1d_handle == NULL,
+                "A1DI_Get_handle returned NULL in A1D_GetS. Handles exhausted \n");
 
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {

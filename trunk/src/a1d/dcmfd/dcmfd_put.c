@@ -107,7 +107,9 @@ int A1D_NbPut(int target,
     A1DI_CRITICAL_ENTER();   
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
-    A1DI_Load_request(a1d_handle);
+    status = A1DI_Load_request(a1d_handle);
+    A1U_ERR_POP(status != A1_SUCCESS,
+              "A1DI_Load_request returned error in A1D_NbPut. Rquests exhausted \n");
 
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;

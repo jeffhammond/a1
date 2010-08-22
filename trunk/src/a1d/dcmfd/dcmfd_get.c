@@ -86,7 +86,9 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
-    A1DI_Load_request(a1d_handle);
+    status = A1DI_Load_request(a1d_handle);
+    A1U_ERR_POP(status != A1_SUCCESS,
+                "A1DI_Load_request returned error in A1D_NbGet. Rquests exhausted \n");
 
     callback.function = A1DI_Handle_done;
     callback.clientdata = (void *) a1d_handle;

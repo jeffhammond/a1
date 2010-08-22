@@ -38,6 +38,8 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
     A1D_Request_t *a1d_request;
 
     a1d_request = A1DI_Get_request();
+    A1U_ERR_ABORT(status = (a1d_request == NULL),
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_putacc_callback. Rquests exhausted \n");
 
     A1U_ASSERT_ABORT(sizeof(A1D_Putacc_header_t) == count*sizeof(DCQuad), 
         "Header of invalid size received in A1DI_RecvSend_putacc_callback\n")
@@ -270,7 +272,6 @@ int A1D_NbPutAcc(int target,
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
-    a1d_handle = A1DI_Get_handle();
 
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;

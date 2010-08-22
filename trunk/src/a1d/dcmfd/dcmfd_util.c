@@ -21,7 +21,16 @@ void A1DI_Handle_done(void *clientdata, DCMF_Error_t *error)
 
     if(a1d_handle->active == 0) 
     {
-       A1DI_Clear_handle(a1d_handle);    
+      if(a1d_handle->request_list != NULL)
+      {
+          A1DI_Release_request_list(a1d_handle->request_list);
+          a1d_handle->request_list = NULL;
+      }
+      else
+      {
+          printf("Something went wrong, Handle is active with no requests in A1DI_Handle_done\n");
+          fflush(stdout);
+      }
     }
 }
 

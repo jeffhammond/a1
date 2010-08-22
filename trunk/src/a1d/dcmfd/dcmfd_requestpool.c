@@ -65,6 +65,11 @@ void A1DI_Release_request_list(A1D_Request_t *a1d_request_list)
 
     A1U_FUNC_ENTER();
 
+    if(a1d_request_list == NULL) 
+    {
+        return;
+    }
+
     tail_request = a1d_request_list;
     while(tail_request->next != NULL) 
     { 

@@ -383,7 +383,7 @@ void A1DI_Handle_pool_finalize();
 
 A1D_Handle_t* A1DI_Get_handle();
 
-void A1DI_Clear_handle(A1D_Handle_t *);
+int A1DI_Load_request(A1D_Handle_t *);
 
 void A1DI_Release_handle(A1D_Handle_t *);
 
