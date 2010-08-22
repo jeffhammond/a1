@@ -280,14 +280,16 @@ int A1DI_Direct_gets(int target,
 
         for (i = 0; i < block_sizes[stride_level]; i++)
         {
-            A1DI_Direct_gets(target,
-                             stride_level -1,
-                             block_sizes,
-                             (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
-                             src_stride_ar,
-                             (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
-                             trg_stride_ar,
-                             a1d_handle);
+            status = A1DI_Direct_gets(target,
+                                      stride_level -1,
+                                      block_sizes,
+                                      (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
+                                      src_stride_ar,
+                                      (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
+                                      trg_stride_ar,
+                                      a1d_handle);
+             A1U_ERR_POP(status != A1_SUCCESS,
+                     "A1DI_Direct_gets returned error in A1DI_Direct_gets. \n");
         }
 
     }
@@ -319,7 +321,6 @@ int A1DI_Direct_gets(int target,
                           dst_disp);
         A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Get returned with an error \n");
 
-        A1D_Connection_send_active[target]++;
     }
 
   fn_exit: 

@@ -168,16 +168,18 @@ int A1DI_Direct_putaccs(int target,
 
         for (i = 0; i < block_sizes[stride_level]; i++)
         {
-            A1DI_Direct_putaccs(target,
-                                stride_level - 1,
-                                block_sizes,
-                                (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
-                                src_stride_ar,
-                                (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
-                                trg_stride_ar,
-                                a1_type,
-                                scaling, 
-                                a1d_handle);
+            status = A1DI_Direct_putaccs(target,
+                                         stride_level - 1,
+                                         block_sizes,
+                                         (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
+                                         src_stride_ar,
+                                         (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
+                                         trg_stride_ar,
+                                         a1_type,
+                                         scaling, 
+                                         a1d_handle);
+            A1U_ERR_POP(status != A1_SUCCESS,
+                    "A1DI_Direct_putaccs returned error in A1DI_Direct_putaccs \n"); 
 
         }
 
@@ -185,7 +187,10 @@ int A1DI_Direct_putaccs(int target,
     else
     {
 
-        A1DI_Load_request(a1d_handle);
+        status = A1DI_Load_request(a1d_handle);
+        A1U_ERR_POP(status != A1_SUCCESS,
+                 "A1DI_Load_request returned error in A1DI_Direct_putaccs. Rquests exhausted \n");
+
         done_callback.function = A1DI_Handle_done;
         done_callback.clientdata = (void *) a1d_handle;
         a1d_handle->active++;

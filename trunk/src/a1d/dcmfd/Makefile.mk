@@ -12,10 +12,13 @@ liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmfd/dcmfd_param.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_flush_group.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_put.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_puts.c \
+	$(top_srcdir)/src/a1d/dcmfd/dcmfd_putv.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_get.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_gets.c \
+	$(top_srcdir)/src/a1d/dcmfd/dcmfd_getv.c \
         $(top_srcdir)/src/a1d/dcmfd/dcmfd_putacc.c \
         $(top_srcdir)/src/a1d/dcmfd/dcmfd_putaccs.c \
+        $(top_srcdir)/src/a1d/dcmfd/dcmfd_putaccv.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_collectives.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_misc.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_util.c \

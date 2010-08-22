@@ -214,6 +214,48 @@ int A1D_NbPutS(int target,
                A1_handle_t handle);
 
 /**
+ * \brief Device level implementation of A1_PutV.
+ * 
+ *  Blocking copy of non-contiguous data from local memory to remote memory.
+ * 
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of
+ *                             chunks of same size.
+ * \param[in]  ar_len          Number of elements in the array.
+ * 
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ * 
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1D_PutV(int target, 
+             A1_iov_t *iov_ar,
+             int ar_len);
+
+/**
+ * \brief Device level implementation of A1_NbPutV.
+ * 
+ *  Non-Blocking copy of non-contiguous data from local memory to remote memory.
+ * 
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of
+ *                             chunks of same size.
+ * \param[in]  ar_len          Number of elements in the array.
+ * \param[in]  a1_handle       A1 Opaque handle
+ * 
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ * 
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1D_NbPutV(int target, 
+               A1_iov_t *iov_ar,
+               int ar_len,
+               A1_handle_t a1_handle);
+
+/**
  * \brief Device level implementation of A1_Get.
  *
  * Blocking copy of contiguous data from remote memory to local memory.
@@ -292,6 +334,48 @@ int A1D_NbGetS(int target,
                int src_stride_ar[],
                void* target_ptr,
                int trg_stride_ar[],
+               A1_handle_t handle);
+
+/**
+ * \brief  Device level implementation of A1_GetV.
+ *
+ * Blocking copy of non-contiguous data from remote memory to local memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of
+ *                             chunks of same size.
+ * \param[in]  ar_len          Number of elements in the array.
+ * 
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ * 
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1D_GetV(int target,
+             A1_iov_t *iov_ar,
+             int ar_len);
+
+/**
+ * \brief Device level implementation of A1_NbGetV
+ *
+ * Non-Blocking copy of non-contiguous data from remote memory to local memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of
+ *                             chunks of same size.
+ * \param[in]  ar_len          Number of elements in the array.
+ * \param[in]  handle          A1 Opaque handle
+ * 
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ * 
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1D_NbGetV(int target,
+               A1_iov_t *iov_ar,
+               int ar_len,
                A1_handle_t handle);
 
 /**
@@ -397,6 +481,56 @@ int A1D_NbPutAccS(int target,
                   A1_datatype_t a1_type,
                   void* scaling,
                   A1_handle_t handle);
+
+/**
+ * \brief Device level implementation of A1_PutAccV
+ * 
+ * Blocking accumulate of non-contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of
+ *                             chunks of same size.
+ * \param[in]  ar_len          Number of elements in the array.
+ * \param[in]  a1_type         Type of data and scaling factor
+ * \param[in]  *scaling        Scaling factor in the accumulate operation.
+ *
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1D_PutAccV(int target,
+                A1_iov_t *iov_ar,
+                int ar_len,
+                A1_datatype_t a1_type,
+                void* scaling);
+
+/**
+ * \brief Device level implementation of A1_PutAccV
+ * 
+ * Blocking accumulate of non-contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of
+ *                             chunks of same size.
+ * \param[in]  ar_len          Number of elements in the array.
+ * \param[in]  a1_type         Type of data and scaling factor
+ * \param[in]  *scaling        Scaling factor in the accumulate operation.
+ * \param[in]  a1_handle       A1 opaque handle
+ *
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1D_NbPutAccV(int target,
+                  A1_iov_t *iov_ar,
+                  int ar_len,
+                  A1_datatype_t a1_type,
+                  void* scaling,
+                  A1_handle_t a1_handle);
 
 /**
  * \brief Device level implementation of A1_Flush 

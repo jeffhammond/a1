@@ -114,6 +114,7 @@ int A1D_NbPut(int target,
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;
     a1d_handle->active++;
+
     ack_callback = A1D_Nocallback;
     A1D_Connection_put_active[target]++;
 

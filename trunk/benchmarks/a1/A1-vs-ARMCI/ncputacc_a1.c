@@ -117,9 +117,6 @@ int main() {
                if(i == SKIP)
                    t_start = A1_Time_seconds();              
 
-               printf("In Iteration %d \n", i);
-               fflush(stdout);
- 
                A1_PutAccS(1, stride_level, count, (void *) buffer[rank], &src_stride, 
                          (void *) buffer[peer], &trg_stride, 
                          A1_DOUBLE, (void *) &scaling);
