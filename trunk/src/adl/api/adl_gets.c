@@ -120,13 +120,13 @@ int A1I_Recursive_Get(int target,
     else
     {
 
-        status = A1_NbGet(target,
-                          source_ptr,
-                          target_ptr,
-                          src_disp,
-                          block_sizes[0],
-                          a1_handle);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1_NbGet returned with an error \n");
+        status = A1D_NbGet(target,
+                           source_ptr,
+                           target_ptr,
+                           src_disp,
+                           block_sizes[0],
+                           a1_handle);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned with an error \n");
 
     }
 
@@ -169,7 +169,7 @@ int A1_GetS(int target,
                                target_ptr,
                                trg_stride_ar,
                                a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Recursive_Get returned error\n");
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_Get returned error\n");
 
     status = A1_Wait_handle(a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1_Wait_handle returned error\n");
@@ -211,7 +211,7 @@ int A1_NbGetS(int target,
                                target_ptr,
                                trg_stride_ar,
                                a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Recursive_Get returned error\n");
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_Get returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

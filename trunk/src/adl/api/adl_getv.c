@@ -91,12 +91,12 @@ int A1_GetV(int target,
         for(j=0; j<iov_ar[i].ptr_ar_len; j++)
         {
 
-             status = A1_NbGet(target,
-                               iov_ar[i].source_ptr_ar[j],
-                               iov_ar[i].target_ptr_ar[j],
-                               iov_ar[i].size,
-                               a1_handle);
-             A1U_ERR_POP(status != A1_SUCCESS, "A1_NbGet returned with an error \n");
+             status = A1D_NbGet(target,
+                                iov_ar[i].source_ptr_ar[j],
+                                iov_ar[i].target_ptr_ar[j],
+                                iov_ar[i].size,
+                                a1_handle);
+             A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned with an error \n");
 
         }
     }
@@ -127,12 +127,12 @@ int A1_NbGetV(int target,
         for(j=0; j<iov_ar[i].ptr_ar_len; j++)
         {
 
-             status = A1_NbGet(target,
-                               iov_ar[i].source_ptr_ar[j],
-                               iov_ar[i].target_ptr_ar[j],
-                               iov_ar[i].size,
-                               a1_handle);
-             A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned with an error \n");
+             status = A1D_NbGet(target,
+                                iov_ar[i].source_ptr_ar[j],
+                                iov_ar[i].target_ptr_ar[j],
+                                iov_ar[i].size,
+                                a1_handle);
+             A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned with an error \n");
 
         }
     }

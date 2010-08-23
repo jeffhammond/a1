@@ -121,13 +121,13 @@ int A1I_Recursive_Put(int target,
     else
     {
 
-        status = A1_NbPut(target,
-                          source_ptr,
-                          target_ptr, 
-                          src_disp,
-                          block_sizes[0],
-                          a1_handle);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPut returned with an error \n");
+        status = A1D_NbPut(target,
+                           source_ptr,
+                           target_ptr,
+                           src_disp,
+                           block_sizes[0],
+                           a1_handle);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPut returned with an error \n");
 
      }
 
