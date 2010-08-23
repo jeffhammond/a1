@@ -146,6 +146,131 @@ int A1DI_Packed_putaccs(int target,
 
 }
 
+int A1DI_Direct_putaccs(int target,
+                        int stride_level,
+                        int *block_sizes,
+                        void* source_ptr,
+                        int *src_stride_ar,
+                        void* target_ptr,
+                        int *trg_stride_ar,
+                        A1_datatype_t a1_type,
+                        void *scaling,
+                        A1D_Handle_t *a1d_handle)
+{
+    int i, status = A1_SUCCESS;
+    A1D_Putacc_header_t header;
+    DCMF_Callback_t done_callback;
+    int chunk_count=1;
+    int *block_sizes_w;
+    int y=0;
+
+    A1U_FUNC_ENTER();
+
+    status = A1DI_Malloc_aligned(&block_sizes_w, sizeof(int)*(stride_level+1));
+    A1U_ERR_POP(status != A1_SUCCESS,
+             "A1DI_Malloc_aligned returned error in A1DI_Direct_gets");
+
+    A1DI_Memcpy(block_sizes_w, block_sizes, sizeof(int)*(stride_level+1));
+
+    done_callback.function = A1DI_Handle_done;
+    done_callback.clientdata = (void *) a1d_handle;
+
+    for(i=1; i<=stride_level; i++)
+        chunk_count = block_sizes[i]*chunk_count;
+
+    header.datatype = a1_type;
+    likely_if(a1_type == A1_DOUBLE)
+    {
+        (header.scaling).double_value = *((double *) scaling);
+    }
+    else
+    {
+        switch (a1_type)
+        {
+        case A1_INT32:
+            (header.scaling).int32_value = *((int32_t *) scaling);
+            break;
+        case A1_INT64:
+            (header.scaling).int64_value = *((int64_t *) scaling);
+            break;
+        case A1_UINT32:
+            (header.scaling).uint32_value = *((uint32_t *) scaling);
+            break;
+        case A1_UINT64:
+            (header.scaling).uint64_value = *((uint64_t *) scaling);
+            break;
+        case A1_FLOAT:
+            (header.scaling).float_value = *((float *) scaling);
+            break;
+        default:
+            status = A1_ERROR;
+            A1U_ERR_POP((status != A1_SUCCESS),
+                        "Invalid data type in putacc \n");
+            break;
+        }
+    }
+
+    for(i=0; i<chunk_count; i++)
+    {
+
+        status = A1DI_Load_request(a1d_handle);
+        A1U_ERR_POP(status != A1_SUCCESS,
+                 "A1DI_Load_request returned error in A1DI_Recursive_putaccs. Rquests exhausted \n");
+
+        a1d_handle->active++;
+
+        header.target_ptr = target_ptr;
+
+        status = DCMF_Send(&A1D_Generic_putacc_protocol,
+                           &(a1d_handle->request_list->request),
+                           done_callback,
+                           DCMF_SEQUENTIAL_CONSISTENCY,
+                           target,
+                           block_sizes[0],
+                           source_ptr,
+                           (DCQuad *) &header,
+                           (unsigned) 2);
+        A1U_ERR_POP((status != DCMF_SUCCESS), "DCMF Send returned with an error \n");
+
+        A1D_Connection_send_active[target]++;
+
+        block_sizes_w[1]--;
+        if(block_sizes_w[1]==0)
+        {
+               y=1;
+               while(block_sizes_w[y] == 0)
+               {
+                  if(y == stride_level)
+                  {
+                     A1U_ASSERT(i == chunk_count-1, status);
+                     break;
+                  }
+                  y++;
+               }
+               block_sizes_w[y]--;
+
+               source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[y-1]);
+               target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y-1]);
+
+               y--;
+               while(y >= 1) block_sizes_w[y] = block_sizes[y];
+        }
+        else
+        {
+               source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[0]);
+               target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[0]);
+        }
+
+    }
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1DI_Recursive_putaccs(int target,
                         int stride_level,
                         int *block_sizes,
@@ -275,7 +400,7 @@ int A1D_PutAccS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
     {
 
-        status = A1DI_Recursive_putaccs(target,
+        status = A1DI_Direct_putaccs(target,
                                      stride_level,
                                      block_sizes,
                                      source_ptr,
@@ -340,7 +465,7 @@ int A1D_NbPutAccS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
     {
 
-        status = A1DI_Recursive_putaccs(target,
+        status = A1DI_Direct_putaccs(target,
                                      stride_level,
                                      block_sizes,
                                      source_ptr,

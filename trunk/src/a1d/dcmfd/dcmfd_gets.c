@@ -290,9 +290,6 @@ int A1DI_Direct_gets(int target,
     for(i=1; i<=stride_level; i++)
         chunk_count = block_sizes[i]*chunk_count;
 
-    printf("Chunkcount : %d \n", chunk_count);
-    fflush(stdout);
-
     for(i=0; i<chunk_count; i++)
     {
 
