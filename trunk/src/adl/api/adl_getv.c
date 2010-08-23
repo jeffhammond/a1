@@ -84,7 +84,7 @@ int A1_GetV(int target,
     A1U_FUNC_ENTER();
 
     status = A1D_Allocate_handle(&a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1_Allocate_handle returned error\n");    
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");    
 
     for (i=0; i<ar_len; i++)
     {
@@ -102,7 +102,7 @@ int A1_GetV(int target,
     }
 
     status = A1D_Wait_handle(a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1_Wait_handle returned error\n");
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
 
   fn_exit:
     A1D_Release_handle(a1_handle);
