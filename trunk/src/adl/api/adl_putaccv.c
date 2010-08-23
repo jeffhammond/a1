@@ -101,14 +101,14 @@ int A1_PutAccV(int target,
         for(j=0; j<iov_ar[i].ptr_ar_len; j++)
         {
 
-             status = A1_NbPutAcc(target,
-                                  iov_ar[i].source_ptr_ar[j],
-                                  iov_ar[i].target_ptr_ar[j],
-                                  iov_ar[i].size,
-                                  a1_type,
-                                  scaling,
+             status = A1D_NbPutAcc(target,
+                                   iov_ar[i].source_ptr_ar[j],
+                                   iov_ar[i].target_ptr_ar[j],
+                                   iov_ar[i].size,
+                                   a1_type,
+                                   scaling,
  	   			  a1_handle);
-             A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutAcc returned with an error \n");
+             A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
 
         }
     }
@@ -141,14 +141,14 @@ int A1_NbPutAccV(int target,
         for(j=0; j<iov_ar[i].ptr_ar_len; j++)
         {
 
-             status = A1_NbPutAcc(target,
-                                  iov_ar[i].source_ptr_ar[j],
-                                  iov_ar[i].target_ptr_ar[j],
-                                  iov_ar[i].size,
-                                  a1_type,
-                                  scaling,
+             status = A1D_NbPutAcc(target,
+                                   iov_ar[i].source_ptr_ar[j],
+                                   iov_ar[i].target_ptr_ar[j],
+                                   iov_ar[i].size,
+                                   a1_type,
+                                   scaling,
  	   			  a1_handle);
-             A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutAcc returned with an error \n");
+             A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
 
         }
     }
