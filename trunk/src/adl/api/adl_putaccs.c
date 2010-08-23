@@ -98,16 +98,16 @@ int A1_NbPutAccS(int target,
 
 #else
 
-int A1_Recursive_PutAcc(int target,
-                        int stride_level,
-                        int *block_sizes,
-                        void* source_ptr,
-                        int *src_stride_ar,
-                        void* target_ptr,
-                        int *trg_stride_ar,
-                        A1_datatype_t a1_type,
-                        void* scaling,
-		        A1_handle_t a1_handle)
+int A1I_Recursive_PutAcc(int target,
+                         int stride_level,
+                         int *block_sizes,
+                         void* source_ptr,
+                         int *src_stride_ar,
+                         void* target_ptr,
+                         int *trg_stride_ar,
+                         A1_datatype_t a1_type,
+                         void* scaling,
+                         A1_handle_t a1_handle)
 {
     int i, status = A1_SUCCESS;
 
@@ -127,7 +127,7 @@ int A1_Recursive_PutAcc(int target,
                                           trg_stride_ar,
                                           a1_type,
                                           scaling,
-				  	  a1_handle);
+                                          a1_handle);
             A1U_ERR_POP(status != A1_SUCCESS,
                   "A1I_Recursive_PutAcc returned error in A1I_Recursive_PutAcc.\n");
         }
@@ -136,14 +136,14 @@ int A1_Recursive_PutAcc(int target,
     else
     {
 
-        status = A1_NbPutAcc(target,
-                             source_ptr,
-                             target_ptr,
-                             block_sizes[0],
-                             a1_type,
-                             scaling,
-			     a1_handle);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutAcc returned with an error \n");
+        status = A1D_NbPutAcc(target,
+                              source_ptr,
+                              target_ptr,
+                              block_sizes[0],
+                              a1_type,
+                              scaling,
+                              a1_handle);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
 
      }
 
@@ -190,7 +190,7 @@ int A1_PutAccS(int target,
                                   a1_type,
                                   scaling,
                                   a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Recursive_PutAcc returned error\n");
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_PutAcc returned error\n");
 
     status = A1_Wait_handle(a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1_Wait_handle returned error\n");
@@ -236,7 +236,7 @@ int A1_NbPutAccS(int target,
                                   a1_type,
                                   scaling,
                                   a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Recursive_PutAcc returned error\n");
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_PutAcc returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
