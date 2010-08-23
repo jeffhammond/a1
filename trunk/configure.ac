@@ -130,6 +130,18 @@ for dev in `echo $a1_device | sed -e 's/:/ /g' -e 's/,/ /g'` ; do
                 got_device=yes
                 a1_device_dcmfd=true
 		;;
+         pthreadd)
+        PAC_SET_HEADER_LIB_PATH(pthread)
+        got_pthread=no
+        PAC_CHECK_HEADER_LIB(pthread,pthread.h,pthread,pthread_create,
+                got_pthread=yes,got_pthread=no)
+        if test "$got_pthread" = "yes" ; then
+           got_device=yes
+                   a1_device_pthreadd=true
+        fi
+                got_device=yes
+                a1_device_pthreadd=true
+        ;;
     	 mpid)
 		PAC_SET_HEADER_LIB_PATH(mpi)
 		got_mpi=no
