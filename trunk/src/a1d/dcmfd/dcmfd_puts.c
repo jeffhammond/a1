@@ -204,15 +204,15 @@ int A1DI_Direct_puts(int target,
 
         A1D_Connection_put_active[target]++;
 
-        block_sizes_w[0]--;
-        if(block_sizes_w[0]==0) 
+        block_sizes_w[1]--;
+        if(block_sizes_w[1]==0) 
         {
-               y=0;
+               y=1;
                while(block_sizes_w[y] == 0) 
                {
                   if(y == stride_level+1)
                   {
-                     A1U_ASSERT(i == 0, status); 
+                     A1U_ASSERT(i == chunk_count, status); 
                      break;     
                   }
                   y++;
@@ -223,7 +223,7 @@ int A1DI_Direct_puts(int target,
                target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y-1]);
 
                y--;
-               while(y >= 0) block_sizes_w[y] = block_sizes[y];
+               while(y >= 1) block_sizes_w[y] = block_sizes[y];
         } 
         else
         {
