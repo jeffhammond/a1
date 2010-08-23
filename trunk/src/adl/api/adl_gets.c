@@ -111,7 +111,7 @@ int A1I_Recursive_Get(int target,
                                        src_stride_ar,
                                        (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
                                        trg_stride_ar,
-				       a1_handle);
+                                       a1_handle);
             A1U_ERR_POP(status != A1_SUCCESS,
                   "A1I_Recursive_Get returned error in A1I_Recursive_Get.\n");
         }

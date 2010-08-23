@@ -116,7 +116,7 @@ int A1_GetV(int target,
 int A1_NbGetV(int target,
               A1_iov_t *iov_ar,
               int ar_len,
-	      A1_handle_t a1_handle)
+              A1_handle_t a1_handle)
 {
     int i, j, status = A1_SUCCESS;
 
