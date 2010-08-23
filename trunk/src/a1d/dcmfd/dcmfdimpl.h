@@ -79,14 +79,14 @@ extern LockBox_Mutex_t global_lbmutex;
  * range of 200 counters. Counters range from 0-1023 */
 #define A1DI_GLOBAL_LBMUTEX_INITIALIZE()            	     	     \
  do {                                                  	     	     \
-   int idx, coreid;                                   	     	     \ 
+   int idx, coreid;                                   	     	     \
    coreid = Kernel_PhysicalProcessorID();                            \
    for(idx=200*coreid; idx<200*(coreid+1); idx++)          	     \
    {                                                         	     \
      if(!LockBox_AllocateMutex(idx, &global_lbmutex, coreid, 1, 0))  \
           break;					     	     \
-   }       						             \	
-   A1U_ERR_POP(idx == 200*(coreid+1),			 	     \	
+   }       						             \
+   A1U_ERR_POP(idx == 200*(coreid+1),			 	     \
          "LockBox_AllocateMutex did not find a free index \n");      \
  } while(0)	                                                     \
        

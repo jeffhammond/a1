@@ -61,7 +61,8 @@ int A1D_Abort(int error_code, char error_message[])
 
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(status = A1_ERROR, "User called A1_ABORT, Program terminating abnormally");
+    A1U_ERR_ABORT(status = A1_ERROR, "User called A1_ABORT with error code %d,\
+        error msg: %s Program terminating abnormally \n", error_code, error_message);
 
   fn_exit: 
     A1U_FUNC_EXIT();

@@ -37,7 +37,7 @@ int A1_Abort(int error_code, char error_message[])
 
     /* FIXME: Locking functionality needs to go here */
 
-    status = A1D_Abort();
+    status = A1D_Abort(error_code,  error_message);
     A1U_ERR_POP(status != A1_SUCCESS, "A1D_Abort returned error\n");
 
     fn_exit: A1U_FUNC_EXIT();
