@@ -146,7 +146,7 @@ int A1DI_Packed_putaccs(int target,
 
 }
 
-int A1DI_Direct_putaccs(int target,
+int A1DI_Recursive_putaccs(int target,
                         int stride_level,
                         int *block_sizes,
                         void* source_ptr,
@@ -168,7 +168,7 @@ int A1DI_Direct_putaccs(int target,
 
         for (i = 0; i < block_sizes[stride_level]; i++)
         {
-            status = A1DI_Direct_putaccs(target,
+            status = A1DI_Recursive_putaccs(target,
                                          stride_level - 1,
                                          block_sizes,
                                          (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
@@ -179,7 +179,7 @@ int A1DI_Direct_putaccs(int target,
                                          scaling, 
                                          a1d_handle);
             A1U_ERR_POP(status != A1_SUCCESS,
-                    "A1DI_Direct_putaccs returned error in A1DI_Direct_putaccs \n"); 
+                    "A1DI_Recursive_putaccs returned error in A1DI_Direct_putaccs \n"); 
 
         }
 
@@ -189,7 +189,7 @@ int A1DI_Direct_putaccs(int target,
 
         status = A1DI_Load_request(a1d_handle);
         A1U_ERR_POP(status != A1_SUCCESS,
-                 "A1DI_Load_request returned error in A1DI_Direct_putaccs. Rquests exhausted \n");
+                 "A1DI_Load_request returned error in A1DI_Recursive_putaccs. Rquests exhausted \n");
 
         done_callback.function = A1DI_Handle_done;
         done_callback.clientdata = (void *) a1d_handle;
@@ -275,7 +275,7 @@ int A1D_PutAccS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
     {
 
-        status = A1DI_Direct_putaccs(target,
+        status = A1DI_Recursive_putaccs(target,
                                      stride_level,
                                      block_sizes,
                                      source_ptr,
@@ -340,7 +340,7 @@ int A1D_NbPutAccS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
     {
 
-        status = A1DI_Direct_putaccs(target,
+        status = A1DI_Recursive_putaccs(target,
                                      stride_level,
                                      block_sizes,
                                      source_ptr,

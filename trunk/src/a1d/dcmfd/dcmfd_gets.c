@@ -260,7 +260,7 @@ int A1DI_Packed_gets(int target,
 
 }
 
-int A1DI_Direct_gets(int target,
+int A1DI_Recursive_gets(int target,
                      int stride_level,
                      int *block_sizes,
                      void* source_ptr,
@@ -280,7 +280,7 @@ int A1DI_Direct_gets(int target,
 
         for (i = 0; i < block_sizes[stride_level]; i++)
         {
-            status = A1DI_Direct_gets(target,
+            status = A1DI_Recursive_gets(target,
                                       stride_level -1,
                                       block_sizes,
                                       (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
@@ -289,7 +289,7 @@ int A1DI_Direct_gets(int target,
                                       trg_stride_ar,
                                       a1d_handle);
              A1U_ERR_POP(status != A1_SUCCESS,
-                     "A1DI_Direct_gets returned error in A1DI_Direct_gets. \n");
+                     "A1DI_Recursive_gets returned error in A1DI_Direct_gets. \n");
         }
 
     }
@@ -303,7 +303,7 @@ int A1DI_Direct_gets(int target,
 
         status = A1DI_Load_request(a1d_handle);
         A1U_ERR_POP(status != A1_SUCCESS,
-                   "A1DI_Load_request returned error in A1DI_Direct_gets. Rquests exhausted \n");
+                   "A1DI_Load_request returned error in A1DI_Recursive_gets. Rquests exhausted \n");
 
         done_callback.function = A1DI_Handle_done;
         done_callback.clientdata = (void *) a1d_handle;
@@ -353,7 +353,7 @@ int A1D_GetS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {
 
-        status = A1DI_Direct_gets(target,
+        status = A1DI_Recursive_gets(target,
                                   stride_level,
                                   block_sizes,
                                   source_ptr,
@@ -361,7 +361,7 @@ int A1D_GetS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   a1d_handle);
-        A1U_ERR_POP(status, "A1DI_Direct_gets returned with an error \n");
+        A1U_ERR_POP(status, "A1DI_Recursive_gets returned with an error \n");
 
         A1DI_Conditional_advance(a1d_handle->active > 0);
 
@@ -417,7 +417,7 @@ int A1D_NbGetS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {
 
-        status = A1DI_Direct_gets(target,
+        status = A1DI_Recursive_gets(target,
                                   stride_level,
                                   block_sizes,
                                   source_ptr,
@@ -425,7 +425,7 @@ int A1D_NbGetS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   a1d_handle);
-        A1U_ERR_POP(status, "A1DI_Direct_gets returned with an error \n");
+        A1U_ERR_POP(status, "A1DI_Recursive_gets returned with an error \n");
 
     }
     else

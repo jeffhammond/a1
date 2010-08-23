@@ -141,7 +141,7 @@ extern LockBox_Mutex_t global_lbmutex;
     do {                                                          \
       if(a1_settings.enable_cht)                                  \
       {                                                           \
-        A1DI_GLOBAL_LOCK_ACQUIRE();                               \ 
+        A1DI_GLOBAL_LOCK_ACQUIRE();                               \
       }     							  \
       else 							  \
       {                                                           \
