@@ -210,9 +210,9 @@ int A1DI_Direct_puts(int target,
                y=1;
                while(block_sizes_w[y] == 0) 
                {
-                  if(y == stride_level+1)
+                  if(y == stride_level)
                   {
-                     A1U_ASSERT(i == chunk_count, status); 
+                     A1U_ASSERT(i == chunk_count-1, status); 
                      break;     
                   }
                   y++;
@@ -270,7 +270,7 @@ int A1DI_Recursive_puts(int target,
                                          trg_stride_ar, 
                                          a1d_handle);
              A1U_ERR_POP(status != A1_SUCCESS,
-               "A1DI_Direct_puts returned error in A1DI_Recursive_puts.\n");
+               "A1DI_Recursive_puts returned error in A1DI_Recursive_puts.\n");
         }
 
     }
@@ -284,7 +284,7 @@ int A1DI_Recursive_puts(int target,
 
         status = A1DI_Load_request(a1d_handle);
         A1U_ERR_POP(status != A1_SUCCESS,
-               "A1DI_Load_request returned error in A1DI_Direct_puts. Rquests exhausted \n");
+               "A1DI_Load_request returned error in A1DI_Recursive_puts. Rquests exhausted \n");
 
         done_callback.function = A1DI_Handle_done;
         done_callback.clientdata = (void *) a1d_handle;
@@ -337,15 +337,15 @@ int A1D_PutS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_put_threshold)
     {
 
-        status = A1DI_Recursive_puts(target,
-                                     stride_level,
-                                     block_sizes,
-                                     source_ptr,
-                                     src_stride_ar,
-                                     target_ptr,
-                                     trg_stride_ar,
-                                     a1d_handle); 
-        A1U_ERR_POP(status, "A1DI_Recursive_puts returned with an error \n");
+        status = A1DI_Direct_puts(target,
+                                  stride_level,
+                                  block_sizes,
+                                  source_ptr,
+                                  src_stride_ar,
+                                  target_ptr,
+                                  trg_stride_ar,
+                                  a1d_handle); 
+        A1U_ERR_POP(status, "A1DI_Direct_puts returned with an error \n");
 
     }
     else
@@ -396,15 +396,15 @@ int A1D_NbPutS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_put_threshold)
     {
 
-        status = A1DI_Recursive_puts(target,
-                                     stride_level,
-                                     block_sizes,
-                                     source_ptr,
-                                     src_stride_ar,
-                                     target_ptr,
-                                     trg_stride_ar,
-                                     a1d_handle); 
-        A1U_ERR_POP(status, "A1DI_Recursive_puts returned with an error \n");
+        status = A1DI_Direct_puts(target,
+                                  stride_level,
+                                  block_sizes,
+                                  source_ptr,
+                                  src_stride_ar,
+                                  target_ptr,
+                                  trg_stride_ar,
+                                  a1d_handle); 
+        A1U_ERR_POP(status, "A1DI_Direct_puts returned with an error \n");
 
     }
     else

@@ -98,7 +98,7 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
     *rcvlen = sndlen;
     status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), sndlen);
     A1U_ERR_ABORT(status != 0,
-                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
+                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedgets_callback\n");
 
     *rcvbuf = (char *) a1d_request->buffer_ptr;
 
@@ -139,7 +139,7 @@ int A1DI_Packed_gets_response_initialize()
 
     status = DCMF_Send_register(&A1D_Packed_gets_response_protocol, &conf);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-                "packed puts registartion returned with error %d \n",
+                "packed gets registartion returned with error %d \n",
                 status);
 
     fn_exit: A1U_FUNC_EXIT();
@@ -260,6 +260,105 @@ int A1DI_Packed_gets(int target,
 
 }
 
+int A1DI_Direct_gets(int target,
+                     int stride_level,
+                     int *block_sizes,
+                     void *source_ptr,
+                     int *src_stride_ar,
+                     void *target_ptr,
+                     int *trg_stride_ar,
+                     A1D_Handle_t *a1d_handle)
+{
+    int i, status = A1_SUCCESS;
+    size_t src_disp, dst_disp;
+    DCMF_Callback_t done_callback;
+    int chunk_count=1;
+    int *block_sizes_w;
+    int y=0;
+
+    A1U_FUNC_ENTER();
+
+    status = A1DI_Malloc_aligned(&block_sizes_w, sizeof(int)*(stride_level+1));
+    A1U_ERR_POP(status != A1_SUCCESS,
+             "A1DI_Malloc_aligned returned error in A1DI_Direct_gets");
+
+    A1DI_Memcpy(block_sizes_w, block_sizes, sizeof(int)*(stride_level+1));
+
+    done_callback.function = A1DI_Handle_done;
+    done_callback.clientdata = (void *) a1d_handle;
+
+    for(i=1; i<=stride_level; i++)
+        chunk_count = block_sizes[i]*chunk_count;
+
+    printf("Chunkcount : %d \n", chunk_count);
+    fflush(stdout);
+
+    for(i=0; i<chunk_count; i++)
+    {
+
+        src_disp = (size_t) source_ptr
+                 - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
+        dst_disp = (size_t) target_ptr
+                 - (size_t) A1D_Membase_global[target];
+
+        status = A1DI_Load_request(a1d_handle);
+        A1U_ERR_POP(status != A1_SUCCESS,
+               "A1DI_Load_request returned error in A1DI_Direct_gets. Rquests exhausted \n");
+
+        a1d_handle->active++;
+
+        status = DCMF_Get(&A1D_Generic_get_protocol,
+                          &(a1d_handle->request_list->request),
+                          done_callback,
+                          DCMF_SEQUENTIAL_CONSISTENCY,
+                          target,
+                          block_sizes[0],
+                          &A1D_Memregion_global[A1D_Process_info.my_rank],
+                          &A1D_Memregion_global[target],
+                          src_disp,
+                          dst_disp);
+        A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Get returned with an error \n");
+
+        /*TODO: IMPORTANT, Do we have to increment send active count here to ensure completions
+         * during flush. */
+
+        block_sizes_w[1]--;
+        if(block_sizes_w[1]==0)
+        {
+               y=1;
+               while(block_sizes_w[y] == 0)
+               {
+                  if(y == stride_level)
+                  {
+                     A1U_ASSERT(i == chunk_count-1, status);
+                     break;
+                  }
+                  y++;
+               }
+               block_sizes_w[y]--;
+
+               source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[y-1]);
+               target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y-1]);
+
+               y--;
+               while(y >= 1) block_sizes_w[y] = block_sizes[y];
+        }
+        else
+        {
+               source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[0]);
+               target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[0]);
+        }
+
+    }
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1DI_Recursive_gets(int target,
                      int stride_level,
                      int *block_sizes,
@@ -289,7 +388,7 @@ int A1DI_Recursive_gets(int target,
                                       trg_stride_ar,
                                       a1d_handle);
              A1U_ERR_POP(status != A1_SUCCESS,
-                     "A1DI_Recursive_gets returned error in A1DI_Direct_gets. \n");
+                     "A1DI_Recursive_gets returned error in A1DI_Recursive_gets. \n");
         }
 
     }
@@ -353,7 +452,7 @@ int A1D_GetS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {
 
-        status = A1DI_Recursive_gets(target,
+        status = A1DI_Direct_gets(target,
                                   stride_level,
                                   block_sizes,
                                   source_ptr,
@@ -361,7 +460,7 @@ int A1D_GetS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   a1d_handle);
-        A1U_ERR_POP(status, "A1DI_Recursive_gets returned with an error \n");
+        A1U_ERR_POP(status, "A1DI_Direct_gets returned with an error \n");
 
         A1DI_Conditional_advance(a1d_handle->active > 0);
 
@@ -417,7 +516,7 @@ int A1D_NbGetS(int target,
     if (block_sizes[0] >= a1_settings.direct_noncontig_get_threshold)
     {
 
-        status = A1DI_Recursive_gets(target,
+        status = A1DI_Direct_gets(target,
                                   stride_level,
                                   block_sizes,
                                   source_ptr,
@@ -425,7 +524,7 @@ int A1D_NbGetS(int target,
                                   target_ptr,
                                   trg_stride_ar,
                                   a1d_handle);
-        A1U_ERR_POP(status, "A1DI_Recursive_gets returned with an error \n");
+        A1U_ERR_POP(status, "A1DI_Direct_gets returned with an error \n");
 
     }
     else
