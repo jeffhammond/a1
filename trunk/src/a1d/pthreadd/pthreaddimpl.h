@@ -21,7 +21,7 @@
 *                  Global Lock                   *
 *************************************************/
 
-extern pthread_mutex_t global_mutex = PTHREAD_MUTEX_INITIALIZER;
+extern pthread_mutex_t global_mutex;
 
 #define A1DI_GLOBAL_MUTEX_ACQUIRE()                 \
  {                                                   \

@@ -6,6 +6,8 @@
 
 #include "pthreaddimpl.h"
 
+pthread_mutex_t global_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 int A1D_Initialize(int thread_level)
 {
 
