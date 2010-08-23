@@ -83,7 +83,7 @@ int A1_PutV(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1_Allocate_handle(&a1_handle);
+    status = A1D_Allocate_handle(&a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1_Allocate_handle returned error\n");
 
     for (i=0; i<ar_len; i++)
@@ -101,11 +101,11 @@ int A1_PutV(int target,
         }
     }
 
-    status = A1_Wait_handle(a1_handle);
+    status = A1D_Wait_handle(a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1_Wait_handle returned error\n");
 
   fn_exit: 
-    A1_Release_handle(a1_handle);
+    A1D_Release_handle(a1_handle);
     A1U_FUNC_EXIT();
     return status;
 
