@@ -87,8 +87,8 @@ int A1DI_Rmw_initialize()
 }
 
 int A1D_Rmw_counter(A1_counter_t counter_ptr,
-                    A1_atomic_op_t op,
-                    int *value)
+                       A1_atomic_op_t op,
+                       int *value)
 {
     int status = A1_SUCCESS;
     int old_value;
