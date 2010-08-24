@@ -53,6 +53,8 @@ typedef void* armci_hdl_t;
 
 void ARMCI_INIT_HANDLE(armci_hdl_t* handle);
 
+int ARMCI_Init_args(int *argc, char ***argv);
+
 int ARMCI_Init();
 
 int ARMCI_Finalize();

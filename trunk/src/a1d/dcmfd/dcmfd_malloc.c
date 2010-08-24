@@ -172,7 +172,7 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr)
 
     A1DI_CRITICAL_ENTER();
 
-    if(group != A1_GROUP_WORLD || group != NULL)
+    if(group != A1_GROUP_WORLD && group != NULL)
     {
        A1U_ERR_POP(A1_ERROR, "Groups are currently not supported in A1\n");
     }

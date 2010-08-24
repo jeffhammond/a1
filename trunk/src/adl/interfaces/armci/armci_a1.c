@@ -10,6 +10,31 @@
 #include "a1u.h"
 #include "assert.h"
 
+int ARMCI_Init_args(int *argc, char ***argv)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+     status = A1_Initialize(A1_THREAD_SINGLE);
+     A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+
+}
+
 int ARMCI_Init()
 {
     int status = A1_SUCCESS;
