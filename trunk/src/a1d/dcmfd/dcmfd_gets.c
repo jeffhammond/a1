@@ -19,7 +19,6 @@ int A1DI_Packed_gets_response(int target,
                               int *trg_stride_ar)
 {
     int status = A1_SUCCESS;
-    DCMF_Request_t *request;
     DCMF_Callback_t callback;
     A1D_Request_t *a1d_request;
     void *packet;
@@ -43,12 +42,11 @@ int A1DI_Packed_gets_response(int target,
                 "A1DI_Pack_strided returned with an error\n");
 
     a1d_request->buffer_ptr = packet;
-    request = &(a1d_request->request);
     callback.function = A1DI_Free_done;
     callback.clientdata = (void *) a1d_request;
 
     status = DCMF_Send(&A1D_Packed_gets_response_protocol,
-                       request,
+                       &(a1d_request->request),
                        callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,

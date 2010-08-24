@@ -264,6 +264,13 @@ typedef struct
 
 typedef struct
 {
+    void *counter_ptr;
+    int value;
+    A1_atomic_op_t op;
+} A1D_Rmw_pkt_t;
+
+typedef struct
+{
     int stride_level;
     int block_sizes[A1C_MAX_STRIDED_DIM];
     void *target_ptr;
@@ -340,6 +347,8 @@ extern DCMF_Protocol_t A1D_Packed_puts_protocol;
 extern DCMF_Protocol_t A1D_Packed_gets_protocol;
 extern DCMF_Protocol_t A1D_Packed_gets_response_protocol;
 extern DCMF_Protocol_t A1D_Packed_putaccs_protocol;
+extern DCMF_Protocol_t A1D_Counter_setup_protocol;
+extern DCMF_Protocol_t A1D_Rmw_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
 
@@ -376,6 +385,10 @@ int A1DI_Put_initialize();
 int A1DI_Packed_puts_initialize();
 
 int A1DI_Get_initialize();
+
+int A1DI_Rmw_initialize();
+
+int A1DI_Counter_setup_initialize();
 
 int A1DI_Request_pool_initialize();
 

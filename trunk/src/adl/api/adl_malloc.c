@@ -55,3 +55,27 @@ int  A1_Alloc_segment(void** pointer, int bytes)
   fn_fail: 
     goto fn_exit;
 }
+
+int  A1_Alloc_counter(A1_counter_t* pointer)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1D_Alloc_counter(pointer);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Alloc_counter returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}

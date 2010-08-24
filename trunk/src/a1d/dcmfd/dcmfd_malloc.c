@@ -9,6 +9,42 @@
 DCMF_Memregion_t *A1D_Memregion_global;
 void **A1D_Membase_global;
 
+volatile int counter_setup_active;
+volatile void* counter_ptr_response;
+
+void A1DI_Counter_setup_callback(void *clientdata,
+                                 const DCMF_Control_t *info,
+                                 size_t peer)
+{
+    memcpy((void *) &counter_ptr_response, (void *) info, sizeof(void *));
+    counter_setup_active--;
+}    
+
+int A1DI_Counter_setup_initialize()
+{
+    int status = A1_SUCCESS;
+    DCMF_Control_Configuration_t conf;
+
+    A1U_FUNC_ENTER();
+
+    conf.protocol = DCMF_DEFAULT_CONTROL_PROTOCOL;
+    conf.network = DCMF_DEFAULT_NETWORK;
+    conf.cb_recv = A1DI_Counter_setup_callback;
+    conf.cb_recv_clientdata = NULL;
+
+    status = DCMF_Control_register(&A1D_Counter_setup_protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
+                "Counter setup registartion returned with error %d \n",
+                status);
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+     return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1DI_Memregion_Global_xchange()
 {
 
@@ -179,5 +215,53 @@ int A1D_Alloc_segment(void** ptr, int bytes)
     return status;
 
   fn_fail: 
+    goto fn_exit;
+}
+
+int A1D_Alloc_counter(A1_counter_t *counter)
+{
+    int index, status = A1_SUCCESS;
+    DCMF_Control_t cmsg;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    /* TODO: Important. Currently we allocate shared counter at rank 0. 
+     * We have to explore ways to make this hierarchical and remove the 
+     * bottleneck   */
+    if(A1D_Process_info.my_rank == 0) 
+    {
+        status = A1DI_Malloc_aligned(counter, sizeof(int));
+        A1U_ERR_POP(status != 0,
+                "A1DI_Malloc_aligned returned error in A1D_Alloc_counter\n");
+
+        memcpy(&cmsg, counter, sizeof(void *));
+
+        for(index=1; index<A1D_Process_info.num_ranks; index++)
+        {
+             status = DCMF_Control(&A1D_Counter_setup_protocol,
+                                   DCMF_SEQUENTIAL_CONSISTENCY,
+                                   index,
+                                   &cmsg);
+             A1U_ERR_POP(status != DCMF_SUCCESS,
+                   "DCMF_Control failed in A1D_Alloc_counter\n");
+        }
+    }
+    else
+    {
+        counter_setup_active++; 
+ 
+        A1DI_Conditional_advance(counter_setup_active > 0); 
+ 
+        *counter = (void *) counter_ptr_response; 
+    }
+
+  fn_exit:
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
     goto fn_exit;
 }

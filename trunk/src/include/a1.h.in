@@ -444,16 +444,16 @@ int A1_Release_handle(A1_handle_t handle);
 /* ********************************************************************** */
 
 /**
- * \brief Atomically increments a shared counter.
+ * \brief Collective operation to allocate a counter.
  *
  * \param[out] rc            The error code.
  * \param[in]  counter       A1 shared counter.
  *
- * \see A1_Increment_counter, A1_Decrement_counter
+ * \see A1_RMW
  *
  * \ingroup Atomics
  */
-int A1_Allocate_counter(A1_counter_t *counter);
+int A1_Alloc_counter(A1_counter_t *counter);
 
 /**
  * \brief Atomically updates a shared counter and returns the current value.
@@ -464,11 +464,24 @@ int A1_Allocate_counter(A1_counter_t *counter);
  * \param[in]  value         Local buffer containing the value and which will contain 
  *                           the current value after the operation.
  *
- * \see A1_Increment_counter, A1_Decrement_counter
+ * \ingroup Atomics
+ */
+int A1_Rmw_counter(A1_counter_t counter, A1_atomic_op_t op, int *value);
+
+/**
+ * \brief Atomically updates a shared counter and returns the current value.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  target        Rank of the target process.
+ * \param[in]  source_ptr    Pointer of variable at source process.
+ * \param[in]  target_ptr    Pointer of variable at target process.
+ * \param[in]  op            Operation to be performed.
+ * \param[in]  value         Local buffer containing the value and which will contain
+ *                           the current value after the operation.
  *
  * \ingroup Atomics
  */
-int A1_RMW(A1_counter_t *counter, A1_atomic_op_t op, void *value);
+int A1_Rmw(int target, void* local_ptr, void* remote_ptr, A1_atomic_op_t op, int value);
 
 /* FIXME: More API functions to come */
 

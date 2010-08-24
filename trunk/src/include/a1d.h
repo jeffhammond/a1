@@ -607,6 +607,50 @@ int A1D_NbPutAccV(int target,
                   A1_handle_t a1_handle);
 
 /**
+ * \brief Collective operation to allocate a counter.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  counter       A1 shared counter.
+ * 
+ * \ingroup Atomics
+ */
+int A1D_Alloc_counter(A1_counter_t *counter);
+ 
+/**
+ * \brief Atomically updates a shared counter and returns the current value.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  counter       A1 shared counter.
+ * \param[in]  op            Operation to be performed.
+ * \param[in]  value         Local buffer containing the value and which will contain
+ *                           the current value after the operation.
+ *  
+ * \ingroup Atomics
+ */
+int A1D_Rmw_counter(A1_counter_t counter, 
+                    A1_atomic_op_t op, 
+                    int *value);
+
+/**
+ * \brief Atomically updates a shared counter and returns the current value.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  target        Rank of the target process.
+ * \param[in]  source_ptr    Pointer of variable at source process.
+ * \param[in]  target_ptr    Pointer of variable at target process.
+ * \param[in]  op            Operation to be performed.
+ * \param[in]  value         Local buffer containing the value and which will contain
+ *                           the current value after the operation.
+ *
+ * \ingroup Atomics
+ */
+int A1D_Rmw(int target,
+            void* local_ptr, 
+            void* remote_ptr, 
+            A1_atomic_op_t op, 
+            int value);
+
+/**
  * \brief Device level implementation of A1_Flush 
  * 
  *  On return, this call ensure that all blocking put or accumulate operations
