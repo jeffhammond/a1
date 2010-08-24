@@ -19,7 +19,7 @@ void A1DI_Counter_setup_callback(void *clientdata,
 {
     memcpy((void *) &counter_ptr_response, (void *) info, sizeof(void *));
     counter_setup_active--;
-}    
+}
 
 int A1DI_Counter_setup_initialize()
 {
@@ -35,15 +35,13 @@ int A1DI_Counter_setup_initialize()
 
     status = DCMF_Control_register(&A1D_Counter_setup_protocol, &conf);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-                "Counter setup registartion returned with error %d \n",
+                "DCMF_Control_register returned with error %d \n",
                 status);
 
-  fn_exit:
-    A1U_FUNC_EXIT();
-     return status;
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Memregion_Global_xchange()
@@ -64,8 +62,8 @@ int A1DI_Memregion_Global_xchange()
     A1DI_GlobalBarrier();
 
     memcpy((void *) &info,
-           (void *) &A1D_Memregion_global[A1D_Process_info.my_rank],
-           sizeof(DCMF_Memregion_t));
+            (void *) &A1D_Memregion_global[A1D_Process_info.my_rank],
+            sizeof(DCMF_Memregion_t));
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
         if (rank != A1D_Process_info.my_rank)
@@ -80,12 +78,10 @@ int A1DI_Memregion_Global_xchange()
     }
     A1DI_Conditional_advance(A1D_Control_xchange_info.rcv_active > 0);
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 
 }
 
@@ -98,24 +94,22 @@ int A1DI_Memregion_Global_initialize()
     A1U_FUNC_ENTER();
 
     status = A1DI_Malloc_aligned((void **) &A1D_Memregion_global,
-                            sizeof(DCMF_Memregion_t) * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(status != 0, "Memregion allocation Failed \n");
+                                 sizeof(DCMF_Memregion_t) * A1D_Process_info.num_ranks);
+    A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
 
-    status
-            = DCMF_Memregion_create(&A1D_Memregion_global[A1D_Process_info.my_rank],
+    status  = DCMF_Memregion_create(&A1D_Memregion_global[A1D_Process_info.my_rank],
                                     &out,
                                     (size_t) - 1,
                                     NULL,
                                     0);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "Global Memory Registration Failed \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Memregion_create failed \n");
 
     status = A1DI_Memregion_Global_xchange();
-    A1U_ERR_POP(status != A1_SUCCESS, "Memory Region Xchange Failed \n");
+    A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Memregion_Global_xchange failed \n");
 
     status = A1DI_Malloc_aligned((void **) &A1D_Membase_global, 
-                                 sizeof(void *)
-                                      * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(status != 0, "Membase allocation Failed \n");
+                                 sizeof(void *) * A1D_Process_info.num_ranks);
+    A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
 
     for (i = 0; i < A1D_Process_info.num_ranks; i++)
     {
@@ -125,12 +119,10 @@ int A1DI_Memregion_Global_initialize()
         A1U_ERR_POP(status != DCMF_SUCCESS, "Memregion query failed \n");
     }
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Memaddress_xchange(void **ptr)
@@ -165,12 +157,10 @@ int A1DI_Memaddress_xchange(void **ptr)
     }
     A1DI_Conditional_advance(A1D_Control_xchange_info.rcv_active > 0);
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 
 }
 
@@ -182,20 +172,18 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr, int bytes)
 
     A1DI_CRITICAL_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &ptr[A1D_Process_info.my_rank], bytes);
-    A1U_ERR_POP(status != 0,
-                "memregion allocation failed \n");
+    status = A1DI_Malloc_aligned((void **) &ptr[A1D_Process_info.my_rank],
+                                 bytes);
+    A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
 
     status = A1DI_Memaddress_xchange(ptr);
-    A1U_ERR_POP(status, "memaddress exchange returned with error \n");
+    A1U_ERR_POP(status, "A1DI_Memaddress_xchange returned with error \n");
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1D_Alloc_segment(void** ptr, int bytes)
@@ -210,13 +198,11 @@ int A1D_Alloc_segment(void** ptr, int bytes)
     A1U_ERR_POP(status != 0,
                 "A1DI_Malloc_aligned returned error in A1D_Alloc_segment\n");
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1D_Alloc_counter(A1_counter_t *counter)
@@ -231,38 +217,36 @@ int A1D_Alloc_counter(A1_counter_t *counter)
     /* TODO: Important. Currently we allocate shared counter at rank 0. 
      * We have to explore ways to make this hierarchical and remove the 
      * bottleneck   */
-    if(A1D_Process_info.my_rank == 0) 
+    if (A1D_Process_info.my_rank == 0)
     {
         status = A1DI_Malloc_aligned(counter, sizeof(int));
         A1U_ERR_POP(status != 0,
-                "A1DI_Malloc_aligned returned error in A1D_Alloc_counter\n");
+                    "A1DI_Malloc_aligned returned error in A1D_Alloc_counter\n");
 
         memcpy(&cmsg, counter, sizeof(void *));
 
-        for(index=1; index<A1D_Process_info.num_ranks; index++)
+        for (index = 1; index < A1D_Process_info.num_ranks; index++)
         {
-             status = DCMF_Control(&A1D_Counter_setup_protocol,
-                                   DCMF_SEQUENTIAL_CONSISTENCY,
-                                   index,
-                                   &cmsg);
-             A1U_ERR_POP(status != DCMF_SUCCESS,
-                   "DCMF_Control failed in A1D_Alloc_counter\n");
+            status = DCMF_Control(&A1D_Counter_setup_protocol,
+                                  DCMF_SEQUENTIAL_CONSISTENCY,
+                                  index,
+                                  &cmsg);
+            A1U_ERR_POP(status != DCMF_SUCCESS,
+                        "DCMF_Control failed in A1D_Alloc_counter\n");
         }
     }
     else
     {
-        counter_setup_active++; 
- 
-        A1DI_Conditional_advance(counter_setup_active > 0); 
- 
-        *counter = (void *) counter_ptr_response; 
+        counter_setup_active++;
+
+        A1DI_Conditional_advance(counter_setup_active > 0);
+
+        *counter = (void *) counter_ptr_response;
     }
 
-  fn_exit:
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
