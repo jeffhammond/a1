@@ -22,4 +22,5 @@ liba1_la_SOURCES += $(top_srcdir)/src/adl/api/adl_initialize.c \
         $(top_srcdir)/src/adl/api/adl_wait.c \
 	$(top_srcdir)/src/adl/api/adl_collectives.c \
 	$(top_srcdir)/src/adl/api/adl_misc.c \
-	$(top_srcdir)/src/adl/api/adl_handle.c
+	$(top_srcdir)/src/adl/api/adl_handle.c \
+	$(top_srcdir)/src/adl/api/adl_armci.c

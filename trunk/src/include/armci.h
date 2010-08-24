@@ -4,21 +4,17 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include a1.h
-
 #if !defined ARMCI_H_INCLUDED
 #define ARMCI_H_INCLUDED
 
-#define ARMCI_Init() \
-        A1_Initialize(A1_THREAD_SINGLE)
+int ARMCI_Init();
 
-#define ARMCI_Finalize() \
-        A1_Finalize()
+int ARMCI_Finalize();
 
 #define ARMCI_Put(src, dst, bytes, proc) \
         A1_Put(proc, src, dst, bytes)
 
-#define ARMCI_PutS(src_ptr, src_stride_ar, dst_ptr, dst_stride_ar, \ 
+#define ARMCI_PutS(src_ptr, src_stride_ar, dst_ptr, dst_stride_ar, \
                    count, stride_levels, proc) \
         A1_PutS(proc, stride_levels, count, src_ptr, src_stride_ar, \
                    dst_ptr, dst_stride_ar)                           
