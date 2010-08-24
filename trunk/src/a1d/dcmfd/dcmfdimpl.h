@@ -30,9 +30,9 @@
 #define A1C_DIRECT_NONCONTIG_PUTACC_THRESHOLD 2048 
 #define A1C_DIRECT_NONCONTIG_GETACC_THRESHOLD 2048
 
-#define A1C_PUT_PACKET_LIMIT 2048 
-#define A1C_GET_PACKET_LIMIT 2048 
-#define A1C_PUTACC_PACKET_LIMIT 8192 
+#define A1C_PUT_PACKET_SIZE_LIMIT 2048 
+#define A1C_GET_PACKET_SIZE_LIMIT 2048 
+#define A1C_PUTACC_PACKET_SIZE_LIMIT 8192 
 
 #define A1C_ENABLE_IMMEDIATE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
@@ -199,11 +199,12 @@ typedef struct
     volatile uint32_t direct_noncontig_get_threshold;
     volatile uint32_t direct_noncontig_putacc_threshold;
     volatile uint32_t direct_noncontig_getacc_threshold;
-    volatile uint32_t put_packet_limit;
-    volatile uint32_t get_packet_limit;
-    volatile uint32_t putacc_packet_limit;
+    volatile uint32_t put_packet_size_limit;
+    volatile uint32_t get_packet_size_limit;
+    volatile uint32_t putacc_packet_size_limit;
     volatile uint32_t flushall_pending_limit;
     volatile uint32_t alignment;
+    volatile uint32_t handlepool_size;
 } A1_Settings_t;
 
 typedef struct
@@ -298,6 +299,7 @@ typedef struct A1D_Handle_t
 {
     A1D_Request_t *request_list;
     volatile int active;
+    volatile int active_list_index;
     struct A1D_Handle_t *next;
 } A1D_Handle_t;
 
@@ -343,6 +345,7 @@ extern DCMF_Memregion_t *A1D_Memregion_global;
 
 extern void **A1D_Membase_global;
 extern void **A1D_Put_Flushcounter_ptr;
+extern A1D_Handle_t **A1D_Active_handle_list;
 extern volatile int *A1D_Connection_send_active;
 extern volatile int *A1D_Connection_put_active;
 extern volatile int A1D_Control_flushack_active;

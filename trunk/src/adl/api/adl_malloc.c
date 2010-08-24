@@ -24,8 +24,34 @@ int A1_Exchange_segments(A1_group_t* group, void* ptr[], int bytes)
     status = A1D_Exchange_segments(group, ptr, bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1D_Exchange_segments returned an error\n");
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail:  
+    goto fn_exit;
+}
+
+int  A1_Alloc_segment(void** pointer, int bytes)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1D_Alloc_segment(pointer, bytes);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Alloc_segment returned an error\n");
+
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail: 
+    goto fn_exit;
 }

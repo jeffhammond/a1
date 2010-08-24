@@ -1179,6 +1179,18 @@ int A1_Flush_list(int count, int *proc_list);
 int A1_Flush_group(A1_group_t* group);
 
 /**
+ * \brief Blocks on completion of all non-blocking handles.
+ *
+ * \param[out] rc                The error code.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup SYNCHRONIZATION
+ */
+
+int A1_Wait_handle_all();
+
+/**
  * \brief Blocks on completion of a non-blocking handle.
  *
  * \param[in] handle      Non-blocking handle upon which to be waited.

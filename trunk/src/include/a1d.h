@@ -50,6 +50,38 @@ int A1D_Finalize(void);
 int A1D_Abort(int error_code, char error_message[]);
 
 /**
+ * \brief Device level implementation of A1D_Alloc_segment.
+ *
+ * A local operation to allocate memory to be used in context of A1 copy operations.
+ *
+ * \note Memory allocated with this function will be properly aligned for the architecture.
+ *
+ * \warning Memory allocated with this function must be freed by A1_Free_segment.
+ *
+ * \param[out] rc            The error code.
+ * \param[out] ptr           Pointer to memory.
+ * \param[in]  bytes         The amount of memory requested.
+ *
+ * \ingroup MEMORY
+ */
+int A1D_Alloc_segment(void** pointer, int bytes);
+
+/**
+ * \brief Device level implementation of A1D_Free_segment.
+ *
+ * A local operation to free memory allocated by A1_Alloc_segment.
+ *
+ * \warning It is erroneous to attempt to free memory not allocated by A1_Alloc_segment.
+ *
+ * \param[out] rc            The error code.
+ * \param[in] ptr           Pointer to memory.
+ *
+ * \ingroup MEMORY
+ */
+
+int A1D_Free_segment(void* pointer);
+
+/**
  * \brief Device level implementation of A1_Exchange_segments.
  *
  *  A collective operation to allocate memory to be used in context of A1 copy operations.
@@ -62,7 +94,7 @@ int A1D_Abort(int error_code, char error_message[]);
  *
  * \ingroup MEMORY 
  */
-int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes);
+int A1D_Exchange_segments(A1_group_t* group, void **ptr, int bytes);
 
 /**
  * \brief Device level implementation of A1_Release_segments.
@@ -106,6 +138,20 @@ int A1D_Allocate_handle(A1_handle_t *handle);
  */
 
 int A1D_Release_handle(A1_handle_t handle);
+
+/**
+ * \brief Device level implementation of A1_Wait_handle_all.
+ *
+ * Waits for operations on all handle to complete.
+ *
+ * \param[in] handle      Non-blocking handle upon which to be waited.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+
+int A1D_Wait_handle_all();
 
 /**
  * \brief Device level implementation of A1_Wait_handle.

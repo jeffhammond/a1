@@ -36,3 +36,22 @@ int A1D_Release_segments(A1_group_t* group, void *ptr)
   fn_fail:
     goto fn_exit;
 }
+
+int A1D_Free_segment(void *ptr)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    A1DI_Free(ptr);
+
+  fn_exit:
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}

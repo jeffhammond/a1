@@ -105,8 +105,6 @@ int A1DI_Memaddress_xchange(void **ptr)
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();
-
     /* TODO: Send can be used instead of control messages to take advantage of the TORUS network */
     A1D_Control_xchange_info.xchange_ptr = (void *) ptr;
     A1D_Control_xchange_info.xchange_size = sizeof(void *);
@@ -131,7 +129,6 @@ int A1DI_Memaddress_xchange(void **ptr)
     A1DI_Conditional_advance(A1D_Control_xchange_info.rcv_active > 0);
 
   fn_exit: 
-    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
@@ -140,12 +137,13 @@ int A1DI_Memaddress_xchange(void **ptr)
 
 }
 
-int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes)
+int A1D_Exchange_segments(A1_group_t* group, void **ptr, int bytes)
 {
     int status = A1_SUCCESS;
-    DCMF_Memregion_t *memregion;
 
     A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
 
     status = A1DI_Malloc_aligned((void **) &ptr[A1D_Process_info.my_rank], bytes);
     A1U_ERR_POP(status != 0,
@@ -155,6 +153,28 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr, long bytes)
     A1U_ERR_POP(status, "memaddress exchange returned with error \n");
 
   fn_exit: 
+    A1DI_CRITICAL_EXIT();
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail: 
+    goto fn_exit;
+}
+
+int A1D_Alloc_segment(void** ptr, int bytes)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1DI_CRITICAL_ENTER();
+
+    status = A1DI_Malloc_aligned(ptr, bytes);
+    A1U_ERR_POP(status != 0,
+                "A1DI_Malloc_aligned returned error in A1D_Alloc_segment\n");
+
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
