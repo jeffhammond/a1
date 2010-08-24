@@ -56,6 +56,30 @@ int A1_Wait_handle_list(int count, A1_handle_t *handle)
     goto fn_exit;
 }
 
+int A1_Wait_handle_all()
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1D_Wait_handle_all();
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle_all returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1_Test_handle(A1_handle_t handle, A1_bool_t* completed)
 {
     int status = A1_SUCCESS;

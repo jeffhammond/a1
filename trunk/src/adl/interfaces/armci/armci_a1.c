@@ -63,6 +63,7 @@ int ARMCI_Malloc(void* ptr[],
                  armci_size_t bytes)
 {
     int status = A1_SUCCESS;
+    int my_rank;
 
     A1U_FUNC_ENTER();
 
@@ -73,7 +74,10 @@ int ARMCI_Malloc(void* ptr[],
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1_Exchange_segments(A1_GROUP_WORLD, ptr, bytes);
+    status = A1_Alloc_segment(&ptr[my_rank], bytes);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Alloc_segment returned an error\n");
+
+    status = A1_Exchange_segments(A1_GROUP_WORLD, ptr);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Exchange_segments returned an error\n");
 
   fn_exit:
@@ -99,7 +103,7 @@ void* ARMCI_Malloc_local(armci_size_t bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Alloc_segement(&segment_ptr, bytes);
+     status = A1_Alloc_segment(&segment_ptr, bytes);
      A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Alloc_segement returned an error\n");
 
   fn_exit:
@@ -125,6 +129,9 @@ int ARMCI_Free(void *ptr)
 
      status = A1_Release_segments(A1_GROUP_WORLD, ptr);
      A1U_ERR_POP(status != A1_SUCCESS, "A1_Release_segments returned an error\n");
+
+     status = A1_Free_segment(ptr);
+     A1U_ERR_POP(status != A1_SUCCESS, "A1_Free_segment returned an error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

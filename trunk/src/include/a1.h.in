@@ -382,7 +382,7 @@ int A1_Free_segment(void* pointer);
 int A1_Register_segment(void** pointer, int bytes);
 
 /**
- * \brief A collective operation to allocate memory to be used in context of A1 copy operations.
+ * \brief A collective operation to exchange addresses of segments to be used in context of A1 copy operations.
  *
  * \note There is no local de-registration call because that could lead to erroneous programs.
  *       De-registration can only be effected by a call to A1_Release_segments, which is collective.
@@ -396,7 +396,7 @@ int A1_Register_segment(void** pointer, int bytes);
  *
  * \ingroup MEMORY
  */
-int A1_Exchange_segments(A1_group_t* group, void* *ptr, int bytes);
+int A1_Exchange_segments(A1_group_t* group, void **ptr);
 
 /**
  * \brief A collective operation to invalidate and de-register memory segments

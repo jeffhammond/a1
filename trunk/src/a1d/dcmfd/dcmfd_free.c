@@ -14,6 +14,10 @@ int A1D_Release_segments(A1_group_t* group, void *ptr)
 
     A1DI_CRITICAL_ENTER();
 
+    /*This functions does nothing becuase BG does not involve
+      any registration. It has to do a barrier syncrhonization
+      to ensure everyone is agreeing on the release*/
+
     if (group == A1_GROUP_WORLD || group == NULL)
     {
         status = A1DI_GlobalBarrier();
@@ -25,8 +29,6 @@ int A1D_Release_segments(A1_group_t* group, void *ptr)
         A1U_ERR_POP(1, "A1D_Release_segments not implemented for non-world groups!");
         goto fn_fail;
     }
-
-    A1DI_Free(ptr);
 
   fn_exit:
     A1DI_CRITICAL_EXIT();

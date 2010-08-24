@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Exchange_segments(A1_group_t* group, void* ptr[], int bytes)
+int A1_Exchange_segments(A1_group_t* group, void* ptr[])
 {
     int status = A1_SUCCESS;
 
@@ -21,7 +21,7 @@ int A1_Exchange_segments(A1_group_t* group, void* ptr[], int bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Exchange_segments(group, ptr, bytes);
+    status = A1D_Exchange_segments(group, ptr);
     A1U_ERR_POP(status != A1_SUCCESS, "A1D_Exchange_segments returned an error\n");
 
   fn_exit: 

@@ -94,7 +94,7 @@ int A1D_Free_segment(void* pointer);
  *
  * \ingroup MEMORY 
  */
-int A1D_Exchange_segments(A1_group_t* group, void **ptr, int bytes);
+int A1D_Exchange_segments(A1_group_t* group, void **ptr);
 
 /**
  * \brief Device level implementation of A1_Release_segments.

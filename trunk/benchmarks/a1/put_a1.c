@@ -81,7 +81,8 @@ int main() {
    buffer = (char **) malloc (sizeof(char *) * nranks); 
 
    bufsize = MAX_MSG_SIZE*ITERATIONS;
-   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer, bufsize);
+   A1_Alloc_segment(&(buffer[rank]), bufsize);
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
    if(rank == 0) 
    {

@@ -79,7 +79,8 @@ int main() {
 
    bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
    source = (char *) malloc(bufsize);
-   A1_Exchange_segments(A1_GROUP_WORLD, (void **) target, bufsize);
+   A1_Alloc_segment(&(target[rank]), bufsize);
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) target);
 
    for(i=0; i<bufsize; i++) {
      *(target[rank] + i) = '*';

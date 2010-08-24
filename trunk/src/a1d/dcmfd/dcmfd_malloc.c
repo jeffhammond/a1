@@ -164,7 +164,7 @@ int A1DI_Memaddress_xchange(void **ptr)
 
 }
 
-int A1D_Exchange_segments(A1_group_t* group, void **ptr, int bytes)
+int A1D_Exchange_segments(A1_group_t* group, void **ptr)
 {
     int status = A1_SUCCESS;
 
@@ -172,18 +172,21 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr, int bytes)
 
     A1DI_CRITICAL_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &ptr[A1D_Process_info.my_rank],
-                                 bytes);
-    A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
+    if(group != A1_GROUP_WORLD || group != NULL)
+    {
+       A1U_ERR_POP(A1_ERROR, "Groups are currently not supported in A1\n");
+    }
 
     status = A1DI_Memaddress_xchange(ptr);
     A1U_ERR_POP(status, "A1DI_Memaddress_xchange returned with error \n");
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Alloc_segment(void** ptr, int bytes)
@@ -198,11 +201,13 @@ int A1D_Alloc_segment(void** ptr, int bytes)
     A1U_ERR_POP(status != 0,
                 "A1DI_Malloc_aligned returned error in A1D_Alloc_segment\n");
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Alloc_counter(A1_counter_t *counter)
