@@ -53,6 +53,13 @@ int A1DI_Read_parameters()
         }
     }
 
+    a1_settings.put_packet_limit
+            = A1C_PUT_PACKET_LIMIT;
+    if ((value = getenv("A1_PUT_PACKET_LIMIT")) != NULL)
+    {
+        a1_settings._put_packet_limit = atoi(value);
+    }
+
     a1_settings.direct_noncontig_get_threshold
             = A1C_DIRECT_NONCONTIG_GET_THRESHOLD;
     if ((value = getenv("A1_DIRECT_NONCONTIG_GET_THRESHOLD")) != NULL)
@@ -64,6 +71,13 @@ int A1DI_Read_parameters()
         }
     }
 
+    a1_settings.get_packet_limit
+            = A1C_GET_PACKET_LIMIT;
+    if ((value = getenv("A1_GET_PACKET_LIMIT")) != NULL)
+    {
+        a1_settings.get_packet_limit = atoi(value);
+    }
+
     a1_settings.direct_noncontig_putacc_threshold
             = A1C_DIRECT_NONCONTIG_PUTACC_THRESHOLD;
     if ((value = getenv("A1_DIRECT_NONCONTIG_PUTACC_THRESHOLD")) != NULL)
@@ -73,6 +87,13 @@ int A1DI_Read_parameters()
         {
             a1_settings.direct_noncontig_putacc_threshold = 0;
         }
+    }
+
+    a1_settings.putacc_packet_limit
+            = A1C_PUTACC_PACKET_LIMIT;
+    if ((value = getenv("A1_PUTACC_PACKET_LIMIT")) != NULL)
+    {
+        a1_settings.putacc_packet_limit = atoi(value);
     }
 
     a1_settings.direct_noncontig_getacc_threshold

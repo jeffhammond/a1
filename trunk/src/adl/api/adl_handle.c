@@ -21,7 +21,7 @@ int A1_Allocate_handle(A1_handle_t *a1_handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_Allocate_handle(*a1_handle); 
+    status = A1D_Allocate_handle(a1_handle); 
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned an error\n");
 
   fn_exit:

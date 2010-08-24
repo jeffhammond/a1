@@ -16,6 +16,7 @@ int A1D_Wait_handle(A1_handle_t a1_handle)
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
+
     A1DI_Conditional_advance(a1d_handle->active > 0);
 
   fn_exit:

@@ -30,6 +30,10 @@
 #define A1C_DIRECT_NONCONTIG_PUTACC_THRESHOLD 2048 
 #define A1C_DIRECT_NONCONTIG_GETACC_THRESHOLD 2048
 
+#define A1C_PUT_PACKET_LIMIT 2048 
+#define A1C_GET_PACKET_LIMIT 2048 
+#define A1C_PUTACC_PACKET_LIMIT 8192 
+
 #define A1C_ENABLE_IMMEDIATE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
@@ -195,6 +199,9 @@ typedef struct
     volatile uint32_t direct_noncontig_get_threshold;
     volatile uint32_t direct_noncontig_putacc_threshold;
     volatile uint32_t direct_noncontig_getacc_threshold;
+    volatile uint32_t put_packet_limit;
+    volatile uint32_t get_packet_limit;
+    volatile uint32_t putacc_packet_limit;
     volatile uint32_t flushall_pending_limit;
     volatile uint32_t alignment;
 } A1_Settings_t;
