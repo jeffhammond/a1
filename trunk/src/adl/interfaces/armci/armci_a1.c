@@ -73,6 +73,11 @@ int ARMCI_Malloc(void* ptr[],
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* FIXME: Need to allocate memory here as well.
+     *         The usage of ARMCI_Malloc is to allocate an nproc-long
+     *         vector of void** and then ARMCI_Malloc allocates
+     *         the bytes belonging to each process to ptr[me].
+     * */
      status = A1_Exchange_segments(A1_GROUP_WORLD, ptr, int bytes);
      A1U_ERR_POP(status != A1_SUCCESS, "A1_Exchange_segments returned an error\n");
 
