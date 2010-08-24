@@ -8,6 +8,7 @@
 #include "a1.h"
 #include "a1d.h"
 #include "a1u.h"
+#include "assert.h"
 
 int ARMCI_Init()
 {

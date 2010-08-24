@@ -8,7 +8,6 @@
 #define A1U_H_INCLUDED
 
 #include "a1conf.h"
-#include "assert.h"
 
 #if defined HAVE_STDIO_H
 #include <stdio.h>
