@@ -1201,7 +1201,8 @@ int A1_Wait_handle(A1_handle_t handle);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Wait_handle_list(int count, A1_handle_t* handles);
+int A1_Wait_handle_list(int count,
+                            A1_handle_t* handles);
 
 /**
  * \brief Blocks on completion of a non-blocking handle.
@@ -1214,7 +1215,8 @@ int A1_Wait_handle_list(int count, A1_handle_t* handles);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Test_handle(A1_handle_t handle, A1_bool_t* completed);
+int A1_Test_handle(A1_handle_t handle,
+                      A1_bool_t* completed);
 
 /**
  * \brief Blocks on completion of all elements in a vector of non-blocking handles.
@@ -1229,8 +1231,8 @@ int A1_Test_handle(A1_handle_t handle, A1_bool_t* completed);
  */
 
 int A1_Test_handle_list(int count,
-                        A1_handle_t* handles,
-                        A1_bool_t* *completed);
+                            A1_handle_t *handles,
+                            A1_bool_t* *completed);
 
 /**
  * \brief Resets a non-blocking handle.
