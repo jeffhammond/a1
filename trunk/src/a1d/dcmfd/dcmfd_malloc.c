@@ -9,6 +9,7 @@
 DCMF_Memregion_t *A1D_Memregion_global;
 void **A1D_Membase_global;
 
+DCMF_Protocol_t A1D_Counter_setup_protocol;
 volatile int counter_setup_active;
 volatile void* counter_ptr_response;
 
