@@ -7,6 +7,10 @@
 #if !defined ARMCI_H_INCLUDED
 #define ARMCI_H_INCLUDED
 
+/*************************
+      Data Structures
+*************************/
+
 typedef enum 
 {
    ARMCI_ACC_INT,
@@ -31,13 +35,23 @@ typedef struct {
    int ptr_ar_len;    
 } armci_giov_t;
 
-typedef void* armci_giov_t;
-
 typedef int armci_size_t;
 
-int ARMCI_SET_AGGREGATE_HANDLE (armci_hdl_t* handle);
+typedef void* armci_hdl_t;
 
-int ARMCI_UNSET_AGGREGATE_HANDLE (armci_hdl_t* handle);
+/*************************
+      Macros
+*************************/
+
+#define ARMCI_SET_AGGREGATE_HANDLE(handle) { /*do nothing*/ }
+
+#define ARMCI_UNSET_AGGREGATE_HANDLE(handle) { /*do nothing*/ }
+
+/*************************
+      Functions
+*************************/
+
+void ARMCI_INIT_HANDLE(armci_hdl_t* handle);
 
 int ARMCI_Init();
 
@@ -81,12 +95,12 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr,
                int arr_len, 
                int proc);
 
-int ARMCI_Get(src, 
-              dst, 
-              bytes,
-              proc);
+int ARMCI_Get(void *src, 
+              void *dst, 
+              int bytes,
+              int proc);
 
-int ARMCI_GetS(void *src_ptr c_ptr, 
+int ARMCI_GetS(void *src_ptr, 
                int src_stride_ar[], 
                void* dst_ptr,
                int dst_stride_ar[], 
@@ -158,3 +172,5 @@ void ARMCI_Fence(int proc);
 void ARMCI_AllFence();
 
 int ARMCI_Barrier();
+
+#endif /* ARMCI_H_INCLUDED */

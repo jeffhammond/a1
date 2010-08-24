@@ -73,13 +73,8 @@ int ARMCI_Malloc(void* ptr[],
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    /* FIXME: Need to allocate memory here as well.
-     *         The usage of ARMCI_Malloc is to allocate an nproc-long
-     *         vector of void** and then ARMCI_Malloc allocates
-     *         the bytes belonging to each process to ptr[me].
-     * */
-     status = A1_Exchange_segments(A1_GROUP_WORLD, ptr, int bytes);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Exchange_segments returned an error\n");
+    status = A1_Exchange_segments(A1_GROUP_WORLD, ptr, bytes);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Exchange_segments returned an error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -104,12 +99,12 @@ void* ARMCI_Malloc_local(armci_size_t bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Alloc_segement(&segment_ptr, int bytes);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Alloc_segement returned an error\n");
+     status = A1_Alloc_segement(&segment_ptr, bytes);
+     A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Alloc_segement returned an error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return segment_ptr;
 
   fn_fail:
     goto fn_exit;
@@ -158,6 +153,33 @@ int ARMCI_Free_local(void *ptr)
   fn_exit:
     A1U_FUNC_EXIT();
     return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_INIT_HANDLE(armci_hdl_t* handle)
+{
+    int status = A1_SUCCESS;
+    A1_handle_t *a1_handle;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Allocate_handle(a1_handle);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allocate_handle returned an error\n");
+
+    *handle = *a1_handle;
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
   fn_fail:
     goto fn_exit;
@@ -272,7 +294,7 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr,
                int proc)
 {
     int status = A1_SUCCESS;
-    A1_iov_t a1_iov_ar*;
+    A1_iov_t *a1_iov_ar;
 
     A1U_FUNC_ENTER();
 
@@ -285,7 +307,7 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr,
 
     /* ARMCI iov and A1 iov are similar structures but follow 
      * different naming conventions. So we make a copy.*/
-    posix_memalign(&a1_iov_ar, sizeof(a1_iov_ar)*arr_len);
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar)*arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar)*arr_len); 
 
     status =  A1_PutV(proc,
@@ -410,7 +432,7 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr,
                int proc)
 {
     int status = A1_SUCCESS;
-    A1_iov_t a1_iov_ar*;
+    A1_iov_t *a1_iov_ar;
 
     A1U_FUNC_ENTER();
 
@@ -423,7 +445,7 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr,
 
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
-    posix_memalign(&a1_iov_ar, sizeof(a1_iov_ar)*arr_len);
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar)*arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar)*arr_len);            
 
     status =  A1_GetV(proc,
@@ -502,7 +524,7 @@ int ARMCI_AccS(int datatype,
                int dst_stride_ar[],
                int count[],
                int stride_levels,
-               int proc);
+               int proc)
 {
     int status = A1_SUCCESS;
     A1_datatype_t a1_type;
@@ -562,7 +584,7 @@ int ARMCI_NbAccS(int datatype,
                  int count[],
                  int stride_levels,
                  int proc,
-                 armci_hdl_t* handle);
+                 armci_hdl_t* handle)
 {
     int status = A1_SUCCESS;
     A1_datatype_t a1_type;
@@ -618,13 +640,13 @@ int ARMCI_NbAccS(int datatype,
 }
 
 int ARMCI_AccV(int datatype,
-               void *scale;
+               void *scale,
                armci_giov_t *dsrc_arr,
                int arr_len,
                int proc)
 {
     int status = A1_SUCCESS;
-    A1_iov_t a1_iov_ar*;
+    A1_iov_t *a1_iov_ar;
     A1_datatype_t a1_type;
 
     A1U_FUNC_ENTER();
@@ -656,7 +678,7 @@ int ARMCI_AccV(int datatype,
 
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
-    posix_memalign(&a1_iov_ar, sizeof(a1_iov_ar)*arr_len);
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar)*arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar)*arr_len);
 
     status =  A1_PutAccV(proc,
@@ -757,6 +779,7 @@ int ARMCI_Test(armci_hdl_t* handle)
 
     int status = A1_SUCCESS;
     A1_handle_t a1_handle;
+    int complete;
 
     A1U_FUNC_ENTER();
 
@@ -769,12 +792,12 @@ int ARMCI_Test(armci_hdl_t* handle)
 
     a1_handle = (A1_handle_t) *handle;
 
-    status =  A1_Test_handle(a1_handle);
+    status = A1_Test_handle(a1_handle, &complete);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Test_handle returned an error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return !complete;
 
   fn_fail:
     goto fn_exit;
@@ -804,7 +827,7 @@ int ARMCI_WaitAll()
     goto fn_exit;
 }
 
-int ARMCI_Fence(int proc)
+void ARMCI_Fence(int proc)
 {
     int status = A1_SUCCESS;
 
@@ -818,17 +841,17 @@ int ARMCI_Fence(int proc)
 #   endif
 
     status =  A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Flush returned an error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return;
 
   fn_fail:
     goto fn_exit;
 }
 
-int ARMCI_AllFence()
+void ARMCI_AllFence()
 {
     int status = A1_SUCCESS;
 
@@ -842,11 +865,11 @@ int ARMCI_AllFence()
 #   endif
 
     status =  A1_Flush_group(A1_GROUP_WORLD);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush_group returned an error\n");
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Flush_group returned an error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return;
 
   fn_fail:
     goto fn_exit;

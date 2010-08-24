@@ -14,6 +14,7 @@ include_HEADERS = $(top_builddir)/src/include/a1.h $(top_builddir)/src/include/a
 
 include src/adl/api/Makefile.mk
 #TODO# include src/adl/util/Makefile.mk
+include src/adl/interfaces/armci/Makefile.mk
 
 if a1_device_dcmfd
 include src/a1d/dcmfd/Makefile.mk
