@@ -134,10 +134,12 @@ int A1DI_Read_parameters()
 
     a1_requestpool_info.total_size = 0;
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return result;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Print_parameters(void)

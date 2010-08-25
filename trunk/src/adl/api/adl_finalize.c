@@ -21,10 +21,12 @@ int A1_Finalize(void)
     status = A1D_Finalize();
     A1U_ERR_POP(status != A1_SUCCESS, "A1D_Finalize returned error\n");
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1_Abort(int error_code, char error_message[])

@@ -18,7 +18,7 @@ int A1D_Release_segments(A1_group_t* group, void *ptr)
       any registration. It has to do a barrier syncrhonization
       to ensure everyone is agreeing on the release*/
 
-    if (group == A1_GROUP_WORLD && group == NULL)
+    if (group == A1_GROUP_WORLD || group == NULL)
     {
         status = A1DI_GlobalBarrier();
         A1U_ERR_ABORT(status != A1_SUCCESS, "DCMF_GlobalBarrier returned with an error");

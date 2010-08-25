@@ -37,8 +37,8 @@
 #define A1C_ENABLE_IMMEDIATE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
-#define A1C_REQUEST_POOL_INITIAL 100
-#define A1C_REQUEST_POOL_INCREMENT 50
+#define A1C_REQUEST_POOL_INITIAL 200
+#define A1C_REQUEST_POOL_INCREMENT 100
 #define A1C_REQUEST_POOL_LIMIT 500
 
 #define A1C_HANDLE_POOL_SIZE 20
@@ -125,9 +125,7 @@ extern LockBox_Mutex_t global_lbmutex;
  *          Memory Allocation Macros             *
  *************************************************/
 
- /* TODO: why are we not using posix_memalign? */
-//#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
-#define A1DI_Malloc_aligned(ptr, num) ((*ptr = malloc(num)) == NULL)
+#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
 
 #define A1DI_Malloc(ptr, num)  ((ptr = malloc(num)) == NULL)
 

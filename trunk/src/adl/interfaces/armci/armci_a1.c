@@ -100,6 +100,8 @@ int ARMCI_Malloc(void* ptr[],
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    my_rank = A1_Process_id(A1_GROUP_WORLD);
+
     status = A1_Alloc_segment(&ptr[my_rank], bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Alloc_segment returned an error\n");
 
