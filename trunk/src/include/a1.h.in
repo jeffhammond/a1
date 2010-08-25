@@ -36,15 +36,9 @@ extern "C"
  *
  * Implementation details:
  *
- * A1_THREAD_SINGLE, A1_THREAD_FUNNELED and A1_THREAD_SERIALIZED have
- * the same meaning as the MPI descriptors of similar name.
- *
- * A1_THREAD_MATCHED only requires one to lock the generic A1 stack
- * and not any of the channels they are dedicated.
- *
- * A1_THREAD_GENERAL requires locking on the A1 stack as well as the
- * channel(s).  A1 should internally decide the best way to implement
- * this protocol.
+ * A1_THREAD_SINGLE, A1_THREAD_FUNNELED, A1_THREAD_SERIALIZED and
+ * A1_THREAD_MULTIPLE have the same meaning as the MPI descriptors
+ * of similar name.
  *
  * \ingroup ENUMS
  *
@@ -54,10 +48,10 @@ typedef enum
 {
     A1_THREAD_SINGLE,     /**< There is only one thread present. */
     A1_THREAD_FUNNELED,   /**< There are multiple threads present
-                             but only the main thread makes A1 calls. */
-    A1_THREAD_SERIALIZED, /**< There are multiple threads present and
-                               each can make A1 calls, but never simultaneously. */
-    A1_THREAD_MULTIPLE    /**< Any A1 channel can be accessed from any thread. */
+                               but only the main thread makes A1 calls. */
+    A1_THREAD_SERIALIZED, /**< There are multiple threads present and each can make A1 calls,
+                               but never simultaneously. */
+    A1_THREAD_MULTIPLE    /**< There are multiple threads present and each can make A1 calls. */
 } A1_thread_level;
 
 /**
@@ -72,13 +66,12 @@ typedef enum
 
 typedef enum
 {
-    A1_INT32, /**< int32  */
-    A1_INT64, /**< int64  */
+    A1_INT32,  /**< int32  */
+    A1_INT64,  /**< int64  */
     A1_UINT32, /**< uint32 */
     A1_UINT64, /**< uint64 */
-    A1_FLOAT, /**< single-precision */
-    A1_DOUBLE,
-/**< double-precision */
+    A1_FLOAT,  /**< single-precision */
+    A1_DOUBLE, /**< double-precision */
 } A1_datatype_t;
 
 typedef enum
