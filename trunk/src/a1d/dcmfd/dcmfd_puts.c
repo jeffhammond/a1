@@ -213,7 +213,7 @@ int A1DI_Direct_puts(int target,
                   if(y == stride_level)
                   {
                      A1U_ASSERT(i == chunk_count-1, status); 
-                     break;     
+                     return status;     
                   }
                   y++;
                }
@@ -223,7 +223,11 @@ int A1DI_Direct_puts(int target,
                target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y-1]);
 
                y--;
-               while(y >= 1) block_sizes_w[y] = block_sizes[y];
+               while(y >= 1) 
+               {
+                  block_sizes_w[y] = block_sizes[y];
+                  y--;
+               }
         } 
         else
         {
