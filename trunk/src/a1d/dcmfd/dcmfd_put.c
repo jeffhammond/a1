@@ -19,21 +19,16 @@ int A1DI_Put_initialize()
     conf.network = DCMF_TORUS_NETWORK;
     status = DCMF_Put_register(&A1D_Generic_put_protocol, &conf);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-                "put registartion returned with error %d \n",
+                "put registration returned with error %d \n",
                 status);
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
-int A1D_Put(int target, 
-            void* src, 
-            void* dst, 
-            int bytes)
+int A1D_Put(int target, void* src, void* dst, int bytes)
 {
     int status = A1_SUCCESS;
     DCMF_Request_t request;
@@ -43,7 +38,7 @@ int A1D_Put(int target,
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();   
+    A1DI_CRITICAL_ENTER();
 
     /* TODO: don't we need logic to decide when to do immediate completion??? */
     if (a1_settings.enable_immediate_flush)
@@ -78,22 +73,20 @@ int A1D_Put(int target,
                       src_disp,
                       dst_disp,
                       ack_callback);
-    A1U_ERR_POP(status, "Put returned with an error \n");
+    A1U_ERR_POP(status, "DCMF_Put returned with an error \n");
 
     A1DI_Conditional_advance(done_active > 0 || ack_active > 0);
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
-int A1D_NbPut(int target, 
-              void* src, 
-              void* dst, 
+int A1D_NbPut(int target,
+              void* src,
+              void* dst,
               int bytes,
               A1_handle_t a1_handle)
 {
@@ -104,12 +97,12 @@ int A1D_NbPut(int target,
 
     A1U_FUNC_ENTER();
 
-    A1DI_CRITICAL_ENTER();   
+    A1DI_CRITICAL_ENTER();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
     status = A1DI_Load_request(a1d_handle);
     A1U_ERR_POP(status != A1_SUCCESS,
-              "A1DI_Load_request returned error in A1D_NbPut. Rquests exhausted \n");
+                "A1DI_Load_request returned error in A1D_NbPut. Requests exhausted. \n");
 
     done_callback.function = A1DI_Handle_done;
     done_callback.clientdata = (void *) a1d_handle;
@@ -132,13 +125,11 @@ int A1D_NbPut(int target,
                       src_disp,
                       dst_disp,
                       ack_callback);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "Put returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put returned with an error \n");
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
