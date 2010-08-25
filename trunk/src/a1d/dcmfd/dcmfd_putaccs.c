@@ -166,7 +166,7 @@ int A1DI_Direct_putaccs(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned(&block_sizes_w, sizeof(int)*(stride_level+1));
+    status = A1DI_Malloc_aligned((void **) &block_sizes_w, sizeof(int)*(stride_level+1));
     A1U_ERR_POP(status != A1_SUCCESS,
              "A1DI_Malloc_aligned returned error in A1DI_Direct_putaccs");
 
@@ -388,6 +388,7 @@ int A1D_PutAccS(int target,
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
+    int i, chunk_count = 1;
 
     A1U_FUNC_ENTER();
 
@@ -397,7 +398,11 @@ int A1D_PutAccS(int target,
     A1U_ERR_POP(status = (a1d_handle == NULL),
                 "A1DI_Get_handle returned NULL in A1D_PutAccS. Handles exhausted \n");
 
-    if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
+    for(i=1; i<=stride_level; i++)
+        chunk_count = block_sizes[i]*chunk_count;
+
+    if (chunk_count <= a1_settings.putacc_packing_chunkcount_threshold ||
+             block_sizes[0] >= a1_settings.putacc_packing_chunksize_limit)
     {
 
         status = A1DI_Direct_putaccs(target,
@@ -455,6 +460,7 @@ int A1D_NbPutAccS(int target,
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
+    int i, chunk_count = 1;
 
     A1U_FUNC_ENTER();
 
@@ -462,7 +468,11 @@ int A1D_NbPutAccS(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    if (block_sizes[0] >= a1_settings.direct_noncontig_putacc_threshold)
+    for(i=1; i<=stride_level; i++)
+        chunk_count = block_sizes[i]*chunk_count;
+
+    if (chunk_count <= a1_settings.putacc_packing_chunkcount_threshold ||
+             block_sizes[0] >= a1_settings.putacc_packing_chunksize_limit)
     {
 
         status = A1DI_Direct_putaccs(target,

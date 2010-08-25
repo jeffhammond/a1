@@ -42,69 +42,92 @@ int A1DI_Read_parameters()
         a1_settings.flushall_pending_limit = atoi(value);
     }
 
-    a1_settings.direct_noncontig_put_threshold
-            = A1C_DIRECT_NONCONTIG_PUT_THRESHOLD;
-    if ((value = getenv("A1_DIRECT_NONCONTIG_PUT_THRESHOLD")) != NULL)
+
+    a1_settings.put_packing_chunkcount_threshold
+            = A1C_PUT_PACKING_CHUNKCOUNT_THRESHOLD;
+    if ((value = getenv("A1_PUT_PACKING_CHUNKCOUNT_THRESHOLD")) != NULL)
     {
-        a1_settings.direct_noncontig_put_threshold = atoi(value);
+        a1_settings.put_packing_chunkcount_threshold = atoi(value);
         if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
         {
-            a1_settings.direct_noncontig_put_threshold = 0;
+            a1_settings.put_packing_chunkcount_threshold = 99999;
         }
     }
 
-    a1_settings.put_packet_size_limit
-            = A1C_PUT_PACKET_SIZE_LIMIT;
-    if ((value = getenv("A1_PUT_PACKET_SIZE_LIMIT")) != NULL)
+    a1_settings.put_packing_chunksize_limit
+            = A1C_PUT_PACKING_CHUNKSIZE_LIMIT;
+    if ((value = getenv("A1_PUT_PACKING_CHUNKSIZE_LIMIT")) != NULL)
     {
-        a1_settings.put_packet_size_limit = atoi(value);
-    }
-
-    a1_settings.direct_noncontig_get_threshold
-            = A1C_DIRECT_NONCONTIG_GET_THRESHOLD;
-    if ((value = getenv("A1_DIRECT_NONCONTIG_GET_THRESHOLD")) != NULL)
-    {
-        a1_settings.direct_noncontig_get_threshold = atoi(value);
+        a1_settings.put_packing_chunksize_limit = atoi(value);
         if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
         {
-            a1_settings.direct_noncontig_get_threshold = 0;
+            a1_settings.put_packing_chunksize_limit = 0;
         }
     }
 
-    a1_settings.get_packet_size_limit
-            = A1C_GET_PACKET_SIZE_LIMIT;
-    if ((value = getenv("A1_GET_PACKET_SIZE_LIMIT")) != NULL)
+    a1_settings.put_packetsize_limit
+            = A1C_PUT_PACKETSIZE_LIMIT;
+    if ((value = getenv("A1_PUT_PACKETSIZE_LIMIT")) != NULL)
     {
-        a1_settings.get_packet_size_limit = atoi(value);
+        a1_settings.put_packetsize_limit = atoi(value);
     }
 
-    a1_settings.direct_noncontig_putacc_threshold
-            = A1C_DIRECT_NONCONTIG_PUTACC_THRESHOLD;
-    if ((value = getenv("A1_DIRECT_NONCONTIG_PUTACC_THRESHOLD")) != NULL)
+    a1_settings.get_packing_chunkcount_threshold
+            = A1C_GET_PACKING_CHUNKCOUNT_THRESHOLD;
+    if ((value = getenv("A1_GET_PACKING_CHUNKCOUNT_THRESHOLD")) != NULL)
     {
-        a1_settings.direct_noncontig_putacc_threshold = atoi(value);
+        a1_settings.get_packing_chunkcount_threshold = atoi(value);
         if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
         {
-            a1_settings.direct_noncontig_putacc_threshold = 0;
+            a1_settings.get_packing_chunkcount_threshold = 99999;
         }
     }
 
-    a1_settings.putacc_packet_size_limit
-            = A1C_PUTACC_PACKET_SIZE_LIMIT;
-    if ((value = getenv("A1_PUTACC_PACKET_SIZE_LIMIT")) != NULL)
+    a1_settings.get_packing_chunksize_limit
+            = A1C_GET_PACKING_CHUNKSIZE_LIMIT;
+    if ((value = getenv("A1_GET_PACKING_CHUNKSIZE_LIMIT")) != NULL)
     {
-        a1_settings.putacc_packet_size_limit = atoi(value);
-    }
-
-    a1_settings.direct_noncontig_getacc_threshold
-            = A1C_DIRECT_NONCONTIG_GETACC_THRESHOLD;
-    if ((value = getenv("A1_DIRECT_NONCONTIG_GETACC_THRESHOLD")) != NULL)
-    {
-        a1_settings.direct_noncontig_getacc_threshold = atoi(value);
+        a1_settings.get_packing_chunksize_limit = atoi(value);
         if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
         {
-            a1_settings.direct_noncontig_getacc_threshold = 0;
+            a1_settings.get_packing_chunksize_limit = 0;
         }
+    }
+
+    a1_settings.get_packetsize_limit
+            = A1C_GET_PACKETSIZE_LIMIT;
+    if ((value = getenv("A1_GET_PACKETSIZE_LIMIT")) != NULL)
+    {
+        a1_settings.get_packetsize_limit = atoi(value);
+    }
+
+    a1_settings.putacc_packing_chunkcount_threshold
+            = A1C_PUTACC_PACKING_CHUNKCOUNT_THRESHOLD;
+    if ((value = getenv("A1_PUTACC_PACKING_CHUNKCOUNT_THRESHOLD")) != NULL)
+    {
+        a1_settings.putacc_packing_chunkcount_threshold = atoi(value);
+        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
+        {
+            a1_settings.putacc_packing_chunkcount_threshold = 99999;
+        }
+    }
+
+    a1_settings.putacc_packing_chunksize_limit
+            = A1C_PUTACC_PACKING_CHUNKSIZE_LIMIT;
+    if ((value = getenv("A1_PUTACC_PACKING_CHUNKSIZE_LIMIT")) != NULL)
+    {
+        a1_settings.putacc_packing_chunksize_limit = atoi(value);
+        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
+        {
+            a1_settings.putacc_packing_chunksize_limit = 0;
+        }
+    }
+
+    a1_settings.putacc_packetsize_limit
+            = A1C_PUTACC_PACKETSIZE_LIMIT;
+    if ((value = getenv("A1_PUTACC_PACKETSIZE_LIMIT")) != NULL)
+    {
+        a1_settings.putacc_packetsize_limit = atoi(value);
     }
 
     a1_settings.handlepool_size
@@ -131,8 +154,6 @@ int A1DI_Read_parameters()
     {
         a1_requestpool_info.limit_size = atoi(value);
     }
-
-    a1_requestpool_info.total_size = 0;
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -168,14 +189,12 @@ int A1D_Print_parameters(void)
 
     A1U_output_printf("cht_pause_cycles = %u\n",
                       a1_settings.cht_pause_cycles);
-    A1U_output_printf("direct_noncontig_put_threshold = %u\n",
-                      a1_settings.direct_noncontig_put_threshold);
-    A1U_output_printf("direct_noncontig_get_threshold = %u\n",
-                      a1_settings.direct_noncontig_get_threshold);
-    A1U_output_printf("direct_noncontig_putacc_threshold = %u\n",
-                      a1_settings.direct_noncontig_putacc_threshold);
-    A1U_output_printf("direct_noncontig_getacc_threshold = %u\n",
-                      a1_settings.direct_noncontig_getacc_threshold);
+    A1U_output_printf("put_packing_chunksize_limit = %u\n",
+                      a1_settings.put_packing_chunksize_limit);
+    A1U_output_printf("get_packing_chunksize_limit = %u\n",
+                      a1_settings.put_packing_chunksize_limit);
+    A1U_output_printf("putacc_packing_chunksize_limit = %u\n",
+                      a1_settings.put_packing_chunksize_limit);
     A1U_output_printf("flushall_pending_limit = %u\n",
                       a1_settings.flushall_pending_limit);
 

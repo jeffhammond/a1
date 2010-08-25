@@ -16,7 +16,7 @@ A1D_Request_t* A1DI_Get_request()
 
     if (!A1D_Request_pool.head)
     {
-        if (a1_requestpool_info.total_size < a1_requestpool_info.limit_size)
+        if (A1D_Request_pool.total_size < a1_requestpool_info.limit_size)
         {
             A1DI_Request_pool_increment();
         }
@@ -43,9 +43,9 @@ void A1DI_Release_request(A1D_Request_t *a1d_request)
 {
     A1U_FUNC_ENTER();
 
-    if(a1d_request->buffer_ptr != NULL)
+    if((a1d_request->buffer_ptr) != NULL)
     {
-        A1DI_Free((void *) a1d_request->buffer_ptr);
+        A1DI_Free((void *) (a1d_request->buffer_ptr));
         a1d_request->buffer_ptr = NULL;
     }
     a1d_request->next = A1D_Request_pool.head;
@@ -75,14 +75,14 @@ void A1DI_Release_request_list(A1D_Request_t *a1d_request_list)
     { 
         if(tail_request->buffer_ptr != NULL)
         {
-            A1DI_Free(tail_request->buffer_ptr);
+            A1DI_Free((void *) (tail_request->buffer_ptr));
             tail_request->buffer_ptr = NULL;
         }
         tail_request = tail_request->next;
     }
     if(tail_request->buffer_ptr != NULL)
     {
-        A1DI_Free((void *) tail_request->buffer_ptr);
+        A1DI_Free((void *) (tail_request->buffer_ptr));
         tail_request->buffer_ptr = NULL;
     }
     
@@ -106,22 +106,22 @@ int A1DI_Request_pool_increment()
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &a1d_request, 
+    status = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr[A1D_Request_pool.region_count]), 
                                  sizeof(A1D_Request_t) * a1_requestpool_info.increment_size);
-    A1U_ERR_POP(status = !a1d_request,
+    A1U_ERR_POP(status != A1_SUCCESS,
                 "memory allocation for request pool failed \n");
-    a1_requestpool_info.total_size = a1_requestpool_info.total_size
-            + a1_requestpool_info.increment_size;
 
-    A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *) a1d_request;
-    A1D_Request_pool.region_count++;
-
+    a1d_request = A1D_Request_pool.region_ptr[A1D_Request_pool.region_count];
     A1D_Request_pool.head = a1d_request;
     for (index = 0; index < a1_requestpool_info.increment_size-1; index++)
     {
         a1d_request[index].next = &a1d_request[index+1];
     } 
     a1d_request[index].next = NULL;
+
+    A1D_Request_pool.total_size = A1D_Request_pool.total_size
+            + a1_requestpool_info.increment_size;
+    A1D_Request_pool.region_count++;
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -144,27 +144,27 @@ int A1DI_Request_pool_initialize()
             - a1_requestpool_info.initial_size)
             / a1_requestpool_info.increment_size + 1;
     status = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr),
-                                 sizeof(void *) * max_regions);
-    A1U_ERR_POP(status != 0,
+                                 sizeof(A1D_Request_t *) * max_regions);
+    A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Malloc_aligned failed while allocating request pool\
                        regions list in A1DI_Request_pool_initialize\n");
 
-    status = A1DI_Malloc_aligned((void **) &a1d_request, 
+    status = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr[A1D_Request_pool.region_count]), 
                                  sizeof(A1D_Request_t) * a1_requestpool_info.initial_size);
-    A1U_ERR_POP(status != 0,
+    A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Malloc_aligned failed while allocating request pool\
                       in A1DI_Request_pool_initialize\n");
-    a1_requestpool_info.total_size = a1_requestpool_info.initial_size;
 
-    A1D_Request_pool.region_ptr[A1D_Request_pool.region_count] = (void *) a1d_request;
-    A1D_Request_pool.region_count++;
-
+    a1d_request = A1D_Request_pool.region_ptr[A1D_Request_pool.region_count];
     A1D_Request_pool.head = a1d_request;
     for (index = 0; index < a1_requestpool_info.initial_size-1; index++)
     {
         a1d_request[index].next = &a1d_request[index+1];
     }
     a1d_request[index].next = NULL;
+
+    A1D_Request_pool.total_size = a1_requestpool_info.initial_size;
+    A1D_Request_pool.region_count++;
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -181,11 +181,11 @@ void A1DI_Request_pool_finalize()
 
     A1U_FUNC_ENTER();
 
-    for (i = 0; i < A1D_Request_pool.region_count; i++)
+    for (i=0; i<A1D_Request_pool.region_count; i++)
     {
-        A1DI_Free(A1D_Request_pool.region_ptr[i]);
+        A1DI_Free((void *) (A1D_Request_pool.region_ptr[i]));
     }
-    A1DI_Free(A1D_Request_pool.region_ptr);
+    A1DI_Free((void *) (A1D_Request_pool.region_ptr));
 
   fn_exit:
     A1U_FUNC_EXIT();
