@@ -75,7 +75,8 @@ int main() {
 
    bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
    buffer = (double **) malloc (sizeof(double *) * nranks); 
-   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer, bufsize);
+   A1_Alloc_segment((void **) &(buffer[rank]), bufsize);
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
    for(i=0; i<bufsize/sizeof(double); i++) {
      *(buffer[rank] + i) = 1.0 + rank;
@@ -130,8 +131,11 @@ int main() {
                       return -1;
                    }
                }
-           }               
+           }              
 
+           for(i=0; i<bufsize/sizeof(double); i++) {
+                *(buffer[rank] + i) = 1.0 + rank;
+           } 
       }
 
     }
@@ -141,6 +145,7 @@ int main() {
    A1_Barrier_group(A1_GROUP_WORLD);
 
    A1_Release_segments(A1_GROUP_WORLD, (void *) buffer[rank]); 
+   A1_Free_segment((void *) buffer[rank]); 
  
    A1_Finalize();
 

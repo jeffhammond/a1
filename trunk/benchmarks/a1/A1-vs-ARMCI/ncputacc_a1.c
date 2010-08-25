@@ -75,7 +75,8 @@ int main() {
    buffer = (double **) malloc (sizeof(int32_t *) * nranks); 
 
    bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
-   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer, bufsize);
+   A1_Alloc_segment((void **) &(buffer[rank]), bufsize);
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
    if(rank == 0) {
      printf("A1_PutAccS Latency - local and remote completions - in usec \n");
@@ -212,6 +213,7 @@ int main() {
    A1_Barrier_group(A1_GROUP_WORLD);
 
    A1_Release_segments(A1_GROUP_WORLD, (void *) buffer[rank]); 
+   A1_Free_segment((void *) buffer[rank]); 
  
    A1_Finalize();
 
