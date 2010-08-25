@@ -609,6 +609,35 @@ int A1_NbPutS(int target,
             A1_handle_t handle);
 
 /**
+ * \brief Blocking copy of contiguous data from local memory to remote memory.
+ *
+ * \note This call must be use the same stride-level across all targets.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  count           Number of operations to be performed
+ * \param[in]  targets         Vector of remote process ranks.
+ * \param[in]  block_sizes     Vector of block sizes in each dimension in bytes.
+ * \param[in]  stride_levels   Number of levels of stride.
+ * \param[in]  source_ptr      Vector of starting in the (local) source memory.
+ * \param[in]  src_stride_ar   Vector of arrays of stride distances at source in bytes.
+ * \param[in]  target_ptr      Vector of starting in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Vector of arrays of stride distances at target in bytes.
+ *
+ * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_MultiPutS(int count,
+                 int *targets,
+                 int stride_levels,
+                 int* *block_sizes,
+                 void* source_ptr,
+                 int *src_stride_ar,
+                 void* target_ptr,
+                 int *trg_stride_ar);
+
+/**
  * \brief Blocking copy of non-contiguous data from local memory to remote memory.
  *
  * \param[out] rc              The error code.
@@ -645,35 +674,6 @@ int A1_NbPutV(int target,
               A1_iov_t *iov_ar,
               int ar_len,
               A1_handle_t handle);
-
-/**
- * \brief Blocking copy of contiguous data from local memory to remote memory.
- *
- * \note This call must be use the same stride-level across all targets.
- *
- * \param[out] rc              The error code.
- * \param[in]  count           Number of operations to be performed
- * \param[in]  targets         Vector of remote process ranks.
- * \param[in]  block_sizes     Vector of block sizes in each dimension in bytes.
- * \param[in]  stride_levels   Number of levels of stride.
- * \param[in]  source_ptr      Vector of starting in the (local) source memory.
- * \param[in]  src_stride_ar   Vector of arrays of stride distances at source in bytes.
- * \param[in]  target_ptr      Vector of starting in the (remote) target memory.
- * \param[in]  trg_stride_ar   Vector of arrays of stride distances at target in bytes.
- *
- * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
- *
- * \ingroup DATA_TRANSFER
- */
-
-int A1_MultiPutS(int count,
-                 int *targets,
-                 int stride_levels,
-                 int* *block_sizes,
-                 void* source_ptr,
-                 int *src_stride_ar,
-                 void* target_ptr,
-                 int *trg_stride_ar);
 
 /**
  * \brief Blocking accumulate of contiguous data from local memory onto remote memory.
@@ -940,6 +940,33 @@ int A1_NbGetS(int target,
             A1_handle_t handle);
 
 /**
+ * \brief Blocking copy of stided data from remote memory to local memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  count           Number of operations to be performed
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  source_ptr      Starting address in the (remote) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at (remote process) source in bytes.
+ * \param[in]  target_ptr      Starting address in the (local) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at (local process) target in bytes.
+ * \param[in]  count           Block size in each dimension in bytes.
+ * \param[in]  stride_levels   The number of levels of stride.
+ *
+ * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_MultiGetS(int target_count,
+                 int *target,
+                 int stride_levels,
+                 int **count,
+                 void* *source_ptr,
+                 int **src_stride_ar,
+                 void* *target_ptr,
+                 int **trg_stride_ar);
+
+/**
  * \brief Blocking copy of non-contiguous data from remote memory to local memory.
  *
  * \param[out] rc              The error code.
@@ -976,33 +1003,6 @@ int A1_NbGetV(int target,
               A1_iov_t *iov_ar,
               int ar_len,
               A1_handle_t handle);
-
-/**
- * \brief Blocking copy of stided data from remote memory to local memory.
- *
- * \param[out] rc              The error code.
- * \param[in]  count           Number of operations to be performed
- * \param[in]  target          Rank of the remote process.
- * \param[in]  source_ptr      Starting address in the (remote) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at (remote process) source in bytes.
- * \param[in]  target_ptr      Starting address in the (local) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at (local process) target in bytes.
- * \param[in]  count           Block size in each dimension in bytes.
- * \param[in]  stride_levels   The number of levels of stride.
- *
- * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
- *
- * \ingroup DATA_TRANSFER
- */
-
-int A1_MultiGetS(int target_count,
-                 int *target,
-                 int stride_levels,
-                 int **count,
-                 void* *source_ptr,
-                 int **src_stride_ar,
-                 void* *target_ptr,
-                 int **trg_stride_ar);
 
 /**
  * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
@@ -1125,7 +1125,23 @@ int A1_CopyAcc(int source,
 int A1_Barrier_group(A1_group_t* group);
 
 /**
- * \brief On return, this call ensures that all outstanding blocking put or accumulate
+ * \brief When the handle state is A1_TRUE, all processes within the entire group
+ *        have reached this point in the program.
+ *
+ *        This operation is collective and non-blocking.
+ *
+ * \param[out] rc            The error code.
+ * \param[in] group          Group of processes to synchronize.
+ *
+ * \see A1_Flush, A1_AllFlush, A1_Sync.
+ *
+ * \ingroup SYNCHRONIZATION
+ */
+
+int A1_NbBarrier_group(A1_group_t* group, A1_handle_t handle);
+
+/**
+ * \brief On return, this call ensures that all outstanding put or accumulate
  *        operations are complete remotely within the entire group.
  *
  *        This operation is collective and blocking.  It has the effect of
@@ -1142,6 +1158,23 @@ int A1_Barrier_group(A1_group_t* group);
 int A1_Sync_group(A1_group_t* group);
 
 /**
+ * \brief When the handle state is A1_TRUE, all outstanding put or accumulate
+ *        operations are complete remotely within the entire group.
+ *
+ *        This operation is collective and blocking.  It has the effect of
+ *        A1_NbFlush_group called from every process in the group followed by A1_NbBarrier_group.
+ *
+ * \param[out] rc            The error code.
+ * \param[in] group          Group of processes to synchronize.
+ *
+ * \see A1_GlobalSync, A1_GroupBarrier, A1_Flush_group.
+ *
+ * \ingroup SYNCHRONIZATION
+ */
+
+int A1_NbSync_group(A1_group_t* group, A1_handle_t handle);
+
+/**
  * \brief On return, this call ensures that all blocking and non-blocking put
  *        and accumulate operations sent to the target process have completed remotely.
  *
@@ -1156,6 +1189,22 @@ int A1_Sync_group(A1_group_t* group);
  */
 
 int A1_Flush(int proc);
+
+/**
+ * \brief When the handle state is A1_TRUE, all blocking and non-blocking put
+ *        and accumulate operations sent to the target process have completed remotely.
+ *
+ *        This operation is local and non-blocking.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  proc          Rank of the remote process.
+ *
+ * \see A1_Flush_group, A1_Sync
+ *
+ * \ingroup COMPLETION
+ */
+
+int A1_NbFlush(int proc, A1_handle_t handle);
 
 /**
  * \brief On return, this call ensures that all blocking and non-blocking put
@@ -1175,6 +1224,23 @@ int A1_Flush(int proc);
 int A1_Flush_list(int count, int *proc_list);
 
 /**
+ * \brief When the handle state is A1_TRUE, all blocking and non-blocking put
+ *        and accumulate operations have completed remotely at the processes given in the list.
+ *
+ *        This operation is local and blocking.
+ *
+ * \param[out] rc                The error code.
+ * \param[in] count              Number of processes in vector.
+ * \param[in] proc_list          Vector of processes to flush against.
+ *
+ * \see A1_Flush, A1_Flush_group
+ *
+ * \ingroup COMPLETION
+ */
+
+int A1_NbFlush_list(int count, int *proc_list, A1_handle_t handle);
+
+/**
  * \brief On return, this call ensures that all blocking and non-blocking put
  *        and accumulate operations have completed remotely at the processes in the group.
  *
@@ -1190,6 +1256,23 @@ int A1_Flush_list(int count, int *proc_list);
  */
 
 int A1_Flush_group(A1_group_t* group);
+
+/**
+ * \brief When the handle state is A1_TRUE, all blocking and non-blocking put
+ *        and accumulate operations have completed remotely at the processes in the group.
+ *
+ *        This operation is local and blocking.
+ *
+ * \param[out] rc                The error code.
+ * \param[in] count              Number of processes in vector.
+ * \param[in] proc_list          List of processes to flush against.
+ *
+ * \see A1_Flush, A1_Sync
+ *
+ * \ingroup COMPLETION
+ */
+
+int A1_NbFlush_group(A1_group_t* group, A1_handle_t handle);
 
 /**
  * \brief Blocks on completion of all non-blocking handles.
