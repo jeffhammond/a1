@@ -4,4 +4,4 @@ INCLUDE = -I. -I$(A1_INSTALL)/include
 LIB = -L$(A1_INSTALL)/lib -la1 
 
 all:
-	$(CC) $(INCLUDE) -g -qstrict -o $(NAME) $(NAME).c $(LIB)
+	$(CC) $(INCLUDE) -O5 -qstrict -o $(NAME) $(NAME).c $(LIB)

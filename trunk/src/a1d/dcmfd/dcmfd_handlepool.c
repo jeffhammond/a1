@@ -150,9 +150,17 @@ int A1DI_Handle_pool_initialize()
 
 void A1DI_Handle_pool_finalize()
 {
-    int i;
+    int index;
 
     A1U_FUNC_ENTER();
+
+    for (index = 0; index < a1_settings.handlepool_size; index++)
+    {
+        if (A1D_Active_handle_list[index] != NULL)
+            A1DI_Conditional_advance((A1D_Active_handle_list[index])->active > 0);
+    }
+
+    A1DI_Free(A1D_Active_handle_list);
 
     A1DI_Free(A1D_Handle_pool.region_ptr);
   

@@ -55,8 +55,8 @@
 
 #define MAX_XDIM 1024 
 #define MAX_YDIM 1024
-#define ITERATIONS 100
-#define SKIP 10
+#define ITERATIONS 10
+#define SKIP 1
 
 int main(int argc, char **argv) {
 
