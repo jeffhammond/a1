@@ -39,7 +39,7 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
 
     a1d_request = A1DI_Get_request();
     A1U_ERR_ABORT(status = (a1d_request == NULL),
-                "A1DI_Get_request returned NULL in A1DI_RecvSend_putacc_callback. Rquests exhausted \n");
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_putacc_callback\n");
 
     A1U_ASSERT_ABORT(sizeof(A1D_Putacc_header_t) == count*sizeof(DCQuad), 
         "Header of invalid size received in A1DI_RecvSend_putacc_callback\n")
@@ -265,6 +265,7 @@ int A1D_NbPutAcc(int target,
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
     DCMF_Callback_t done_callback;
+    A1D_Request_t *a1d_request;
     A1D_Putacc_header_t header;
 
     A1U_FUNC_ENTER();
@@ -273,9 +274,15 @@ int A1D_NbPutAcc(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    done_callback.function = A1DI_Handle_done;
-    done_callback.clientdata = (void *) a1d_handle;
     a1d_handle->active++;
+
+    a1d_request = A1DI_Get_request();
+    A1U_ERR_POP(a1d_request != NULL,
+                "A1DI_Get_request returned error\n");
+    A1DI_Set_handle(a1d_request, a1d_handle);
+
+    done_callback.function = A1DI_Request_done;
+    done_callback.clientdata = (void *) a1d_request;
 
     header.target_ptr = target_ptr;
     header.datatype = a1_type;
@@ -311,7 +318,7 @@ int A1D_NbPutAcc(int target,
     }
 
     status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                       &(a1d_handle->request_list->request),
+                       &(a1d_request->request),
                        done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,

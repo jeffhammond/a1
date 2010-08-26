@@ -77,7 +77,8 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
 int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
-    A1D_Handle_t* a1d_handle;
+    A1D_Handle_t* a1d_handle = NULL;
+    A1D_Request_t* a1d_request = NULL;
     DCMF_Callback_t callback;
     unsigned src_disp, dst_disp;
 
@@ -86,19 +87,22 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
-    status = A1DI_Load_request(a1d_handle);
-    A1U_ERR_POP(status != A1_SUCCESS,
-                "A1DI_Load_request returned error in A1D_NbGet. Rquests exhausted \n");
 
-    callback.function = A1DI_Handle_done;
-    callback.clientdata = (void *) a1d_handle;
     a1d_handle->active++;
+
+    a1d_request = A1DI_Get_request();
+    A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned error.\n");
+    A1DI_Set_handle(a1d_request, a1d_handle); 
+
+    callback.function = A1DI_Request_done;
+    callback.clientdata = (void *) a1d_request;
 
     src_disp = (size_t) src - (size_t) A1D_Membase_global[target];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
     status = DCMF_Get(&A1D_Generic_get_protocol,
-                      &(a1d_handle->request_list->request),
+                      &(a1d_request->request),
                       callback,
                       DCMF_RELAXED_CONSISTENCY,
                       target,

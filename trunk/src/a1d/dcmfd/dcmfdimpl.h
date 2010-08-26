@@ -40,18 +40,11 @@
 #define A1C_ENABLE_IMMEDIATE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
-#define A1C_REQUEST_POOL_INITIAL 200
-#define A1C_REQUEST_POOL_INCREMENT 100
-#define A1C_REQUEST_POOL_LIMIT 500
+#define A1C_REQUEST_POOL_SIZE 500
 
 #define A1C_HANDLE_POOL_SIZE 20
 
 #define A1C_MAX_STRIDED_DIM 4
-
-/*
-#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_ATOMIC_ACQUIRE
-#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_ATOMIC_RELEASE
-*/
 
 #define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
 #define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
@@ -123,6 +116,11 @@ extern LockBox_Mutex_t global_lbmutex;
       double start = DCMF_Timer();               \
       while((DCMF_Timer() - start) < seconds);   \
    } while(0)                                    \
+
+#define A1DI_Set_handle(request, handle)  \
+do {                                      \
+    request->handle_ptr = handle;         \
+   } while(0)                             \
 
 /*************************************************
  *          Memory Allocation Macros             *
@@ -208,14 +206,8 @@ typedef struct
     volatile uint32_t flushall_pending_limit;
     volatile uint32_t alignment;
     volatile uint32_t handlepool_size;
+    volatile uint32_t requestpool_size;
 } A1_Settings_t;
-
-typedef struct
-{
-    volatile uint32_t initial_size;
-    volatile uint32_t increment_size;
-    volatile uint32_t limit_size;
-} A1_Requestpool_info_t;
 
 typedef struct
 {
@@ -289,25 +281,8 @@ typedef struct
     } scaling;
 } A1D_Packed_putaccs_header_t;
 
-typedef struct A1D_Request_t
-{
-    DCMF_Request_t request;
-    void* buffer_ptr;
-    uint32_t buffer_size;
-    struct A1D_Request_t *next;
-} A1D_Request_t;
-
-typedef struct
-{
-    A1D_Request_t *head;
-    A1D_Request_t **region_ptr;
-    volatile int region_count;
-    volatile int total_size;
-} A1D_Request_pool_t;
-
 typedef struct A1D_Handle_t
 {
-    A1D_Request_t *request_list;
     volatile int active;
     volatile int active_list_index;
     struct A1D_Handle_t *next;
@@ -318,6 +293,21 @@ typedef struct A1D_Handle_pool_t
     A1D_Handle_t *head;
     void *region_ptr;
 } A1D_Handle_pool_t;
+
+typedef struct A1D_Request_t
+{
+    DCMF_Request_t request;
+    void* buffer_ptr;
+    uint32_t buffer_size;
+    A1D_Handle_t *handle_ptr;
+    struct A1D_Request_t *next;
+} A1D_Request_t;
+
+typedef struct
+{
+    A1D_Request_t *head;
+    A1D_Request_t *region_ptr;
+} A1D_Request_pool_t;
 
 typedef struct
 {
@@ -365,7 +355,6 @@ extern volatile int A1D_Put_flushack_active;
 extern volatile int A1D_Expecting_getresponse;
 
 extern A1_Settings_t a1_settings;
-extern A1_Requestpool_info_t a1_requestpool_info;
 
 /************************************************* 
  *             Function Prototypes               *
@@ -377,9 +366,7 @@ void A1DI_Global_lock_release();
 
 void A1DI_Generic_done(void *, DCMF_Error_t *);
 
-void A1DI_Handle_done(void *, DCMF_Error_t *);
-
-void A1DI_Free_done(void *, DCMF_Error_t *);
+void A1DI_Request_done(void *, DCMF_Error_t *);
 
 int A1DI_Memregion_Global_initialize();
 
@@ -401,15 +388,11 @@ A1D_Request_t* A1DI_Get_request();
 
 void A1DI_Release_request(A1D_Request_t *);
 
-void A1DI_Release_request_list(A1D_Request_t *);
-
 int A1DI_Handle_pool_initialize();
 
 void A1DI_Handle_pool_finalize();
 
 A1D_Handle_t* A1DI_Get_handle();
-
-int A1DI_Load_request(A1D_Handle_t *);
 
 void A1DI_Release_handle(A1D_Handle_t *);
 

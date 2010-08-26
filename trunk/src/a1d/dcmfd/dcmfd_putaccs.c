@@ -31,7 +31,7 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
 
     a1d_request = A1DI_Get_request();
     A1U_ERR_ABORT(status = (a1d_request == NULL),
-                "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputaccs_callback. Requests exhausted \n");
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputaccs_callback\n");
 
     *rcvlen = sndlen;
     status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), sndlen);
@@ -95,6 +95,7 @@ int A1DI_Packed_putaccs(int target,
 
     int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
+    A1D_Request_t *a1d_request;
     void *packet;
     int size_packet;
 
@@ -113,19 +114,22 @@ int A1DI_Packed_putaccs(int target,
     A1U_ERR_POP(status != DCMF_SUCCESS,
                 "A1DI_Packed_putaccs function returned with an error \n");
 
-    status = A1DI_Load_request(a1d_handle);
-    A1U_ERR_POP(status != A1_SUCCESS,
-              "A1DI_Load_request returned error in A1DI_Packed_putaccs. Rquests exhausted \n");
+    a1d_request = A1DI_Get_request();
+    A1U_ERR_POP(status = (a1d_request == NULL),
+            "A1DI_Get_request returned error\n");
+    A1DI_Set_handle(a1d_request, a1d_handle);
 
-    done_callback.function = A1DI_Handle_done;
-    done_callback.clientdata = (void *) a1d_handle;
+    done_callback.function = A1DI_Request_done;
+    done_callback.clientdata = (void *) a1d_request;
+
     a1d_handle->active++;
+
     /* Assigning the packing buffer pointer in request so that it can be free when the
      * request is complete, in the callback */
-    a1d_handle->request_list->buffer_ptr = packet;
+    a1d_request->buffer_ptr = packet;
 
     status = DCMF_Send(&A1D_Packed_putaccs_protocol,
-                       &(a1d_handle->request_list->request),
+                       &(a1d_request->request),
                        done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
@@ -160,6 +164,7 @@ int A1DI_Direct_putaccs(int target,
     int i, status = A1_SUCCESS;
     A1D_Putacc_header_t header;
     DCMF_Callback_t done_callback;
+    A1D_Request_t *a1d_request;
     int chunk_count=1;
     int *block_sizes_w;
     int y=0;
@@ -171,9 +176,6 @@ int A1DI_Direct_putaccs(int target,
              "A1DI_Malloc_aligned returned error in A1DI_Direct_putaccs");
 
     A1DI_Memcpy(block_sizes_w, block_sizes, sizeof(int)*(stride_level+1));
-
-    done_callback.function = A1DI_Handle_done;
-    done_callback.clientdata = (void *) a1d_handle;
 
     for(i=1; i<=stride_level; i++)
         chunk_count = block_sizes[i]*chunk_count;
@@ -213,16 +215,20 @@ int A1DI_Direct_putaccs(int target,
     for(i=0; i<chunk_count; i++)
     {
 
-        status = A1DI_Load_request(a1d_handle);
-        A1U_ERR_POP(status != A1_SUCCESS,
-                 "A1DI_Load_request returned error in A1DI_Recursive_putaccs. Rquests exhausted \n");
+        a1d_request = A1DI_Get_request();
+        A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned error. \n");
+        A1DI_Set_handle(a1d_request, a1d_handle);
 
         a1d_handle->active++;
+
+        done_callback.function = A1DI_Request_done;
+        done_callback.clientdata = (void *) a1d_request;
 
         header.target_ptr = target_ptr;
 
         status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                           &(a1d_handle->request_list->request),
+                           &(a1d_request->request),
                            done_callback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,
@@ -289,6 +295,7 @@ int A1DI_Recursive_putaccs(int target,
     int i, status = A1_SUCCESS;
     A1D_Putacc_header_t header;
     DCMF_Callback_t done_callback;
+    A1D_Request_t *a1d_request;
 
     A1U_FUNC_ENTER();
 
@@ -316,12 +323,14 @@ int A1DI_Recursive_putaccs(int target,
     else
     {
 
-        status = A1DI_Load_request(a1d_handle);
-        A1U_ERR_POP(status != A1_SUCCESS,
-                 "A1DI_Load_request returned error in A1DI_Recursive_putaccs. Rquests exhausted \n");
+        a1d_request = A1DI_Get_request();
+        A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned error. \n");
+        A1DI_Set_handle(a1d_request, a1d_handle);
 
-        done_callback.function = A1DI_Handle_done;
-        done_callback.clientdata = (void *) a1d_handle;
+        done_callback.function = A1DI_Request_done;
+        done_callback.clientdata = (void *) a1d_request;
+
         a1d_handle->active++;
 
         header.target_ptr = target_ptr;
@@ -358,7 +367,7 @@ int A1DI_Recursive_putaccs(int target,
         }
 
         status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                           &(a1d_handle->request_list->request),
+                           &(a1d_request->request),
                            done_callback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,
@@ -400,7 +409,7 @@ int A1D_PutAccS(int target,
 
     a1d_handle = A1DI_Get_handle();
     A1U_ERR_POP(status = (a1d_handle == NULL),
-                "A1DI_Get_handle returned NULL in A1D_PutAccS. Handles exhausted \n");
+                "A1DI_Get_handle returned NULL in A1D_PutAccS\n");
 
     for(i=1; i<=stride_level; i++)
         chunk_count = block_sizes[i]*chunk_count;

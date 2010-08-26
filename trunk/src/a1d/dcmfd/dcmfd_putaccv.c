@@ -15,6 +15,7 @@ int A1DI_Direct_putaccv(int target,
 {
     int i, j, status = A1_SUCCESS;
     A1D_Putacc_header_t header;
+    A1D_Request_t *a1d_request;
     DCMF_Callback_t done_callback;
 
     A1U_FUNC_ENTER();
@@ -51,24 +52,25 @@ int A1DI_Direct_putaccv(int target,
         }
     }
 
-    done_callback.function = A1DI_Handle_done;
-    done_callback.clientdata = (void *) a1d_handle;
-
     for (i=0; i<ar_len; i++)
     {
         for(j=0; j<iov_ar[i].ptr_ar_len; j++)
         {
 
-           status  = A1DI_Load_request(a1d_handle);
-           A1U_ERR_POP(status != A1_SUCCESS,
-                   "A1DI_Load_request returned error in A1DI_Direct_putaccv. Rquests exhausted \n");
+           a1d_request = A1DI_Get_request();
+           A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned error.\n");
+           A1DI_Set_handle(a1d_request, a1d_handle);
+
+           done_callback.function = A1DI_Request_done;
+           done_callback.clientdata = (void *) a1d_request;
  
            a1d_handle->active++;
 
            header.target_ptr = iov_ar[i].target_ptr_ar[j];
  
            status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                              &(a1d_handle->request_list->request),
+                              &(a1d_request->request),
                               done_callback,
                               DCMF_SEQUENTIAL_CONSISTENCY,
                               target,
@@ -105,7 +107,7 @@ int A1D_PutAccV(int target,
 
     a1d_handle = A1DI_Get_handle();
     A1U_ERR_POP(status = (a1d_handle == NULL),
-                "A1DI_Get_handle returned NULL in A1D_PutAccS. Handles exhausted \n");
+                "A1DI_Get_handle returned NULL in A1D_PutAccS.\n");
 
     status = A1DI_Direct_putaccv(target,
                                  iov_ar,

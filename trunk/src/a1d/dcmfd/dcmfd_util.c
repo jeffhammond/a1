@@ -13,25 +13,17 @@ void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
     --(*((uint32_t *) clientdata));
 }
 
-void A1DI_Handle_done(void *clientdata, DCMF_Error_t *error)
+void A1DI_Request_done(void *clientdata, DCMF_Error_t *error)
 {
-    A1D_Handle_t *a1d_handle = (A1D_Handle_t *) clientdata;
-
-    --(a1d_handle->active);
-
-    if(a1d_handle->active == 0) 
-    {
-          A1U_ASSERT_ABORT(a1d_handle->request_list != NULL,
-               "Handle was active with a NULL request list, in A1DI_Handle_done\n");
-
-          A1DI_Release_request_list(a1d_handle->request_list);
-          a1d_handle->request_list = NULL;
-    }
-}
-
-void A1DI_Free_done(void *clientdata, DCMF_Error_t *error)
-{
+    A1D_Handle_t *a1d_handle;
     A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
+
+    if(a1d_request->handle_ptr != NULL) 
+    {
+       a1d_handle = a1d_request->handle_ptr;
+       --(a1d_handle->active);
+    }
+ 
     A1DI_Release_request(a1d_request);
 }
 

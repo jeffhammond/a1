@@ -14,6 +14,7 @@ int A1DI_Direct_putv(int target,
     int i, j, status = A1_SUCCESS;
     size_t src_disp, dst_disp, size;
     DCMF_Callback_t done_callback;
+    A1D_Request_t *a1d_request;
 
     A1U_FUNC_ENTER();
 
@@ -28,16 +29,18 @@ int A1DI_Direct_putv(int target,
                    - (size_t) A1D_Membase_global[target];
            size = iov_ar[i].size;
 
-           status = A1DI_Load_request(a1d_handle);
-           A1U_ERR_POP(status != A1_SUCCESS,
-                "A1DI_Load_request returned error in A1DI_Direct_putv. Rquests exhausted \n");
+           a1d_request = A1DI_Get_request();
+           A1U_ERR_POP(status = (a1d_request == NULL),
+               "A1DI_Get_request returned error. \n");
+           A1DI_Set_handle(a1d_request, a1d_handle);
 
-           done_callback.function = A1DI_Handle_done;
-           done_callback.clientdata = (void *) a1d_handle;
+           done_callback.function = A1DI_Request_done;
+           done_callback.clientdata = (void *) a1d_request;
+
            a1d_handle->active++;
 
            status = DCMF_Put(&A1D_Generic_put_protocol,
-                          &(a1d_handle->request_list->request),
+                          &(a1d_request->request),
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
@@ -75,7 +78,7 @@ int A1D_PutV(int target,
 
     a1d_handle = A1DI_Get_handle();
     A1U_ERR_POP(status = (a1d_handle == NULL),
-                "A1DI_Get_handle returned NULL in A1D_PutS. Handles exhausted \n");
+                "A1DI_Get_handle returned NULL in A1D_PutS. \n");
 
     status = A1DI_Direct_putv(target,
                               iov_ar,

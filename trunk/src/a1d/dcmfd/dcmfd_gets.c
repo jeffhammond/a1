@@ -28,7 +28,7 @@ int A1DI_Packed_gets_response(int target,
 
     a1d_request = A1DI_Get_request();
     A1U_ERR_POP(status = (a1d_request == NULL),
-                "A1DI_Get_request returned NULL in A1DI_Packed_gets_response. Requests exhausted \n");
+                "A1DI_Get_request returned NULL in A1DI_Packed_gets_response \n");
 
     status = A1DI_Pack_strided(&packet,
                                &size_packet,
@@ -42,7 +42,7 @@ int A1DI_Packed_gets_response(int target,
                 "A1DI_Pack_strided returned with an error\n");
 
     a1d_request->buffer_ptr = packet;
-    callback.function = A1DI_Free_done;
+    callback.function = A1DI_Request_done;
     callback.clientdata = (void *) a1d_request;
 
     status = DCMF_Send(&A1D_Packed_gets_response_protocol,
@@ -91,7 +91,7 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
  
     a1d_request = A1DI_Get_request();
     A1U_ERR_ABORT(status = (a1d_request == NULL),
-                "A1DI_Get_request returned NULL in A1DI_RecvSend_packedgets_response_callback. Requests exhausted \n");
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_packedgets_response_callback\n");
 
     *rcvlen = sndlen;
     status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), sndlen);
@@ -207,6 +207,7 @@ int A1DI_Packed_gets(int target,
     int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
     A1D_Packed_gets_header_t *packet;
+    A1D_Request_t *a1d_request = NULL;
 
     A1U_FUNC_ENTER();
 
@@ -224,20 +225,21 @@ int A1DI_Packed_gets(int target,
             * sizeof(uint32_t));
     memcpy(packet->block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
 
-    status = A1DI_Load_request(a1d_handle);
-    A1U_ERR_POP(status != A1_SUCCESS,
-                "A1DI_Load_request returned error in A1DI_Packed_gets. Rquests exhausted \n");
+    a1d_request = A1DI_Get_request();
+    A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned error.  \n");
+    A1DI_Set_handle(a1d_request, a1d_handle);
 
     /* Assigning the packing buffer pointer in request so that it can be free when the
      * request is complete, in the callback */
-    a1d_handle->request_list->buffer_ptr = (void *) packet;
+    a1d_request->buffer_ptr = (void *) packet;
 
-    done_callback.function = A1DI_Handle_done;
-    done_callback.clientdata = (void *) a1d_handle;
+    done_callback.function = A1DI_Request_done;
+    done_callback.clientdata = (void *) a1d_request;
     a1d_handle->active++;
 
     status = DCMF_Send(&A1D_Packed_gets_protocol,
-                       &(a1d_handle->request_list->request),
+                       &(a1d_request->request),
                        done_callback,
                        DCMF_RELAXED_CONSISTENCY,
                        target,
@@ -270,6 +272,7 @@ int A1DI_Direct_gets(int target,
     int i, status = A1_SUCCESS;
     size_t src_disp, dst_disp;
     DCMF_Callback_t done_callback;
+    A1D_Request_t *a1d_request = NULL;
     int chunk_count=1;
     int *block_sizes_w;
     int y=0;
@@ -282,9 +285,6 @@ int A1DI_Direct_gets(int target,
 
     A1DI_Memcpy(block_sizes_w, block_sizes, sizeof(int)*(stride_level+1));
 
-    done_callback.function = A1DI_Handle_done;
-    done_callback.clientdata = (void *) a1d_handle;
-
     for(i=1; i<=stride_level; i++)
         chunk_count = block_sizes[i]*chunk_count;
 
@@ -296,14 +296,18 @@ int A1DI_Direct_gets(int target,
         dst_disp = (size_t) target_ptr
                  - (size_t) A1D_Membase_global[target];
 
-        status = A1DI_Load_request(a1d_handle);
-        A1U_ERR_POP(status != A1_SUCCESS,
-               "A1DI_Load_request returned error in A1DI_Direct_gets. Rquests exhausted \n");
+        a1d_request = A1DI_Get_request();
+        A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned error.  \n");
+        A1DI_Set_handle(a1d_request, a1d_handle);
+
+        done_callback.function = A1DI_Request_done;
+        done_callback.clientdata = (void *) a1d_request;
 
         a1d_handle->active++;
 
         status = DCMF_Get(&A1D_Generic_get_protocol,
-                          &(a1d_handle->request_list->request),
+                          &(a1d_request->request),
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
@@ -370,6 +374,7 @@ int A1DI_Recursive_gets(int target,
     int i, status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
     size_t src_disp, dst_disp;
+    A1D_Request_t *a1d_request = NULL;
 
     A1U_FUNC_ENTER();
 
@@ -399,16 +404,18 @@ int A1DI_Recursive_gets(int target,
         dst_disp = (size_t) target_ptr
                  - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
-        status = A1DI_Load_request(a1d_handle);
-        A1U_ERR_POP(status != A1_SUCCESS,
-                   "A1DI_Load_request returned error in A1DI_Recursive_gets. Rquests exhausted \n");
+        a1d_request = A1DI_Get_request();
+        A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned error.  \n");
+        A1DI_Set_handle(a1d_request, a1d_handle);
 
-        done_callback.function = A1DI_Handle_done;
-        done_callback.clientdata = (void *) a1d_handle;
+        done_callback.function = A1DI_Request_done;
+        done_callback.clientdata = (void *) a1d_request;
+
         a1d_handle->active++;
 
         status = DCMF_Get(&A1D_Generic_get_protocol,
-                          &(a1d_handle->request_list->request),
+                          &(a1d_request->request),
                           done_callback,
                           DCMF_RELAXED_CONSISTENCY,
                           target,
@@ -447,7 +454,7 @@ int A1D_GetS(int target,
 
     a1d_handle = A1DI_Get_handle();
     A1U_ERR_POP(status = (a1d_handle == NULL),
-                "A1DI_Get_handle returned NULL in A1D_GetS. Handles exhausted \n");
+                "A1DI_Get_handle returned NULL in A1D_GetS. \n");
 
     for(i=1; i<=stride_level; i++)
         chunk_count = block_sizes[i]*chunk_count;

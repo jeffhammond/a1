@@ -92,6 +92,7 @@ int A1D_NbPut(int target,
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
+    A1D_Request_t *a1d_request;
     DCMF_Callback_t done_callback, ack_callback;
     size_t src_disp, dst_disp;
 
@@ -100,22 +101,21 @@ int A1D_NbPut(int target,
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
-    status = A1DI_Load_request(a1d_handle);
-    A1U_ERR_POP(status != A1_SUCCESS,
-                "A1DI_Load_request returned error in A1D_NbPut. Requests exhausted. \n");
 
-    done_callback.function = A1DI_Handle_done;
-    done_callback.clientdata = (void *) a1d_handle;
+    a1d_request = A1DI_Get_request();
+    A1U_ERR_POP(status = (a1d_request == NULL), "A1DI_Get_request returned error \n");
+    A1DI_Set_handle(a1d_request, a1d_handle);
+
+    done_callback.function = A1DI_Request_done;
+    done_callback.clientdata = (void *) a1d_request;
+
     a1d_handle->active++;
-
-    ack_callback = A1D_Nocallback;
-    A1D_Connection_put_active[target]++;
 
     src_disp = (size_t) src - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
     status = DCMF_Put(&A1D_Generic_put_protocol,
-                      &(a1d_handle->request_list->request),
+                      &(a1d_request->request),
                       done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,
@@ -124,12 +124,16 @@ int A1D_NbPut(int target,
                       &A1D_Memregion_global[target],
                       src_disp,
                       dst_disp,
-                      ack_callback);
+                      A1D_Nocallback);
     A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put returned with an error \n");
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+    A1D_Connection_put_active[target]++;
+
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

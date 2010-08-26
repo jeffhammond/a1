@@ -7,7 +7,6 @@
 #include "dcmfdimpl.h"
 
 A1_Settings_t a1_settings;
-A1_Requestpool_info_t a1_requestpool_info;
 
 int A1DI_Read_parameters()
 {
@@ -137,22 +136,10 @@ int A1DI_Read_parameters()
         a1_settings.handlepool_size = atoi(value);
     }
 
-    a1_requestpool_info.initial_size = A1C_REQUEST_POOL_INITIAL;
-    if ((value = getenv("A1_REQUEST_POOL_INITIAL")) != NULL)
+    a1_settings.requestpool_size = A1C_REQUEST_POOL_SIZE;
+    if ((value = getenv("A1_REQUEST_POOL_SIZE")) != NULL)
     {
-        a1_requestpool_info.initial_size = atoi(value);
-    }
-
-    a1_requestpool_info.increment_size = A1C_REQUEST_POOL_INCREMENT;
-    if ((value = getenv("A1_REQUEST_POOL_INCREMENT")) != NULL)
-    {
-        a1_requestpool_info.increment_size = atoi(value);
-    }
-
-    a1_requestpool_info.limit_size = A1C_REQUEST_POOL_LIMIT;
-    if ((value = getenv("A1_REQUEST_POOL_LIMIT")) != NULL)
-    {
-        a1_requestpool_info.limit_size = atoi(value);
+        a1_settings.requestpool_size = atoi(value);
     }
 
   fn_exit: 
