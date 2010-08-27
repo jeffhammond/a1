@@ -52,7 +52,8 @@ typedef enum
     A1_THREAD_SERIALIZED, /**< There are multiple threads present and each can make A1 calls,
                                but never simultaneously. */
     A1_THREAD_MULTIPLE    /**< There are multiple threads present and each can make A1 calls. */
-} A1_thread_level;
+}
+A1_thread_level;
 
 /**
  * \brief Datatype support within A1.
@@ -72,13 +73,36 @@ typedef enum
     A1_UINT64, /**< uint64 */
     A1_FLOAT,  /**< single-precision */
     A1_DOUBLE, /**< double-precision */
-} A1_datatype_t;
+}
+A1_datatype_t;
+
+/**
+ * \brief A1 boolean.
+ *
+ * \ingroup ENUMS
+ *
+ */
 
 typedef enum
 {
-    A1_FETCHANDADD,
-    A1_SWAP
-} A1_atomic_op_t;
+    A1_TRUE = 1,
+    A1_FALSE = 0,
+}
+A1_bool_t;
+
+/**
+ * \brief A1 RMW operations
+ *
+ * \ingroup ENUMS
+ *
+ */
+
+typedef enum
+{
+    A1_FETCH_AND_ADD,
+    A1_SWAP,
+}
+A1_atomic_op_t;
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -86,31 +110,32 @@ typedef enum
 /*                                                                       */
 /* ********************************************************************* */
 
-/* FIXME: What is the type for A1_group_t. Adding a temporary structure here. */
+/* TODO: Implement A1 group types.  I wonder if the user-accessible type should be
+ *        a pointer to the internal implementation to prevent people from doing
+ *        stupid kinds of direct access.
+ */
+/* FIXME: I really want to use a device-specific implementation of groups
+ *         since this is critical for optimizing collectives on Blue Gene
+ *         systems.  This also permits shared-memory optimizations in cases
+ *         where the group is confined to a single node.  There will also
+ *         be quirks arising in the GPU context I want to deal with directly.
+ */
 typedef struct A1_group
 {
-
-} A1_group_t;
+    int* rank_list;
+}
+A1_group_t;
 
 A1_group_t a1_group_world;
 
 #define A1_GROUP_WORLD &a1_group_world
 
 /**
- * \brief A1 non-blocking handle status boolean (A1_TRUE and A1_FALSE).
- *
- * \see A1_Test_handle, A1_Test_handle_list
- *
- * \ingroup TYPEDEFS
- *
- */
-
-typedef int A1_bool_t;
-
-/**
  * \brief A1 non-blocking handle type.
  *
- * \see A1_Test_handle, A1_Test_handle_list, A1_Wait_handle, A1_Wait_handle_list
+ * \see A1_Test_handle, A1_Test_handle_list,
+ *      A1_Wait_handle, A1_Wait_handle_list,
+ *      A1_Reset_handle, A1_Reset_handle_list
  *
  * \ingroup TYPEDEFS
  *
@@ -125,7 +150,30 @@ typedef void* A1_handle_t;
  *
  */
 
-typedef void* A1_counter_t;
+typedef struct A1_counter_t
+{
+    int   rank;
+    void* value_ptr;
+    long  value; /* TODO: this is only defined on the host given by rank. */
+}
+A1_counter_t;
+
+/**
+ * \brief A1 mutex.
+ *
+ * \see A1_Create_mutexes, A1_Destroy_mutexes, A1_Lock_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
+typedef struct A1_mutex_t
+{
+   int rank;
+   void* owner_ptr;
+   int owner; /* TODO: this is only defined on the host given by rank. */
+}
+A1_mutex_t;
 
 /**
  * \brief A1 io vector type.
@@ -142,7 +190,8 @@ typedef struct A1_iov_t
    void **target_ptr_ar;
    int size;  /*In bytes*/
    int ptr_ar_len; 
-} A1_iov_t;
+}
+A1_iov_t;
 
 
 /* ********************************************************************* */
@@ -155,9 +204,10 @@ typedef struct A1_iov_t
  * \brief Timer in units of cycles.
  *
  * \warning This function is not guaranteed to produce correct results for
- *          arbitrarily-long durations.
+ *          arbitrarily-long durations (e.g. in the case where the underlying
+ *          cycle-accurate counter outputs a 32-bit integer).
  *
- * \param[out] rc          Number of cpu clock cycles from an arbitrary time in the past.
+ * \param[out] rc   Number of cpu clock cycles from an arbitrary time in the past.
  *
  * \see A1_Time_seconds
  *
@@ -170,7 +220,7 @@ unsigned long long A1_Time_cycles();
  * \brief Timer in units of seconds.
  *
  *
- * \param[out] rc          Number of seconds from an arbitrary time in the past.
+ * \param[out] rc   Number of seconds from an arbitrary time in the past.
  *
  * \see A1_Time_cycles
  *
@@ -186,7 +236,8 @@ double A1_Time_seconds();
 /* ********************************************************************* */
 
 /**
- * \brief Returns process rank relative to the group base of the process calling it.
+ * \brief Returns process rank relative to the group base of the process calling it,
+ *        or -1 in the case of an error.
  *
  * \note Jeff hates MPI-style function style where return value is an
  *       argument passed by reference for the sake of Fortran compatibility
@@ -200,7 +251,7 @@ double A1_Time_seconds();
 int A1_Process_id(A1_group_t* group);
 
 /**
- * \brief Returns total number of processes in a group.
+ * \brief Returns total number of processes in a group or -1 in the case of an error.
  *
  * \note Jeff hates MPI-style function style where return value is an
  *       argument passed by reference for the sake of Fortran compatibility
@@ -214,7 +265,8 @@ int A1_Process_id(A1_group_t* group);
 int A1_Process_total(A1_group_t* group);
 
 /**
- * \brief Returns node rank relative to the group base of the process calling it.
+ * \brief Returns node rank relative to the group base of the process calling it,
+ *        or -1 in the case of an error.
  *
  * \note Jeff hates MPI-style function style where return value is an argument
  *       passed by reference for the sake of Fortran compatibility.
@@ -227,7 +279,7 @@ int A1_Process_total(A1_group_t* group);
 int A1_Node_id(A1_group_t* group);
 
 /**
- * \brief Returns total number of nodes in a group.
+ * \brief Returns total number of nodes in a group, or -1 in the case of an error.
  *
  * \note Jeff hates MPI-style function style where return value is an argument
  *       passed by reference for the sake of Fortran compatibility.
@@ -437,44 +489,107 @@ int A1_Release_handle(A1_handle_t handle);
 /* ********************************************************************** */
 
 /**
- * \brief Collective operation to allocate a counter.
+ * \brief Collective operation to allocate and register a counter.
  *
- * \param[out] rc            The error code.
- * \param[in]  counter       A1 shared counter.
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the counter is shared.
+ * \param[inout]  counter       A1 shared counter.
  *
- * \see A1_RMW
+ * \see a1_counter_t, A1_Destroy_counter, A1_Incr_counter
  *
  * \ingroup Atomics
  */
-int A1_Alloc_counter(A1_counter_t *counter);
+
+int A1_Create_counter(A1_group_t* group,
+                      A1_counter_t *counter);
+
+/**
+ * \brief Collective operation to deallocate and deregister a counter.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the counter is shared.
+ * \param[inout]  counter       A1 shared counter.
+ *
+ * \see a1_counter_t, A1_Create_counter, A1_Incr_counter, A1_NbIncr_counter
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Destroy_counter(A1_group_t* group,
+                       A1_counter_t *counter);
+
+/* TODO: Does PPC32 (or 32-bit processors in general) support hardware atomics for 64-bit integers???
+ *       I would like to use int64_t on all platforms if we can use them on Blue Gene/P.
+ */
 
 /**
  * \brief Atomically updates a shared counter and returns the current value.
  *
  * \param[out] rc            The error code.
  * \param[in]  counter       A1 shared counter.
- * \param[in]  op            Operation to be performed.
- * \param[in]  value         Local buffer containing the value and which will contain 
- *                           the current value after the operation.
+ * \param[in]  increment     The value to add to the counter.
+ * \param[in]  original      The remote value of the counter prior to the increment.
+ *
+ * \see a1_counter_t, A1_Create_counter, A1_Destroy_counter, A1_NbIncr_counter
  *
  * \ingroup Atomics
  */
-int A1_Rmw_counter(A1_counter_t counter, A1_atomic_op_t op, int *value);
+
+int A1_Incr_counter(A1_counter_t counter,
+                    long* increment,
+                    long* original);
 
 /**
- * \brief Atomically updates a shared counter and returns the current value.
+ * \brief Non-blocking atomic RMW update of a shared counter.
  *
  * \param[out] rc            The error code.
- * \param[in]  target        Rank of the target process.
- * \param[in]  source_ptr    Pointer of variable at source process.
- * \param[in]  target_ptr    Pointer of variable at target process.
- * \param[in]  op            Operation to be performed.
- * \param[in]  value         Local buffer containing the value and which will contain
- *                           the current value after the operation.
+ * \param[in]  counter       A1 shared counter.
+ * \param[in]  increment     The value to add to the counter.
+ * \param[in]  original      The remote value of the counter prior to the increment.
+ * \param[out] handle        Opaque handle for the request
+ *
+ * \see a1_counter_t, A1_Create_counter, A1_Destroy_counter, A1_Incr_counter
  *
  * \ingroup Atomics
  */
-int A1_Rmw(int target, void* local_ptr, void* remote_ptr, A1_atomic_op_t op, int value);
+
+int A1_NbIncr_counter(A1_counter_t counter,
+                      long* increment,
+                      long* original,
+                      A1_handle_t handle);
+
+/**
+ * \brief Collective operation to allocate and register a list of mutexes.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
+ * \param[in]     count         Number of mutexes to be created.
+ * \param[inout]  mutexes       Vector of A1 mutexes.
+ *
+ * \see a1_mutex_t, A1_Destroy_mutexes, A1_Lock_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Create_mutexes(A1_group_t* group, int count, A1_mutex_t* *mutexes);
+
+/**
+ * \brief Collective operation to deallocate and deregister a list of mutexes
+ *
+ * \note Implementors: A1_mutex_t cannot be dynamically allocated otherwise this function
+ *                     will create a memory leak.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
+ * \param[in]     mutexes       Pointer to vector A1 mutexes.
+ *
+ * \see a1_mutex_t, A1_Create_mutexes, A1_Lock_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Destroy_mutexes(A1_group_t* group, A1_mutex_t* mutexes);
+
 
 /* FIXME: More API functions to come */
 
@@ -1046,6 +1161,62 @@ int A1_GetAccS(int target,
                int stride_levels,
                A1_datatype_t a1_type,
                void* scaling);
+
+/**
+ * \brief Blocking get-and-accumulate operation (aka RMW) on arbitrary data.
+ *        This operation is message-wise atomic.
+ *
+ * \warning Obviously, the user cannot mix RMW with other operations without
+ *          proper synchronization.
+ *
+ * \param[out] rc               The error code.
+ * \param[in]  target           Rank of the target process.
+ * \param[in]  source_ptr_in    Pointer of modification data at source process.
+ * \param[in]  source_ptr_out   Pointer of original read data at source process.
+ * \param[in]  target_ptr       Pointer of modified data at target process.
+ * \param[in]  bytes            Number of bytes to update.
+ * \param[in]  op               Operation to be performed.
+ * \param[in]  a1_type          Type of data and value.
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_Rmw(int target,
+           void* source_ptr_in,
+           void* source_ptr_out,
+           void* target_ptr,
+           int bytes,
+           A1_atomic_op_t op,
+           A1_datatype_t a1_type);
+
+/**
+ * \brief Non-blocking get-and-accumulate operation (aka RMW) on arbitrary data.
+ *        This operation is message-wise atomic.
+ *
+ * \warning Obviously, the user cannot mix RMW with other operations without
+ *          proper synchronization.
+ *
+ * \param[out] rc               The error code.
+ * \param[in]  target           Rank of the target process.
+ * \param[in]  source_ptr_in    Pointer of modification data at source process.
+ * \param[in]  source_ptr_out   Pointer of original read data at source process.
+ * \param[in]  target_ptr       Pointer of modified data at target process.
+ * \param[in]  bytes            Number of bytes to update.
+ * \param[in]  op               Operation to be performed.
+ * \param[in]  a1_type          Type of data and value.
+ * \param[out] handle          Opaque A1 handle
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbRmw(int target,
+             void* source_ptr_in,
+             void* source_ptr_out,
+             void* target_ptr,
+             int bytes,
+             A1_atomic_op_t op,
+             A1_datatype_t a1_type,
+             A1_handle_t handle);
 
 /**
  * \brief Blocking copy of contiguous data from remote memory to remote memory.

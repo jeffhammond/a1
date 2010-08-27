@@ -4,7 +4,7 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "mpi2rmadimpl.h"
+#include "mpidimpl.h"
 
 int A1D_Rank()
 {
@@ -46,6 +46,8 @@ double A1D_Time_seconds()
 unsigned long long A1D_Time_cycles()
 {
     A1U_FUNC_ENTER();
+
+    /* FIXME: implement this function using Kaz's ASM */
 
     A1U_error_printf("A1D_Time_cycles not implemented.\n");
 

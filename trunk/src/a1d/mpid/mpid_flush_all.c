@@ -4,9 +4,9 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "mpi2rmadimpl.h"
+#include "mpidimpl.h"
 
-int A1D_Flush_all()
+int A1DI_Flush_all()
 {
     int result = A1_SUCCESS;
 

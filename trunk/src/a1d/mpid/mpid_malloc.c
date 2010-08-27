@@ -4,5 +4,5 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "mpi2rmadimpl.h"
+#include "mpidimpl.h"
 

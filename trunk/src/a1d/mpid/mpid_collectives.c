@@ -4,7 +4,7 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "mpi2rmadimpl.h"
+#include "mpidimpl.h"
 
 void A1D_Barrier_group(A1_group_t* group) {
 

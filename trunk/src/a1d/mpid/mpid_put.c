@@ -4,7 +4,7 @@
  *      See COPYRIGHT in top-level directory.
  */
 
-#include "mpi2rmadimpl.h"
+#include "mpidimpl.h"
 
 int A1D_Put(int target, void* src, void* dst, int bytes)
 {
