@@ -614,22 +614,41 @@ int A1D_NbPutAccV(int target,
  * 
  * \ingroup Atomics
  */
-int A1D_Alloc_counter(A1_counter_t *counter);
- 
+int A1D_Create_counter(A1_group_t* group, 
+                       A1_counter_t *counter);
+
+/**
+ * \brief Collective operation to deallocate and deregister a counter.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the counter is shared.
+ * \param[inout]  counter       A1 shared counter.
+ *
+ * \see a1_counter_t, A1_Create_counter, A1_Incr_counter, A1_NbIncr_counter
+ *
+ * \ingroup Atomics
+ */
+
+int A1D_Destroy_counter(A1_group_t* group,
+                       A1_counter_t *counter); 
+
+
 /**
  * \brief Atomically updates a shared counter and returns the current value.
  *
  * \param[out] rc            The error code.
  * \param[in]  counter       A1 shared counter.
- * \param[in]  op            Operation to be performed.
- * \param[in]  value         Local buffer containing the value and which will contain
- *                           the current value after the operation.
- *  
+ * \param[in]  increment     The value to add to the counter.
+ * \param[in]  original      The remote value of the counter prior to the increment.
+ *
+ * \see a1_counter_t, A1_Create_counter, A1_Destroy_counter, A1_NbIncr_counter
+ *
  * \ingroup Atomics
  */
-int A1D_Rmw_counter(A1_counter_t counter, 
-                    A1_atomic_op_t op, 
-                    int *value);
+
+int A1D_Incr_counter(A1_counter_t counter,
+                     long increment,
+                     long* original);
 
 /**
  * \brief Atomically updates a shared counter and returns the current value.
@@ -645,10 +664,12 @@ int A1D_Rmw_counter(A1_counter_t counter,
  * \ingroup Atomics
  */
 int A1D_Rmw(int target,
-            void* local_ptr, 
-            void* remote_ptr, 
-            A1_atomic_op_t op, 
-            int value);
+           void* source_ptr_in,
+           void* source_ptr_out,
+           void* target_ptr,
+           int bytes,
+           A1_atomic_op_t op,
+           A1_datatype_t a1_type);
 
 /**
  * \brief Device level implementation of A1_Flush 

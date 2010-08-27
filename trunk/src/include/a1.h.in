@@ -16,9 +16,6 @@ extern "C"
 #define A1_SUCCESS 0
 #define A1_ERROR   1
 
-#define A1_TRUE  1
-#define A1_FALSE 0
-
 /** @file a1.h.in */
 
 /*! \addtogroup a1 A1 Public Interface
@@ -150,13 +147,7 @@ typedef void* A1_handle_t;
  *
  */
 
-typedef struct A1_counter_t
-{
-    int   rank;
-    void* value_ptr;
-    long  value; /* TODO: this is only defined on the host given by rank. */
-}
-A1_counter_t;
+typedef void* A1_counter_t;
 
 /**
  * \brief A1 mutex.
@@ -536,7 +527,7 @@ int A1_Destroy_counter(A1_group_t* group,
  */
 
 int A1_Incr_counter(A1_counter_t counter,
-                    long* increment,
+                    long increment,
                     long* original);
 
 /**

@@ -732,6 +732,7 @@ int ARMCI_AccV(int datatype,
 }
 
 
+/*
 int ARMCI_Rmw(int op,
               void *ploc,
               void *prem,
@@ -744,16 +745,12 @@ int ARMCI_Rmw(int op,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
     if(op == ARMCI_FETCH_AND_ADD)
     {
-        a1_op = A1_FETCHANDADD;
+        a1_op = A1_FETCH_AND_ADD;
     }
     else if(op == ARMCI_SWAP)
     { 
@@ -779,6 +776,7 @@ int ARMCI_Rmw(int op,
   fn_fail:
     goto fn_exit;
 }
+*/
 
 int ARMCI_Wait(armci_hdl_t* handle)
 {

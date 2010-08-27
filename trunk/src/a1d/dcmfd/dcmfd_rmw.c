@@ -34,7 +34,7 @@ void A1DI_Rmw_callback(void *clientdata,
     {
        old_value = *((int *) (rmw_pkt->counter_ptr));
 
-       if(rmw_pkt->op == A1_FETCHANDADD) 
+       if(rmw_pkt->op == A1_FETCH_AND_ADD) 
        {
            *((int *) (rmw_pkt->counter_ptr)) += rmw_pkt->value;
        } 
@@ -86,77 +86,9 @@ int A1DI_Rmw_initialize()
     goto fn_exit;
 }
 
-int A1D_Rmw_counter(A1_counter_t counter_ptr,
-                       A1_atomic_op_t op,
-                       int *value)
-{
-    int status = A1_SUCCESS;
-    int old_value;
-    A1D_Rmw_pkt_t rmw_pkt;
-    DCMF_Control_t cmsg;
-
-    A1U_FUNC_ENTER();
-
-    A1DI_CRITICAL_ENTER();
- 
-    /* TODO: Important. We current allocate counters at process 0. 
-     * We need to think about ways to make this hierarchical and reduce
-     * contention at a single process */
-    if(A1D_Process_info.my_rank == 0)
-    {
-
-        old_value = *((int *) counter_ptr);
-
-        if(op == A1_FETCHANDADD)
-        {
-            *((int *) counter_ptr) += *value;
-        } 
-        else if(op == A1_SWAP)
-        {
-            *((int *) counter_ptr) = *value;
-        }
-        else
-        {
-            A1U_ERR_POP(status = A1_ERROR,
-                   "Invalid optype specified in A1D_Rmw \n");
-        }
-      
-        *value = old_value;
-
-    }
-    else
-    {
-
-        rmw_active = 1;
-
-        rmw_pkt.counter_ptr = (void *) counter_ptr;
-        rmw_pkt.value = *value;
-        rmw_pkt.op = op;
-
-        memcpy(&cmsg, &rmw_pkt, sizeof(A1D_Rmw_pkt_t));
-
-        status = DCMF_Control(&A1D_Rmw_protocol,
-                              DCMF_SEQUENTIAL_CONSISTENCY,
-                              0,
-                              &cmsg);
-        A1U_ERR_POP(status != DCMF_SUCCESS,
-                   "DCMF_Control failed in A1D_Rmw_counter\n");
-
-        A1DI_Conditional_advance(rmw_active > 0);
-
-        *value = rmw_value_response;
-
-    }  
-
-  fn_exit:
-    A1DI_CRITICAL_EXIT();
-    A1U_FUNC_EXIT();
-    return status;
-
-  fn_fail:
-    goto fn_exit;
-}
-
+/*********************************
+        NEEDS REVISION
+**********************************
 int A1D_Rmw(int target, 
             void* local_ptr, 
             void* remote_ptr, 
@@ -200,3 +132,4 @@ int A1D_Rmw(int target,
     goto fn_exit;
 }
 
+*********************************/

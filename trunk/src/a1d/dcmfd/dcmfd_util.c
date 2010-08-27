@@ -15,15 +15,8 @@ void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
 
 void A1DI_Request_done(void *clientdata, DCMF_Error_t *error)
 {
-    A1D_Handle_t *a1d_handle;
     A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
 
-    if(a1d_request->handle_ptr != NULL) 
-    {
-       a1d_handle = a1d_request->handle_ptr;
-       --(a1d_handle->active);
-    }
- 
     A1DI_Release_request(a1d_request);
 }
 
@@ -405,3 +398,135 @@ int A1DI_Pack_strided_putaccs(void **packet,
   fn_fail: 
     goto fn_exit;
 }
+
+/*************************************************************
+                   Testing Packing Code
+**************************************************************/
+
+int A1DI_Pack_strided_buffer(void *data_ptr,
+                             int data_limit,
+                             int stride_level,
+                             int *block_sizes,
+                             void **source_ptr,
+                             int *src_stride_ar,
+                             void **target_ptr,
+                             int *trg_stride_ar,
+                             int *block_idx,
+                             int *data_size,
+                             int *complete)
+{
+    int status = A1_SUCCESS;
+    int y, index, size_data;
+    int block_sizes_w[A1C_MAX_STRIDED_DIM];
+
+    A1U_FUNC_ENTER();
+
+    *complete = 0;
+    *data_size = 0;
+
+    while((*data_size + block_sizes[0]) <= data_limit)
+    {
+        memcpy(data_ptr, *source_ptr, block_sizes[0]);
+        data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
+        *data_size = *data_size + block_sizes[0];
+
+        block_idx[1]++;
+        if(block_idx[1]==block_sizes[1])
+        {
+               y=1;
+               while(block_idx[y] == block_sizes[y])
+               {
+                  if(y == stride_level)
+                  {
+                     *complete = 1;
+                     return status;
+                  }
+                  y++;
+               }
+               block_idx[y]++;
+
+               *source_ptr = (void *) ((size_t) *source_ptr + src_stride_ar[y-1]);
+               *target_ptr = (void *) ((size_t) *target_ptr + trg_stride_ar[y-1]);
+
+               y--;
+               while(y >= 1)
+               {
+                  block_idx[y] = 0;
+                  y--;
+               }
+        }
+        else
+        {
+               *source_ptr = (void *) ((size_t) *source_ptr + src_stride_ar[0]);
+               *target_ptr = (void *) ((size_t) *target_ptr + trg_stride_ar[0]);
+        }
+    }
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int A1DI_Unpack_strided_buffer(void *data_ptr,
+                               int data_size,
+                               int stride_level,
+                               int *block_sizes,
+                               void *target_ptr,
+                               int *trg_stride_ar,
+                               int *block_idx)
+{
+    int status = A1_SUCCESS;
+    int i, y, index;
+
+    A1U_FUNC_ENTER();
+
+    while(data_size > 0)
+    {
+        memcpy(target_ptr, data_ptr, block_sizes[0]);
+
+        data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
+        data_size = data_size - block_sizes[0];
+
+        block_idx[1]++;
+        if(block_idx[1]==block_sizes[1])
+        {
+               y=1;
+               while(block_idx[y] == block_sizes[i])
+               {
+                  if(y == stride_level)
+                  {
+                     A1U_ASSERT(data_size == 0, status);
+                     break;
+                  }
+                  y++;
+               }
+               block_idx[y]++;
+
+               target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y-1]);
+
+               y--;
+               while(y >= 1)
+               {
+                  block_idx[y] = 0;
+                  y--;
+               }
+        }
+        else
+        {
+               target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[0]);
+        }
+    }
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+
+

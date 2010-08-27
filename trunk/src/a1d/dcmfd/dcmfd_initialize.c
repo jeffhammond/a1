@@ -149,8 +149,8 @@ int A1D_Initialize(int thread_level)
     status = A1DI_Rmw_initialize();
     A1U_ERR_POP(status!=A1_SUCCESS,"A1DI_Rmw_initialize returned with error \n");
 
-    status = A1DI_Counter_setup_initialize();
-    A1U_ERR_POP(status!=A1_SUCCESS,"A1DI_Counter_setup_initialize returned with error \n");
+    status = A1DI_Counter_initialize();
+    A1U_ERR_POP(status!=A1_SUCCESS,"A1DI_Counter_initialize returned with error \n");
 
     status = A1DI_Send_flush_initialize();
     A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Send_flush_initialize returned with error \n");
@@ -161,13 +161,14 @@ int A1D_Initialize(int thread_level)
     status = A1DI_Request_pool_initialize();
     A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Request_pool_initialize failed \n");
 
+    status = A1DI_Buffer_pool_initialize();
+    A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Buffer_pool_initialize returned with error \n");
+
     status = A1DI_Handle_pool_initialize();
     A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Handle_pool_initialize failed \n");
 
     status = A1DI_Memregion_Global_initialize();
     A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Memregion_Global_initialize returned with error \n");
-
-    /* FIXME: Need to do stuff here! */
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();

@@ -46,6 +46,13 @@
 
 #define A1C_MAX_STRIDED_DIM 4
 
+/* Currently we have two sizes of buffers to provide for Put/Get and
+ * Acc packets. */
+#define A1C_NUM_BUF_SIZES 2
+
+#define A1C_PUTGET_BUFFERPOOL_LIMIT 100;
+#define A1C_PUTACC_BUFFERPOOL_LIMIT 100;
+
 #define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
 #define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
 
@@ -243,6 +250,8 @@ typedef struct
     int block_sizes[A1C_MAX_STRIDED_DIM];
     void *target_ptr;
     int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
+    int block_idx[A1C_MAX_STRIDED_DIM];
+    int data_size; 
 } A1D_Packed_puts_header_t;
 
 typedef struct
@@ -265,6 +274,12 @@ typedef struct
 
 typedef struct
 {
+    long *value_ptr;
+    long value;
+} A1D_Counter_pkt_t;
+
+typedef struct
+{
     int stride_level;
     int block_sizes[A1C_MAX_STRIDED_DIM];
     void *target_ptr;
@@ -280,6 +295,31 @@ typedef struct
         double double_value;
     } scaling;
 } A1D_Packed_putaccs_header_t;
+
+typedef struct
+{
+    int   rank;
+    long  *value_ptr; /*This will hold ptr it value if counter
+                        is located on a remote process*/
+    long  value;      /*This will contain the value if counter
+                        is located locally*/
+} A1D_Counter_t;
+
+typedef struct A1D_Buffer_t
+{
+  void *buffer_ptr;
+  int pool_index;
+  struct A1D_Buffer_t *next;
+} A1D_Buffer_t;
+
+typedef struct
+{
+  A1D_Buffer_t* pool_heads[A1C_NUM_BUF_SIZES];
+  int limits[A1C_NUM_BUF_SIZES];
+  int sizes[A1C_NUM_BUF_SIZES];
+  void* pool_region_ptrs[A1C_NUM_BUF_SIZES];
+  void* mem_region_ptrs[A1C_NUM_BUF_SIZES];
+} A1D_Buffer_pool_t;
 
 typedef struct A1D_Handle_t
 {
@@ -298,6 +338,7 @@ typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
     void* buffer_ptr;
+    A1D_Buffer_t *a1d_buffer_ptr;
     uint32_t buffer_size;
     A1D_Handle_t *handle_ptr;
     struct A1D_Request_t *next;
@@ -328,6 +369,7 @@ extern A1D_Process_info_t A1D_Process_info;
 extern A1D_Control_xchange_info_t A1D_Control_xchange_info;
 extern A1D_Request_pool_t A1D_Request_pool;
 extern A1D_Handle_pool_t A1D_Handle_pool;
+extern A1D_Buffer_pool_t A1D_Buffer_pool;
 
 extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Control_flushack_protocol;
@@ -340,7 +382,9 @@ extern DCMF_Protocol_t A1D_Packed_puts_protocol;
 extern DCMF_Protocol_t A1D_Packed_gets_protocol;
 extern DCMF_Protocol_t A1D_Packed_gets_response_protocol;
 extern DCMF_Protocol_t A1D_Packed_putaccs_protocol;
-extern DCMF_Protocol_t A1D_Counter_setup_protocol;
+extern DCMF_Protocol_t A1D_Counter_create_protocol;
+extern DCMF_Protocol_t A1D_Counter_protocol;
+extern DCMF_Protocol_t A1D_Control_protocol;
 extern DCMF_Protocol_t A1D_Rmw_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
@@ -378,7 +422,7 @@ int A1DI_Get_initialize();
 
 int A1DI_Rmw_initialize();
 
-int A1DI_Counter_setup_initialize();
+int A1DI_Counter_initialize();
 
 int A1DI_Request_pool_initialize();
 
@@ -387,6 +431,14 @@ void A1DI_Request_pool_finalize();
 A1D_Request_t* A1DI_Get_request();
 
 void A1DI_Release_request(A1D_Request_t *);
+
+int A1DI_Buffer_pool_initialize();
+
+int A1DI_Buffer_pool_finalize();
+
+A1D_Buffer_t* A1DI_Get_buffer(int);
+
+void A1DI_Release_buffer(A1D_Buffer_t *);
 
 int A1DI_Handle_pool_initialize();
 
@@ -461,3 +513,24 @@ void* A1DI_Unpack_data_strided_acc(void *pointer,
                                    void* scaling);
 
 int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header);
+
+int A1DI_Pack_strided_buffer(void *packet_ptr,
+                             int packet_limit,
+                             int stride_level,
+                             int *block_sizes,
+                             void **source_ptr,
+                             int *src_stride_ar,
+                             void **target_ptr,
+                             int *trg_stride_ar,
+                             int *block_idx,
+                             int *data_size,
+                             int *complete);
+
+int A1DI_Unpack_strided_buffer(void *packet_ptr,
+                               int data_size,
+                               int stride_level,
+                               int *block_sizes,
+                               void *target_ptr,
+                               int *trg_stride_ar,
+                               int *block_idx);
+

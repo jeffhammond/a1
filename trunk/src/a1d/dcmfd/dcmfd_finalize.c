@@ -23,6 +23,9 @@ int A1D_Finalize(void)
     /* Freeing handle pool */
     A1DI_Handle_pool_finalize();
 
+    /* Freeing buffer pool */
+    A1DI_Buffer_pool_finalize();
+
     /* Freeing memory region pointers and local memroy region*/
     A1DI_Free(A1D_Membase_global);
     A1DI_Free(A1D_Memregion_global);

@@ -59,88 +59,148 @@
 
 int main() {
 
-   int i, rank, nranks, msgsize;
+   int i, j, rank, nranks, msgsize;
    int xdim, ydim;
-   int memtype = 1;
    long bufsize;
-   char **target;
-   char *source;
+   double **buffer;
    double t_start, t_stop, t_latency;
-   int count[2], src_stride, trg_stride, stride_level;
+   int count[2], src_stride, trg_stride, stride_level, expected, peer;
    
    A1_Initialize(A1_THREAD_SINGLE); 
 
-   rank = A1_Rank(); 
-   nranks = A1_Size();
+   rank = A1_Process_id(A1_GROUP_WORLD);
+   nranks = A1_Process_total(A1_GROUP_WORLD);
 
-   target = (char **) malloc (sizeof(char *) * nranks); 
+   buffer = (double **) malloc (sizeof(double *) * nranks); 
 
-   A1_GlobalBarrier();
+   A1_Barrier_group(A1_GROUP_WORLD);
 
    bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
-   source = (char *) malloc(bufsize);
-   A1_Alloc_segment(&(target[rank]), bufsize);
-   A1_Exchange_segments(A1_GROUP_WORLD, (void **) target);
+   A1_Alloc_segment((void *) &(buffer[rank]), bufsize);
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
-   for(i=0; i<bufsize; i++) {
-     *(target[rank] + i) = '*';
-     *(source + i) = '-';
+   for(i=0; i< bufsize/sizeof(double); i++) {
+       *(buffer[rank] + i) = 1.0 + rank;
    }
 
    if(rank == 0) {
      printf("A1_PutS Latency - local and remote completions - in usec \n");
      printf("%30s %22s \n", "Dimensions(array of doubles)", "Latency-LocalCompeltion", "Latency-RemoteCompletion");
      fflush(stdout);
+   }
 
-     src_stride = MAX_YDIM*sizeof(double);
-     trg_stride = MAX_YDIM*sizeof(double);
-     stride_level = 1;
+   src_stride = MAX_YDIM*sizeof(double);
+   trg_stride = MAX_YDIM*sizeof(double);
+   stride_level = 1;
 
-     for(xdim=1; xdim<=MAX_XDIM; xdim*=2) {
+   for(xdim=1; xdim<=MAX_XDIM; xdim*=2) {
 
-        count[1] = xdim;
+      count[1] = xdim;
 
-        for(ydim=1; ydim<=MAX_YDIM; ydim*=2) {
+      for(ydim=1; ydim<=MAX_YDIM; ydim*=2) {
 
-          count[0] = ydim*sizeof(double); 
-
+        count[0] = ydim*sizeof(double); 
+      
+        if(rank == 0) 
+        {
+          peer = 1;          
+ 
           for(i=0; i<ITERATIONS+SKIP; i++) { 
 
              if(i == SKIP)
                  t_start = A1_Time_seconds();              
 
-             A1_PutS(1, (void *) source, &src_stride, (void *) target[1], &trg_stride, count, stride_level); 
+             A1_PutS(peer, stride_level, count, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride); 
  
           }
           t_stop = A1_Time_seconds();
-          A1_Flush(1);
+          A1_Flush(peer);
           char temp[10]; 
           sprintf(temp,"%dX%d", xdim, ydim);
           printf("%30s %20.2f", temp, ((t_stop-t_start)*1000000)/ITERATIONS);
           fflush(stdout);
+
+          A1_Barrier_group(A1_GROUP_WORLD);
+
+          A1_Barrier_group(A1_GROUP_WORLD);
 
           for(i=0; i<ITERATIONS+SKIP; i++) {
   
              if(i == SKIP)
                 t_start = A1_Time_seconds();
 
-             A1_PutS(1, (void *) source, &src_stride, (void *) target[1], &trg_stride, count, stride_level);
-             A1_Flush(1);
+             A1_PutS(peer, stride_level, count, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride);
+             A1_Flush(peer);
 
           }
           t_stop = A1_Time_seconds();
           printf("%20.2f \n", ((t_stop-t_start)*1000000)/ITERATIONS);
           fflush(stdout);
-      }
 
-    }
+          A1_Barrier_group(A1_GROUP_WORLD);
+
+          A1_Barrier_group(A1_GROUP_WORLD);
+        }
+        else
+        {
+            peer = 1;
+
+            A1_Barrier_group(A1_GROUP_WORLD);
+ 
+            expected = (1.0 + peer);
+
+            for(i=0; i<xdim; i++)
+            {
+               for(j=0; j<ydim; j++)
+               {
+                   if(*(buffer[rank] + i*MAX_XDIM + j) != expected)
+                   {
+                      printf("Data validation failed at X: %d Y: %d Expected : %f Actual : %f \n",
+                              i, j, expected, *(buffer[rank] + i*MAX_XDIM + j));
+                      fflush(stdout);
+                      return -1;
+                    }
+                }
+            }
+
+            for(i=0; i< bufsize/sizeof(double); i++) {
+                *(buffer[rank] + i) = 1.0 + rank;
+            }
+
+            A1_Barrier_group(A1_GROUP_WORLD);
+
+
+            for(i=0; i<xdim; i++)
+            {
+               for(j=0; j<ydim; j++)
+               {
+                   if(*(buffer[rank] + i*MAX_XDIM + j) != expected)
+                   {
+                      printf("Data validation failed at X: %d Y: %d Expected : %f Actual : %f \n",
+                              i, j, expected, *(buffer[rank] + i*MAX_XDIM + j));
+                      fflush(stdout);
+                      return -1;
+                    }
+                }
+            }
+
+            for(i=0; i< bufsize/sizeof(double); i++) {
+                *(buffer[rank] + i) = 1.0 + rank;
+            }
+
+            A1_Barrier_group(A1_GROUP_WORLD);
+
+            A1_Barrier_group(A1_GROUP_WORLD); 
+
+        }
+        
+      }
 
    }
 
-   A1_GlobalBarrier();
+   A1_Release_segments(A1_GROUP_WORLD, (void *) buffer[rank]);
+   A1_Free_segment((void *) buffer[rank]);
 
-   A1_Release_segments(A1_GROUP_WORLD, (void *) target[rank]); 
- 
    A1_Finalize();
 
    return 0;

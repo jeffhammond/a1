@@ -812,11 +812,20 @@ void control_init(DCMF_Control_Protocol protocol, DCMF_Network network) {
 * Creating memory region                      *
 **********************************************/
 void memregion_init(unsigned long long size) {
-  posix_memalign((void **) &window, 16, size);
+
+  DCMF_Result result = DCMF_SUCCESS;
+  size_t out, status = 0;
+
+  status = posix_memalign((void **) &window, 16, size);
+  if(status !=0) 
+  {
+     printf("Memory region allocation failed. Test cannot proceed \n");
+     exit(-1);
+  }   
+
   memregion = (DCMF_Memregion_t **) malloc (sizeof(DCMF_Memregion_t*)*nranks);
   memregion[myrank] = (DCMF_Memregion_t *) malloc (sizeof(DCMF_Memregion_t));
-  DCMF_Result result;
-  size_t out;
+
   result = DCMF_Memregion_create (memregion[myrank], &out,
                  size, window, 0);
   if(result != DCMF_SUCCESS || out != size) {
@@ -824,7 +833,9 @@ void memregion_init(unsigned long long size) {
                  and size %d \n", myrank, result, out);
      fflush(stdout);
   }
+
   memregion_xchange();
+
 }
 
 /**********************************************
