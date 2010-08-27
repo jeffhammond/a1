@@ -50,39 +50,36 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <mpi.h>
-#include <armci.h>
+#include <a1.h>
 
 #define MAX_XDIM 1024 
 #define MAX_YDIM 1024
-#define ITERATIONS 10
-#define SKIP 1
+#define ITERATIONS 100
+#define SKIP 10
 
-int main(int argc, char **argv) {
+int main() {
 
-   int i, j, rank, nranks, msgsize, peer;
+   size_t i, j, rank, nranks, msgsize, peer;
    size_t xdim, ydim;
    unsigned long bufsize;
    double **buffer;
    double t_start, t_stop, t_latency;
    int count[2], src_stride, trg_stride, stride_level;
    double scaling;
-   int provided;
-
-   MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
-
-   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-   MPI_Comm_size(MPI_COMM_WORLD, &nranks);
-
-   ARMCI_Init_args(&argc, &argv);
    
+   A1_Initialize(A1_THREAD_SINGLE); 
+
+   rank = A1_Process_id(A1_GROUP_WORLD); 
+   nranks = A1_Process_total(A1_GROUP_WORLD);
+
    buffer = (double **) malloc (sizeof(int32_t *) * nranks); 
 
    bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
-   ARMCI_Malloc((void **) buffer, bufsize);
+   A1_Alloc_segment((void **) &(buffer[rank]), bufsize);
+   A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
    if(rank == 0) {
-     printf("ARMCI_PutAccS Latency - local and remote completions - in usec \n");
+     printf("A1_PutAccS Latency - local and remote completions - in usec \n");
      printf("%30s %22s %22s\n", "Dimensions(array of double)", "Local Completion", "Remote completion");
      fflush(stdout);
    }
@@ -96,7 +93,13 @@ int main(int argc, char **argv) {
    trg_stride = MAX_YDIM*sizeof(double);
    stride_level = 1;
 
-   MPI_Barrier(MPI_COMM_WORLD);
+   printf("[%d] Before barrier \n", rank);
+   fflush(stdout);
+
+   A1_Barrier_group(A1_GROUP_WORLD);
+
+   printf("[%d] After barrier \n", rank);
+   fflush(stdout);
 
    for(xdim=1; xdim<=MAX_XDIM; xdim*=2) {
 
@@ -113,49 +116,51 @@ int main(int argc, char **argv) {
             for(i=0; i<ITERATIONS+SKIP; i++) { 
  
                if(i == SKIP)
-                   t_start = MPI_Wtime();              
+                   t_start = A1_Time_seconds();              
+
+               A1_PutAccS(1, stride_level, count, (void *) buffer[rank], &src_stride, 
+                         (void *) buffer[peer], &trg_stride, 
+                         A1_DOUBLE, (void *) &scaling);
+                
  
-               ARMCI_AccS(ARMCI_ACC_DBL, (void *) &scaling, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride, 
-                        count, stride_level, 1); 
-
-
             }
-            t_stop = MPI_Wtime();
-            ARMCI_Fence(1);
+            t_stop = A1_Time_seconds();
+            A1_Flush(1);
 
             char temp[10]; 
             sprintf(temp,"%dX%d", xdim, ydim);
             printf("%30s %20.2f ", temp, ((t_stop-t_start)*1000000)/ITERATIONS);
             fflush(stdout);
 
-            MPI_Barrier(MPI_COMM_WORLD);
+            A1_Barrier_group(A1_GROUP_WORLD);
 
-            MPI_Barrier(MPI_COMM_WORLD);
+            A1_Barrier_group(A1_GROUP_WORLD);
  
             for(i=0; i<ITERATIONS+SKIP; i++) {
  
                if(i == SKIP)
-                   t_start = MPI_Wtime();
+                   t_start = A1_Time_seconds();
 
-               ARMCI_AccS(ARMCI_ACC_DBL, (void *) &scaling, (void *) buffer[rank], &src_stride, (void *) buffer[peer], &trg_stride,
-                        count, stride_level, 1);  
-               ARMCI_Fence(1);
+               A1_PutAccS(1, stride_level, count, (void *) buffer[rank], &src_stride, 
+                         (void *) buffer[peer], &trg_stride,
+                         A1_DOUBLE, (void *) &scaling);  
+               A1_Flush(1);
  
             }
-            t_stop = MPI_Wtime();
+            t_stop = A1_Time_seconds();
             printf("%20.2f \n", ((t_stop-t_start)*1000000)/ITERATIONS);
             fflush(stdout);
 
-            MPI_Barrier(MPI_COMM_WORLD);
+            A1_Barrier_group(A1_GROUP_WORLD);
 
-            MPI_Barrier(MPI_COMM_WORLD);
+            A1_Barrier_group(A1_GROUP_WORLD);
       
         } else 
         {
 
             peer = 0;
 
-            MPI_Barrier(MPI_COMM_WORLD);
+            A1_Barrier_group(A1_GROUP_WORLD);
 
             for(i=0; i<xdim; i++)
             {
@@ -164,7 +169,7 @@ int main(int argc, char **argv) {
                    if(*(buffer[rank] + i*MAX_XDIM + j) != ((1.0 + rank) + scaling*(1.0 + peer)*(ITERATIONS+SKIP)))
                    {
                       printf("Data validation failed at X: %d Y: %d Expected : %f Actual : %f \n",
-                              i, j, ((1.0 + rank) + scaling*(1.0 + peer)), *(buffer[rank] + i*MAX_XDIM + j));
+                              i, j, ((1.0 + rank) + scaling*(1.0 + peer)), *(buffer[rank] + i*MAX_YDIM + j));
                       fflush(stdout);
                       return -1;
                     }
@@ -175,9 +180,9 @@ int main(int argc, char **argv) {
                 *(buffer[rank] + i) = 1.0 + rank;
             }
 
-            MPI_Barrier(MPI_COMM_WORLD);
+            A1_Barrier_group(A1_GROUP_WORLD);
 
-            MPI_Barrier(MPI_COMM_WORLD);
+            A1_Barrier_group(A1_GROUP_WORLD);
 
             for(i=0; i<xdim; i++)
             {
@@ -186,7 +191,7 @@ int main(int argc, char **argv) {
                    if(*(buffer[rank] + i*MAX_XDIM + j) != ((1.0 + rank) + scaling*(1.0 + peer)*(ITERATIONS+SKIP)))
                    {
                       printf("Data validation failed at X: %d Y: %d Expected : %f Actual : %f \n",
-                              i, j, ((1.0 + rank) + scaling*(1.0 + peer)), *(buffer[rank] + i*MAX_XDIM + j));
+                              i, j, ((1.0 + rank) + scaling*(1.0 + peer)), *(buffer[rank] + i*MAX_YDIM + j));
                       fflush(stdout);
                       return -1;
                     }
@@ -197,7 +202,7 @@ int main(int argc, char **argv) {
                 *(buffer[rank] + i) = 1.0 + rank;
             }
 
-            MPI_Barrier(MPI_COMM_WORLD);
+            A1_Barrier_group(A1_GROUP_WORLD);
 
         }
  
@@ -205,13 +210,12 @@ int main(int argc, char **argv) {
 
    }
 
-   MPI_Barrier(MPI_COMM_WORLD);
+   A1_Barrier_group(A1_GROUP_WORLD);
 
-   ARMCI_Free((void *) buffer[rank]); 
+   A1_Release_segments(A1_GROUP_WORLD, (void *) buffer[rank]); 
+   A1_Free_segment((void *) buffer[rank]); 
  
-   ARMCI_Finalize();
-
-   MPI_Finalize();
+   A1_Finalize();
 
    return 0;
 }
