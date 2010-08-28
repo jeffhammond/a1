@@ -12,15 +12,66 @@ void A1DI_RecvDone_putacc_callback(void *clientdata, DCMF_Error_t *error)
 {
     int status = A1_SUCCESS;
 
-    A1D_Request_t *a1d_request =
-            (A1D_Request_t *) clientdata;
+    A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
+    A1D_Putacc_header_t *header = 
+                     (A1D_Putacc_header_t *) a1d_request->buffer_ptr;   
+    void* source_ptr = (void *) ((size_t) a1d_request->buffer_ptr
+                     + sizeof(A1D_Putacc_header_t));
+    int data_size =  a1d_request->buffer_size 
+                     - sizeof(A1D_Putacc_header_t);
 
-    status = A1D_Acc_process((void *) ((size_t) a1d_request->buffer_ptr 
-                                      + sizeof(A1D_Putacc_header_t)),
-                             a1d_request->buffer_size - sizeof(A1D_Putacc_header_t),
-                             (A1D_Putacc_header_t *) a1d_request->buffer_ptr);
-    A1U_ERR_ABORT(status,
-                  "A1D_Acc_process failed in A1DI_RecvDone_putacc_callback\n");
+    likely_if(header->datatype == A1_DOUBLE) 
+    {
+       A1DI_ACC_EXECUTE(double,
+                        source_ptr,
+                        header->target_ptr,
+                        (header->scaling).double_value,
+                        data_size/sizeof(double));
+    }
+    else
+    {
+       switch (header->datatype)
+       {
+       case A1_INT32:
+            A1DI_ACC_EXECUTE(int32_t,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).int32_value,
+                            data_size / sizeof(int32_t));
+           break;
+       case A1_INT64:
+           A1DI_ACC_EXECUTE(int64_t,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).int64_value,
+                            data_size / sizeof(int64_t));
+           break;
+       case A1_UINT32:
+           A1DI_ACC_EXECUTE(uint32_t,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).uint32_value,
+                            data_size / sizeof(uint32_t));
+           break;
+       case A1_UINT64:
+           A1DI_ACC_EXECUTE(uint64_t,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).uint64_value,
+                            data_size / sizeof(uint64_t));
+           break;
+       case A1_FLOAT:
+           A1DI_ACC_EXECUTE(float,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).float_value,
+                            data_size / sizeof(float));
+           break;
+       default:
+           A1U_ERR_ABORT(status, "Invalid datatype received in Putacc operation \n");
+           break;
+       }
+    }
 
     A1DI_Release_request(a1d_request); 
 }
@@ -71,16 +122,62 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
                                         size_t bytes)
 {
     int status = A1_SUCCESS;
-    A1D_Putacc_header_t *header;
-  
-    header = (A1D_Putacc_header_t *) msginfo;
+    A1D_Putacc_header_t *header = 
+              (A1D_Putacc_header_t *) msginfo;   
+    void* source_ptr = (void *) src;
 
-    status = A1D_Acc_process((void *) src,
-                             bytes,
-                             header);
-    A1U_ERR_ABORT(status,
-                  "A1D_Acc_process failed in A1DI_RecvSendShort_putacc_callback\n");
-
+    likely_if(header->datatype == A1_DOUBLE) 
+    {
+       A1DI_ACC_EXECUTE(double,
+                        source_ptr,
+                        header->target_ptr,
+                        (header->scaling).double_value,
+                        bytes/sizeof(double));
+    }
+    else
+    {
+       switch (header->datatype)
+       {
+       case A1_INT32:
+            A1DI_ACC_EXECUTE(int32_t,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).int32_value,
+                            bytes / sizeof(int32_t));
+           break;
+       case A1_INT64:
+           A1DI_ACC_EXECUTE(int64_t,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).int64_value,
+                            bytes / sizeof(int64_t));
+           break;
+       case A1_UINT32:
+           A1DI_ACC_EXECUTE(uint32_t,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).uint32_value,
+                            bytes / sizeof(uint32_t));
+           break;
+       case A1_UINT64:
+           A1DI_ACC_EXECUTE(uint64_t,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).uint64_value,
+                            bytes / sizeof(uint64_t));
+           break;
+       case A1_FLOAT:
+           A1DI_ACC_EXECUTE(float,
+                            source_ptr,
+                            header->target_ptr,
+                            (header->scaling).float_value,
+                            bytes/sizeof(float));
+           break;
+       default:
+           A1U_ERR_ABORT(status, "Invalid datatype received in Putacc operation \n");
+           break;
+       }
+    }
 }
 
 int A1DI_Putacc_initialize()
@@ -107,73 +204,6 @@ int A1DI_Putacc_initialize()
     return status;
 
   fn_fail:
-    goto fn_exit;
-}
-
-int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header)
-{
-    int status = A1_SUCCESS;
-
-    A1U_FUNC_ENTER();
-
-    likely_if(header->datatype == A1_DOUBLE) 
-    {
-       A1DI_ACC_EXECUTE(double,
-                        src,
-                        header->target_ptr,
-                        (header->scaling).double_value,
-                        bytes/sizeof(double));
-    }
-    else
-    {
-       switch (header->datatype)
-       {
-       case A1_INT32:
-            A1DI_ACC_EXECUTE(int32_t,
-                            src,
-                            header->target_ptr,
-                            (header->scaling).int32_value,
-                            bytes / sizeof(int32_t));
-           break;
-       case A1_INT64:
-           A1DI_ACC_EXECUTE(int64_t,
-                            src,
-                            header->target_ptr,
-                            (header->scaling).int64_value,
-                            bytes / sizeof(int64_t));
-           break;
-       case A1_UINT32:
-           A1DI_ACC_EXECUTE(uint32_t,
-                            src,
-                            header->target_ptr,
-                            (header->scaling).uint32_value,
-                            bytes / sizeof(uint32_t));
-           break;
-       case A1_UINT64:
-           A1DI_ACC_EXECUTE(uint64_t,
-                            src,
-                            header->target_ptr,
-                            (header->scaling).uint64_value,
-                            bytes / sizeof(uint64_t));
-           break;
-       case A1_FLOAT:
-           A1DI_ACC_EXECUTE(float,
-                            src,
-                            header->target_ptr,
-                            (header->scaling).float_value,
-                            bytes/sizeof(float));
-           break;
-       default:
-           A1U_ERR_POP(status, "Invalid datatype received in Putacc operation \n");
-           break;
-       }
-    }
-
-  fn_exit:
-    A1U_FUNC_EXIT();
-    return status;
-
-  fn_fail: 
     goto fn_exit;
 }
 

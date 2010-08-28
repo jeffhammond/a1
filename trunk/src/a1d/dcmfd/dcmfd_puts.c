@@ -10,20 +10,17 @@ DCMF_Protocol_t A1D_Packed_puts_protocol;
 
 void A1DI_RecvDone_packedputs_callback(void *clientdata, DCMF_Error_t *error)
 {
-    A1D_Packed_puts_header_t *header;
     A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
     A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
-    void *packet_ptr = a1d_buffer->buffer_ptr;
+    A1D_Packed_puts_header_t *header = (A1D_Packed_puts_header_t *) a1d_buffer->buffer_ptr;
 
-    header = (A1D_Packed_puts_header_t *) packet_ptr;
-
-    A1DI_Unpack_strided_buffer((void *) ((size_t)packet_ptr + sizeof(A1D_Packed_puts_header_t)),
-                               header->data_size,
-                               header->stride_level,
-                               header->block_sizes,
-                               header->target_ptr,
-                               header->trg_stride_ar,
-                               header->block_idx);
+    A1DI_Unpack_strided((void *) ((size_t)a1d_buffer->buffer_ptr + sizeof(A1D_Packed_puts_header_t)),
+                        header->data_size,
+                        header->stride_level,
+                        header->block_sizes,
+                        header->target_ptr,
+                        header->trg_stride_ar,
+                        header->block_idx);
 
     A1DI_Release_request(a1d_request);
 }
@@ -43,7 +40,7 @@ DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
 
     a1d_request = A1DI_Get_request();
     A1U_ERR_ABORT(status = (a1d_request == NULL),
-                "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputaccs_callback.\n");
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputs_callback.\n");
 
     a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize_limit);
 
@@ -71,13 +68,13 @@ void A1DI_RecvSendShort_packedputs_callback(void *clientdata,
 
     header = (A1D_Packed_puts_header_t *) packet_ptr;
 
-    A1DI_Unpack_strided_buffer((void *) ((size_t)packet_ptr + sizeof(A1D_Packed_puts_header_t)),
-                               header->data_size,
-                               header->stride_level,
-                               header->block_sizes,
-                               header->target_ptr,
-                               header->trg_stride_ar,
-                               header->block_idx);
+    A1DI_Unpack_strided((void *) ((size_t)packet_ptr + sizeof(A1D_Packed_puts_header_t)),
+                        header->data_size,
+                        header->stride_level,
+                        header->block_sizes,
+                        header->target_ptr,
+                        header->trg_stride_ar,
+                        header->block_idx);
 }
 
 int A1DI_Packed_puts_initialize()
@@ -120,11 +117,11 @@ int A1DI_Packed_puts(int target,
     DCMF_Callback_t done_callback;
     A1D_Request_t *a1d_request;
     A1D_Buffer_t *a1d_buffer;
+    A1D_Packed_puts_header_t header;
     void *packet_ptr, *data_ptr;
     int packet_size, data_size, data_limit;
     int block_idx[A1C_MAX_STRIDED_DIM];
     int complete = 0;
-    A1D_Packed_puts_header_t header;
 
     A1U_FUNC_ENTER();
 
@@ -147,17 +144,17 @@ int A1DI_Packed_puts(int target,
        data_limit = a1_settings.put_packetsize_limit - sizeof(A1D_Packed_puts_header_t);
 
        /*The packing function can modify the source ptr, target ptr, and block index*/
-       A1DI_Pack_strided_buffer(data_ptr,
-                                data_limit,
-                                stride_level,
-                                block_sizes,
-                                &source_ptr,
-                                src_stride_ar,
-                                &target_ptr,
-                                trg_stride_ar,
-                                block_idx,
-                                &data_size,
-                                &complete);      
+       A1DI_Pack_strided(data_ptr,
+                         data_limit,
+                         stride_level,
+                         block_sizes,
+                         &source_ptr,
+                         src_stride_ar,
+                         &target_ptr,
+                         trg_stride_ar,
+                         block_idx,
+                         &data_size,
+                         &complete);      
 
        /*Setting data size information in the header and copying it into the packet*/
        header.data_size = data_size;

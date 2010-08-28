@@ -11,8 +11,18 @@ DCMF_Protocol_t A1D_Packed_putaccs_protocol;
 void A1DI_RecvDone_packedputaccs_callback(void *clientdata, DCMF_Error_t *error)
 {
     A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
+    A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
+    A1D_Packed_putaccs_header_t *header = (A1D_Packed_putaccs_header_t *) a1d_buffer->buffer_ptr;
 
-    A1DI_Unpack_strided_putaccs(a1d_request->buffer_ptr);
+    A1DI_Unpack_strided_acc((void *) ((size_t) a1d_buffer->buffer_ptr + sizeof(A1D_Packed_putaccs_header_t)),
+                            header->data_size,
+                            header->stride_level,
+                            header->block_sizes,
+                            header->target_ptr,
+                            header->trg_stride_ar,
+                            header->block_idx,
+                            header->datatype,
+                            (void *) &(header->scaling));
 
     A1DI_Release_request(a1d_request);
 }
@@ -28,18 +38,18 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
 {
     int status = 0;
     A1D_Request_t *a1d_request;
+    A1D_Buffer_t *a1d_buffer;
 
     a1d_request = A1DI_Get_request();
     A1U_ERR_ABORT(status = (a1d_request == NULL),
                 "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputaccs_callback\n");
 
+    a1d_buffer = A1DI_Get_buffer(a1_settings.putacc_packetsize_limit);
+
     *rcvlen = sndlen;
-    status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), sndlen);
-    A1U_ERR_ABORT(status != 0,
-                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputaccs_callback\n");
+    *rcvbuf = a1d_buffer->buffer_ptr;
 
-    *rcvbuf = (char *) a1d_request->buffer_ptr;
-
+    a1d_request->a1d_buffer_ptr = a1d_buffer;
     cb_done->function = A1DI_RecvDone_packedputaccs_callback;
     cb_done->clientdata = (void *) a1d_request;
 
@@ -53,7 +63,20 @@ void A1DI_RecvSendShort_packedputaccs_callback(void *clientdata,
                                                const char *src,
                                                size_t bytes)
 {
-    A1DI_Unpack_strided_putaccs((void *) src);
+    A1D_Packed_putaccs_header_t *header;
+    void *packet_ptr = (void *) src;
+
+    header = (A1D_Packed_putaccs_header_t *) packet_ptr;
+
+    A1DI_Unpack_strided_acc((void *) ((size_t)packet_ptr + sizeof(A1D_Packed_putaccs_header_t)),
+                            header->data_size,
+                            header->stride_level,
+                            header->block_sizes,
+                            header->target_ptr,
+                            header->trg_stride_ar,
+                            header->block_idx,
+                            header->datatype,
+                            (void *) &(header->scaling));
 }
 
 int A1DI_Packed_putaccs_initialize()
@@ -96,50 +119,104 @@ int A1DI_Packed_putaccs(int target,
     int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
     A1D_Request_t *a1d_request;
-    void *packet;
-    int size_packet;
+    A1D_Buffer_t *a1d_buffer;
+    A1D_Packed_putaccs_header_t header;
+    void *packet_ptr, *data_ptr;
+    int packet_size, data_size, data_limit;
+    int block_idx[A1C_MAX_STRIDED_DIM];
+    int complete = 0;
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Pack_strided_putaccs(&packet,
-                                       &size_packet,
-                                       stride_level,
-                                       block_sizes,
-                                       source_ptr,
-                                       src_stride_ar,
-                                       target_ptr,
-                                       trg_stride_ar,
-                                       a1_type,
-                                       scaling);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-                "A1DI_Packed_putaccs function returned with an error \n");
+    A1DI_Memset(block_idx, 0, (stride_level + 1) * sizeof(int));
 
-    a1d_request = A1DI_Get_request();
-    A1U_ERR_POP(status = (a1d_request == NULL),
-            "A1DI_Get_request returned error\n");
-    A1DI_Set_handle(a1d_request, a1d_handle);
+    header.stride_level = stride_level;
+    memcpy(header.trg_stride_ar, trg_stride_ar, stride_level * sizeof(uint32_t));
+    memcpy(header.block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
+    header.datatype = a1_type;
+    likely_if(a1_type == A1_DOUBLE)
+    {
+        memcpy((void *) &(header.scaling), scaling, sizeof(double));
+    }
+    else
+    {
+        switch (a1_type)
+        {
+        case A1_INT32:
+            memcpy((void *) &(header.scaling), scaling, sizeof(int32_t));
+            break;
+        case A1_INT64:
+            memcpy((void *) &(header.scaling), scaling, sizeof(int64_t));
+            break;
+        case A1_UINT32:
+            memcpy((void *) &(header.scaling), scaling, sizeof(uint32_t));
+            break;
+        case A1_UINT64:
+            memcpy((void *) &(header.scaling), scaling, sizeof(uint64_t));
+            break;
+        case A1_FLOAT:
+            memcpy((void *) &(header.scaling), scaling, sizeof(float));
+            break;
+        default:
+            A1U_ERR_POP(status, "Invalid a1_type received in Putacc operation \n");
+            break;
+        }
+    }
 
-    done_callback.function = A1DI_Request_done;
-    done_callback.clientdata = (void *) a1d_request;
+    while(!complete)
+    {
+       header.target_ptr = target_ptr;
+       A1DI_Memcpy(header.block_idx, block_idx, (stride_level + 1) * sizeof(int));
 
-    a1d_handle->active++;
+       /*Fetching buffer from the pool*/
+       a1d_buffer = A1DI_Get_buffer(a1_settings.putacc_packetsize_limit);
+       packet_ptr = a1d_buffer->buffer_ptr;
 
-    /* Assigning the packing buffer pointer in request so that it can be free when the
-     * request is complete, in the callback */
-    a1d_request->buffer_ptr = packet;
+       data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_putaccs_header_t));
+       data_limit = a1_settings.put_packetsize_limit - sizeof(A1D_Packed_putaccs_header_t);
 
-    status = DCMF_Send(&A1D_Packed_putaccs_protocol,
-                       &(a1d_request->request),
-                       done_callback,
-                       DCMF_SEQUENTIAL_CONSISTENCY,
-                       target,
-                       size_packet,
-                       packet,
-                       NULL,
-                       0);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "Send returned with an error \n");
+       /*The packing function can modify the source ptr, target ptr, and block index*/
+       A1DI_Pack_strided(data_ptr,
+                         data_limit,
+                         stride_level,
+                         block_sizes,
+                         &source_ptr,
+                         src_stride_ar,
+                         &target_ptr,
+                         trg_stride_ar,
+                         block_idx,
+                         &data_size,
+                         &complete);
 
-    A1D_Connection_send_active[target]++;
+       /*Setting data size information in the header and copying it into the packet*/
+       header.data_size = data_size;
+       A1DI_Memcpy((void *) packet_ptr, (void *) &header, sizeof(A1D_Packed_putaccs_header_t));
+
+       packet_size = data_size + sizeof(A1D_Packed_puts_header_t);
+
+       a1d_request = A1DI_Get_request();
+       A1U_ERR_POP(status = (a1d_request == NULL),
+              "A1DI_Get_request returned error\n");
+       A1DI_Set_handle(a1d_request, a1d_handle);
+       a1d_handle->active++;
+       a1d_request->buffer_ptr = packet_ptr;
+
+       done_callback.function = A1DI_Request_done;
+       done_callback.clientdata = (void *) a1d_request;
+
+       status = DCMF_Send(&A1D_Packed_putaccs_protocol,
+                          &(a1d_request->request),
+                          done_callback,
+                          DCMF_SEQUENTIAL_CONSISTENCY,
+                          target,
+                          packet_size,
+                          packet_ptr,
+                          NULL,
+                          0);
+       A1U_ERR_POP(status != DCMF_SUCCESS, "Send returned with an error \n");
+
+       A1D_Connection_send_active[target]++;
+    }
 
   fn_exit: 
     A1U_FUNC_EXIT();

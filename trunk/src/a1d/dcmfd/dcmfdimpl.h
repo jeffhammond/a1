@@ -284,6 +284,8 @@ typedef struct
     int block_sizes[A1C_MAX_STRIDED_DIM];
     void *target_ptr;
     int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
+    int block_idx[A1C_MAX_STRIDED_DIM];
+    int data_size;
     A1_datatype_t datatype;
     union
     {
@@ -468,69 +470,25 @@ int A1DI_Read_parameters();
 
 int A1DI_Send_flush(int proc);
 
-int A1DI_Pack_strided(void **packet,
-                      int *size_packet,
-                      int stride_level,
-                      int *block_sizes,
-                      void *source_ptr,
-                      int *src_stride_ar,
-                      void *target_ptr,
-                      int *trg_stride_ar);
-
-int A1DI_Pack_strided_putaccs(void **packet,
-                              int *size_packet,
-                              int stride_level,
-                              int *block_sizes,
-                              void *source_ptr,
-                              int *src_stride_ar,
-                              void *target_ptr,
-                              int *trg_stride_ar,
-                              A1_datatype_t a1_type,
-                              void *scaling);
-
-void* A1DI_Pack_data_strided(void *pointer,
-                             int stride_level,
-                             int *block_sizes,
-                             void *source_ptr,
-                             int *src_stride_ar);
-
-int A1DI_Unpack_strided(void *packet);
-
-int A1DI_Unpack_strided_putaccs(void *packet);
-
-void* A1DI_Unpack_data_strided(void *pointer,
-                               int stride_level,
-                               int *block_sizes,
-                               void *trg_ptr,
-                               int *trg_stride_ar);
-
-void* A1DI_Unpack_data_strided_acc(void *pointer,
-                                   int stride_level,
-                                   int *block_sizes,
-                                   void *trg_ptr,
-                                   int *trg_stride_ar,
-                                   A1_datatype_t a1_type,
-                                   void* scaling);
-
 int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header);
 
-int A1DI_Pack_strided_buffer(void *packet_ptr,
-                             int packet_limit,
-                             int stride_level,
-                             int *block_sizes,
-                             void **source_ptr,
-                             int *src_stride_ar,
-                             void **target_ptr,
-                             int *trg_stride_ar,
-                             int *block_idx,
-                             int *data_size,
-                             int *complete);
+int A1DI_Pack_strided(void *packet_ptr,
+                      int packet_limit,
+                      int stride_level,
+                      int *block_sizes,
+                      void **source_ptr,
+                      int *src_stride_ar,
+                      void **target_ptr,
+                      int *trg_stride_ar,
+                      int *block_idx,
+                      int *data_size,
+                      int *complete);
 
-int A1DI_Unpack_strided_buffer(void *packet_ptr,
-                               int data_size,
-                               int stride_level,
-                               int *block_sizes,
-                               void *target_ptr,
-                               int *trg_stride_ar,
-                               int *block_idx);
+int A1DI_Unpack_strided(void *packet_ptr,
+                        int data_size,
+                        int stride_level,
+                        int *block_sizes,
+                        void *target_ptr,
+                        int *trg_stride_ar,
+                        int *block_idx);
 
