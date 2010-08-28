@@ -134,6 +134,7 @@ int A1DI_Put_flush_initialize()
     status = A1DI_Malloc_aligned((void **) &A1D_Put_Flushcounter_ptr,
                                  sizeof(void *) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
+
     status = A1DI_Malloc_aligned((void **) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
                                   2);
     A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");

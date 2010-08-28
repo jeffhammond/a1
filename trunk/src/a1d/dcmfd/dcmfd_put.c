@@ -102,7 +102,7 @@ int A1D_NbPut(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    a1d_request = A1DI_Get_request();
+    a1d_request = A1DI_Get_request(1);
     A1U_ERR_POP(status = (a1d_request == NULL), "A1DI_Get_request returned error \n");
     A1DI_Set_handle(a1d_request, a1d_handle);
 

@@ -19,9 +19,7 @@ void A1DI_Generic_done(void *clientdata, DCMF_Error_t *error)
 
 void A1DI_Request_done(void *clientdata, DCMF_Error_t *error)
 {
-    A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
-
-    A1DI_Release_request(a1d_request);
+    A1DI_Release_request((A1D_Request_t *) clientdata);
 }
 
 /*************************************************************

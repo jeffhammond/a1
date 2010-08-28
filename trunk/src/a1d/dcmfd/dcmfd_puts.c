@@ -40,11 +40,11 @@ DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
     A1D_Request_t *a1d_request;
     A1D_Buffer_t *a1d_buffer;
 
-    a1d_request = A1DI_Get_request();
+    a1d_request = A1DI_Get_request(0);
     A1U_ERR_ABORT(status = (a1d_request == NULL),
                   "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputs_callback.\n");
 
-    a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize_limit);
+    a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize_limit, 0);
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr;
@@ -140,7 +140,7 @@ int A1DI_Packed_puts(int target,
                 * sizeof(int));
 
         /*Fetching buffer from the pool*/
-        a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize_limit);
+        a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize_limit, 1);
         packet_ptr = a1d_buffer->buffer_ptr;
 
         data_ptr = (void *) ((size_t) packet_ptr
@@ -170,7 +170,7 @@ int A1DI_Packed_puts(int target,
         packet_size = data_size + sizeof(A1D_Packed_puts_header_t);
 
         /*Fetching request from the pool*/
-        a1d_request = A1DI_Get_request();
+        a1d_request = A1DI_Get_request(1);
         A1U_ERR_POP(status = (a1d_request == NULL),
                     "A1DI_Get_request returned error.\n");
         A1DI_Set_handle(a1d_request, a1d_handle);
@@ -236,7 +236,7 @@ int A1DI_Direct_puts(int target,
         src_disp = (size_t) source_ptr - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
         dst_disp = (size_t) target_ptr - (size_t) A1D_Membase_global[target];
 
-        a1d_request = A1DI_Get_request();
+        a1d_request = A1DI_Get_request(1);
         A1U_ERR_POP(status = (a1d_request == NULL),
                     "A1DI_Get_request returned error.\n");
         A1DI_Set_handle(a1d_request, a1d_handle);
@@ -342,7 +342,7 @@ int A1DI_Recursive_puts(int target,
                 - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
         dst_disp = (size_t) target_ptr - (size_t) A1D_Membase_global[target];
 
-        a1d_request = A1DI_Get_request();
+        a1d_request = A1DI_Get_request(1);
         A1U_ERR_POP(status = (a1d_request == NULL),
                     "A1DI_Get_request returned error.\n");
         A1DI_Set_handle(a1d_request, a1d_handle);

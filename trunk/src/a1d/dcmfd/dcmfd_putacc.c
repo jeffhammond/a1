@@ -88,7 +88,7 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
     int status = 0;
     A1D_Request_t *a1d_request;
 
-    a1d_request = A1DI_Get_request();
+    a1d_request = A1DI_Get_request(0);
     A1U_ERR_ABORT(status = (a1d_request == NULL),
                 "A1DI_Get_request returned NULL in A1DI_RecvSend_putacc_callback\n");
 
@@ -306,7 +306,7 @@ int A1D_NbPutAcc(int target,
 
     a1d_handle->active++;
 
-    a1d_request = A1DI_Get_request();
+    a1d_request = A1DI_Get_request(1);
     A1U_ERR_POP(a1d_request != NULL,
                 "A1DI_Get_request returned error\n");
     A1DI_Set_handle(a1d_request, a1d_handle);

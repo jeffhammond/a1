@@ -50,8 +50,8 @@
  * Acc packets. */
 #define A1C_NUM_BUF_SIZES 2
 
-#define A1C_PUTGET_BUFFERPOOL_LIMIT 100;
-#define A1C_PUTACC_BUFFERPOOL_LIMIT 100;
+#define A1C_PUTGET_BUFFERPOOL_LIMIT 300;
+#define A1C_PUTACC_BUFFERPOOL_LIMIT 300;
 
 #define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
 #define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
@@ -339,6 +339,7 @@ typedef struct A1D_Handle_pool_t
 typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
+    int in_pool;
     void* buffer_ptr;
     A1D_Buffer_t *a1d_buffer_ptr;
     uint32_t buffer_size;
@@ -430,15 +431,15 @@ int A1DI_Request_pool_initialize();
 
 void A1DI_Request_pool_finalize();
 
-A1D_Request_t* A1DI_Get_request();
+A1D_Request_t* A1DI_Get_request(int);
 
 void A1DI_Release_request(A1D_Request_t *);
 
 int A1DI_Buffer_pool_initialize();
 
-int A1DI_Buffer_pool_finalize();
+void A1DI_Buffer_pool_finalize();
 
-A1D_Buffer_t* A1DI_Get_buffer(int);
+A1D_Buffer_t* A1DI_Get_buffer(int, int);
 
 void A1DI_Release_buffer(A1D_Buffer_t *);
 
@@ -469,8 +470,6 @@ int A1DI_GlobalBarrier();
 int A1DI_Read_parameters();
 
 int A1DI_Send_flush(int proc);
-
-int A1D_Acc_process(void *src, int bytes, A1D_Putacc_header_t *header);
 
 int A1DI_Pack_strided(void *packet_ptr,
                       int packet_limit,

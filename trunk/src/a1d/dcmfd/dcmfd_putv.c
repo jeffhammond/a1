@@ -29,7 +29,7 @@ int A1DI_Direct_putv(int target,
                    - (size_t) A1D_Membase_global[target];
            size = iov_ar[i].size;
 
-           a1d_request = A1DI_Get_request();
+           a1d_request = A1DI_Get_request(1);
            A1U_ERR_POP(status = (a1d_request == NULL),
                "A1DI_Get_request returned error. \n");
            A1DI_Set_handle(a1d_request, a1d_handle);

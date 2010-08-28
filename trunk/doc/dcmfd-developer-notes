@@ -46,12 +46,14 @@ done - Use enable_cht as the option name for CHT
 done - Modify locking macros to switch between Bgp_Atomics for CHT (THREAD_SINGLE) and DCMF_CS for Interrupts. 
 done - Evaluate lock contention using bgp_atomics and see if contention varies with the processor assignment for
        CHT
+done -  Implement shared counters using atomics.
+        Note: Atomics not required, more testing is required
+done - Implement Vector operations - over simple Put/Get/Accumulate
+- Implement operation hand-off for non-contiguous ops. Is it required regular ops for flow control?
+- Handle same-process copies using memcpy at the ADL layer.
 - Evaluate memory contention with CHT core-assignment
 - Verify functionality of Non-blocking operations and evaluate bandwidth performance.
 - Make cht/interrupts a configure time option. 
-done -  Implement shared counters using atomics. 
-        Note: Atomics not required, more testing is required
 - Optimize accumulate operations using all the floating point registers in double hummer (Kaz' suggestion)
 - Add logic for a scale-free flush design.
-done - Implement Vector operations - over simple Put/Get/Accumulate 
 - Implement AllReduce and Reduce using DCMF collectives

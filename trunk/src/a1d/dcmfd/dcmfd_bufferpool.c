@@ -8,7 +8,7 @@
 
 A1D_Buffer_pool_t A1D_Buffer_pool;
 
-A1D_Buffer_t* A1DI_Get_buffer(int size)
+A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
 {
     A1D_Buffer_t *a1d_buffer = NULL;
     int index;
@@ -23,11 +23,23 @@ A1D_Buffer_t* A1DI_Get_buffer(int size)
            {
               a1d_buffer = A1D_Buffer_pool.pool_heads[index];
               A1D_Buffer_pool.pool_heads[index] = A1D_Buffer_pool.pool_heads[index]->next; 
+              a1d_buffer->pool_index = index;
               return a1d_buffer;
             } 
          }
-  
-         A1DI_Advance();
+ 
+         if(wait_and_advance) 
+         {
+             A1DI_Advance();
+         }
+         else
+         {
+              void* new_buffer;
+              A1DI_Malloc_aligned((void **) &new_buffer, sizeof(A1D_Buffer_t) + size);
+              a1d_buffer = (A1D_Buffer_t *) new_buffer;
+              a1d_buffer->buffer_ptr = (void *) ((size_t) new_buffer + sizeof(A1D_Buffer_t));
+              a1d_buffer->pool_index = -1;
+         }
       
      } while(a1d_buffer == NULL);	
 
@@ -43,8 +55,15 @@ void A1DI_Release_buffer(A1D_Buffer_t *a1d_buffer)
 {
     A1U_FUNC_ENTER();
 
-    a1d_buffer->next = A1D_Buffer_pool.pool_heads[a1d_buffer->pool_index];
-    A1D_Buffer_pool.pool_heads[a1d_buffer->pool_index] = a1d_buffer;
+    if(a1d_buffer->pool_index == -1) 
+    {
+       A1DI_Free(a1d_buffer);
+    }
+    else
+    {
+       a1d_buffer->next = A1D_Buffer_pool.pool_heads[a1d_buffer->pool_index];
+       A1D_Buffer_pool.pool_heads[a1d_buffer->pool_index] = a1d_buffer;
+    }
 
   fn_exit:
     A1U_FUNC_EXIT();

@@ -99,13 +99,7 @@ int main()
     trg_stride = MAX_YDIM * sizeof(double);
     stride_level = 1;
 
-    printf("[%d] Before barrier \n", rank);
-    fflush(stdout);
-
     A1_Barrier_group(A1_GROUP_WORLD);
-
-    printf("[%d] After barrier \n", rank);
-    fflush(stdout);
 
     for (xdim = 1; xdim <= MAX_XDIM; xdim *= 2)
     {
