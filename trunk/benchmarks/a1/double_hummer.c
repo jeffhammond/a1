@@ -61,7 +61,8 @@ int main(int argc, char **argv)
     }
     t_stop = getticks();
 
-    printf("Time (in msec) with double hummmer: %llu target: %f\n", t_stop - t_start, target[0]);
+    printf("Time (in msec) with double hummmer: %llu target: %f\n", t_stop
+            - t_start, target[0]);
     fflush(stdout);
 
     for (i = 0; i < SIZE; i++)
@@ -76,7 +77,8 @@ int main(int argc, char **argv)
     }
     t_stop = getticks();
 
-    printf("Time (in msec) with regular arithmetic: %llu target: %f\n", t_stop - t_start, target[0]);
+    printf("Time (in msec) with regular arithmetic: %llu target: %f\n", t_stop
+            - t_start, target[0]);
     fflush(stdout);
 
     return 0;
