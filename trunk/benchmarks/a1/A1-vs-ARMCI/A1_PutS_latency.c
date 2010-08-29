@@ -77,7 +77,7 @@ int main() {
    A1_Barrier_group(A1_GROUP_WORLD);
 
    bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
-   A1_Alloc_segment((void *) &(buffer[rank]), bufsize);
+   A1_Alloc_segment((void **) &(buffer[rank]), bufsize);
    A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
    for(i=0; i< bufsize/sizeof(double); i++) {

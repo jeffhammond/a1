@@ -114,7 +114,6 @@ int main()
 
             for (i = 0; i < iterations; i++)
             {
-
                 A1_NbPutAcc(peer,
                             (void *) ((size_t) buffer[rank] + (size_t)(i
                                   * msgsize)),
@@ -124,8 +123,9 @@ int main()
                             A1_DOUBLE,
                             (void *) &scaling,
                             a1_handle);
-
             }
+
+            A1_Wait_handle(a1_handle);
 
             t_stop = A1_Time_seconds();
             d_total = (iterations * msgsize) / (1024 * 1024);

@@ -142,6 +142,12 @@ int A1DI_Read_parameters()
         a1_settings.requestpool_size = atoi(value);
     }
 
+    a1_settings.use_handoff = A1C_USE_HANDOFF;
+    if ((value = getenv("A1_USE_HANDOFF")) != NULL)
+    {
+        a1_settings.use_handoff = atoi(value);
+    }
+
   fn_exit: 
     A1U_FUNC_EXIT();
     return result;

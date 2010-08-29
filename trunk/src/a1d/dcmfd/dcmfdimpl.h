@@ -46,6 +46,8 @@
 
 #define A1C_MAX_STRIDED_DIM 4
 
+#define A1C_USE_HANDOFF 0
+
 /* Currently we have two sizes of buffers to provide for Put/Get and
  * Acc packets. */
 #define A1C_NUM_BUF_SIZES 2
@@ -219,6 +221,7 @@ typedef struct
     volatile uint32_t alignment;
     volatile uint32_t handlepool_size;
     volatile uint32_t requestpool_size;
+    volatile uint32_t use_handoff;
 } A1_Settings_t;
 
 typedef struct
@@ -425,6 +428,8 @@ extern A1_Settings_t a1_settings;
  *             Function Prototypes               *
  ************************************************/
 
+void *A1DI_CHT_advance_lock(void *);
+
 void A1DI_Global_lock_acquire();
 
 void A1DI_Global_lock_release();
@@ -520,3 +525,54 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
                             A1_datatype_t a1_type,
                             void *scaling,
                             int *complete);
+
+/*****************************************************
+                 Packing Handoff
+*****************************************************/
+
+typedef enum
+{
+  A1D_Packed_puts = 0,
+  A1D_Packed_putaccs
+} A1D_Op_type;
+
+typedef struct
+{
+   int target;
+   int stride_level;
+   int *block_sizes;
+   void *source_ptr;
+   int *src_stride_ar;
+   void *target_ptr;
+   int *trg_stride_ar;
+   A1D_Handle_t *a1d_handle;
+} A1D_Puts_op;
+
+typedef struct
+{
+   int target;
+   int stride_level;
+   int *block_sizes;
+   void *source_ptr;
+   int *src_stride_ar;
+   void *target_ptr;
+   int *trg_stride_ar;
+   A1_datatype_t datatype;
+   void *scaling;
+   A1D_Handle_t *a1d_handle;
+} A1D_Putaccs_op;
+
+typedef struct A1D_Op_handoff
+{
+   A1D_Op_type op_type;
+   union
+   { 
+     A1D_Puts_op puts_op;
+     A1D_Putaccs_op putaccs_op;
+   } op;  
+   void *op_ptr;
+   struct A1D_Op_handoff *next;
+} A1D_Op_handoff;
+
+extern A1D_Op_handoff *A1D_Op_handoff_queuehead;
+extern A1D_Op_handoff *A1D_Op_handoff_queuetail;

@@ -307,8 +307,8 @@ int A1D_NbPutAcc(int target,
     a1d_handle->active++;
 
     a1d_request = A1DI_Get_request(1);
-    A1U_ERR_POP(a1d_request != NULL,
-                "A1DI_Get_request returned error\n");
+    A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned NULL request \n");
     A1DI_Set_handle(a1d_request, a1d_handle);
 
     done_callback.function = A1DI_Request_done;

@@ -116,8 +116,7 @@ int A1DI_Packed_putaccs(int target,
                         void* target_ptr,
                         int *trg_stride_ar,
                         A1_datatype_t a1_type,
-                        void *scaling,
-                        A1D_Handle_t *a1d_handle)
+                        void *scaling)
 {
 
     int status = A1_SUCCESS;
@@ -201,8 +200,6 @@ int A1DI_Packed_putaccs(int target,
        a1d_request = A1DI_Get_request(1);
        A1U_ERR_POP(status = (a1d_request == NULL),
               "A1DI_Get_request returned error\n");
-       A1DI_Set_handle(a1d_request, a1d_handle);
-       a1d_handle->active++;
        a1d_request->a1d_buffer_ptr = a1d_buffer;
 
        done_callback.function = A1DI_Request_done;
@@ -481,23 +478,19 @@ int A1D_PutAccS(int target,
                 void* scaling)
 {
     int status = A1_SUCCESS;
-    A1D_Handle_t *a1d_handle;
+    A1D_Handle_t *a1d_handle = NULL;
     int i, chunk_count = 1;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
-    a1d_handle = A1DI_Get_handle();
-    A1U_ERR_POP(status = (a1d_handle == NULL),
-                "A1DI_Get_handle returned NULL in A1D_PutAccS\n");
-
-    for(i=1; i<=stride_level; i++)
-        chunk_count = block_sizes[i]*chunk_count;
-
-    if (chunk_count <= a1_settings.putacc_packing_chunkcount_threshold ||
-             block_sizes[0] >= a1_settings.putacc_packing_chunksize_limit)
+    if (block_sizes[0] >= a1_settings.putacc_packing_chunksize_limit)
     {
+
+        a1d_handle = A1DI_Get_handle();
+        A1U_ERR_POP(status = (a1d_handle == NULL),
+                "A1DI_Get_handle returned NULL in A1D_PutAccS\n");
 
         status = A1DI_Direct_putaccs(target,
                                      stride_level,
@@ -527,8 +520,7 @@ int A1D_PutAccS(int target,
                                      target_ptr,
                                      trg_stride_ar,
                                      a1_type,
-                                     scaling,
-                                     a1d_handle);
+                                     scaling);
         A1U_ERR_POP(status, "Packed puts function returned with an error \n");
 
     }
@@ -563,11 +555,7 @@ int A1D_NbPutAccS(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    for(i=1; i<=stride_level; i++)
-        chunk_count = block_sizes[i]*chunk_count;
-
-    if (chunk_count <= a1_settings.putacc_packing_chunkcount_threshold ||
-             block_sizes[0] >= a1_settings.putacc_packing_chunksize_limit)
+    if (block_sizes[0] >= a1_settings.putacc_packing_chunksize_limit)
     {
 
         status = A1DI_Direct_putaccs(target,
@@ -586,17 +574,53 @@ int A1D_NbPutAccS(int target,
     else
     {
 
-        status = A1DI_Packed_putaccs(target,
-                                     stride_level,
-                                     block_sizes,
-                                     source_ptr,
-                                     src_stride_ar,
-                                     target_ptr,
-                                     trg_stride_ar,
-                                     a1_type,
-                                     scaling,
-                                     a1d_handle);
-        A1U_ERR_POP(status, "Packed puts function returned with an error \n");
+        if(a1_settings.use_handoff)
+        {
+           A1D_Op_handoff *op_handoff;
+           A1DI_Malloc_aligned((void **) &op_handoff, sizeof(A1D_Op_handoff));
+
+           op_handoff->op_type = A1D_Packed_putaccs; 
+           op_handoff->op.putaccs_op.target = target;
+           op_handoff->op.putaccs_op.stride_level = stride_level;
+           op_handoff->op.putaccs_op.block_sizes = block_sizes;
+           op_handoff->op.putaccs_op.source_ptr = source_ptr;
+           op_handoff->op.putaccs_op.src_stride_ar = src_stride_ar;
+           op_handoff->op.putaccs_op.target_ptr = target_ptr;
+           op_handoff->op.putaccs_op.trg_stride_ar = trg_stride_ar;
+           op_handoff->op.putaccs_op.datatype = a1_type;
+           op_handoff->op.putaccs_op.scaling = scaling;
+           op_handoff->op.putaccs_op.a1d_handle = a1d_handle;
+
+           a1d_handle->active++;
+
+           if(A1D_Op_handoff_queuetail == NULL)
+           {
+              A1D_Op_handoff_queuehead = op_handoff;
+              A1D_Op_handoff_queuetail = op_handoff;
+           }
+           else
+           {
+             A1D_Op_handoff_queuetail->next = op_handoff;
+             A1D_Op_handoff_queuetail = op_handoff;
+           }
+           op_handoff->next = NULL;
+
+        }
+        else
+        {        
+
+            status = A1DI_Packed_putaccs(target,
+                                         stride_level,
+                                         block_sizes,
+                                         source_ptr,
+                                         src_stride_ar,
+                                         target_ptr,
+                                         trg_stride_ar,
+                                         a1_type,
+                                         scaling);
+            A1U_ERR_POP(status, "Packed puts function returned with an error \n");
+  
+        } 
 
     }
 

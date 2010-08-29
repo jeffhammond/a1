@@ -59,12 +59,12 @@
 int main()
 {
 
-    int i, rank, nranks, msgsize;
+    int i, rank, nranks, msgsize, peer;
     long bufsize;
     double **buffer;
     double t_start, t_stop, t_latency;
 
-    A1_Initialize(A1_THREAD_GENERAL);
+    A1_Initialize(A1_THREAD_SINGLE);
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     nranks = A1_Process_total(A1_GROUP_WORLD);
@@ -81,8 +81,8 @@ int main()
 
     buffer = (double **) malloc(sizeof(double *) * nranks);
 
-    bufsize = MAX_MSG_SIZE * ITERATIONS;
-    A1_Alloc_segment(&(buffer[rank]), bufsize);
+    bufsize = MAX_MSG_SIZE * (ITERATIONS + SKIP);
+    A1_Alloc_segment((void **) &(buffer[rank]), bufsize);
     A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
     for (i = 0; i < bufsize/sizeof(double); i++)
@@ -162,7 +162,7 @@ int main()
             A1_Barrier_group(A1_GROUP_WORLD);
 
             /** Data Validation **/
-            for (i = 0; i < (((ITERATIONS + SKIP) * msgsize) / sizeof(double)); i++)
+            for (i = 0; i < ( (ITERATIONS + SKIP) * msgsize / sizeof(double)); i++)
             {
                 if (*(buffer[rank] + i) != (1.0 + peer)) 
                 {
@@ -175,7 +175,7 @@ int main()
                 }
             }
 
-            for (i = 0; i < (((ITERATIONS + SKIP) * MAX_MSG_SIZE)
+            for (i = 0; i < ( bufsize
                     / sizeof(double)); i++)
             {
                 *(buffer[rank] + i) = 1.0 + rank;
@@ -186,7 +186,7 @@ int main()
             A1_Barrier_group(A1_GROUP_WORLD);
 
             /** Data Validation **/
-            for (i = 0; i < (((ITERATIONS + SKIP) * msgsize) / sizeof(double)); i++)
+            for (i = 0; i < ((ITERATIONS + SKIP) * msgsize / sizeof(double)); i++)
             {
                 if (*(buffer[rank] + i) != (1.0 + peer))
                 {
@@ -199,7 +199,7 @@ int main()
                 }
             }
 
-            for (i = 0; i < (((ITERATIONS + SKIP) * MAX_MSG_SIZE)
+            for (i = 0; i < (bufsize
                     / sizeof(double)); i++)
             {
                 *(buffer[rank] + i) = 1.0 + rank;

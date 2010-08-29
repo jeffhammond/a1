@@ -6,41 +6,10 @@
 
 #include "dcmfdimpl.h"
 
-_BGP_Atomic global_atomic;
-LockBox_Mutex_t global_lbmutex;
-
 DCMF_Configure_t A1D_Messager_info;
 A1D_Process_info_t A1D_Process_info;
 
 DCMF_Callback_t A1D_Nocallback;
-
-pthread_t A1DI_CHT_pthread;
-
-void *A1DI_CHT_advance_lock(void * dummy)
-{
-    A1DI_GLOBAL_LOCK_ACQUIRE();
-    while (1)
-    {
-        DCMF_Messager_advance(0);
-        A1DI_GLOBAL_LOCK_RELEASE();
-        A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
-        A1DI_GLOBAL_LOCK_ACQUIRE();
-    }
-    A1DI_GLOBAL_LOCK_RELEASE();
-}
-
-void *A1DI_CHT_advance_cs(void * dummy)
-{
-    A1DI_CRITICAL_ENTER();
-    while (1)
-    {
-        DCMF_Messager_advance(0);
-        A1DI_CRITICAL_EXIT();
-        //A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
-        A1DI_CRITICAL_ENTER();
-    }
-    A1DI_CRITICAL_EXIT();
-}
 
 int A1D_Initialize(int thread_level)
 {
