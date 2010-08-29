@@ -52,74 +52,80 @@
 #include <stdlib.h>
 #include <a1.h>
 
-#define MAX_MSGSIZE 2*1024*1024
+#define MAX_MSG_SIZE 1024*1024
 #define ITERATIONS_VERYSMALL 20000 
-#define ITERATIONS_SMALL 4000 
+#define ITERATIONS_SMALL 4000
 #define ITERATIONS_MEDIUM 1000 
-#define ITERATIONS_LARGE 500 
+#define ITERATIONS_LARGE 500
+#define SKIP 10
 
 int main()
 {
 
-    size_t i, rank, nranks, msgsize, dest;
-    size_t iterations, max_msgsize;
-    int bufsize;
+    size_t i, rank, nranks, msgsize, peer;
+    long bufsize, iterations;
     double **buffer;
-    double t_start, t_stop, t_total, d_total;
-    double expected, bandwidth;
+    double scaling;
+    double t_start, t_stop, t_total, d_total, bandwidth;
     A1_handle_t a1_handle;
-
-    max_msgsize = MAX_MSGSIZE;
 
     A1_Initialize(A1_THREAD_SINGLE);
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     nranks = A1_Process_total(A1_GROUP_WORLD);
 
-    bufsize = max_msgsize * ITERATIONS_LARGE;
+    bufsize = MAX_MSG_SIZE * (ITERATIONS_LARGE + SKIP);
     buffer = (double **) malloc(sizeof(double *) * nranks);
     A1_Alloc_segment((void **) &(buffer[rank]), bufsize);
     A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
+
+    if (rank == 0)
+    {
+        printf("A1_PutAcc Bandwidth in MBPS \n");
+        printf("%20s %22s\n",
+               "Message Size",
+               "Bandwidth");
+        fflush(stdout);
+    }
 
     for (i = 0; i < bufsize / sizeof(double); i++)
     {
         *(buffer[rank] + i) = 1.0 + rank;
     }
+    scaling = 2.0;
 
     A1_Allocate_handle(&a1_handle);
-
     A1_Barrier_group(A1_GROUP_WORLD);
 
-    if (rank == 0)
+    for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
 
-        printf("A1_Put Bandwidth in MBPS \n");
-        printf("%20s %22s \n", "Message Size", "Bandwidth");
-        fflush(stdout);
+        if (msgsize <= 16 * 1024) iterations = ITERATIONS_VERYSMALL;
+        else if (msgsize <= 64 * 1024) iterations = ITERATIONS_SMALL;
+        else if (msgsize <= 512 * 1024) iterations = ITERATIONS_MEDIUM;
+        else iterations = ITERATIONS_LARGE;
 
-        dest = 1;
-        expected = 1 + dest;
-
-        for (msgsize = sizeof(double); msgsize <= max_msgsize; msgsize *= 2)
+        if (rank == 0)
         {
 
-            if (msgsize <= 16 * 1024) iterations = ITERATIONS_VERYSMALL;
-            else if (msgsize <= 64 * 1024) iterations = ITERATIONS_SMALL;
-            else if (msgsize <= 512 * 1024) iterations = ITERATIONS_MEDIUM;
-            else iterations = ITERATIONS_LARGE;
+            peer = 1;
 
             t_start = A1_Time_seconds();
 
             for (i = 0; i < iterations; i++)
             {
 
-                A1_NbPut(dest, (void *) ((size_t) buffer[dest] + (size_t)(i
-                        * msgsize)), (void *) ((size_t) buffer[rank]
-                        + (size_t)(i * msgsize)), msgsize, a1_handle);
+                A1_NbPutAcc(peer,
+                            (void *) ((size_t) buffer[rank] + (size_t)(i
+                                  * msgsize)),
+                            (void *) ((size_t) buffer[peer] + (size_t)(i
+                                  * msgsize)),
+                            msgsize,
+                            A1_DOUBLE,
+                            (void *) &scaling,
+                            a1_handle);
 
             }
-
-            A1_Wait_handle(a1_handle);
 
             t_stop = A1_Time_seconds();
             d_total = (iterations * msgsize) / (1024 * 1024);
@@ -127,13 +133,14 @@ int main()
             bandwidth = d_total / t_total;
             printf("%20d %20.4lf \n", msgsize, bandwidth);
             fflush(stdout);
-           
-            A1_Flush(dest);
+
+            A1_Flush(peer);
+
         }
 
     }
 
-    A1_Barrier_group(A1_GROUP_WORLD);
+    A1_Barrier_group(A1_GROUP_WORLD);    
 
     A1_Release_handle(a1_handle);
 

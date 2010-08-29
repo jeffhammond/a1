@@ -52,31 +52,30 @@
 #include <stdlib.h>
 #include <a1.h>
 
-#define MAX_MSGSIZE 2*1024*1024
-#define ITERATIONS_VERYSMALL 20000 
-#define ITERATIONS_SMALL 4000 
-#define ITERATIONS_MEDIUM 1000 
-#define ITERATIONS_LARGE 500 
+#define MAX_XDIM 1024 
+#define MAX_YDIM 1024
+#define ITERATIONS 1000
+#define SKIP 10
 
 int main()
 {
 
-    size_t i, rank, nranks, msgsize, dest;
-    size_t iterations, max_msgsize;
-    int bufsize;
+    int i, j, rank, nranks, msgsize, dest;
+    int xdim, ydim;
+    long bufsize;
     double **buffer;
-    double t_start, t_stop, t_total, d_total;
-    double expected, bandwidth;
+    double t_start, t_stop, t_total, d_total, bw;
+    int count[2], src_stride, trg_stride, stride_level;
     A1_handle_t a1_handle;
-
-    max_msgsize = MAX_MSGSIZE;
 
     A1_Initialize(A1_THREAD_SINGLE);
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     nranks = A1_Process_total(A1_GROUP_WORLD);
 
-    bufsize = max_msgsize * ITERATIONS_LARGE;
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    bufsize = MAX_XDIM * MAX_YDIM * sizeof(double);
     buffer = (double **) malloc(sizeof(double *) * nranks);
     A1_Alloc_segment((void **) &(buffer[rank]), bufsize);
     A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
@@ -92,52 +91,64 @@ int main()
 
     if (rank == 0)
     {
-
-        printf("A1_Put Bandwidth in MBPS \n");
-        printf("%20s %22s \n", "Message Size", "Bandwidth");
+        printf("A1_PutS Bandwidth in MBPS \n");
+        printf("%30s %22s \n", "Dimensions(array of doubles)", "Latency");
         fflush(stdout);
 
         dest = 1;
-        expected = 1 + dest;
 
-        for (msgsize = sizeof(double); msgsize <= max_msgsize; msgsize *= 2)
+        src_stride = MAX_YDIM * sizeof(double);
+        trg_stride = MAX_YDIM * sizeof(double);
+        stride_level = 1;
+
+        for (xdim = 1; xdim <= MAX_XDIM; xdim *= 2)
         {
 
-            if (msgsize <= 16 * 1024) iterations = ITERATIONS_VERYSMALL;
-            else if (msgsize <= 64 * 1024) iterations = ITERATIONS_SMALL;
-            else if (msgsize <= 512 * 1024) iterations = ITERATIONS_MEDIUM;
-            else iterations = ITERATIONS_LARGE;
+            count[1] = xdim;
 
-            t_start = A1_Time_seconds();
-
-            for (i = 0; i < iterations; i++)
+            for (ydim = 1; ydim <= MAX_YDIM; ydim *= 2)
             {
 
-                A1_NbPut(dest, (void *) ((size_t) buffer[dest] + (size_t)(i
-                        * msgsize)), (void *) ((size_t) buffer[rank]
-                        + (size_t)(i * msgsize)), msgsize, a1_handle);
+                count[0] = ydim * sizeof(double);
+
+                for (i = 0; i < ITERATIONS + SKIP; i++)
+                {
+
+                    if (i == SKIP) 
+                          t_start = A1_Time_seconds();
+
+                    A1_NbPutS(1,
+                              stride_level,
+                              count,
+                              (void *) buffer[dest],
+                              &src_stride,
+                              (void *) buffer[rank],
+                              &trg_stride,
+                              a1_handle);
+
+                }
+                A1_Wait_handle(a1_handle);
+                t_stop = A1_Time_seconds();
+                A1_Flush(1);
+
+                char temp[10];
+                sprintf(temp, "%dX%d", xdim, ydim);
+                t_total = t_stop - t_start;
+                d_total = (xdim*ydim*sizeof(double)*ITERATIONS)/(1024*1024);
+                bw = d_total/t_total;
+                printf("%30s %20.2f \n", temp, bw);
+                fflush(stdout);
 
             }
 
-            A1_Wait_handle(a1_handle);
-
-            t_stop = A1_Time_seconds();
-            d_total = (iterations * msgsize) / (1024 * 1024);
-            t_total = t_stop - t_start;
-            bandwidth = d_total / t_total;
-            printf("%20d %20.4lf \n", msgsize, bandwidth);
-            fflush(stdout);
-           
-            A1_Flush(dest);
         }
 
     }
 
     A1_Barrier_group(A1_GROUP_WORLD);
 
-    A1_Release_handle(a1_handle);
-
-    A1_Release_segments(A1_GROUP_WORLD, buffer[rank]);
+    A1_Release_segments(A1_GROUP_WORLD, (void *) buffer[rank]);
+    A1_Free_segment((void *) buffer[rank]);
 
     A1_Finalize();
 
