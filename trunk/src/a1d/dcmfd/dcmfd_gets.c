@@ -8,17 +8,17 @@
 
 DCMF_Protocol_t A1D_Packed_gets_protocol;
 DCMF_Protocol_t A1D_Packed_gets_response_protocol;
-volatile int expecting_getresponse;
 
 void A1DI_RecvDone_packedgets_response_callback(void *clientdata,
                                                 DCMF_Error_t *error)
 {
     A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
     A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
-    A1D_Packed_puts_header_t *header = (A1D_Packed_puts_header_t *) a1d_buffer->buffer_ptr;
+    A1D_Packed_gets_response_header_t *header = (A1D_Packed_gets_response_header_t *) a1d_buffer->buffer_ptr;
+    A1D_Handle_t *a1d_handle = header->handle_ptr;
     int complete = 0;
 
-    A1DI_Unpack_strided((void *) ((size_t)a1d_buffer->buffer_ptr + sizeof(A1D_Packed_puts_header_t)),
+    A1DI_Unpack_strided((void *) ((size_t)a1d_buffer->buffer_ptr + sizeof(A1D_Packed_gets_response_header_t)),
                         header->data_size,
                         header->stride_level,
                         header->block_sizes,
@@ -28,7 +28,7 @@ void A1DI_RecvDone_packedgets_response_callback(void *clientdata,
                         &complete);
 
     if(complete == 1)
-       expecting_getresponse--;
+       a1d_handle->active--; 
 
     A1DI_Release_request(a1d_request);
 }
@@ -69,15 +69,14 @@ void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
                                                      const char *src,
                                                      size_t bytes)
 {
-    A1D_Packed_puts_header_t *header;
     void *packet_ptr = (void *) src;
+    A1D_Packed_gets_response_header_t *header = (A1D_Packed_puts_header_t *) packet_ptr;
+    A1D_Handle_t *a1d_handle = header->handle_ptr;
     int complete = 0;
 
     A1U_FUNC_ENTER();
 
-    header = (A1D_Packed_puts_header_t *) packet_ptr;
-
-    A1DI_Unpack_strided((void *) ((size_t)packet_ptr + sizeof(A1D_Packed_puts_header_t)),
+    A1DI_Unpack_strided((void *) ((size_t)packet_ptr + sizeof(A1D_Packed_gets_response_header_t)),
                         header->data_size,
                         header->stride_level,
                         header->block_sizes,
@@ -87,7 +86,7 @@ void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
                         &complete);
 
     if(complete == 1)
-         expecting_getresponse--;
+         a1d_handle->active--;
 }
 
 int A1DI_Packed_gets_response_initialize()
@@ -126,13 +125,14 @@ int A1DI_Packed_gets_response(int target,
                               void* source_ptr,
                               int *src_stride_ar,
                               void* target_ptr,
-                              int *trg_stride_ar)
+                              int *trg_stride_ar,
+                              A1D_Handle_t *a1d_handle)
 {
     int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
     A1D_Request_t *a1d_request;
     A1D_Buffer_t *a1d_buffer;
-    A1D_Packed_puts_header_t header;
+    A1D_Packed_gets_response_header_t header;
     void *packet_ptr, *data_ptr;
     int packet_size, data_size, data_limit;
     int block_idx[A1C_MAX_STRIDED_DIM];
@@ -145,6 +145,7 @@ int A1DI_Packed_gets_response(int target,
     header.stride_level = stride_level;
     A1DI_Memcpy(header.trg_stride_ar, trg_stride_ar, stride_level * sizeof(int));
     A1DI_Memcpy(header.block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
+    header.handle_ptr = a1d_handle;
 
     while(!complete)
     {
@@ -155,8 +156,8 @@ int A1DI_Packed_gets_response(int target,
        a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize_limit, 0);
        packet_ptr = a1d_buffer->buffer_ptr;
 
-       data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_puts_header_t));
-       data_limit = a1_settings.put_packetsize_limit - sizeof(A1D_Packed_puts_header_t);
+       data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_gets_response_header_t));
+       data_limit = a1_settings.put_packetsize_limit - sizeof(A1D_Packed_gets_response_header_t);
 
        /*The packing function can modify the source ptr, target ptr, and block index*/
        A1DI_Pack_strided(data_ptr,
@@ -173,9 +174,9 @@ int A1DI_Packed_gets_response(int target,
 
        /*Setting data size information in the header and copying it into the packet*/
        header.data_size = data_size;
-       A1DI_Memcpy((void *) packet_ptr, (void *) &header, sizeof(A1D_Packed_puts_header_t));
+       A1DI_Memcpy((void *) packet_ptr, (void *) &header, sizeof(A1D_Packed_gets_response_header_t));
 
-       packet_size = data_size + sizeof(A1D_Packed_puts_header_t);
+       packet_size = data_size + sizeof(A1D_Packed_gets_response_header_t);
 
        /*Fetching request from the pool*/
        a1d_request = A1DI_Get_request(0);
@@ -224,7 +225,8 @@ void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
                               header->source_ptr,
                               header->src_stride_ar,
                               header->target_ptr,
-                              header->trg_stride_ar);
+                              header->trg_stride_ar,
+                              header->handle_ptr);
 
 }
 
@@ -286,20 +288,17 @@ int A1DI_Packed_gets(int target,
             * sizeof(int));
     memcpy(header->trg_stride_ar, trg_stride_ar, stride_level
             * sizeof(int));
+    header->handle_ptr = a1d_handle;
     memcpy(header->block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
 
     a1d_request = A1DI_Get_request(1);
     A1U_ERR_POP(status = (a1d_request == NULL),
                 "A1DI_Get_request returned error.  \n");
-    A1DI_Set_handle(a1d_request, a1d_handle);
-
-    /* Assigning the packing buffer pointer in request so that it can be free when the
-     * request is complete, in the callback */
     a1d_request->buffer_ptr = (void *) header;
+    a1d_handle->active++;
 
     done_callback.function = A1DI_Request_done;
     done_callback.clientdata = (void *) a1d_request;
-    a1d_handle->active++;
 
     status = DCMF_Send(&A1D_Packed_gets_protocol,
                        &(a1d_request->request),
@@ -542,8 +541,6 @@ int A1D_GetS(int target,
     else
     {
 
-        expecting_getresponse = 1;
-
         status = A1DI_Packed_gets(target,
                                   stride_level,
                                   block_sizes,
@@ -554,7 +551,8 @@ int A1D_GetS(int target,
                                   a1d_handle);
         A1U_ERR_POP(status, "A1DI_Packed_gets returned with an error \n");
 
-        A1DI_Conditional_advance(a1d_handle->active > 0 || expecting_getresponse > 0);
+        A1DI_Conditional_advance(a1d_handle->active > 0);
+
         A1D_Connection_send_active[target]--;
 
     }
@@ -608,8 +606,6 @@ int A1D_NbGetS(int target,
     }
     else
     {
-
-        expecting_getresponse = 1;
 
         status = A1DI_Packed_gets(target,
                                   stride_level,

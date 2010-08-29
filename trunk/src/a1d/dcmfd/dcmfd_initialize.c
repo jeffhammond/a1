@@ -36,7 +36,7 @@ void *A1DI_CHT_advance_cs(void * dummy)
     {
         DCMF_Messager_advance(0);
         A1DI_CRITICAL_EXIT();
-        A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
+        //A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
         A1DI_CRITICAL_ENTER();
     }
     A1DI_CRITICAL_EXIT();
@@ -65,8 +65,8 @@ int A1D_Initialize(int thread_level)
     if(a1_settings.enable_cht) 
     {
         /* We can use THREAD_SERIALIZED if we are implementing out own locks */
-        A1D_Messager_info.thread_level = DCMF_THREAD_SERIALIZED;
-        /*A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;*/
+        /*A1D_Messager_info.thread_level = DCMF_THREAD_SERIALIZED;*/
+        A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
     } 
     else 

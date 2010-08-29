@@ -53,8 +53,13 @@
 #define A1C_PUTGET_BUFFERPOOL_LIMIT 300;
 #define A1C_PUTACC_BUFFERPOOL_LIMIT 300;
 
+/*
 #define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
 #define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
+*/
+
+#define A1DI_GLOBAL_LOCK_ACQUIRE() DCMF_CriticalSection_enter(0)
+#define A1DI_GLOBAL_LOCK_RELEASE() DCMF_CriticalSection_exit(0)
 
 /*************************************************
 *                  BGP Atomics                   *
@@ -225,79 +230,6 @@ typedef struct
     DCMF_Hardware_t hw;
 } A1D_Process_info_t;
 
-typedef union
-{
-    DCQuad info[2];
-    struct
-    {
-        void* target_ptr;
-        A1_datatype_t datatype;
-        union
-        {
-            int32_t int32_value;
-            int64_t int64_value;
-            uint32_t uint32_value;
-            uint64_t uint64_value;
-            float float_value;
-            double double_value;
-        } scaling;
-    };
-} A1D_Putacc_header_t;
-
-typedef struct
-{
-    int stride_level;
-    int block_sizes[A1C_MAX_STRIDED_DIM];
-    void *target_ptr;
-    int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
-    int block_idx[A1C_MAX_STRIDED_DIM];
-    int data_size; 
-} A1D_Packed_puts_header_t;
-
-typedef struct
-{
-    uint32_t target;
-    int stride_level;
-    int block_sizes[A1C_MAX_STRIDED_DIM];
-    void* source_ptr;
-    int src_stride_ar[A1C_MAX_STRIDED_DIM-1];
-    void* target_ptr;
-    int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
-} A1D_Packed_gets_header_t;
-
-typedef struct
-{
-    void *counter_ptr;
-    int value;
-    A1_atomic_op_t op;
-} A1D_Rmw_pkt_t;
-
-typedef struct
-{
-    long *value_ptr;
-    long value;
-} A1D_Counter_pkt_t;
-
-typedef struct
-{
-    int stride_level;
-    int block_sizes[A1C_MAX_STRIDED_DIM];
-    void *target_ptr;
-    int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
-    int block_idx[A1C_MAX_STRIDED_DIM];
-    int data_size;
-    A1_datatype_t datatype;
-    union
-    {
-        int32_t int32_value;
-        int64_t int64_value;
-        uint32_t uint32_value;
-        uint64_t uint64_value;
-        float float_value;
-        double double_value;
-    } scaling;
-} A1D_Packed_putaccs_header_t;
-
 typedef struct
 {
     int   rank;
@@ -360,6 +292,92 @@ typedef struct
     void **xchange_ptr;
     size_t xchange_size;
 } A1D_Control_xchange_info_t;
+
+typedef union
+{
+    DCQuad info[2];
+    struct
+    {
+        void* target_ptr;
+        A1_datatype_t datatype;
+        union
+        {
+            int32_t int32_value;
+            int64_t int64_value;
+            uint32_t uint32_value;
+            uint64_t uint64_value;
+            float float_value;
+            double double_value;
+        } scaling;
+    };
+} A1D_Putacc_header_t;
+
+typedef struct
+{
+    int stride_level;
+    int block_sizes[A1C_MAX_STRIDED_DIM];
+    void *target_ptr;
+    int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
+    int block_idx[A1C_MAX_STRIDED_DIM];
+    int data_size; 
+} A1D_Packed_puts_header_t;
+
+typedef struct
+{
+    int stride_level;
+    int block_sizes[A1C_MAX_STRIDED_DIM];
+    void *target_ptr;
+    int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
+    int block_idx[A1C_MAX_STRIDED_DIM];
+    int data_size;
+    A1D_Handle_t *handle_ptr;
+} A1D_Packed_gets_response_header_t;
+
+typedef struct
+{
+    uint32_t target;
+    int stride_level;
+    int block_sizes[A1C_MAX_STRIDED_DIM];
+    void* source_ptr;
+    int src_stride_ar[A1C_MAX_STRIDED_DIM-1];
+    void* target_ptr;
+    int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
+    A1D_Handle_t *handle_ptr;
+} A1D_Packed_gets_header_t;
+
+typedef struct
+{
+    void *counter_ptr;
+    int value;
+    A1_atomic_op_t op;
+} A1D_Rmw_pkt_t;
+
+typedef struct
+{
+    long *value_ptr;
+    long value;
+} A1D_Counter_pkt_t;
+
+typedef struct
+{
+    int stride_level;
+    int block_sizes[A1C_MAX_STRIDED_DIM];
+    void *target_ptr;
+    int trg_stride_ar[A1C_MAX_STRIDED_DIM-1];
+    int block_idx[A1C_MAX_STRIDED_DIM];
+    int data_size;
+    A1_datatype_t datatype;
+    union
+    {
+        int32_t int32_value;
+        int64_t int64_value;
+        uint32_t uint32_value;
+        uint64_t uint64_value;
+        float float_value;
+        double double_value;
+    } scaling;
+} A1D_Packed_putaccs_header_t;
+
 
 /*************************************************
  *             Global variables                  *
