@@ -16,6 +16,7 @@ void A1DI_RecvDone_packedgets_response_callback(void *clientdata,
     A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
     A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
     A1D_Packed_puts_header_t *header = (A1D_Packed_puts_header_t *) a1d_buffer->buffer_ptr;
+    int complete = 0;
 
     A1DI_Unpack_strided((void *) ((size_t)a1d_buffer->buffer_ptr + sizeof(A1D_Packed_puts_header_t)),
                         header->data_size,
@@ -23,9 +24,11 @@ void A1DI_RecvDone_packedgets_response_callback(void *clientdata,
                         header->block_sizes,
                         header->target_ptr,
                         header->trg_stride_ar,
-                        header->block_idx);
+                        header->block_idx,
+                        &complete);
 
-    expecting_getresponse--;
+    if(complete == 1)
+       expecting_getresponse--;
 
     A1DI_Release_request(a1d_request);
 }
@@ -68,6 +71,7 @@ void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
 {
     A1D_Packed_puts_header_t *header;
     void *packet_ptr = (void *) src;
+    int complete = 0;
 
     A1U_FUNC_ENTER();
 
@@ -79,9 +83,11 @@ void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
                         header->block_sizes,
                         header->target_ptr,
                         header->trg_stride_ar,
-                        header->block_idx);
+                        header->block_idx,
+                        &complete);
 
-    expecting_getresponse--;
+    if(complete == 1)
+         expecting_getresponse--;
 }
 
 int A1DI_Packed_gets_response_initialize()
@@ -106,10 +112,12 @@ int A1DI_Packed_gets_response_initialize()
                 "packed gets registartion returned with error %d \n",
                 status);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Packed_gets_response(int target,
@@ -260,25 +268,25 @@ int A1DI_Packed_gets(int target,
 
     int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
-    A1D_Packed_gets_header_t *packet;
+    A1D_Packed_gets_header_t *header;
     A1D_Request_t *a1d_request = NULL;
     A1D_Buffer_t *a1d_buffer = NULL;
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &packet, sizeof(A1D_Packed_gets_header_t));
+    status = A1DI_Malloc_aligned((void **) &header, sizeof(A1D_Packed_gets_header_t));
     A1U_ERR_POP(status,"Malloc failed in A1DI_Packed_gets \n");
 
     /*Copying header information*/
-    packet->target = A1D_Process_info.my_rank;
-    packet->source_ptr = source_ptr;
-    packet->target_ptr = target_ptr;
-    packet->stride_level = stride_level;
-    memcpy(packet->src_stride_ar, src_stride_ar, stride_level
-            * sizeof(uint32_t));
-    memcpy(packet->trg_stride_ar, trg_stride_ar, stride_level
-            * sizeof(uint32_t));
-    memcpy(packet->block_sizes, block_sizes, (stride_level + 1) * sizeof(uint32_t));
+    header->target = A1D_Process_info.my_rank;
+    header->source_ptr = source_ptr;
+    header->target_ptr = target_ptr;
+    header->stride_level = stride_level;
+    memcpy(header->src_stride_ar, src_stride_ar, stride_level
+            * sizeof(int));
+    memcpy(header->trg_stride_ar, trg_stride_ar, stride_level
+            * sizeof(int));
+    memcpy(header->block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
 
     a1d_request = A1DI_Get_request(1);
     A1U_ERR_POP(status = (a1d_request == NULL),
@@ -287,7 +295,7 @@ int A1DI_Packed_gets(int target,
 
     /* Assigning the packing buffer pointer in request so that it can be free when the
      * request is complete, in the callback */
-    a1d_request->buffer_ptr = (void *) packet;
+    a1d_request->buffer_ptr = (void *) header;
 
     done_callback.function = A1DI_Request_done;
     done_callback.clientdata = (void *) a1d_request;
@@ -299,7 +307,7 @@ int A1DI_Packed_gets(int target,
                        DCMF_RELAXED_CONSISTENCY,
                        target,
                        sizeof(A1D_Packed_gets_header_t),
-                       (void *) packet,
+                       (void *) header,
                        NULL,
                        0);
     A1U_ERR_POP(status, "Send returned with an error \n");

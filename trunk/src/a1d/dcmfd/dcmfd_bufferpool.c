@@ -39,6 +39,7 @@ A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
               a1d_buffer = (A1D_Buffer_t *) new_buffer;
               a1d_buffer->buffer_ptr = (void *) ((size_t) new_buffer + sizeof(A1D_Buffer_t));
               a1d_buffer->pool_index = -1;
+              return a1d_buffer;
          }
       
      } while(a1d_buffer == NULL);	

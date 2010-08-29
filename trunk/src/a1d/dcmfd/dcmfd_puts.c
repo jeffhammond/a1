@@ -14,6 +14,7 @@ void A1DI_RecvDone_packedputs_callback(void *clientdata, DCMF_Error_t *error)
     A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
     A1D_Packed_puts_header_t *header =
             (A1D_Packed_puts_header_t *) a1d_buffer->buffer_ptr;
+    int complete = 0;
 
     A1DI_Unpack_strided((void *) ((size_t) a1d_buffer->buffer_ptr
                                 + sizeof(A1D_Packed_puts_header_t)),
@@ -22,7 +23,8 @@ void A1DI_RecvDone_packedputs_callback(void *clientdata, DCMF_Error_t *error)
                         header->block_sizes,
                         header->target_ptr,
                         header->trg_stride_ar,
-                        header->block_idx);
+                        header->block_idx,
+                        &complete);
 
     A1DI_Release_request(a1d_request);
 }
@@ -65,6 +67,7 @@ void A1DI_RecvSendShort_packedputs_callback(void *clientdata,
 {
     A1D_Packed_puts_header_t *header;
     void *packet_ptr = (void *) src;
+    int complete = 0;
 
     A1U_FUNC_ENTER();
 
@@ -77,7 +80,8 @@ void A1DI_RecvSendShort_packedputs_callback(void *clientdata,
                         header->block_sizes,
                         header->target_ptr,
                         header->trg_stride_ar,
-                        header->block_idx);
+                        header->block_idx,
+                        &complete);
 }
 
 int A1DI_Packed_puts_initialize()
@@ -99,10 +103,12 @@ int A1DI_Packed_puts_initialize()
                 "DCMF_Send_register returned with error %d \n",
                 status);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Packed_puts(int target,
@@ -370,10 +376,12 @@ int A1DI_Recursive_puts(int target,
 
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_PutS(int target,
@@ -413,6 +421,10 @@ int A1D_PutS(int target,
                                   a1d_handle);
         A1U_ERR_POP(status, "A1DI_Direct_puts returned with an error \n");
 
+        A1DI_Conditional_advance(a1d_handle->active > 0);
+
+        A1DI_Release_handle(a1d_handle);
+
     }
     else
     {
@@ -429,14 +441,13 @@ int A1D_PutS(int target,
 
     }
 
-    A1DI_Conditional_advance(a1d_handle->active > 0);
-
-    fn_exit: A1DI_Release_handle(a1d_handle);
+  fn_exit: 
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_NbPutS(int target,

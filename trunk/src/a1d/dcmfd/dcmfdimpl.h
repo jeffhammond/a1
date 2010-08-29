@@ -489,5 +489,16 @@ int A1DI_Unpack_strided(void *packet_ptr,
                         int *block_sizes,
                         void *target_ptr,
                         int *trg_stride_ar,
-                        int *block_idx);
+                        int *block_idx,
+                        int *complete);
 
+int A1DI_Unpack_strided_acc(void *data_ptr,
+                            int data_size,
+                            int stride_level,
+                            int *block_sizes,
+                            void *target_ptr,
+                            int *trg_stride_ar,
+                            int *block_idx,
+                            A1_datatype_t a1_type,
+                            void *scaling,
+                            int *complete);

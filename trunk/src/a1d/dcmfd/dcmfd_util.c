@@ -140,10 +140,11 @@ int A1DI_Unpack_strided(void *data_ptr,
                         int *block_sizes,
                         void *target_ptr,
                         int *trg_stride_ar,
-                        int *block_idx)
+                        int *block_idx,
+                        int *complete)
 {
     int status = A1_SUCCESS;
-    int i, y, index;
+    int y, index;
 
     A1U_FUNC_ENTER();
 
@@ -158,11 +159,11 @@ int A1DI_Unpack_strided(void *data_ptr,
         if(block_idx[1]==block_sizes[1])
         {
                y=1;
-               while(block_idx[y] == block_sizes[i])
+               while(block_idx[y] == block_sizes[y])
                {
                   if(y == stride_level)
                   {
-                     A1U_ASSERT(data_size == 0, status);
+                     *complete = 1;
                      break;
                   }
                   y++;
@@ -200,10 +201,11 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
                             int *trg_stride_ar,
                             int *block_idx,
                             A1_datatype_t a1_type,
-                            void* scaling)
+                            void *scaling,
+                            int *complete)
 {
     int status = A1_SUCCESS;
-    int i, y, index;
+    int y, index;
 
     A1U_FUNC_ENTER();
 
@@ -270,11 +272,11 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
         if(block_idx[1]==block_sizes[1])
         {
                y=1;
-               while(block_idx[y] == block_sizes[i])
+               while(block_idx[y] == block_sizes[y])
                {
                   if(y == stride_level)
-                  {
-                     A1U_ASSERT(data_size == 0, status);
+                  { 
+                     *complete = 1;
                      break;
                   }
                   y++;

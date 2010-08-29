@@ -13,6 +13,7 @@ void A1DI_RecvDone_packedputaccs_callback(void *clientdata, DCMF_Error_t *error)
     A1D_Request_t *a1d_request = (A1D_Request_t *) clientdata;
     A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
     A1D_Packed_putaccs_header_t *header = (A1D_Packed_putaccs_header_t *) a1d_buffer->buffer_ptr;
+    int complete = 0;
 
     A1DI_Unpack_strided_acc((void *) ((size_t) a1d_buffer->buffer_ptr + sizeof(A1D_Packed_putaccs_header_t)),
                             header->data_size,
@@ -22,7 +23,8 @@ void A1DI_RecvDone_packedputaccs_callback(void *clientdata, DCMF_Error_t *error)
                             header->trg_stride_ar,
                             header->block_idx,
                             header->datatype,
-                            (void *) &(header->scaling));
+                            (void *) &(header->scaling),
+                            &complete);
 
     A1DI_Release_request(a1d_request);
 }
@@ -65,6 +67,7 @@ void A1DI_RecvSendShort_packedputaccs_callback(void *clientdata,
 {
     A1D_Packed_putaccs_header_t *header;
     void *packet_ptr = (void *) src;
+    int complete = 0;
 
     header = (A1D_Packed_putaccs_header_t *) packet_ptr;
 
@@ -76,7 +79,8 @@ void A1DI_RecvSendShort_packedputaccs_callback(void *clientdata,
                             header->trg_stride_ar,
                             header->block_idx,
                             header->datatype,
-                            (void *) &(header->scaling));
+                            (void *) &(header->scaling),
+                            &complete);
 }
 
 int A1DI_Packed_putaccs_initialize()
@@ -507,6 +511,10 @@ int A1D_PutAccS(int target,
                                      a1d_handle);
         A1U_ERR_POP(status, "Direct putaccs function returned with an error \n");
 
+        A1DI_Conditional_advance(a1d_handle->active > 0);
+
+        A1DI_Release_handle(a1d_handle);
+
     }
     else
     {
@@ -525,10 +533,7 @@ int A1D_PutAccS(int target,
 
     }
 
-    A1DI_Conditional_advance(a1d_handle->active > 0);
-
   fn_exit:
-    A1DI_Release_handle(a1d_handle);
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
