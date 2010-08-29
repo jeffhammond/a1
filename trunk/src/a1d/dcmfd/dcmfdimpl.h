@@ -46,7 +46,7 @@
 
 #define A1C_MAX_STRIDED_DIM 4
 
-#define A1C_USE_HANDOFF 0
+#define A1C_USE_HANDOFF 0 
 
 /* Currently we have two sizes of buffers to provide for Put/Get and
  * Acc packets. */
