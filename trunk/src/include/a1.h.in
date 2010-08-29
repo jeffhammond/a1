@@ -562,7 +562,9 @@ int A1_NbIncr_counter(A1_counter_t counter,
  * \ingroup Atomics
  */
 
-int A1_Create_mutexes(A1_group_t* group, int count, A1_mutex_t* *mutexes);
+int A1_Create_mutexes(A1_group_t* group,
+                      int count,
+                      A1_mutex_t* *mutexes);
 
 /**
  * \brief Collective operation to deallocate and deregister a list of mutexes
@@ -579,7 +581,58 @@ int A1_Create_mutexes(A1_group_t* group, int count, A1_mutex_t* *mutexes);
  * \ingroup Atomics
  */
 
-int A1_Destroy_mutexes(A1_group_t* group, A1_mutex_t* mutexes);
+int A1_Destroy_mutexes(A1_group_t* group,
+                       A1_mutex_t* mutexes);
+
+/**
+ * \brief Local operation to lock a list of mutexes.  This call blocks until ALL
+ *        mutexes have been locked.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     count         Number of mutexes to be locked.
+ * \param[in]     mutexes       Pointer to vector A1 mutexes.
+ *
+ * \see a1_mutex_t, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Lock_mutexes(int count,
+                    A1_mutex_t* mutexes);
+
+/**
+ * \brief Local operation to trylock a list of mutexes.  This call attempts to acquire all the
+ *        locks given and sets the value of the corresponding offset in a vector of booleans
+ *        indicating if the lock was acquired or not.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     count         Number of mutexes to be locked.
+ * \param[in]     mutexes       Pointer to vector A1 mutexes.
+ * \param[inout]  acquired      Pointer to vector A1 booleans indicating if the lock was acquired.
+ *
+ * \see a1_mutex_t, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Trylock_mutexes(int count,
+                       A1_mutex_t* mutexes,
+                       A1_bool_t* *acquired);
+
+/**
+ * \brief Local operation to unlock a list of mutexes
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     count         Number of mutexes to be locked.
+ * \param[in]     mutexes       Pointer to vector A1 mutexes.
+ *
+ * \see a1_mutex_t, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Unlock_mutexes(unsigned count,
+                      A1_mutex_t* mutexes);
 
 
 /* FIXME: More API functions to come */
@@ -1538,7 +1591,11 @@ int A1_Reset_handle_list(int count, A1_handle_t* handle);
  * \ingroup MANYTOMANY
  */
 
-int A1_Broadcast(A1_group_t* group);
+int A1_Broadcast(A1_group_t* group,
+                 int root,
+                 int count,
+                 A1_datatype_t a1_type,
+                 void* buffer);
 
 /* FIXME: More API functions to come */
 
