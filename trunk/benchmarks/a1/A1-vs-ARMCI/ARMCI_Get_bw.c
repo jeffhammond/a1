@@ -50,17 +50,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <a1.h>
+#include <armci.h>
+#include <mpi.h>
 
 #define MAX_MSGSIZE 2*1024*1024
-#define ITERATIONS_VERYSMALL 10000 
-#define ITERATIONS_SMALL 2000 
-#define ITERATIONS_MEDIUM 1000 
-#define ITERATIONS_LARGE 500 
+#define ITERATIONS_VERYSMALL 20000
+#define ITERATIONS_SMALL 4000
+#define ITERATIONS_MEDIUM 1000
+#define ITERATIONS_LARGE 500
 
 //#define DATA_VALIDATION  
 
-int main()
+int main(int argc, char *argv[])
 {
 
     size_t i, rank, nranks, msgsize, dest;
@@ -69,33 +70,38 @@ int main()
     double **buffer;
     double t_start, t_stop, t_total, d_total;
     double expected, bandwidth;
-    A1_handle_t a1_handle;
+    int provided;
+    armci_hdl_t handle;
 
     max_msgsize = MAX_MSGSIZE;
 
-    A1_Initialize(A1_THREAD_SINGLE);
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
-    rank = A1_Process_id(A1_GROUP_WORLD);
-    nranks = A1_Process_total(A1_GROUP_WORLD);
+    ARMCI_Init_args(&argc, &argv);
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
     bufsize = max_msgsize * ITERATIONS_LARGE;
     buffer = (double **) malloc(sizeof(double *) * nranks);
-    A1_Alloc_segment((void **) &(buffer[rank]), bufsize);
-    A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
+    ARMCI_Malloc((void **) buffer, bufsize);
 
     for (i = 0; i < bufsize / sizeof(double); i++)
     {
         *(buffer[rank] + i) = 1.0 + rank;
     }
 
-    A1_Allocate_handle(&a1_handle);
+    ARMCI_INIT_HANDLE(&handle);
+    ARMCI_SET_AGGREGATE_HANDLE(&handle);
 
-    A1_Barrier_group(A1_GROUP_WORLD);
+    ARMCI_Barrier();
 
     if (rank == 0)
     {
 
-        printf("A1_Get Bandwidth in MBPS \n");
+        printf("ARMCI_Get Bandwidth in MBPS \n");
         printf("%20s %22s \n", "Message Size", "Bandwidth");
         fflush(stdout);
 
@@ -110,20 +116,19 @@ int main()
             else if (msgsize <= 512 * 1024) iterations = ITERATIONS_MEDIUM;
             else iterations = ITERATIONS_LARGE;
 
-            t_start = A1_Time_seconds();
+            t_start = MPI_Wtime();
 
             for (i = 0; i < iterations; i++)
             {
 
-                A1_NbGet(dest, (void *) ((size_t) buffer[dest] + (size_t)(i
+                ARMCI_NbGet((void *) ((size_t) buffer[dest] + (size_t)(i
                         * msgsize)), (void *) ((size_t) buffer[rank]
-                        + (size_t)(i * msgsize)), msgsize, a1_handle);
-
+                        + (size_t)(i * msgsize)), msgsize, dest, &handle);
             }
 
-            A1_Wait_handle(a1_handle);
+            ARMCI_Wait(&handle);
 
-            t_stop = A1_Time_seconds();
+            t_stop = MPI_Wtime();
             d_total = (iterations * msgsize) / (1024 * 1024);
             t_total = t_stop - t_start;
             bandwidth = d_total / t_total;
@@ -154,13 +159,15 @@ int main()
 
     }
 
-    A1_Barrier_group(A1_GROUP_WORLD);
+    ARMCI_Barrier();
 
-    A1_Release_handle(a1_handle);
+    ARMCI_UNSET_AGGREGATE_HANDLE(&handle);
 
-    A1_Release_segments(A1_GROUP_WORLD, buffer[rank]);
+    ARMCI_Free((void *) buffer[rank]);
 
-    A1_Finalize();
+    ARMCI_Finalize();
+
+    MPI_Finalize();
 
     return 0;
 }
