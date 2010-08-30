@@ -585,6 +585,45 @@ int A1_Destroy_mutexes(A1_group_t* group,
                        A1_mutex_t* mutexes);
 
 /**
+ * \brief Local operation to lock a mutex.  This call blocks until the mutex has been locked.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     mutex         A1 mutex.
+ *
+ * \see a1_mutex_t, A1_Trylock_mutex, A1_Unlock_mutex, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Lock_mutex(A1_mutex_t mutex);
+
+/**
+ * \brief Local operation to trylock a mutex.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     mutex         A1 mutex.
+ *
+ * \see a1_mutex_t, A1_Lock_mutex, A1_Unlock_mutex, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Trylock_mutex(A1_mutex_t mutex);
+
+/**
+ * \brief Local operation to unlock a mutex.  This call blocks until the mutex has been unlocked.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     mutex         A1 mutex.
+ *
+ * \see a1_mutex_t, A1_Lock_mutex, A1_Trylock_mutex, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
+ *
+ * \ingroup Atomics
+ */
+
+int A1_Unlock_mutex(A1_mutex_t mutex);
+
+/**
  * \brief Local operation to lock a list of mutexes.  This call blocks until ALL
  *        mutexes have been locked.
  *
@@ -598,7 +637,7 @@ int A1_Destroy_mutexes(A1_group_t* group,
  */
 
 int A1_Lock_mutexes(int count,
-                    A1_mutex_t* mutexes);
+                    A1_mutex_t *mutexes);
 
 /**
  * \brief Local operation to trylock a list of mutexes.  This call attempts to acquire all the
@@ -616,7 +655,7 @@ int A1_Lock_mutexes(int count,
  */
 
 int A1_Trylock_mutexes(int count,
-                       A1_mutex_t* mutexes,
+                       A1_mutex_t *mutexes,
                        A1_bool_t* *acquired);
 
 /**
@@ -632,7 +671,7 @@ int A1_Trylock_mutexes(int count,
  */
 
 int A1_Unlock_mutexes(unsigned count,
-                      A1_mutex_t* mutexes);
+                      A1_mutex_t *mutexes);
 
 
 /* FIXME: More API functions to come */
