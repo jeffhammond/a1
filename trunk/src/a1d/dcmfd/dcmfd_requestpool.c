@@ -16,7 +16,7 @@ A1D_Request_t* A1DI_Get_request(int wait_and_advance)
 
     if(!wait_and_advance && !A1D_Request_pool.head) 
     {
-      A1DI_Malloc_aligned(&a1d_request, sizeof(A1D_Request_t));
+      A1DI_Malloc_aligned((void **) &a1d_request, sizeof(A1D_Request_t));
       a1d_request->in_pool = 0;
     }
     else

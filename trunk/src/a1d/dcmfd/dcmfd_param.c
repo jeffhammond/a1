@@ -147,6 +147,10 @@ int A1DI_Read_parameters()
     {
         a1_settings.use_handoff = atoi(value);
     }
+    if(!a1_settings.enable_cht)
+    {
+        a1_settings.use_handoff = 0;
+    } 
 
   fn_exit: 
     A1U_FUNC_EXIT();

@@ -46,7 +46,7 @@
 
 #define A1C_MAX_STRIDED_DIM 4
 
-#define A1C_USE_HANDOFF 0 
+#define A1C_USE_HANDOFF 1 
 
 /* Currently we have two sizes of buffers to provide for Put/Get and
  * Acc packets. */
@@ -154,6 +154,8 @@ do {                                      \
  *          Critical Section Macros              *
  *************************************************/
 
+void A1DI_Handoff_progress();
+
 #define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
       if(a1_settings.enable_cht)                                  \
@@ -178,11 +180,16 @@ do {                                      \
       }                                                           \
     } while (0)                                                   \
 
-#define A1DI_Advance() DCMF_Messager_advance(0) 
+#define A1DI_Advance()                     \
+ do {                                      \
+         DCMF_Messager_advance(0);         \
+         A1DI_Handoff_progress();          \
+    } while(0)                             \
 
 #define A1DI_Conditional_advance(boolean)                         \
     while(boolean) {                                              \
           DCMF_Messager_advance(0);                               \
+          A1DI_Handoff_progress();                                \
     }                                                             \
 
 /*************************************************

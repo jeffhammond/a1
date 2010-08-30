@@ -21,7 +21,7 @@ void A1DI_Handoff_progress()
 
     A1U_FUNC_ENTER();
 
-    if(!A1D_Op_handoff_queuehead)
+    if(A1D_Op_handoff_queuehead)
     {
        op_handoff = A1D_Op_handoff_queuehead;
 

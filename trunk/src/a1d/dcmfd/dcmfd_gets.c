@@ -70,7 +70,7 @@ void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
                                                      size_t bytes)
 {
     void *packet_ptr = (void *) src;
-    A1D_Packed_gets_response_header_t *header = (A1D_Packed_puts_header_t *) packet_ptr;
+    A1D_Packed_gets_response_header_t *header = (A1D_Packed_gets_response_header_t *) packet_ptr;
     A1D_Handle_t *a1d_handle = header->handle_ptr;
     int complete = 0;
 

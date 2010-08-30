@@ -21,11 +21,13 @@ int A1D_Wait_handle_all()
             A1DI_Conditional_advance((A1D_Active_handle_list[index])->active > 0);
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Wait_handle(A1_handle_t a1_handle)
@@ -94,11 +96,13 @@ int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
     a1d_handle = (A1D_Handle_t *) a1_handle;
     *completed = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Test_handle_list(int count,
@@ -124,9 +128,11 @@ int A1D_Test_handle_list(int count,
         *completed[i] = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

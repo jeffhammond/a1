@@ -509,8 +509,8 @@ int A1D_NbPutS(int target,
              A1D_Op_handoff_queuetail->next = op_handoff;
              A1D_Op_handoff_queuetail = op_handoff;
            }
-           op_handoff->next = NULL; 
-  
+           op_handoff->next = NULL;
+
         }
         else
         {
