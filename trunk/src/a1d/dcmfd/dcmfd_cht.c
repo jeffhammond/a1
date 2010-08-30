@@ -21,72 +21,68 @@ void A1DI_Handoff_progress()
 
     A1U_FUNC_ENTER();
 
-    if(A1D_Op_handoff_queuehead)
+    if (A1D_Op_handoff_queuehead)
     {
-       op_handoff = A1D_Op_handoff_queuehead;
+        op_handoff = A1D_Op_handoff_queuehead;
 
-       if(op_handoff->op_type == A1D_Packed_puts)
-       {
+        if (op_handoff->op_type == A1D_Packed_puts)
+        {
 
-           status = A1DI_Packed_puts(op_handoff->op.puts_op.target,
-                                     op_handoff->op.puts_op.stride_level,
-                                     op_handoff->op.puts_op.block_sizes,
-                                     op_handoff->op.puts_op.source_ptr,
-                                     op_handoff->op.puts_op.src_stride_ar,
-                                     op_handoff->op.puts_op.target_ptr,
-                                     op_handoff->op.puts_op.trg_stride_ar);
-           A1U_ERR_ABORT(status, 
-                 "A1DI_Packed_puts returned with an error handoff progress\n");
+            status = A1DI_Packed_puts(op_handoff->op.puts_op.target,
+                                      op_handoff->op.puts_op.stride_level,
+                                      op_handoff->op.puts_op.block_sizes,
+                                      op_handoff->op.puts_op.source_ptr,
+                                      op_handoff->op.puts_op.src_stride_ar,
+                                      op_handoff->op.puts_op.target_ptr,
+                                      op_handoff->op.puts_op.trg_stride_ar);
+            A1U_ERR_ABORT(status,
+                          "A1DI_Packed_puts returned with an error handoff progress\n");
 
-           op_handoff->op.puts_op.a1d_handle->active--;
+            op_handoff->op.puts_op.a1d_handle->active--;
 
-       }
-       else if(op_handoff->op_type == A1D_Packed_putaccs)
-       {
+        }
+        else if (op_handoff->op_type == A1D_Packed_putaccs)
+        {
 
-          status = A1DI_Packed_putaccs(op_handoff->op.putaccs_op.target,
-                                       op_handoff->op.putaccs_op.stride_level,
-                                       op_handoff->op.putaccs_op.block_sizes,
-                                       op_handoff->op.putaccs_op.source_ptr,
-                                       op_handoff->op.putaccs_op.src_stride_ar,
-                                       op_handoff->op.putaccs_op.target_ptr,
-                                       op_handoff->op.putaccs_op.trg_stride_ar,
-                                       op_handoff->op.putaccs_op.datatype,
-                                       op_handoff->op.putaccs_op.scaling);
-           A1U_ERR_ABORT(status,  
-                 "A1DI_Packed_putaccs returned with an error handoff progress\n");
-          
-           op_handoff->op.putaccs_op.a1d_handle->active--; 
+            status
+                    = A1DI_Packed_putaccs(op_handoff->op.putaccs_op.target,
+                                          op_handoff->op.putaccs_op.stride_level,
+                                          op_handoff->op.putaccs_op.block_sizes,
+                                          op_handoff->op.putaccs_op.source_ptr,
+                                          op_handoff->op.putaccs_op.src_stride_ar,
+                                          op_handoff->op.putaccs_op.target_ptr,
+                                          op_handoff->op.putaccs_op.trg_stride_ar,
+                                          op_handoff->op.putaccs_op.datatype,
+                                          op_handoff->op.putaccs_op.scaling);
+            A1U_ERR_ABORT(status,
+                          "A1DI_Packed_putaccs returned with an error handoff progress\n");
 
-       }
-       else
-       {
+            op_handoff->op.putaccs_op.a1d_handle->active--;
 
-          A1U_ERR_ABORT(status = A1_ERROR,
-               "Invalid op encountered in Handoff progress. \n"); 
- 
-       }
+        }
+        else
+        {
+            A1U_ERR_ABORT(status = A1_ERROR,
+                          "Invalid op encountered in Handoff progress. \n");
+        }
 
-       if(A1D_Op_handoff_queuehead == A1D_Op_handoff_queuetail)
-       {
-           A1D_Op_handoff_queuehead = NULL;
-           A1D_Op_handoff_queuetail = NULL;
-       }
-       else
-       {
-           A1D_Op_handoff_queuehead = A1D_Op_handoff_queuehead->next;
-       }
+        if (A1D_Op_handoff_queuehead == A1D_Op_handoff_queuetail)
+        {
+            A1D_Op_handoff_queuehead = NULL;
+            A1D_Op_handoff_queuetail = NULL;
+        }
+        else
+        {
+            A1D_Op_handoff_queuehead = A1D_Op_handoff_queuehead->next;
+        }
 
-       A1DI_Free(op_handoff);
-
+        A1DI_Free(op_handoff);
     }
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 void *A1DI_CHT_advance_lock(void * dummy)
@@ -95,9 +91,9 @@ void *A1DI_CHT_advance_lock(void * dummy)
     while (1)
     {
         DCMF_Messager_advance(0);
-        if(a1_settings.use_handoff)
+        if (a1_settings.use_handoff)
         {
-           A1DI_Handoff_progress();       
+            A1DI_Handoff_progress();
         }
         A1DI_GLOBAL_LOCK_RELEASE();
         A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
@@ -105,7 +101,4 @@ void *A1DI_CHT_advance_lock(void * dummy)
     }
     A1DI_GLOBAL_LOCK_RELEASE();
 }
-
-
-
 

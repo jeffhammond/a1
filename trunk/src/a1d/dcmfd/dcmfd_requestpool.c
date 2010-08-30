@@ -14,18 +14,18 @@ A1D_Request_t* A1DI_Get_request(int wait_and_advance)
 
     A1U_FUNC_ENTER();
 
-    if(!wait_and_advance && !A1D_Request_pool.head) 
+    if (!wait_and_advance && !A1D_Request_pool.head)
     {
-      A1DI_Malloc_aligned((void **) &a1d_request, sizeof(A1D_Request_t));
-      a1d_request->in_pool = 0;
+        A1DI_Malloc_aligned((void **) &a1d_request, sizeof(A1D_Request_t));
+        a1d_request->in_pool = 0;
     }
     else
     {
-      A1DI_Conditional_advance(!A1D_Request_pool.head); 
+        A1DI_Conditional_advance(!A1D_Request_pool.head);
 
-      a1d_request = A1D_Request_pool.head;
-      A1D_Request_pool.head = A1D_Request_pool.head->next;
-      a1d_request->in_pool = 1;
+        a1d_request = A1D_Request_pool.head;
+        A1D_Request_pool.head = A1D_Request_pool.head->next;
+        a1d_request->in_pool = 1;
     }
 
     a1d_request->next = NULL;
@@ -33,12 +33,10 @@ A1D_Request_t* A1DI_Get_request(int wait_and_advance)
     a1d_request->a1d_buffer_ptr = NULL;
     a1d_request->handle_ptr = NULL;
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return a1d_request;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 void A1DI_Release_request(A1D_Request_t *a1d_request)
@@ -46,38 +44,36 @@ void A1DI_Release_request(A1D_Request_t *a1d_request)
     A1U_FUNC_ENTER();
     A1D_Handle_t *a1d_handle;
 
-    if(a1d_request->a1d_buffer_ptr != NULL)
+    if (a1d_request->a1d_buffer_ptr != NULL)
     {
-       A1DI_Release_buffer(a1d_request->a1d_buffer_ptr);
+        A1DI_Release_buffer(a1d_request->a1d_buffer_ptr);
     }
 
-    if((a1d_request->buffer_ptr) != NULL)
+    if ((a1d_request->buffer_ptr) != NULL)
     {
         A1DI_Free((void *) (a1d_request->buffer_ptr));
     }
 
-    if(a1d_request->handle_ptr != NULL)
+    if (a1d_request->handle_ptr != NULL)
     {
-       a1d_handle = a1d_request->handle_ptr;
-       --(a1d_handle->active);
+        a1d_handle = a1d_request->handle_ptr;
+        --(a1d_handle->active);
     }
 
-    if(a1d_request->in_pool == 0) 
+    if (a1d_request->in_pool == 0)
     {
-       A1DI_Free(a1d_request);
+        A1DI_Free(a1d_request);
     }
     else
     {
-       a1d_request->next = A1D_Request_pool.head;
-       A1D_Request_pool.head = a1d_request;
+        a1d_request->next = A1D_Request_pool.head;
+        A1D_Request_pool.head = a1d_request;
     }
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Request_pool_initialize()
@@ -85,32 +81,30 @@ int A1DI_Request_pool_initialize()
 
     int status = A1_SUCCESS;
     int index;
-    A1D_Request_t *a1d_request; 
+    A1D_Request_t *a1d_request;
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr), 
-                                 sizeof(A1D_Request_t) * a1_settings.requestpool_size);
+    status = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr),
+                                 sizeof(A1D_Request_t)
+                                         * a1_settings.requestpool_size);
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Malloc_aligned failed while allocating request pool\
                       in A1DI_Request_pool_initialize\n");
 
     a1d_request = A1D_Request_pool.region_ptr;
     A1D_Request_pool.head = a1d_request;
-    for (index=0; index<a1_settings.requestpool_size-1; index++)
+    for (index = 0; index < a1_settings.requestpool_size - 1; index++)
     {
-        a1d_request[index].next = &a1d_request[index+1];
+        a1d_request[index].next = &a1d_request[index + 1];
     }
     a1d_request[index].next = NULL;
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
-
 
 void A1DI_Request_pool_finalize()
 {
@@ -120,10 +114,8 @@ void A1DI_Request_pool_finalize()
 
     A1DI_Free((void *) (A1D_Request_pool.region_ptr));
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

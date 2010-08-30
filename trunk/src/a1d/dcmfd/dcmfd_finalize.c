@@ -33,7 +33,7 @@ int A1D_Finalize(void)
     /* Freeing conenction active counters */
     A1DI_Free((void *) A1D_Connection_send_active);
     A1DI_Free((void *) A1D_Connection_put_active);
- 
+
     /* Freeing put flush local counters and pointers */
     A1DI_Free(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]);
     A1DI_Free(A1D_Put_Flushcounter_ptr);
@@ -48,14 +48,13 @@ int A1D_Finalize(void)
     /* NOTE: exit critical section before finalize since CS may not work after DCMF is terminated */
 
     count = DCMF_Messager_finalize();
-    A1U_WARNING(count == 0,"DCMF_Messager_finalize has been called more than once.");
+    A1U_WARNING(count == 0,
+                "DCMF_Messager_finalize has been called more than once.");
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1D_Abort(int error_code, char error_message[])
@@ -64,14 +63,14 @@ int A1D_Abort(int error_code, char error_message[])
 
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(status = A1_ERROR, "User called A1_ABORT with error code %d,\
-        error msg: %s Program terminating abnormally \n", error_code, error_message);
+    A1U_ERR_ABORT(status = A1_ERROR,
+            "User called A1_ABORT with error code %d, error msg: %s Program terminating abnormally \n",
+            error_code,
+            error_message);
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 

@@ -147,11 +147,11 @@ int A1DI_Put_flush_initialize()
     A1DI_GlobalBarrier();
 
     memcpy((void *) &info,
-           (void *) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
-           sizeof(void *));
+            (void *) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
+            sizeof(void *));
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
-        if (rank != A1D_Process_info.my_rank)
+        likely_if (rank != A1D_Process_info.my_rank)
         {
             status = DCMF_Control(&A1D_Control_xchange_info.protocol,
                                   DCMF_SEQUENTIAL_CONSISTENCY,

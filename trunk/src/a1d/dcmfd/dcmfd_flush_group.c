@@ -27,7 +27,7 @@ void A1DI_Flush_all()
 
     for (dst = 0; dst < A1D_Process_info.num_ranks; dst++)
     {
-        if (dst != A1D_Process_info.my_rank)
+        likely_if (dst != A1D_Process_info.my_rank)
         {
 
             if (A1D_Connection_send_active[dst] > 0)

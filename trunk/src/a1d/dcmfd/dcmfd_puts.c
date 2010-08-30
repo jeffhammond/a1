@@ -103,12 +103,10 @@ int A1DI_Packed_puts_initialize()
                 "DCMF_Send_register returned with error %d \n",
                 status);
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Packed_puts(int target,
@@ -196,15 +194,12 @@ int A1DI_Packed_puts(int target,
                     "DCMF_Send returned with an error \n");
 
         A1D_Connection_send_active[target]++;
-
     }
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:    
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Direct_puts(int target,
@@ -226,7 +221,8 @@ int A1DI_Direct_puts(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &block_sizes_w, sizeof(int) * (stride_level + 1));
+    status = A1DI_Malloc_aligned((void **) &block_sizes_w, sizeof(int)
+            * (stride_level + 1));
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Malloc_aligned returned error in A1DI_Direct_puts");
 
@@ -237,8 +233,8 @@ int A1DI_Direct_puts(int target,
 
     for (i = 0; i < chunk_count; i++)
     {
-
-        src_disp = (size_t) source_ptr - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
+        src_disp = (size_t) source_ptr
+                - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
         dst_disp = (size_t) target_ptr - (size_t) A1D_Membase_global[target];
 
         a1d_request = A1DI_Get_request(1);
@@ -297,15 +293,12 @@ int A1DI_Direct_puts(int target,
             source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[0]);
             target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[0]);
         }
-
     }
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1DI_Recursive_puts(int target,
@@ -326,25 +319,26 @@ int A1DI_Recursive_puts(int target,
 
     if (stride_level > 0)
     {
-
         for (i = 0; i < block_sizes[stride_level]; i++)
         {
             status = A1DI_Recursive_puts(target,
                                          stride_level - 1,
                                          block_sizes,
-                                         (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
+                                         (void *) ((size_t) source_ptr + i
+                                                 * src_stride_ar[stride_level
+                                                         - 1]),
                                          src_stride_ar,
-                                         (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
+                                         (void *) ((size_t) target_ptr + i
+                                                 * trg_stride_ar[stride_level
+                                                         - 1]),
                                          trg_stride_ar,
                                          a1d_handle);
             A1U_ERR_POP(status != A1_SUCCESS,
                         "A1DI_Recursive_puts returned error in A1DI_Recursive_puts.\n");
         }
-
     }
     else
     {
-
         src_disp = (size_t) source_ptr
                 - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
         dst_disp = (size_t) target_ptr - (size_t) A1D_Membase_global[target];
@@ -374,15 +368,12 @@ int A1DI_Recursive_puts(int target,
                     "DCMF_Put returned with an error \n");
 
         A1D_Connection_put_active[target]++;
-
     }
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1D_PutS(int target,
@@ -403,10 +394,9 @@ int A1D_PutS(int target,
 
     if (block_sizes[0] >= a1_settings.put_packing_chunksize_limit)
     {
-
         a1d_handle = A1DI_Get_handle();
         A1U_ERR_POP(status = (a1d_handle == NULL),
-                   "A1DI_Get_handle returned NULL in A1D_PutS\n");
+                    "A1DI_Get_handle returned NULL in A1D_PutS\n");
 
         status = A1DI_Direct_puts(target,
                                   stride_level,
@@ -421,11 +411,9 @@ int A1D_PutS(int target,
         A1DI_Conditional_advance(a1d_handle->active > 0);
 
         A1DI_Release_handle(a1d_handle);
-
     }
     else
     {
-
         status = A1DI_Packed_puts(target,
                                   stride_level,
                                   block_sizes,
@@ -434,16 +422,13 @@ int A1D_PutS(int target,
                                   target_ptr,
                                   trg_stride_ar);
         A1U_ERR_POP(status, "A1DI_Packed_puts returned with an error \n");
-
     }
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1D_NbPutS(int target,
@@ -481,56 +466,54 @@ int A1D_NbPutS(int target,
     }
     else
     {
-  
-        if(a1_settings.use_handoff)
-        {
-           A1D_Op_handoff *op_handoff;
-           A1DI_Malloc_aligned((void **) &op_handoff, sizeof(A1D_Op_handoff));
 
-           op_handoff->op_type = A1D_Packed_puts; 
-           op_handoff->op.puts_op.target = target;
-           op_handoff->op.puts_op.stride_level = stride_level;
-           op_handoff->op.puts_op.block_sizes = block_sizes;
-           op_handoff->op.puts_op.source_ptr = source_ptr;
-           op_handoff->op.puts_op.src_stride_ar = src_stride_ar;
-           op_handoff->op.puts_op.target_ptr = target_ptr;
-           op_handoff->op.puts_op.trg_stride_ar = trg_stride_ar;
-           op_handoff->op.puts_op.a1d_handle = a1d_handle;
- 
-           a1d_handle->active++;
- 
-           if(A1D_Op_handoff_queuetail == NULL) 
-           {
-              A1D_Op_handoff_queuehead = op_handoff;
-              A1D_Op_handoff_queuetail = op_handoff;
-           }
-           else
-           {
-             A1D_Op_handoff_queuetail->next = op_handoff;
-             A1D_Op_handoff_queuetail = op_handoff;
-           }
-           op_handoff->next = NULL;
+        if (a1_settings.use_handoff)
+        {
+            A1D_Op_handoff *op_handoff;
+            A1DI_Malloc_aligned((void **) &op_handoff, sizeof(A1D_Op_handoff));
+
+            op_handoff->op_type = A1D_Packed_puts;
+            op_handoff->op.puts_op.target = target;
+            op_handoff->op.puts_op.stride_level = stride_level;
+            op_handoff->op.puts_op.block_sizes = block_sizes;
+            op_handoff->op.puts_op.source_ptr = source_ptr;
+            op_handoff->op.puts_op.src_stride_ar = src_stride_ar;
+            op_handoff->op.puts_op.target_ptr = target_ptr;
+            op_handoff->op.puts_op.trg_stride_ar = trg_stride_ar;
+            op_handoff->op.puts_op.a1d_handle = a1d_handle;
+
+            a1d_handle->active++;
+
+            if (A1D_Op_handoff_queuetail == NULL)
+            {
+                A1D_Op_handoff_queuehead = op_handoff;
+                A1D_Op_handoff_queuetail = op_handoff;
+            }
+            else
+            {
+                A1D_Op_handoff_queuetail->next = op_handoff;
+                A1D_Op_handoff_queuetail = op_handoff;
+            }
+            op_handoff->next = NULL;
 
         }
         else
         {
-           status = A1DI_Packed_puts(target,
-                                     stride_level,
-                                     block_sizes,
-                                     source_ptr,
-                                     src_stride_ar,
-                                     target_ptr,
-                                     trg_stride_ar);
-           A1U_ERR_POP(status, "A1DI_Packed_puts returned with an error \n");
+            status = A1DI_Packed_puts(target,
+                                      stride_level,
+                                      block_sizes,
+                                      source_ptr,
+                                      src_stride_ar,
+                                      target_ptr,
+                                      trg_stride_ar);
+            A1U_ERR_POP(status, "A1DI_Packed_puts returned with an error \n");
         }
 
     }
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }

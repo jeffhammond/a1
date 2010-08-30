@@ -16,7 +16,6 @@ A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
     A1U_FUNC_ENTER();
 
     do { 
-
         for(index=0; index<A1C_NUM_BUF_SIZES; index++) 
         {
            if((size <= A1D_Buffer_pool.sizes[index]) && A1D_Buffer_pool.pool_heads[index] != NULL)
@@ -41,7 +40,6 @@ A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
               a1d_buffer->pool_index = -1;
               return a1d_buffer;
          }
-      
      } while(a1d_buffer == NULL);	
 
   fn_exit: 

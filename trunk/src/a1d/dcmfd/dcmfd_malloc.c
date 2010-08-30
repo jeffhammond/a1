@@ -31,7 +31,7 @@ int A1DI_Memregion_Global_xchange()
             sizeof(DCMF_Memregion_t));
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
-        if (rank != A1D_Process_info.my_rank)
+        likely_if (rank != A1D_Process_info.my_rank)
         {
             status = DCMF_Control(&A1D_Control_xchange_info.protocol,
                                   DCMF_SEQUENTIAL_CONSISTENCY,
@@ -112,7 +112,7 @@ int A1DI_Memaddress_xchange(void **ptr)
 
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
-        if (rank != A1D_Process_info.my_rank)
+        likely_if (rank != A1D_Process_info.my_rank)
         {
             DCMF_Control(&A1D_Control_xchange_info.protocol,
                          DCMF_SEQUENTIAL_CONSISTENCY,

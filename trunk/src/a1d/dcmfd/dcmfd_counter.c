@@ -114,7 +114,7 @@ int A1D_Create_counter(A1_group_t* group, A1_counter_t *counter_ptr)
      distributing counters across processes in a round-robin fashion be a good way? */
     a1d_counter->rank = A1D_Process_info.num_ranks - 1;
 
-    if (a1d_counter->rank == A1D_Process_info.my_rank)
+    unlikely_if (a1d_counter->rank == A1D_Process_info.my_rank)
     {
 
         a1d_counter->value_ptr = NULL;
