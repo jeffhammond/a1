@@ -1,0 +1,12 @@
+----------
+TODO list 
+----------
+
+API and ADL level:
+
+- Implement Group creation and management code
+
+ADL level:
+
+- Handle same-process copies using memcpy
+- Implement Multi ops using nonblocking operations
