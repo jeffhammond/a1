@@ -147,9 +147,11 @@ do {                                      \
  *          Memory Allocation Macros             *
  *************************************************/
 
-#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
-
-#define A1DI_Malloc(ptr, num)  ((ptr = malloc(num)) == NULL)
+#define A1DI_Malloc(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
+/*
+ * I don't know why one would want unaligned memory, but here it is for posterity
+ * #define A1DI_Malloc(ptr, num)  ((ptr = malloc(num)) == NULL)
+ */
 
 #define A1DI_Free(ptr) free(ptr)
 
