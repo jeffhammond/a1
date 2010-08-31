@@ -92,8 +92,8 @@ int main() {
 
    if(rank == 0) {
 
-      printf("A1_PutS Overlap - local and remote completions - in usec \n");
-      printf("%30s %30s %22s \n", "Msg Size", "Dimensions(array of doubles)", "Latency-LocalCompeltion", "Overlap-LocalCompletion");
+      printf("A1_PutS Overlap - NbPutS + DGEMM + Wait. Time in cycles\n");
+      printf("%30s %30s %22s \n", "Msg Size", "Dimensions(array of doubles)", "Base Latency", "Overlaped Latency");
       fflush(stdout);
 
       src_stride = MAX_DIM*sizeof(double);
