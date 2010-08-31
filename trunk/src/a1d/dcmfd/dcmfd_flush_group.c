@@ -18,8 +18,8 @@ void A1DI_Flush_all()
 
     A1U_FUNC_ENTER();
 
-    A1DI_Malloc_aligned((void **) &request, sizeof(DCMF_Request_t) * a1_settings.flushall_pending_limit); 
-    A1U_ERR_POP(!status, "A1DI_Malloc_aligned failed in A1DI_Flush_all\n"); 
+    A1DI_Malloc((void **) &request, sizeof(DCMF_Request_t) * a1_settings.flushall_pending_limit); 
+    A1U_ERR_POP(!status, "A1DI_Malloc failed in A1DI_Flush_all\n"); 
 
     pending_count = 0;
     ack_callback.function = A1DI_Generic_done;

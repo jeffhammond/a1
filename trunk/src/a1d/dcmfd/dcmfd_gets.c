@@ -276,7 +276,7 @@ int A1DI_Packed_gets(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &header, sizeof(A1D_Packed_gets_header_t));
+    status = A1DI_Malloc((void **) &header, sizeof(A1D_Packed_gets_header_t));
     A1U_ERR_POP(status,"Malloc failed in A1DI_Packed_gets \n");
 
     /*Copying header information*/
@@ -341,9 +341,9 @@ int A1DI_Direct_gets(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &block_sizes_w, sizeof(int)*(stride_level+1));
+    status = A1DI_Malloc((void **) &block_sizes_w, sizeof(int)*(stride_level+1));
     A1U_ERR_POP(status != A1_SUCCESS,
-             "A1DI_Malloc_aligned returned error in A1DI_Direct_gets");
+             "A1DI_Malloc returned error in A1DI_Direct_gets");
 
     A1DI_Memcpy(block_sizes_w, block_sizes, sizeof(int)*(stride_level+1));
 

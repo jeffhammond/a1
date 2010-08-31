@@ -16,7 +16,7 @@ A1D_Request_t* A1DI_Get_request(int wait_and_advance)
 
     if (!wait_and_advance && !A1D_Request_pool.head)
     {
-        A1DI_Malloc_aligned((void **) &a1d_request, sizeof(A1D_Request_t));
+        A1DI_Malloc((void **) &a1d_request, sizeof(A1D_Request_t));
         a1d_request->in_pool = 0;
     }
     else
@@ -85,11 +85,11 @@ int A1DI_Request_pool_initialize()
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &(A1D_Request_pool.region_ptr),
+    status = A1DI_Malloc((void **) &(A1D_Request_pool.region_ptr),
                                  sizeof(A1D_Request_t)
                                          * a1_settings.requestpool_size);
     A1U_ERR_POP(status != A1_SUCCESS,
-                "A1DI_Malloc_aligned failed while allocating request pool\
+                "A1DI_Malloc failed while allocating request pool\
                       in A1DI_Request_pool_initialize\n");
 
     a1d_request = A1D_Request_pool.region_ptr;

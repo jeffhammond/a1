@@ -106,9 +106,9 @@ int A1D_Create_counter(A1_group_t* group, A1_counter_t *counter_ptr)
     A1U_ERR_POP(status = (group != A1_GROUP_WORLD),
                 "Counters are not implemented for non-world groups!");
 
-    status = A1DI_Malloc_aligned((void **) &a1d_counter, sizeof(A1D_Counter_t));
+    status = A1DI_Malloc((void **) &a1d_counter, sizeof(A1D_Counter_t));
     A1U_ERR_POP(status != 0,
-                "A1DI_Malloc_aligned returned error in A1D_Create_counter\n");
+                "A1DI_Malloc returned error in A1D_Create_counter\n");
 
     /* TODO: We have to find a way to select the location of counters dynamically. Will 
      distributing counters across processes in a round-robin fashion be a good way? */

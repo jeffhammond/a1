@@ -221,10 +221,10 @@ int A1DI_Direct_puts(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &block_sizes_w, sizeof(int)
+    status = A1DI_Malloc((void **) &block_sizes_w, sizeof(int)
             * (stride_level + 1));
     A1U_ERR_POP(status != A1_SUCCESS,
-                "A1DI_Malloc_aligned returned error in A1DI_Direct_puts");
+                "A1DI_Malloc returned error in A1DI_Direct_puts");
 
     A1DI_Memcpy(block_sizes_w, block_sizes, sizeof(int) * (stride_level + 1));
 
@@ -470,7 +470,7 @@ int A1D_NbPutS(int target,
         if (a1_settings.use_handoff)
         {
             A1D_Op_handoff *op_handoff;
-            A1DI_Malloc_aligned((void **) &op_handoff, sizeof(A1D_Op_handoff));
+            A1DI_Malloc((void **) &op_handoff, sizeof(A1D_Op_handoff));
 
             op_handoff->op_type = A1D_Packed_puts;
             op_handoff->op.puts_op.target = target;

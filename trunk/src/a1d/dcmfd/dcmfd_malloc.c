@@ -58,9 +58,9 @@ int A1DI_Memregion_Global_initialize()
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &A1D_Memregion_global,
+    status = A1DI_Malloc((void **) &A1D_Memregion_global,
                                  sizeof(DCMF_Memregion_t) * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
+    A1U_ERR_POP(status != 0, "A1DI_Malloc failed \n");
 
     status  = DCMF_Memregion_create(&A1D_Memregion_global[A1D_Process_info.my_rank],
                                     &out,
@@ -72,9 +72,9 @@ int A1DI_Memregion_Global_initialize()
     status = A1DI_Memregion_Global_xchange();
     A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Memregion_Global_xchange failed \n");
 
-    status = A1DI_Malloc_aligned((void **) &A1D_Membase_global, 
+    status = A1DI_Malloc((void **) &A1D_Membase_global, 
                                  sizeof(void *) * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
+    A1U_ERR_POP(status != 0, "A1DI_Malloc failed \n");
 
     for (i = 0; i < A1D_Process_info.num_ranks; i++)
     {
@@ -162,9 +162,9 @@ int A1D_Alloc_segment(void** ptr, int bytes)
 
     A1DI_CRITICAL_ENTER();
 
-    status = A1DI_Malloc_aligned(ptr, bytes);
+    status = A1DI_Malloc(ptr, bytes);
     A1U_ERR_POP(status != 0,
-                "A1DI_Malloc_aligned returned error in A1D_Alloc_segment\n");
+                "A1DI_Malloc returned error in A1D_Alloc_segment\n");
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();

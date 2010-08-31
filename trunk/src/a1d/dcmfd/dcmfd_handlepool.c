@@ -109,10 +109,10 @@ int A1DI_Handle_pool_initialize()
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &a1d_handle, sizeof(A1D_Handle_t)
+    status = A1DI_Malloc((void **) &a1d_handle, sizeof(A1D_Handle_t)
             * a1_settings.handlepool_size);
     A1U_ERR_POP(status != 0,
-                "A1DI_Malloc_aligned failed while allocating handle pool\
+                "A1DI_Malloc failed while allocating handle pool\
                       in A1DI_Handle_pool_initialize\n");
 
     A1D_Handle_pool.region_ptr = (void *) a1d_handle;
@@ -123,11 +123,11 @@ int A1DI_Handle_pool_initialize()
     }
     a1d_handle[index].next = NULL;
 
-    status = A1DI_Malloc_aligned((void **) &A1D_Active_handle_list,
+    status = A1DI_Malloc((void **) &A1D_Active_handle_list,
                                  sizeof(A1D_Handle_t *)
                                          * a1_settings.handlepool_size);
     A1U_ERR_POP(status != 0,
-                "A1DI_Malloc_aligned failed in A1DI_Handle_pool_initialize\n");
+                "A1DI_Malloc failed in A1DI_Handle_pool_initialize\n");
 
     for (index = 0; index < a1_settings.handlepool_size; index++)
     {

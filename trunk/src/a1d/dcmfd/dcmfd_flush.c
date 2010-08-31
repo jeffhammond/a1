@@ -103,10 +103,10 @@ int A1DI_Send_flush_initialize()
                 status);
 
     /* Allocating memory for vector that tracks connections with active sends */
-    status = A1DI_Malloc_aligned((void **) &A1D_Connection_send_active,
+    status = A1DI_Malloc((void **) &A1D_Connection_send_active,
                                  sizeof(int) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(status != 0,
-                "A1DI_Malloc_aligned failed \n");
+                "A1DI_Malloc failed \n");
     A1DI_Memset((void *) A1D_Connection_send_active,
                 0,
                 sizeof(int) * A1D_Process_info.num_ranks);
@@ -131,13 +131,13 @@ int A1DI_Put_flush_initialize()
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc_aligned((void **) &A1D_Put_Flushcounter_ptr,
+    status = A1DI_Malloc((void **) &A1D_Put_Flushcounter_ptr,
                                  sizeof(void *) * A1D_Process_info.num_ranks);
-    A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
+    A1U_ERR_POP(status != 0, "A1DI_Malloc failed \n");
 
-    status = A1DI_Malloc_aligned((void **) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
+    status = A1DI_Malloc((void **) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
                                   2);
-    A1U_ERR_POP(status != 0, "A1DI_Malloc_aligned failed \n");
+    A1U_ERR_POP(status != 0, "A1DI_Malloc failed \n");
 
     /*TODO: Use DCMF_Send operations instead to exploit TORUS network */
     A1D_Control_xchange_info.xchange_ptr = (void *) A1D_Put_Flushcounter_ptr;
@@ -163,7 +163,7 @@ int A1DI_Put_flush_initialize()
     A1DI_Conditional_advance(A1D_Control_xchange_info.rcv_active > 0);
 
     /* Allocating memory for vector thats tracks connections with active puts */
-    status = A1DI_Malloc_aligned((void **) &A1D_Connection_put_active,
+    status = A1DI_Malloc((void **) &A1D_Connection_put_active,
                                  sizeof(int) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(status != 0,
                 "Connection put active buffer allocation Failed \n");

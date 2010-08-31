@@ -34,7 +34,7 @@ A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
          else
          {
               void* new_buffer;
-              A1DI_Malloc_aligned((void **) &new_buffer, sizeof(A1D_Buffer_t) + size);
+              A1DI_Malloc((void **) &new_buffer, sizeof(A1D_Buffer_t) + size);
               a1d_buffer = (A1D_Buffer_t *) new_buffer;
               a1d_buffer->buffer_ptr = (void *) ((size_t) new_buffer + sizeof(A1D_Buffer_t));
               a1d_buffer->pool_index = -1;
@@ -90,16 +90,16 @@ int A1DI_Buffer_pool_initialize()
     for(i=0; i<A1C_NUM_BUF_SIZES; i++)
     {
         /* Initializing Put and Get buffer pool */
-        status = A1DI_Malloc_aligned((void **) &(A1D_Buffer_pool.pool_region_ptrs[i]), 
+        status = A1DI_Malloc((void **) &(A1D_Buffer_pool.pool_region_ptrs[i]), 
                                      sizeof(A1D_Buffer_t) * A1D_Buffer_pool.limits[i]);
         A1U_ERR_POP(status != A1_SUCCESS,
-                    "A1DI_Malloc_aligned failed while allocating request pool\
+                    "A1DI_Malloc failed while allocating request pool\
                           in A1DI_Buffer_pool_initialize\n");
   
-        status = A1DI_Malloc_aligned((void **) &(A1D_Buffer_pool.mem_region_ptrs[i]),
+        status = A1DI_Malloc((void **) &(A1D_Buffer_pool.mem_region_ptrs[i]),
                                      A1D_Buffer_pool.sizes[i]  * A1D_Buffer_pool.limits[i]);
         A1U_ERR_POP(status != A1_SUCCESS,
-                    "A1DI_Malloc_aligned failed while allocating request pool\
+                    "A1DI_Malloc failed while allocating request pool\
                           in A1DI_Buffer_pool_initialize\n");
   
         a1d_buffer = A1D_Buffer_pool.pool_region_ptrs[i];

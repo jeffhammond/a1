@@ -96,10 +96,10 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
         "Header of invalid size received in A1DI_RecvSend_putacc_callback\n")
 
     a1d_request->buffer_size = sndlen +  sizeof(A1D_Putacc_header_t);
-    status = A1DI_Malloc_aligned((void **) &(a1d_request->buffer_ptr), 
+    status = A1DI_Malloc((void **) &(a1d_request->buffer_ptr), 
                                  sndlen +  sizeof(A1D_Putacc_header_t));
     A1U_ERR_ABORT(status != 0,
-                  "A1DI_Malloc_aligned failed in A1DI_RecvSend_packedputs_callback\n");
+                  "A1DI_Malloc failed in A1DI_RecvSend_packedputs_callback\n");
 
     memcpy(a1d_request->buffer_ptr, 
            (void *) msginfo, 
