@@ -19,7 +19,7 @@ int A1DI_Put_initialize()
     conf.network = DCMF_TORUS_NETWORK;
     status = DCMF_Put_register(&A1D_Generic_put_protocol, &conf);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-                "put registration returned with error %d \n",
+                "DCMF_Put_register returned with error %d \n",
                 status);
 
     fn_exit: A1U_FUNC_EXIT();
@@ -28,7 +28,10 @@ int A1DI_Put_initialize()
     fn_fail: goto fn_exit;
 }
 
-int A1D_Put(int target, void* src, void* dst, int bytes)
+int A1D_Put(int target,
+            void* src,
+            void* dst,
+            int bytes)
 {
     int status = A1_SUCCESS;
     DCMF_Request_t request;
@@ -103,7 +106,8 @@ int A1D_NbPut(int target,
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
     a1d_request = A1DI_Get_request(1);
-    A1U_ERR_POP(status = (a1d_request == NULL), "A1DI_Get_request returned error \n");
+    A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned error \n");
     A1DI_Set_handle(a1d_request, a1d_handle);
 
     done_callback.function = A1DI_Request_done;
@@ -129,11 +133,9 @@ int A1D_NbPut(int target,
 
     A1D_Connection_put_active[target]++;
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
