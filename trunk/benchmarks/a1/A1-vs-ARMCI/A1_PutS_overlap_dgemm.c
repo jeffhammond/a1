@@ -128,7 +128,7 @@ int main() {
   
          char temp[10];
          sprintf(temp,"%dX%d", count[1], count[0]);
-         printf("%30d %30s %20lld", count[1]*count[0]*sizeof(double), temp, (t_latency/);
+         printf("%30d %30s %20lld", count[1]*count[0]*sizeof(double), temp, t_latency);
          fflush(stdout);
  
          t_start = A1_Time_cycles();
