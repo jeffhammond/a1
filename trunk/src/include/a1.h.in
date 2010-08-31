@@ -43,14 +43,14 @@ extern "C"
 
 typedef enum
 {
-    A1_THREAD_SINGLE,     /**< There is only one thread present. */
-    A1_THREAD_FUNNELED,   /**< There are multiple threads present
-                               but only the main thread makes A1 calls. */
+    A1_THREAD_SINGLE, /**< There is only one thread present. */
+    A1_THREAD_FUNNELED, /**< There are multiple threads present
+     but only the main thread makes A1 calls. */
     A1_THREAD_SERIALIZED, /**< There are multiple threads present and each can make A1 calls,
-                               but never simultaneously. */
-    A1_THREAD_MULTIPLE    /**< There are multiple threads present and each can make A1 calls. */
-}
-A1_thread_level;
+     but never simultaneously. */
+    A1_THREAD_MULTIPLE
+/**< There are multiple threads present and each can make A1 calls. */
+} A1_thread_level;
 
 /**
  * \brief Datatype support within A1.
@@ -64,14 +64,14 @@ A1_thread_level;
 
 typedef enum
 {
-    A1_INT32,  /**< int32  */
-    A1_INT64,  /**< int64  */
+    A1_INT32, /**< int32  */
+    A1_INT64, /**< int64  */
     A1_UINT32, /**< uint32 */
     A1_UINT64, /**< uint64 */
-    A1_FLOAT,  /**< single-precision */
-    A1_DOUBLE, /**< double-precision */
-}
-A1_datatype_t;
+    A1_FLOAT, /**< single-precision */
+    A1_DOUBLE,
+/**< double-precision */
+} A1_datatype_t;
 
 /**
  * \brief A1 boolean.
@@ -82,10 +82,8 @@ A1_datatype_t;
 
 typedef enum
 {
-    A1_TRUE = 1,
-    A1_FALSE = 0,
-}
-A1_bool_t;
+    A1_TRUE = 1, A1_FALSE = 0,
+} A1_bool_t;
 
 /**
  * \brief A1 RMW operations
@@ -96,10 +94,8 @@ A1_bool_t;
 
 typedef enum
 {
-    A1_FETCH_AND_ADD,
-    A1_SWAP,
-}
-A1_atomic_op_t;
+    A1_FETCH_AND_ADD, A1_SWAP,
+} A1_atomic_op_t;
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -120,8 +116,7 @@ A1_atomic_op_t;
 typedef struct A1_group
 {
     int* rank_list;
-}
-A1_group_t;
+} A1_group_t;
 
 A1_group_t a1_group_world;
 
@@ -160,11 +155,10 @@ typedef void* A1_counter_t;
 
 typedef struct A1_mutex_t
 {
-   int rank;
-   void* owner_ptr;
-   int owner; /* TODO: this is only defined on the host given by rank. */
-}
-A1_mutex_t;
+    int rank;
+    void* owner_ptr;
+    int owner; /* TODO: this is only defined on the host given by rank. */
+} A1_mutex_t;
 
 /**
  * \brief A1 io vector type.
@@ -177,13 +171,11 @@ A1_mutex_t;
 
 typedef struct A1_iov_t
 {
-   void **source_ptr_ar;
-   void **target_ptr_ar;
-   int size;  /*In bytes*/
-   int ptr_ar_len; 
-}
-A1_iov_t;
-
+    void **source_ptr_ar;
+    void **target_ptr_ar;
+    int size; /*In bytes*/
+    int ptr_ar_len;
+} A1_iov_t;
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -491,8 +483,7 @@ int A1_Release_handle(A1_handle_t handle);
  * \ingroup Atomics
  */
 
-int A1_Create_counter(A1_group_t* group,
-                      A1_counter_t *counter);
+int A1_Create_counter(A1_group_t* group, A1_counter_t *counter);
 
 /**
  * \brief Collective operation to deallocate and deregister a counter.
@@ -506,8 +497,7 @@ int A1_Create_counter(A1_group_t* group,
  * \ingroup Atomics
  */
 
-int A1_Destroy_counter(A1_group_t* group,
-                       A1_counter_t *counter);
+int A1_Destroy_counter(A1_group_t* group, A1_counter_t *counter);
 
 /* TODO: Does PPC32 (or 32-bit processors in general) support hardware atomics for 64-bit integers???
  *       I would like to use int64_t on all platforms if we can use them on Blue Gene/P.
@@ -526,9 +516,7 @@ int A1_Destroy_counter(A1_group_t* group,
  * \ingroup Atomics
  */
 
-int A1_Incr_counter(A1_counter_t counter,
-                    long increment,
-                    long* original);
+int A1_Incr_counter(A1_counter_t counter, long increment, long* original);
 
 /**
  * \brief Non-blocking atomic RMW update of a shared counter.
@@ -562,9 +550,7 @@ int A1_NbIncr_counter(A1_counter_t counter,
  * \ingroup Atomics
  */
 
-int A1_Create_mutexes(A1_group_t* group,
-                      int count,
-                      A1_mutex_t* *mutexes);
+int A1_Create_mutexes(A1_group_t* group, int count, A1_mutex_t* *mutexes);
 
 /**
  * \brief Collective operation to deallocate and deregister a list of mutexes
@@ -581,8 +567,7 @@ int A1_Create_mutexes(A1_group_t* group,
  * \ingroup Atomics
  */
 
-int A1_Destroy_mutexes(A1_group_t* group,
-                       A1_mutex_t* mutexes);
+int A1_Destroy_mutexes(A1_group_t* group, A1_mutex_t* mutexes);
 
 /**
  * \brief Local operation to lock a mutex.  This call blocks until the mutex has been locked.
@@ -636,8 +621,7 @@ int A1_Unlock_mutex(A1_mutex_t mutex);
  * \ingroup Atomics
  */
 
-int A1_Lock_mutexes(int count,
-                    A1_mutex_t *mutexes);
+int A1_Lock_mutexes(int count, A1_mutex_t *mutexes);
 
 /**
  * \brief Local operation to trylock a list of mutexes.  This call attempts to acquire all the
@@ -654,9 +638,7 @@ int A1_Lock_mutexes(int count,
  * \ingroup Atomics
  */
 
-int A1_Trylock_mutexes(int count,
-                       A1_mutex_t *mutexes,
-                       A1_bool_t* *acquired);
+int A1_Trylock_mutexes(int count, A1_mutex_t *mutexes, A1_bool_t* *acquired);
 
 /**
  * \brief Local operation to unlock a list of mutexes
@@ -670,9 +652,7 @@ int A1_Trylock_mutexes(int count,
  * \ingroup Atomics
  */
 
-int A1_Unlock_mutexes(unsigned count,
-                      A1_mutex_t *mutexes);
-
+int A1_Unlock_mutexes(unsigned count, A1_mutex_t *mutexes);
 
 /* FIXME: More API functions to come */
 
@@ -691,15 +671,12 @@ int A1_Unlock_mutexes(unsigned count,
  * \param[in]  target_ptr    Starting address in the (remote) target memory.
  * \param[in]  bytes         Amount of data to transfer in bytes.
  *
- * \see A1_PutS, A1_PutV, A1_MultiPut, A1_MultiPutS, A1_MultiPutV
+ * \see A1_NbPut, A1_MultiPut
  *
  * \ingroup DATA_TRANSFER
  */
 
-int A1_Put(int target,
-           void* source_ptr,
-           void* target_ptr,
-           int bytes);
+int A1_Put(int target, void* source_ptr, void* target_ptr, int bytes);
 
 /**
  * \brief Non-Blocking copy of contiguous data from local memory to remote memory.
@@ -711,16 +688,16 @@ int A1_Put(int target,
  * \param[in]  bytes         Amount of data to transfer in bytes.
  * \param[out] handle        Opaque handle for the request
  *
- * \see A1_NbPutS, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ * \see A1_Put, A1_NbMultiPut
  *
  * \ingroup DATA_TRANSFER
  */
 
 int A1_NbPut(int target,
-            void* source_ptr,
-            void* target_ptr,
-            int bytes,
-            A1_handle_t handle);
+             void* source_ptr,
+             void* target_ptr,
+             int bytes,
+             A1_handle_t handle);
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -736,7 +713,7 @@ int A1_NbPut(int target,
  * \param[in]  target_ptr    Vector of starting addresses in the (remote) target memory.
  * \param[in]  bytes         Vector of quantity of data to transfer in bytes.
  *
- * \see A1_Put, A1_PutS, A1_PutV, A1_MultiPutS, A1_MultiPutV
+ * \see A1_Put
  *
  * \ingroup DATA_TRANSFER
  */
@@ -746,6 +723,32 @@ int A1_MultiPut(int count,
                 void* *source_ptr,
                 void* *target_ptr,
                 int *bytes);
+
+/**
+ * \brief Nonblocking copy of contiguous data from local memory to remote memory.
+ *
+ * \note A1_MultiPut can be used for single-target non-contiguous put as well,
+ *       but the implementation may be far from optimal relative to A1_PutS
+ *       and A1_PutV.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  count         Number of operations to be performed
+ * \param[in]  targets       Vector of remote process ranks.
+ * \param[in]  source_ptr    Vector of starting addresses in the (local) source memory.
+ * \param[in]  target_ptr    Vector of starting addresses in the (remote) target memory.
+ * \param[in]  bytes         Vector of quantity of data to transfer in bytes.
+ *
+ * \see A1_NbPut, A1_MultiPut
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbMultiPut(int count,
+                  int *targets,
+                  void* *source_ptr,
+                  void* *target_ptr,
+                  int *bytes,
+                  A1_handle_t handle);
 
 /**
  * \brief Blocking copy of strided data from local memory to remote memory.
@@ -791,13 +794,13 @@ int A1_PutS(int target,
  */
 
 int A1_NbPutS(int target,
-            int stride_levels,
-            int *block_sizes,
-            void* source_ptr,
-            int *src_stride_ar,
-            void* target_ptr,
-            int *trg_stride_ar,
-            A1_handle_t handle);
+              int stride_levels,
+              int *block_sizes,
+              void* source_ptr,
+              int *src_stride_ar,
+              void* target_ptr,
+              int *trg_stride_ar,
+              A1_handle_t handle);
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -829,12 +832,42 @@ int A1_MultiPutS(int count,
                  int *trg_stride_ar);
 
 /**
+ * \brief Nonblocking copy of contiguous data from local memory to remote memory.
+ *
+ * \note This call must be use the same stride-level across all targets.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  count           Number of operations to be performed
+ * \param[in]  targets         Vector of remote process ranks.
+ * \param[in]  block_sizes     Vector of block sizes in each dimension in bytes.
+ * \param[in]  stride_levels   Number of levels of stride.
+ * \param[in]  source_ptr      Vector of starting in the (local) source memory.
+ * \param[in]  src_stride_ar   Vector of arrays of stride distances at source in bytes.
+ * \param[in]  target_ptr      Vector of starting in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Vector of arrays of stride distances at target in bytes.
+ * \param[out] handle          Opaque A1 handle
+ *
+ * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbMultiPutS(int count,
+                   int *targets,
+                   int stride_levels,
+                   int* *block_sizes,
+                   void* source_ptr,
+                   int *src_stride_ar,
+                   void* target_ptr,
+                   int *trg_stride_ar,
+                   A1_handle_t handle);
+
+/**
  * \brief Blocking copy of non-contiguous data from local memory to remote memory.
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
- * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of 
- *                             chunks of same size.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of chunks of same size.
  * \param[in]  ar_len          Number of elements in the array.
  *
  * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
@@ -842,17 +875,14 @@ int A1_MultiPutS(int count,
  * \ingroup DATA_TRANSFER
  */
 
-int A1_PutV(int target, 
-            A1_iov_t *iov_ar, 
-            int ar_len);
+int A1_PutV(int target, A1_iov_t *iov_ar, int ar_len);
 
 /**
  * \brief Non-Blocking copy of non-contiguous data from local memory to remote memory.
  *
  * \param[out] rc              The error code.
  * \param[in]  target          Rank of the remote process.
- * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of 
- *                             chunks of same size.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of chunks of same size.
  * \param[in]  ar_len          Number of elements in the array.
  * \param[out] handle          Opaque A1 handle
  *
@@ -861,10 +891,7 @@ int A1_PutV(int target,
  * \ingroup DATA_TRANSFER
  */
 
-int A1_NbPutV(int target,
-              A1_iov_t *iov_ar,
-              int ar_len,
-              A1_handle_t handle);
+int A1_NbPutV(int target, A1_iov_t *iov_ar, int ar_len, A1_handle_t handle);
 
 /**
  * \brief Blocking accumulate of contiguous data from local memory onto remote memory.
@@ -875,7 +902,7 @@ int A1_NbPutV(int target,
  * \param[in]  target_ptr    Starting address in the (remote) target memory.
  * \param[in]  bytes         Amount of data to transfer in bytes.
  * \param[in]  a1_type       Datatype of buffer and scaling factor.
- * \param[in]  scaling       Factor for scaling source
+ * \param[in]  scaling       Factor for scaling source.
  *
  * \see A1_Put, A1_Copy, A1_CopyAcc
  *
@@ -907,12 +934,72 @@ int A1_PutAcc(int target,
  */
 
 int A1_NbPutAcc(int target,
-              void* source_ptr,
-              void* target_ptr,
-              int bytes,
-              A1_datatype_t a1_type,
-              void* scaling,
-              A1_handle_t handle);
+                void* source_ptr,
+                void* target_ptr,
+                int bytes,
+                A1_datatype_t a1_type,
+                void* scaling,
+                A1_handle_t handle);
+
+/**
+ * \brief Blocking accumulate of contiguous data from local memory to remote memory.
+ *
+ * \note A1_MultiPut can be used for single-target non-contiguous put as well,
+ *       but the implementation may be far from optimal relative to A1_PutS
+ *       and A1_PutV.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  count         Number of operations to be performed
+ * \param[in]  targets       Vector of remote process ranks.
+ * \param[in]  source_ptr    Vector of starting addresses in the (local) source memory.
+ * \param[in]  target_ptr    Vector of starting addresses in the (remote) target memory.
+ * \param[in]  bytes         Vector of quantity of data to transfer in bytes.
+ * \param[in]  a1_type       Datatype of buffer and scaling factor.
+ * \param[in]  scaling       Factor for scaling source.
+ *
+ * \see A1_Put
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_MultiPutAcc(int count,
+                   int *targets,
+                   void* *source_ptr,
+                   void* *target_ptr,
+                   int *bytes,
+                   A1_datatype_t a1_type,
+                   void* scaling);
+
+/**
+ * \brief Nonblocking accumulate of contiguous data from local memory to remote memory.
+ *
+ * \note A1_MultiPut can be used for single-target non-contiguous put as well,
+ *       but the implementation may be far from optimal relative to A1_PutS
+ *       and A1_PutV.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  count         Number of operations to be performed
+ * \param[in]  targets       Vector of remote process ranks.
+ * \param[in]  source_ptr    Vector of starting addresses in the (local) source memory.
+ * \param[in]  target_ptr    Vector of starting addresses in the (remote) target memory.
+ * \param[in]  bytes         Vector of quantity of data to transfer in bytes.
+ * \param[in]  a1_type       Datatype of buffer and scaling factor.
+ * \param[in]  scaling       Factor for scaling source.
+ * \param[out] handle        Opaque A1 handle
+ *
+ * \see A1_NbPut, A1_MultiPut
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbMultiPutAcc(int count,
+                     int *targets,
+                     void* *source_ptr,
+                     void* *target_ptr,
+                     int *bytes,
+                     A1_datatype_t a1_type,
+                     void* scaling,
+                     A1_handle_t handle);
 
 /**
  * \brief Blocking accumulate of strided data from local memory to remote memory.
@@ -964,15 +1051,83 @@ int A1_PutAccS(int target,
  */
 
 int A1_NbPutAccS(int target,
-               int stride_levels,
-               int *block_sizes,
-               void* source_ptr,
-               int *src_stride_ar,
-               void* target_ptr,
-               int *trg_stride_ar,
-               A1_datatype_t a1_type,
-               void* scaling,
-               A1_handle_t handle);
+                 int stride_levels,
+                 int *block_sizes,
+                 void* source_ptr,
+                 int *src_stride_ar,
+                 void* target_ptr,
+                 int *trg_stride_ar,
+                 A1_datatype_t a1_type,
+                 void* scaling,
+                 A1_handle_t handle);
+
+/**
+ * \brief Blocking copy of contiguous data from local memory to remote memory.
+ *
+ * \note This call must be use the same stride-level across all targets.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  count           Number of operations to be performed
+ * \param[in]  targets         Vector of remote process ranks.
+ * \param[in]  block_sizes     Vector of block sizes in each dimension in bytes.
+ * \param[in]  stride_levels   Number of levels of stride.
+ * \param[in]  source_ptr      Vector of starting in the (local) source memory.
+ * \param[in]  src_stride_ar   Vector of arrays of stride distances at source in bytes.
+ * \param[in]  target_ptr      Vector of starting in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Vector of arrays of stride distances at target in bytes.
+ * \param[in]  a1_type         Type of data and scaling factor
+ * \param[in]  *scaling        Scaling factor in the accumulate operation.
+ *
+ * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_MultiPutAccS(int count,
+                    int *targets,
+                    int stride_levels,
+                    int* *block_sizes,
+                    void* source_ptr,
+                    int *src_stride_ar,
+                    void* target_ptr,
+                    int *trg_stride_ar,
+                    A1_datatype_t a1_type,
+                    void* scaling);
+
+/**
+ * \brief Nonblocking copy of contiguous data from local memory to remote memory.
+ *
+ * \note This call must be use the same stride-level across all targets.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  count           Number of operations to be performed
+ * \param[in]  targets         Vector of remote process ranks.
+ * \param[in]  block_sizes     Vector of block sizes in each dimension in bytes.
+ * \param[in]  stride_levels   Number of levels of stride.
+ * \param[in]  source_ptr      Vector of starting in the (local) source memory.
+ * \param[in]  src_stride_ar   Vector of arrays of stride distances at source in bytes.
+ * \param[in]  target_ptr      Vector of starting in the (remote) target memory.
+ * \param[in]  trg_stride_ar   Vector of arrays of stride distances at target in bytes.
+ * \param[in]  a1_type         Type of data and scaling factor
+ * \param[in]  *scaling        Scaling factor in the accumulate operation.
+ * \param[out] handle          Opaque A1 handle
+ *
+ * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbMultiPutAccS(int count,
+                      int *targets,
+                      int stride_levels,
+                      int* *block_sizes,
+                      void* source_ptr,
+                      int *src_stride_ar,
+                      void* target_ptr,
+                      int *trg_stride_ar,
+                      A1_datatype_t a1_type,
+                      void* scaling,
+                      A1_handle_t handle);
 
 /**
  * \brief Blocking accumulate of non-contiguous data from local memory to remote memory.
@@ -990,7 +1145,7 @@ int A1_NbPutAccS(int target,
  * \ingroup DATA_TRANSFER
  */
 
-int A1_PutAccV(int target, 
+int A1_PutAccV(int target,
                A1_iov_t *iov_ar,
                int ar_len,
                A1_datatype_t a1_type,
@@ -1051,9 +1206,9 @@ int A1_Get(int target, void* source_ptr, void* target_ptr, int bytes);
  * \ingroup DATA_TRANSFER
  */
 
-int A1_NbGet(int target, 
-             void* source_ptr, 
-             void* target_ptr, 
+int A1_NbGet(int target,
+             void* source_ptr,
+             void* target_ptr,
              int bytes,
              A1_handle_t handle);
 
@@ -1077,6 +1232,29 @@ int A1_MultiGet(int count,
                 void* *source_ptr,
                 void* *target_ptr,
                 int *bytes);
+
+/**
+ * \brief Nonblocking copy of contiguous data from remote memory onto local memory.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  count         Number of operations to be performed
+ * \param[in]  target        Vector of remote process ranks.
+ * \param[in]  source_ptr    Vector of starting address in the (remote) source memory.
+ * \param[in]  target_ptr    Vector of starting address in the (local) target memory.
+ * \param[in]  bytes         Vector of data to transfer from each target in bytes.
+ * \param[out] handle        Opaque A1 handle
+ *
+ * \see A1_Get, A1_MultiPut, A1_Copy
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbMultiGet(int count,
+                  int *target,
+                  void* *source_ptr,
+                  void* *target_ptr,
+                  int *bytes,
+                  A1_handle_t handle);
 
 /**
  * \brief Blocking copy of strided data from remote memory to local memory.
@@ -1122,13 +1300,13 @@ int A1_GetS(int target,
  */
 
 int A1_NbGetS(int target,
-            int stride_levels,
-            int *block_sizes,
-            void* source_ptr,
-            int *src_stride_ar,
-            void* target_ptr,
-            int *trg_stride_ar,
-            A1_handle_t handle);
+              int stride_levels,
+              int *block_sizes,
+              void* source_ptr,
+              int *src_stride_ar,
+              void* target_ptr,
+              int *trg_stride_ar,
+              A1_handle_t handle);
 
 /**
  * \brief Blocking copy of stided data from remote memory to local memory.
@@ -1158,6 +1336,35 @@ int A1_MultiGetS(int target_count,
                  int **trg_stride_ar);
 
 /**
+ * \brief Blocking copy of stided data from remote memory to local memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  count           Number of operations to be performed
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  source_ptr      Starting address in the (remote) source memory.
+ * \param[in]  src_stride_ar   Array of stride distances at (remote process) source in bytes.
+ * \param[in]  target_ptr      Starting address in the (local) target memory.
+ * \param[in]  trg_stride_ar   Array of stride distances at (local process) target in bytes.
+ * \param[in]  count           Block size in each dimension in bytes.
+ * \param[in]  stride_levels   The number of levels of stride.
+ * \param[out] handle          Opaque A1 handle
+ *
+ * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_NbMultiGetS(int target_count,
+                   int *target,
+                   int stride_levels,
+                   int **count,
+                   void* *source_ptr,
+                   int **src_stride_ar,
+                   void* *target_ptr,
+                   int **trg_stride_ar,
+                   A1_handle_t handle);
+
+/**
  * \brief Blocking copy of non-contiguous data from remote memory to local memory.
  *
  * \param[out] rc              The error code.
@@ -1171,9 +1378,7 @@ int A1_MultiGetS(int target_count,
  * \ingroup DATA_TRANSFER
  */
 
-int A1_GetV(int target,
-            A1_iov_t *iov_ar,
-            int ar_len);
+int A1_GetV(int target, A1_iov_t *iov_ar, int ar_len);
 
 /**
  * \brief Non-Blocking copy of non-contiguous data from remote memory to local memory.
@@ -1190,60 +1395,7 @@ int A1_GetV(int target,
  * \ingroup DATA_TRANSFER
  */
 
-int A1_NbGetV(int target,
-              A1_iov_t *iov_ar,
-              int ar_len,
-              A1_handle_t handle);
-
-/**
- * \brief Blocking accumulate of contiguous data from remote memory onto local memory.
- *
- * \param[out] rc            The error code.
- * \param[in]  target        Rank of the remote process.
- * \param[in]  source_ptr    Starting address in the (remote) source memory.
- * \param[in]  target_ptr    Starting address in the (local) target memory.
- * \param[in]  bytes         Amount of data to transfer in bytes.
- * \param[in]  a1_type       Amount of data to transfer in bytes.
- * \param[in]  scaling       Factor for scaling source
- *
- * \see A1_Put, A1_Copy
- *
- * \ingroup DATA_TRANSFER
- */
-
-int A1_GetAcc(int target,
-              void* source_ptr,
-              void* target_ptr,
-              int bytes,
-              A1_datatype_t a1_type,
-              void* scaling);
-
-/**
- * \brief Blocking copy of contiguous data from local memory to remote memory.
- *
- * \param[out] rc              The error code.
- * \param[in]  target          Rank of the remote process.
- * \param[in]  source_ptr      Starting address in the (local) source memory.
- * \param[in]  src_stride_ar   Array of stride distances at source in bytes.
- * \param[in]  target_ptr      Starting address in the (remote) target memory.
- * \param[in]  trg_stride_ar   Array of stride distances at target in bytes.
- * \param[in]  count           Block size in each dimension in bytes.
- * \param[in]  stride_levels   The number of levels of stride.
- *
- * \see A1_Put, A1_Get, A1_Copy, A1_PutAcc
- *
- * \ingroup DATA_TRANSFER
- */
-
-int A1_GetAccS(int target,
-               void* source_ptr,
-               int *src_stride_ar,
-               void* target_ptr,
-               int *trg_stride_ar,
-               int *count,
-               int stride_levels,
-               A1_datatype_t a1_type,
-               void* scaling);
+int A1_NbGetV(int target, A1_iov_t *iov_ar, int ar_len, A1_handle_t handle);
 
 /**
  * \brief Blocking get-and-accumulate operation (aka RMW) on arbitrary data.
@@ -1556,8 +1708,7 @@ int A1_Wait_handle(A1_handle_t handle);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Wait_handle_list(int count,
-                            A1_handle_t* handles);
+int A1_Wait_handle_list(int count, A1_handle_t* handles);
 
 /**
  * \brief Blocks on completion of a non-blocking handle.
@@ -1570,8 +1721,7 @@ int A1_Wait_handle_list(int count,
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Test_handle(A1_handle_t handle,
-                      A1_bool_t* completed);
+int A1_Test_handle(A1_handle_t handle, A1_bool_t* completed);
 
 /**
  * \brief Blocks on completion of all elements in a vector of non-blocking handles.
@@ -1585,9 +1735,7 @@ int A1_Test_handle(A1_handle_t handle,
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Test_handle_list(int count,
-                            A1_handle_t *handles,
-                            A1_bool_t* *completed);
+int A1_Test_handle_list(int count, A1_handle_t *handles, A1_bool_t* *completed);
 
 /**
  * \brief Resets a non-blocking handle.
