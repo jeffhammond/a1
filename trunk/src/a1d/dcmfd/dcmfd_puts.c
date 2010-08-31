@@ -16,8 +16,7 @@ void A1DI_RecvDone_packedputs_callback(void *clientdata, DCMF_Error_t *error)
             (A1D_Packed_puts_header_t *) a1d_buffer->buffer_ptr;
     int complete = 0;
 
-    A1DI_Unpack_strided((void *) ((size_t) a1d_buffer->buffer_ptr
-                                + sizeof(A1D_Packed_puts_header_t)),
+    A1DI_Unpack_strided((void *) ((size_t) a1d_buffer->buffer_ptr + sizeof(A1D_Packed_puts_header_t)),
                         header->data_size,
                         header->stride_level,
                         header->block_sizes,
@@ -73,8 +72,7 @@ void A1DI_RecvSendShort_packedputs_callback(void *clientdata,
 
     header = (A1D_Packed_puts_header_t *) packet_ptr;
 
-    A1DI_Unpack_strided((void *) ((size_t) packet_ptr
-                                + sizeof(A1D_Packed_puts_header_t)),
+    A1DI_Unpack_strided((void *) ((size_t) packet_ptr + sizeof(A1D_Packed_puts_header_t)),
                         header->data_size,
                         header->stride_level,
                         header->block_sizes,
@@ -133,14 +131,12 @@ int A1DI_Packed_puts(int target,
 
     header.stride_level = stride_level;
     A1DI_Memcpy(header.trg_stride_ar, trg_stride_ar, stride_level * sizeof(int));
-    A1DI_Memcpy(header.block_sizes, block_sizes, (stride_level + 1)
-            * sizeof(int));
+    A1DI_Memcpy(header.block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
 
     while (!complete)
     {
         header.target_ptr = target_ptr;
-        A1DI_Memcpy(header.block_idx, block_idx, (stride_level + 1)
-                * sizeof(int));
+        A1DI_Memcpy(header.block_idx, block_idx, (stride_level + 1) * sizeof(int));
 
         /*Fetching buffer from the pool*/
         a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize_limit, 1);
@@ -166,9 +162,7 @@ int A1DI_Packed_puts(int target,
 
         /*Setting data size information in the header and copying it into the packet*/
         header.data_size = data_size;
-        A1DI_Memcpy((void *) packet_ptr,
-                    (void *) &header,
-                    sizeof(A1D_Packed_puts_header_t));
+        A1DI_Memcpy((void *) packet_ptr, (void *) &header, sizeof(A1D_Packed_puts_header_t));
 
         packet_size = data_size + sizeof(A1D_Packed_puts_header_t);
 
@@ -221,8 +215,7 @@ int A1DI_Direct_puts(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Malloc((void **) &block_sizes_w, sizeof(int)
-            * (stride_level + 1));
+    status = A1DI_Malloc((void **) &block_sizes_w, sizeof(int) * (stride_level + 1));
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Malloc returned error in A1DI_Direct_puts");
 
@@ -233,8 +226,7 @@ int A1DI_Direct_puts(int target,
 
     for (i = 0; i < chunk_count; i++)
     {
-        src_disp = (size_t) source_ptr
-                - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
+        src_disp = (size_t) source_ptr - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
         dst_disp = (size_t) target_ptr - (size_t) A1D_Membase_global[target];
 
         a1d_request = A1DI_Get_request(1);
@@ -324,13 +316,9 @@ int A1DI_Recursive_puts(int target,
             status = A1DI_Recursive_puts(target,
                                          stride_level - 1,
                                          block_sizes,
-                                         (void *) ((size_t) source_ptr + i
-                                                 * src_stride_ar[stride_level
-                                                         - 1]),
+                                         (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
                                          src_stride_ar,
-                                         (void *) ((size_t) target_ptr + i
-                                                 * trg_stride_ar[stride_level
-                                                         - 1]),
+                                         (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
                                          trg_stride_ar,
                                          a1d_handle);
             A1U_ERR_POP(status != A1_SUCCESS,
@@ -339,8 +327,7 @@ int A1DI_Recursive_puts(int target,
     }
     else
     {
-        src_disp = (size_t) source_ptr
-                - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
+        src_disp = (size_t) source_ptr - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
         dst_disp = (size_t) target_ptr - (size_t) A1D_Membase_global[target];
 
         a1d_request = A1DI_Get_request(1);
