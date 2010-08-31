@@ -103,7 +103,7 @@ int main() {
       for(dim=1; dim<=MAX_DIM; dim*=2) {
  
          count[0] = dim;
-         count[1] = 64;
+         count[1] = 512;
  
          peer = 1;          
   
@@ -121,14 +121,14 @@ int main() {
              A1_Wait_handle(a1_handle);
  
          }
-         t_stop = A1_Time_cycles();
+         t_stop = A1_Time_time();
          A1_Flush(peer);
          
          t_latency = (t_stop-t_start)/ITERATIONS;
   
          char temp[10];
-         sprintf(temp,"512X%d", dim);
-         printf("%30d %30s %20lld", dim*dim*sizeof(double), temp, t_latency);
+         sprintf(temp,"%dX%d", count[1], count[0]);
+         printf("%30d %30s %20lld", count[1]*count[0]*sizeof(double), temp, (t_latency/);
          fflush(stdout);
  
          t_start = A1_Time_cycles();
