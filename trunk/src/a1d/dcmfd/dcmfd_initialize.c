@@ -34,8 +34,8 @@ int A1D_Initialize(int thread_level)
     if(a1_settings.enable_cht) 
     {
         /* We can use THREAD_SERIALIZED if we are implementing out own locks */
-        /*A1D_Messager_info.thread_level = DCMF_THREAD_SERIALIZED;*/
-        A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
+        A1D_Messager_info.thread_level = DCMF_THREAD_SERIALIZED;
+        /*A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;*/
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
     } 
     else 
@@ -78,7 +78,7 @@ int A1D_Initialize(int thread_level)
 
     if (a1_settings.enable_cht)
     {
-        A1DI_GLOBAL_LBMUTEX_INITIALIZE();
+        /*A1DI_GLOBAL_LBMUTEX_INITIALIZE();*/
         status = pthread_create(&A1DI_CHT_pthread, NULL, &A1DI_CHT_advance_lock, NULL);
         A1U_ERR_POP(status != 0, "pthread_create returned with error \n");
     }

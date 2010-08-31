@@ -55,14 +55,6 @@
 #define A1C_PUTGET_BUFFERPOOL_LIMIT 300;
 #define A1C_PUTACC_BUFFERPOOL_LIMIT 300;
 
-/*
-#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
-#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
-*/
-
-#define A1DI_GLOBAL_LOCK_ACQUIRE() DCMF_CriticalSection_enter(0)
-#define A1DI_GLOBAL_LOCK_RELEASE() DCMF_CriticalSection_exit(0)
-
 /*************************************************
 *                  BGP Atomics                   *
 *************************************************/
@@ -107,6 +99,21 @@ extern LockBox_Mutex_t global_lbmutex;
 #define A1DI_GLOBAL_LBMUTEX_ACQUIRE() LockBox_MutexLock(global_lbmutex);
 
 #define A1DI_GLOBAL_LBMUTEX_RELEASE() LockBox_MutexUnlock(global_lbmutex);
+
+/*************************************************
+*           Lock Type Selection                  *
+*************************************************/
+
+#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_ATOMIC_ACQUIRE
+#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_ATOMIC_RELEASE
+
+/*
+#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
+#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
+
+#define A1DI_GLOBAL_LOCK_ACQUIRE() DCMF_CriticalSection_enter(0)
+#define A1DI_GLOBAL_LOCK_RELEASE() DCMF_CriticalSection_exit(0)
+*/
 
 /*************************************************
 *           Likely and Unlikely Ifs              *

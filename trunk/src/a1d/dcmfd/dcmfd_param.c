@@ -41,7 +41,6 @@ int A1DI_Read_parameters()
         a1_settings.flushall_pending_limit = atoi(value);
     }
 
-
     a1_settings.put_packing_chunkcount_threshold
             = A1C_PUT_PACKING_CHUNKCOUNT_THRESHOLD;
     if ((value = getenv("A1_PUT_PACKING_CHUNKCOUNT_THRESHOLD")) != NULL)
@@ -189,9 +188,9 @@ int A1D_Print_parameters(void)
     A1U_output_printf("put_packing_chunksize_limit = %u\n",
                       a1_settings.put_packing_chunksize_limit);
     A1U_output_printf("get_packing_chunksize_limit = %u\n",
-                      a1_settings.put_packing_chunksize_limit);
+                      a1_settings.get_packing_chunksize_limit);
     A1U_output_printf("putacc_packing_chunksize_limit = %u\n",
-                      a1_settings.put_packing_chunksize_limit);
+                      a1_settings.putacc_packing_chunksize_limit);
     A1U_output_printf("flushall_pending_limit = %u\n",
                       a1_settings.flushall_pending_limit);
 
