@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
     if (rank == 0)
     {
-        printf("ARMCI_PutAccS Latency - local and remote completions - in usec \n");
+        printf("ARMCI_AccS Latency - local and remote completions - in usec \n");
         printf("%30s %22s %22s\n",
                "Dimensions(array of double)",
                "Local Completion",
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
     trg_stride = MAX_YDIM * sizeof(double);
     stride_level = 1;
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    ARMCI_Barrier();
 
     for (xdim = 1; xdim <= MAX_XDIM; xdim *= 2)
     {
@@ -144,9 +144,9 @@ int main(int argc, char **argv)
                         / ITERATIONS);
                 fflush(stdout);
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                ARMCI_Barrier();
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                ARMCI_Barrier();
 
                 for (i = 0; i < ITERATIONS + SKIP; i++)
                 {
@@ -169,9 +169,9 @@ int main(int argc, char **argv)
                 printf("%20.2f \n", ((t_stop - t_start) * 1000000) / ITERATIONS);
                 fflush(stdout);
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                ARMCI_Barrier();
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                ARMCI_Barrier();
 
             }
             else
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
 
                 peer = 0;
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                ARMCI_Barrier();
 
                 for (i = 0; i < xdim; i++)
                 {
@@ -204,9 +204,9 @@ int main(int argc, char **argv)
                     *(buffer[rank] + i) = 1.0 + rank;
                 }
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                ARMCI_Barrier();
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                ARMCI_Barrier();
 
                 for (i = 0; i < xdim; i++)
                 {
@@ -231,7 +231,7 @@ int main(int argc, char **argv)
                     *(buffer[rank] + i) = 1.0 + rank;
                 }
 
-                MPI_Barrier(MPI_COMM_WORLD);
+                ARMCI_Barrier();
 
             }
 
@@ -239,7 +239,7 @@ int main(int argc, char **argv)
 
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    ARMCI_Barrier();
 
     ARMCI_Free((void *) buffer[rank]);
 

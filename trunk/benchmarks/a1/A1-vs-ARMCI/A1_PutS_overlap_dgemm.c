@@ -55,7 +55,7 @@
 #define MAX_DIM 1024 
 #define ITERATIONS 100
 #define SKIP 10
-#define WINDOW 8
+#define WINDOW 8 
 
 int main() {
 
@@ -64,8 +64,10 @@ int main() {
    long bufsize;
    double **buffer;
    unsigned long long t_start, t_stop, t_latency, t_overlap;
-   unsigned long long wait_start;
+   unsigned long long wait_start, wait_stop;
    int count[2], src_stride, trg_stride, stride_level, peer;
+   double A[1024][1024], B[1024][1024], C[1024][1024];
+   int m1,m2,m3;
    double expected, actual;
    A1_handle_t a1_handle;
    
@@ -90,8 +92,8 @@ int main() {
 
    if(rank == 0) {
 
-      printf("A1_PutS Latency - local and remote completions - in usec \n");
-      printf("%30s %30s %22s \n", "Msg Size", "Dimensions(array of doubles)", "Latency-LocalCompeltion", "Latency-RemoteCompletion");
+      printf("A1_PutS Overlap - local and remote completions - in usec \n");
+      printf("%30s %30s %22s \n", "Msg Size", "Dimensions(array of doubles)", "Latency-LocalCompeltion", "Overlap-LocalCompletion");
       fflush(stdout);
 
       src_stride = MAX_DIM*sizeof(double);
@@ -101,61 +103,73 @@ int main() {
       for(dim=1; dim<=MAX_DIM; dim*=2) {
  
          count[0] = dim;
-         count[1] = dim;
+         count[1] = 64;
  
-        peer = 1;          
+         peer = 1;          
+  
+         for(i=0; i<ITERATIONS+SKIP; i++) { 
+ 
+            if(i == SKIP)
+                t_start = A1_Time_cycles();              
 
-        for(i=0; i<ITERATIONS+SKIP; i++) { 
+             for(k=0; k<WINDOW; k++)      
+             { 
+                A1_NbPutS(peer, stride_level, count, (void *) buffer[rank],
+                      &src_stride, (void *) buffer[peer], &trg_stride, a1_handle);
+             }
 
-           if(i == SKIP)
-               t_start = A1_Time_cycles();              
-
-           for(k=0; k<WINDOW; k++)
-           {
-              A1_NbPutS(peer, stride_level, count, (void *) buffer[rank],
-                     &src_stride, (void *) buffer[peer], &trg_stride, a1_handle);
-           }
-           A1_Wait_handle(a1_handle);
-
-        }
-        t_stop = A1_Time_cycles();
-        A1_Flush(peer);
-        
-        t_latency = (t_stop-t_start)/ITERATIONS;
-
-        char temp[10];
-        sprintf(temp,"%dX%d", dim, dim);
-        printf("%30d %30s %20lld", dim*dim*sizeof(double), temp, t_latency);
-        fflush(stdout);
-
-        t_start = A1_Time_cycles();
-        for(i=0; i<ITERATIONS; i++) {
-
-           for(k=0; k<WINDOW; k++)
-           {
-              A1_NbPutS(peer, stride_level, count, (void *) buffer[rank],
-                     &src_stride, (void *) buffer[peer], &trg_stride, a1_handle);
-           }
-
-           wait_start = A1_Time_cycles();
-           {
-              while((A1_Time_cycles() - wait_start) < t_latency);
-           }
-
-           A1_Wait_handle(a1_handle);
-
-        }
-        t_stop = A1_Time_cycles();
-        A1_Flush(peer);
-        t_overlap = (t_stop - t_start)/ITERATIONS;
-
-        printf("%20lld \n", t_overlap);          
+             A1_Wait_handle(a1_handle);
  
          }
-   }
-   else
-   {
-        sleep(240);
+         t_stop = A1_Time_cycles();
+         A1_Flush(peer);
+         
+         t_latency = (t_stop-t_start)/ITERATIONS;
+  
+         char temp[10];
+         sprintf(temp,"512X%d", dim);
+         printf("%30d %30s %20lld", dim*dim*sizeof(double), temp, t_latency);
+         fflush(stdout);
+ 
+         t_start = A1_Time_cycles();
+         for(i=0; i<ITERATIONS; i++) {
+
+            for(k=0; k<WINDOW; k++)      
+            {
+               A1_NbPutS(peer, stride_level, count, (void *) buffer[rank],
+                      &src_stride, (void *) buffer[peer], &trg_stride, a1_handle);
+            } 
+  
+            wait_start = A1_Time_cycles();
+            for(m1=0; m1<1024; m1++)
+            {
+               for(m2=0; m2<1024; m2++)
+               {
+                 for(m3=0; m3<1024; m3++)
+                 {
+                    C[m1][m2] +=  A[m1][m3] * B[m3][m2];
+                    wait_stop = A1_Time_cycles();
+                    if((wait_stop - wait_start) > t_latency)
+                         break;
+                 }
+                 if((wait_stop - wait_start) > t_latency)
+                      break;
+               }
+               if((wait_stop - wait_start) > t_latency)
+                    break;
+            } 
+ 
+            A1_Wait_handle(a1_handle);
+ 
+         }
+         t_stop = A1_Time_cycles();
+         A1_Flush(peer);
+         t_overlap = (t_stop - t_start)/ITERATIONS;
+ 
+         printf("%20lld \n", t_overlap);          
+ 
+      }
+
    }
 
    A1_Barrier_group(A1_GROUP_WORLD);

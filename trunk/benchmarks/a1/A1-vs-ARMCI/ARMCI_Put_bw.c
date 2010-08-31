@@ -54,10 +54,10 @@
 #include <mpi.h>
 
 #define MAX_MSGSIZE 2*1024*1024
-#define ITERATIONS 20
-
-
-//#define DATA_VALIDATION  
+#define ITERATIONS_VERYSMALL 20000 
+#define ITERATIONS_SMALL 4000 
+#define ITERATIONS_MEDIUM 1000 
+#define ITERATIONS_LARGE 500 
 
 int main(int argc, char *argv[])
 {
@@ -71,14 +71,15 @@ int main(int argc, char *argv[])
     int provided;
     armci_hdl_t handle;
 
+    max_msgsize = MAX_MSGSIZE;
+
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
-    max_msgsize = MAX_MSGSIZE;
     ARMCI_Init_args(&argc, &argv);
 
-    bufsize = max_msgsize * ITERATIONS;
+    bufsize = max_msgsize * ITERATIONS_LARGE;
     buffer = (double **) malloc(sizeof(double *) * nranks);
     ARMCI_Malloc((void **) buffer, bufsize);
 
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
     if (rank == 0)
     {
 
-        printf("ARMCI_Get Bandwidth in MBPS \n");
+        printf("ARMCI_Put Bandwidth in MBPS \n");
         printf("%20s %22s \n", "Message Size", "Bandwidth");
         fflush(stdout);
 
@@ -105,16 +106,20 @@ int main(int argc, char *argv[])
         for (msgsize = sizeof(double); msgsize <= max_msgsize; msgsize *= 2)
         {
 
-            iterations = bufsize/msgsize;
+            if (msgsize <= 16 * 1024) iterations = ITERATIONS_VERYSMALL;
+            else if (msgsize <= 64 * 1024) iterations = ITERATIONS_SMALL;
+            else if (msgsize <= 512 * 1024) iterations = ITERATIONS_MEDIUM;
+            else iterations = ITERATIONS_LARGE;
 
             t_start = MPI_Wtime();
 
             for (i = 0; i < iterations; i++)
             {
 
-                ARMCI_NbGet((void *) ((size_t) buffer[dest] + (size_t)(i
-                        * msgsize)), (void *) ((size_t) buffer[rank]
-                        + (size_t)(i * msgsize)), msgsize, dest, &handle);
+                ARMCI_NbPut((void *) ((size_t) buffer[dest] + (size_t)(i
+                           * msgsize)), (void *) ((size_t) buffer[rank]
+                           + (size_t)(i * msgsize)), msgsize, dest, &handle);
+
             }
 
             ARMCI_Wait(&handle);
@@ -125,27 +130,8 @@ int main(int argc, char *argv[])
             bandwidth = d_total / t_total;
             printf("%20d %20.4lf \n", msgsize, bandwidth);
             fflush(stdout);
-
-#ifdef DATA_VALIDATION 
-            {
-                for(j=0; j<((iterations*msgsize)/sizeof(double)); j++)
-                {
-                    if(*(buffer[rank] + j) != expected)
-                    {
-                        printf("Data validation failed At displacement : %d Expected : %lf Actual : %lf \n",
-                                j, expected, *(buffer[rank] + j));
-                        fflush(stdout);
-                        return -1;
-                    }
-                }
-
-                for(j=0; j<bufsize/sizeof(double); j++)
-                {
-                    *(buffer[rank] + j) = 1.0 + rank;
-                }
-            }
-#endif
-
+           
+            ARMCI_Fence(dest);
         }
 
     }
@@ -158,7 +144,7 @@ int main(int argc, char *argv[])
 
     ARMCI_Finalize();
 
-    MPI_Finalize();
+    MPI_Finalize(); 
 
     return 0;
 }
