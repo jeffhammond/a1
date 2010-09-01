@@ -41,91 +41,79 @@ int A1DI_Read_parameters()
         a1_settings.flushall_pending_limit = atoi(value);
     }
 
-    a1_settings.put_packing_chunkcount_threshold
-            = A1C_PUT_PACKING_CHUNKCOUNT_THRESHOLD;
-    if ((value = getenv("A1_PUT_PACKING_CHUNKCOUNT_THRESHOLD")) != NULL)
+    a1_settings.put_packing_limit
+            = A1C_PUT_PACKING_LIMIT;
+    if ((value = getenv("A1_PUT_PACKING_LIMIT")) != NULL)
     {
-        a1_settings.put_packing_chunkcount_threshold = atoi(value);
+        a1_settings.put_packing_limit = atoi(value);
         if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
         {
-            a1_settings.put_packing_chunkcount_threshold = 99999;
+            a1_settings.put_packing_limit = 0;
         }
     }
 
-    a1_settings.put_packing_chunksize_limit
-            = A1C_PUT_PACKING_CHUNKSIZE_LIMIT;
-    if ((value = getenv("A1_PUT_PACKING_CHUNKSIZE_LIMIT")) != NULL)
+    a1_settings.put_packetsize
+            = A1C_PUT_PACKETSIZE;
+    if ((value = getenv("A1_PUT_PACKETSIZE")) != NULL)
     {
-        a1_settings.put_packing_chunksize_limit = atoi(value);
-        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
+        a1_settings.put_packetsize = atoi(value);
+
+        /* Having packet size less than the packing limit will not make sense and
+           can lead to deadlocks in the packing code*/
+        if(a1_settings.put_packetsize < a1_settings.put_packing_limit)
         {
-            a1_settings.put_packing_chunksize_limit = 0;
+            a1_settings.put_packetsize = a1_settings.put_packing_limit;  
         }
     }
 
-    a1_settings.put_packetsize_limit
-            = A1C_PUT_PACKETSIZE_LIMIT;
-    if ((value = getenv("A1_PUT_PACKETSIZE_LIMIT")) != NULL)
+    a1_settings.get_packing_limit
+            = A1C_GET_PACKING_LIMIT;
+    if ((value = getenv("A1_GET_PACKING_LIMIT")) != NULL)
     {
-        a1_settings.put_packetsize_limit = atoi(value);
-    }
-
-    a1_settings.get_packing_chunkcount_threshold
-            = A1C_GET_PACKING_CHUNKCOUNT_THRESHOLD;
-    if ((value = getenv("A1_GET_PACKING_CHUNKCOUNT_THRESHOLD")) != NULL)
-    {
-        a1_settings.get_packing_chunkcount_threshold = atoi(value);
+        a1_settings.get_packing_limit = atoi(value);
         if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
         {
-            a1_settings.get_packing_chunkcount_threshold = 99999;
+            a1_settings.get_packing_limit = 0;
         }
     }
 
-    a1_settings.get_packing_chunksize_limit
-            = A1C_GET_PACKING_CHUNKSIZE_LIMIT;
-    if ((value = getenv("A1_GET_PACKING_CHUNKSIZE_LIMIT")) != NULL)
+    a1_settings.get_packetsize
+            = A1C_GET_PACKETSIZE;
+    if ((value = getenv("A1_GET_PACKETSIZE")) != NULL)
     {
-        a1_settings.get_packing_chunksize_limit = atoi(value);
-        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
+        a1_settings.get_packetsize = atoi(value);
+
+        /* Having packet size less than the packing limit will not make sense and 
+           can lead to deadlocks in the packing code*/
+        if(a1_settings.get_packetsize < a1_settings.get_packing_limit)
         {
-            a1_settings.get_packing_chunksize_limit = 0;
+            a1_settings.get_packetsize = a1_settings.get_packing_limit;  
         }
     }
 
-    a1_settings.get_packetsize_limit
-            = A1C_GET_PACKETSIZE_LIMIT;
-    if ((value = getenv("A1_GET_PACKETSIZE_LIMIT")) != NULL)
+    a1_settings.putacc_packing_limit
+            = A1C_PUTACC_PACKING_LIMIT;
+    if ((value = getenv("A1_PUTACC_PACKING_LIMIT")) != NULL)
     {
-        a1_settings.get_packetsize_limit = atoi(value);
-    }
-
-    a1_settings.putacc_packing_chunkcount_threshold
-            = A1C_PUTACC_PACKING_CHUNKCOUNT_THRESHOLD;
-    if ((value = getenv("A1_PUTACC_PACKING_CHUNKCOUNT_THRESHOLD")) != NULL)
-    {
-        a1_settings.putacc_packing_chunkcount_threshold = atoi(value);
+        a1_settings.putacc_packing_limit = atoi(value);
         if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
         {
-            a1_settings.putacc_packing_chunkcount_threshold = 99999;
+            a1_settings.putacc_packing_limit = 0;
         }
     }
 
-    a1_settings.putacc_packing_chunksize_limit
-            = A1C_PUTACC_PACKING_CHUNKSIZE_LIMIT;
-    if ((value = getenv("A1_PUTACC_PACKING_CHUNKSIZE_LIMIT")) != NULL)
+    a1_settings.putacc_packetsize
+            = A1C_PUTACC_PACKETSIZE;
+    if ((value = getenv("A1_PUTACC_PACKETSIZE")) != NULL)
     {
-        a1_settings.putacc_packing_chunksize_limit = atoi(value);
-        if (a1_settings.enable_cht == 0 && a1_settings.enable_interrupts == 0)
-        {
-            a1_settings.putacc_packing_chunksize_limit = 0;
-        }
-    }
+        a1_settings.putacc_packetsize = atoi(value);
 
-    a1_settings.putacc_packetsize_limit
-            = A1C_PUTACC_PACKETSIZE_LIMIT;
-    if ((value = getenv("A1_PUTACC_PACKETSIZE_LIMIT")) != NULL)
-    {
-        a1_settings.putacc_packetsize_limit = atoi(value);
+        /* Having packet size less than the packing limit will not make sense and
+           can lead to deadlocks in the packing code*/
+        if(a1_settings.putacc_packetsize < a1_settings.putacc_packing_limit)
+        {
+            a1_settings.putacc_packetsize = a1_settings.putacc_packing_limit;  
+        }
     }
 
     a1_settings.handlepool_size
@@ -185,12 +173,12 @@ int A1D_Print_parameters(void)
 
     A1U_output_printf("cht_pause_cycles = %u\n",
                       a1_settings.cht_pause_cycles);
-    A1U_output_printf("put_packing_chunksize_limit = %u\n",
-                      a1_settings.put_packing_chunksize_limit);
-    A1U_output_printf("get_packing_chunksize_limit = %u\n",
-                      a1_settings.get_packing_chunksize_limit);
-    A1U_output_printf("putacc_packing_chunksize_limit = %u\n",
-                      a1_settings.putacc_packing_chunksize_limit);
+    A1U_output_printf("put_packing_limit = %u\n",
+                      a1_settings.put_packing_limit);
+    A1U_output_printf("get_packing_limit = %u\n",
+                      a1_settings.get_packing_limit);
+    A1U_output_printf("putacc_packing_limit = %u\n",
+                      a1_settings.putacc_packing_limit);
     A1U_output_printf("flushall_pending_limit = %u\n",
                       a1_settings.flushall_pending_limit);
 

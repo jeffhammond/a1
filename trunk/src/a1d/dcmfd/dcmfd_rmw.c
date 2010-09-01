@@ -89,11 +89,13 @@ int A1DI_Rmw_initialize()
 /*********************************
         NEEDS REVISION
 **********************************
-int A1D_Rmw(int target, 
-            void* local_ptr, 
-            void* remote_ptr, 
-            A1_atomic_op_t op, 
-            int value)
+int A1D_Rmw(int target,
+            void* source_ptr_in,
+            void* source_ptr_out,
+            void* target_ptr,
+            int bytes,
+            A1_atomic_op_t op,
+            A1_datatype_t a1_type)
 {
     int status = A1_SUCCESS;
     int old_value;

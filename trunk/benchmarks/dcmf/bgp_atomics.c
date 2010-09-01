@@ -30,7 +30,7 @@ void *execute(void * dummy)
     int i, idx, coreid;
     unsigned long long t_start, t_stop;
     coreid = Kernel_PhysicalProcessorID();
-    pthread_barrier_wait(&pt_bar);
+    //pthread_barrier_wait(&pt_bar);
     t_start = DCMF_Timebase();
     for (i = 0; i < NITERS; i++)
     {
@@ -59,12 +59,14 @@ int main()
 
     DCMF_Messager_configure(&conf, &conf);
 
-    pthread_barrier_init(&pt_bar, NULL, 4);
+    //pthread_barrier_init(&pt_bar, NULL, 4);
     shared_idx = 0;
 
+    /*
     pthread_create(&pt[0], NULL, &execute, NULL);
     pthread_create(&pt[1], NULL, &execute, NULL);
     pthread_create(&pt[2], NULL, &execute, NULL);
+    */
 
     execute(NULL);
 

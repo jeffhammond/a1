@@ -29,7 +29,7 @@ set xtics (8,64,512,"4K" 4096,"32K" 32768,"256K" 262144,"2M" 2097152)
 set xlabel 'Message size (bytes)'
 set ylabel 'ARMCI\_Acc Bandwidth (MBPS)'
 set output './ARMCI_Progress_mode.eps'
-plot 'ARMCI_Accumulate_bw.data' using 1:4 index 0 title 'Active Progress' with lp lt 1 lw 5 pt 1, \
+plot 'ARMCI_Accumulate_bw.data' using 1:4 index 0 title 'None' with lp lt 1 lw 5 pt 1, \
      'ARMCI_Accumulate_bw.data' using 1:2 index 0 title 'Interrupts' with lp lt 3 lw 5 pt 2, \
      'ARMCI_Accumulate_bw.data' using 1:3 index 0 title 'CHT' with lp lt 4 lw 5 pt 3
 

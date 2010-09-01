@@ -43,24 +43,10 @@ int A1D_Put(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    /* TODO: don't we need logic to decide when to do immediate completion??? */
-    if (a1_settings.enable_immediate_flush)
-    {
-        done_callback = A1D_Nocallback;
-        done_active = 0;
-        ack_callback.function = A1DI_Generic_done;
-        ack_callback.clientdata = (void *) &ack_active;
-        ack_active = 1;
-    }
-    else
-    {
-        done_callback.function = A1DI_Generic_done;
-        done_callback.clientdata = (void *) &done_active;
-        done_active = 1;
-        ack_callback = A1D_Nocallback;
-        ack_active = 0;
-        A1D_Connection_put_active[target]++;
-    }
+    done_callback.function = A1DI_Generic_done;
+    done_callback.clientdata = (void *) &done_active;
+    done_active = 1;
+    A1D_Connection_put_active[target]++;
 
     src_disp = (size_t) src - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
@@ -75,16 +61,18 @@ int A1D_Put(int target,
                       &A1D_Memregion_global[target],
                       src_disp,
                       dst_disp,
-                      ack_callback);
+                      A1D_Nocallback);
     A1U_ERR_POP(status, "DCMF_Put returned with an error \n");
 
-    A1DI_Conditional_advance(done_active > 0 || ack_active > 0);
+    A1DI_Conditional_advance(done_active > 0);
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+   goto fn_exit;
 }
 
 int A1D_NbPut(int target,

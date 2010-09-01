@@ -60,14 +60,26 @@ done - Verify functionality of Non-blocking operations and evaluate bandwidth pe
 - Implement AllReduce and Reduce using DCMF collectives taking groups into consideration (detecting topology)
 - Implement mutexes, lock and unlock 
 
+------------
+FIXED ISSUES
+------------
+CRITICAL - FIXED
+1) Packing function assumes the largest contiguous chunk to be smaller than the size of the buffer given. This
+may not be true in all cases. 
+
+Fixed in checkin 252
+RESOLUTION: This asumption is correct. We should not be packing if the that was not the case. I have added a check in the 
+dcmfd_param.c to see if the packet sizes are less than the packing limits. If that is is true, they are set to the packing limits.
+One more change was to add the size of the header to the chunk size when checking if it is greater than the packing limit. 
+
+2) In the buffer pool code, if requested buffer is larger than the buffer pool limit, it needs to be allocated
+and returned. Currently it spins waiting for a buffer.
+
+Fixed in checkin 252
+RESOLUTION: Check if the buffer requested is largest one available in the pool. Return a newly allocated buffer.
+
+
 -------------
 KNOWN ISSUES
 -------------
-
-CRITICAL
-1) Packing function assumes the largest contiguous chunk to be smaller than the size of the buffer given. This 
-may not be true in all cases. 
-2) In the buffer pool code, if requested buffer is larger than the buffer pool limit, it needs to be allocated 
-and returned. Currently it spins waiting for a buffer.
-
 

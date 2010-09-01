@@ -25,19 +25,14 @@
 #define A1C_ENABLE_INTERRUPTS 0
 #define A1C_CHT_PAUSE_CYCLES 200
 
-#define A1C_PUT_PACKING_CHUNKCOUNT_THRESHOLD 4 
-#define A1C_GET_PACKING_CHUNKCOUNT_THRESHOLD 4
-#define A1C_PUTACC_PACKING_CHUNKCOUNT_THRESHOLD 4 
+#define A1C_PUT_PACKING_LIMIT 512
+#define A1C_GET_PACKING_LIMIT 512
+#define A1C_PUTACC_PACKING_LIMIT 2048
 
-#define A1C_PUT_PACKING_CHUNKSIZE_LIMIT 512
-#define A1C_GET_PACKING_CHUNKSIZE_LIMIT 512
-#define A1C_PUTACC_PACKING_CHUNKSIZE_LIMIT 512
+#define A1C_PUT_PACKETSIZE 2048 
+#define A1C_GET_PACKETSIZE 2048 
+#define A1C_PUTACC_PACKETSIZE 8192 
 
-#define A1C_PUT_PACKETSIZE_LIMIT 2048 
-#define A1C_GET_PACKETSIZE_LIMIT 2048 
-#define A1C_PUTACC_PACKETSIZE_LIMIT 8192 
-
-#define A1C_ENABLE_IMMEDIATE_FLUSH 0 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
 #define A1C_REQUEST_POOL_SIZE 500
@@ -50,10 +45,11 @@
 
 /* Currently we have two sizes of buffers to provide for Put/Get and
  * Acc packets. */
-#define A1C_NUM_BUF_SIZES 2
+#define A1C_BUFFER_SIZES 3
 
-#define A1C_PUTGET_BUFFERPOOL_LIMIT 300;
-#define A1C_PUTACC_BUFFERPOOL_LIMIT 300;
+#define A1C_PUT_BUFFERPOOL_LIMIT 64;
+#define A1C_GET_BUFFERPOOL_LIMIT 64;
+#define A1C_PUTACC_BUFFERPOOL_LIMIT 64;
 
 /*************************************************
 *                  BGP Atomics                   *
@@ -223,16 +219,12 @@ typedef struct
     volatile uint32_t enable_cht;
     volatile uint32_t cht_pause_cycles;
     volatile uint32_t enable_interrupts;
-    volatile uint32_t enable_immediate_flush;
-    volatile uint32_t put_packing_chunkcount_threshold;
-    volatile uint32_t get_packing_chunkcount_threshold;
-    volatile uint32_t putacc_packing_chunkcount_threshold;
-    volatile uint32_t put_packing_chunksize_limit;
-    volatile uint32_t get_packing_chunksize_limit;
-    volatile uint32_t putacc_packing_chunksize_limit;
-    volatile uint32_t put_packetsize_limit;
-    volatile uint32_t get_packetsize_limit;
-    volatile uint32_t putacc_packetsize_limit;
+    volatile uint32_t put_packing_limit;
+    volatile uint32_t get_packing_limit;
+    volatile uint32_t putacc_packing_limit;
+    volatile uint32_t put_packetsize;
+    volatile uint32_t get_packetsize;
+    volatile uint32_t putacc_packetsize;
     volatile uint32_t flushall_pending_limit;
     volatile uint32_t alignment;
     volatile uint32_t handlepool_size;
@@ -267,11 +259,11 @@ typedef struct A1D_Buffer_t
 
 typedef struct
 {
-  A1D_Buffer_t* pool_heads[A1C_NUM_BUF_SIZES];
-  int limits[A1C_NUM_BUF_SIZES];
-  int sizes[A1C_NUM_BUF_SIZES];
-  void* pool_region_ptrs[A1C_NUM_BUF_SIZES];
-  void* mem_region_ptrs[A1C_NUM_BUF_SIZES];
+  A1D_Buffer_t* pool_heads[A1C_BUFFER_SIZES];
+  int limits[A1C_BUFFER_SIZES];
+  int sizes[A1C_BUFFER_SIZES];
+  void* pool_region_ptrs[A1C_BUFFER_SIZES];
+  void* mem_region_ptrs[A1C_BUFFER_SIZES];
 } A1D_Buffer_pool_t;
 
 typedef struct A1D_Handle_t

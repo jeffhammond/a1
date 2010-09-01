@@ -95,7 +95,7 @@ int A1DI_Pack_strided(void *data_ptr,
         block_idx[1]++;
         if (block_idx[1] == block_sizes[1])
         {
-            y = 1;
+            y = 2;
             while (block_idx[y] == block_sizes[y])
             {
                 if (y == stride_level)
@@ -126,10 +126,12 @@ int A1DI_Pack_strided(void *data_ptr,
         }
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Unpack_strided(void *data_ptr,
@@ -156,7 +158,7 @@ int A1DI_Unpack_strided(void *data_ptr,
         block_idx[1]++;
         if (block_idx[1] == block_sizes[1])
         {
-            y = 1;
+            y = 2;
             while (block_idx[y] == block_sizes[y])
             {
                 if (y == stride_level)
@@ -183,10 +185,12 @@ int A1DI_Unpack_strided(void *data_ptr,
         }
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Unpack_strided_acc(void *data_ptr,
@@ -267,7 +271,7 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
         block_idx[1]++;
         if (block_idx[1] == block_sizes[1])
         {
-            y = 1;
+            y = 2;
             while (block_idx[y] == block_sizes[y])
             {
                 if (y == stride_level)
@@ -294,9 +298,11 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
         }
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
