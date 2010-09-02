@@ -50,7 +50,7 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
     A1U_ERR_ABORT(status = (a1d_request == NULL),
                 "A1DI_Get_request returned NULL in A1DI_RecvSend_packedgets_callback.\n");
 
-    a1d_buffer = A1DI_Get_buffer(a1_settings.get_packetsize, 0);
+    a1d_buffer = A1DI_Get_buffer(sndlen, 0);
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr;
@@ -87,36 +87,6 @@ void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
 
     if(complete == 1)
          a1d_handle->active--;
-}
-
-int A1DI_Packed_gets_response_initialize()
-{
-    int status = A1_SUCCESS;
-    DCMF_Send_Configuration_t conf;
-
-    A1U_FUNC_ENTER();
-
-    /* FIXME: The recv callback should be implemented when Send might be used *
-     * with large messages */
-
-    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
-    conf.network = DCMF_TORUS_NETWORK;
-    conf.cb_recv_short = A1DI_RecvSendShort_packedgets_response_callback;
-    conf.cb_recv_short_clientdata = NULL;
-    conf.cb_recv = A1DI_RecvSend_packedgets_response_callback;
-    conf.cb_recv_clientdata = NULL;
-
-    status = DCMF_Send_register(&A1D_Packed_gets_response_protocol, &conf);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-                "packed gets registartion returned with error %d \n",
-                status);
-
-  fn_exit: 
-    A1U_FUNC_EXIT();
-    return status;
-
-  fn_fail: 
-    goto fn_exit;
 }
 
 int A1DI_Packed_gets_response(int target,
@@ -252,10 +222,20 @@ int A1DI_Packed_gets_initialize()
                 "packed gets registartion returned with error %d \n",
                 status);
 
-    fn_exit: A1U_FUNC_EXIT();
+    conf.cb_recv_short = A1DI_RecvSendShort_packedgets_response_callback;
+    conf.cb_recv = A1DI_RecvSend_packedgets_response_callback;
+
+    status = DCMF_Send_register(&A1D_Packed_gets_response_protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
+                "packed gets registartion returned with error %d \n",
+                status);
+
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_Packed_gets(int target,

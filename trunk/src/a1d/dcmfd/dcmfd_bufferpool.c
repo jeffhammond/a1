@@ -40,6 +40,9 @@ A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
             } 
          }
 
+         A1U_DEBUG_PRINT("Buffer pool exhausted. Looking for buffer of size: %d.\
+                Wait and advance is: %d \n", size, wait_and_advance);
+
          /* If you are allowed to hit advance, do so and wait until a buffer is free. Or else, 
             return by allocating a new buffer */ 
          if(wait_and_advance) 

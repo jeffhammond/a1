@@ -7,88 +7,309 @@
 #include "dcmfdimpl.h"
 
 DCMF_Protocol_t A1D_Rmw_protocol;
+DCMF_Protocol_t A1D_Rmw_response_protocol;
 
-volatile int rmw_active;
-
-volatile int rmw_value_response;
-
-void A1DI_Rmw_callback(void *clientdata,
-                       const DCMF_Control_t *info,
-                       size_t peer)
+void A1DI_RecvDone_rmw_response_callback(void *clientdata,
+                                         DCMF_Error_t *error)
 {
-    A1D_Rmw_pkt_t *rmw_pkt;
-    A1D_Rmw_pkt_t rmw_response_pkt;
-    int old_value;
-    DCMF_Control_t cmsg;
+    int status = A1_SUCCESS;
+    A1D_Request_t *a1d_request =  (A1D_Request_t *) clientdata;
+    A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
+    A1D_Rmw_response_header_t *header = (A1D_Rmw_response_header_t *) a1d_buffer->buffer_ptr;
+    A1D_Handle_t *a1d_handle = (A1D_Handle_t *) header->handle_ptr;
+    void *reponse_data = (void *) (a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_header_t));
+    void *source_ptr_out = header->source_ptr_out;
 
-    rmw_pkt = (A1D_Rmw_pkt_t *) info;
+    A1DI_Memcpy(source_ptr_out, reponse_data, header->bytes); 
 
-    /* If this is a response packet for 
-     * an RMW operation */
-    if(rmw_pkt->counter_ptr == NULL) 
-    { 
-       rmw_value_response = rmw_pkt->value;
-       rmw_active--;
-    } 
-    else 
+    (a1d_handle->active)--;
+
+    A1DI_Release_request(a1d_request);
+}
+
+DCMF_Request_t* A1DI_RecvSend_rmw_response_callback(void *clientdata,
+                                                    const DCQuad *msginfo,
+                                                    unsigned count, 
+                                                    size_t peer,
+                                                    size_t sndlen,
+                                                    size_t *rcvlen,
+                                                    char **rcvbuf,
+                                                    DCMF_Callback_t *cb_done)
+{
+    int status = 0;
+    A1D_Request_t *a1d_request;
+    A1D_Buffer_t *a1d_buffer;
+
+    a1d_request = A1DI_Get_request(0);
+    A1U_ERR_ABORT(status = (a1d_request == NULL),
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_rmw_response_callback.\n");
+
+    a1d_buffer = A1DI_Get_buffer(sndlen + sizeof(A1D_Rmw_response_header_t), 0);
+
+    A1DI_Memcpy(a1d_buffer->buffer_ptr, msginfo, sizeof(DCQuad)*2);
+
+    *rcvlen = sndlen;
+    *rcvbuf = a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_response_header_t);
+
+    a1d_request->a1d_buffer_ptr = a1d_buffer;
+    cb_done->function = A1DI_RecvDone_rmw_response_callback;
+    cb_done->clientdata = (void *) a1d_request;
+
+    return &(a1d_request->request);
+}
+
+void A1DI_RecvSendShort_rmw_response_callback(void *clientdata,
+                                              const DCQuad *msginfo,
+                                              unsigned count,
+                                              size_t peer,
+                                              const char *src,
+                                              size_t bytes)
+{
+    int status = A1_SUCCESS;
+    A1D_Rmw_response_header_t *header = (A1D_Rmw_response_header_t *) msginfo;
+    A1D_Handle_t *a1d_handle = (A1D_Handle_t *) header->handle_ptr;
+    void *response_data = (void *) src;
+    void *source_ptr_out = header->source_ptr_out;
+    
+    A1DI_Memcpy(source_ptr_out, response_data, header->bytes);
+
+    (a1d_handle->active)--;
+
+}
+
+void A1DI_RecvDone_rmw_callback(void *clientdata,
+                                DCMF_Error_t *error)
+{
+    int status = A1_SUCCESS;
+    DCMF_Callback_t done_callback;
+    A1D_Request_t *response_request = NULL;
+    A1D_Rmw_response_header_t response_header;
+    A1D_Request_t *a1d_request =  (A1D_Request_t *) clientdata;
+    A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
+    A1D_Rmw_header_t *header = (A1D_Rmw_header_t *) a1d_buffer->buffer_ptr;
+    A1_datatype_t datatype = header->datatype;
+    void *source = (void *) (a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_header_t));
+    void *target = header->target_ptr;
+    void *original = NULL;
+
+    status = A1DI_Malloc(&original, header->bytes + sizeof(A1D_Rmw_header_t));
+    A1U_ERR_ABORT(status,
+                "A1DI_Malloc returned error in A1DI_RecvDone_rmw_callback\n"); 
+ 
+    if(header->op == A1_FETCH_AND_ADD)
     {
-       old_value = *((int *) (rmw_pkt->counter_ptr));
-
-       if(rmw_pkt->op == A1_FETCH_AND_ADD) 
+       likely_if(datatype == A1_DOUBLE) 
        {
-           *((int *) (rmw_pkt->counter_ptr)) += rmw_pkt->value;
-       } 
-       else if(rmw_pkt->op == A1_SWAP)
-       {
-           *((int *) (rmw_pkt->counter_ptr)) = rmw_pkt->value; 
+           A1DI_FETCHANDADD_EXECUTE(double, source, target, original, header->bytes/sizeof(double));
        }
        else
        {
-           A1U_ERR_ABORT(A1_ERROR,
-                  "Invalid optype received in A1DI_Rmw_callback \n");
-       }
-
-       rmw_response_pkt.counter_ptr = NULL;
-       rmw_response_pkt.value = old_value;
-
-       memcpy(&cmsg, &rmw_response_pkt, sizeof(A1D_Rmw_pkt_t));
-
-       DCMF_Control(&A1D_Rmw_protocol,
-                    DCMF_SEQUENTIAL_CONSISTENCY,
-                    peer,
-                    &cmsg);
+          switch (datatype)
+          {
+          case A1_INT32:
+              A1DI_FETCHANDADD_EXECUTE(int32_t, source, target, original, header->bytes/sizeof(int32_t));
+              break;
+          case A1_INT64:
+              A1DI_FETCHANDADD_EXECUTE(int64_t, source, target, original, header->bytes/sizeof(int64_t));
+              break; 
+          case A1_UINT32:
+              A1DI_FETCHANDADD_EXECUTE(uint32_t, source, target, original, header->bytes/sizeof(uint32_t));
+              break;
+          case A1_UINT64:
+              A1DI_FETCHANDADD_EXECUTE(uint64_t, source, target, original, header->bytes/sizeof(uint64_t));
+              break;
+          case A1_FLOAT:
+              A1DI_FETCHANDADD_EXECUTE(float, source, target, original, header->bytes/sizeof(float));
+              break;
+          default:
+              status = A1_ERROR;
+              A1U_ERR_ABORT((status != A1_SUCCESS), "Invalid data type in rmw \n");
+              break;
+          }
+       }    
+    }
+    else if(header->op = A1_SWAP)
+    {
+        A1DI_Memcpy(original, target, header->bytes); 
+        A1DI_Memcpy(target, source, header->bytes); 
     }
 
+    response_request = A1DI_Get_request(0);
+    A1U_ERR_ABORT(status = (a1d_request == NULL), "A1DI_Get_request returned NULL in RMW callback\n");
+
+    response_request->buffer_ptr = original;
+ 
+    response_header.bytes = header->bytes;
+    response_header.source_ptr_out = header->source_ptr_out;
+    response_header.handle_ptr = header->handle_ptr;
+
+    done_callback.function = A1DI_Request_done;
+    done_callback.clientdata = (void *) a1d_request;
+
+    status = DCMF_Send(&A1D_Rmw_response_protocol,
+                       &(a1d_request->request),
+                       done_callback,
+                       DCMF_SEQUENTIAL_CONSISTENCY,
+                       header->source,
+                       header->bytes,
+                       original,
+                       (DCQuad *) &response_header,
+                       (unsigned) 1);
+    A1U_ERR_ABORT((status != DCMF_SUCCESS), "DCMF_Send returned with an error A1D_Rmw\n"); 
+
+    A1DI_Release_request(a1d_request);
+}
+
+DCMF_Request_t* A1DI_RecvSend_rmw_callback(void *clientdata,
+                                           const DCQuad *msginfo,
+                                           unsigned count, 
+                                           size_t peer,
+                                           size_t sndlen,
+                                           size_t *rcvlen,
+                                           char **rcvbuf,
+                                           DCMF_Callback_t *cb_done)
+{
+    int status = 0;
+    A1D_Request_t *a1d_request;
+    A1D_Buffer_t *a1d_buffer;
+
+    a1d_request = A1DI_Get_request(0);
+    A1U_ERR_ABORT(status = (a1d_request == NULL),
+                "A1DI_Get_request returned NULL in A1DI_RecvSend_rmw_callback.\n");
+
+    a1d_buffer = A1DI_Get_buffer(sndlen + sizeof(A1D_Rmw_header_t), 0);
+
+    A1DI_Memcpy(a1d_buffer->buffer_ptr, msginfo, sizeof(DCQuad)*2);
+
+    *rcvlen = sndlen;
+    *rcvbuf = a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_header_t);
+
+    a1d_request->a1d_buffer_ptr = a1d_buffer;
+    cb_done->function = A1DI_RecvDone_rmw_response_callback;
+    cb_done->clientdata = (void *) a1d_request;
+
+    return &(a1d_request->request);
+}
+
+void A1DI_RecvSendShort_rmw_callback(void *clientdata,
+                                     const DCQuad *msginfo,
+                                     unsigned count,
+                                     size_t peer,
+                                     const char *src,
+                                     size_t bytes)
+{
+    int status = A1_SUCCESS;
+    DCMF_Callback_t done_callback;
+    A1D_Rmw_header_t *header = (A1D_Rmw_header_t *) msginfo;
+    A1_datatype_t datatype = header->datatype;
+    void *source = (void *) src;
+    void *target = header->target_ptr;
+    void *original = NULL;
+    A1D_Request_t *response_request = NULL;
+    A1D_Rmw_response_header_t response_header;
+
+    status = A1DI_Malloc(&original, bytes = sizeof(A1D_Rmw_header_t));
+    A1U_ERR_ABORT(status,
+                "A1DI_Malloc returned error in A1DI_RecvSendShort_rmw_callback\n"); 
+ 
+    if(header->op == A1_FETCH_AND_ADD)
+    {
+       likely_if(datatype == A1_DOUBLE) 
+       {
+           A1DI_FETCHANDADD_EXECUTE(double, source, target, original, header->bytes/sizeof(double));
+       }
+       else
+       {
+          switch (datatype)
+          {
+          case A1_INT32:
+              A1DI_FETCHANDADD_EXECUTE(int32_t, source, target, original, header->bytes/sizeof(int32_t));
+              break;
+          case A1_INT64:
+              A1DI_FETCHANDADD_EXECUTE(int64_t, source, target, original, header->bytes/sizeof(int64_t));
+              break; 
+          case A1_UINT32:
+              A1DI_FETCHANDADD_EXECUTE(uint32_t, source, target, original, header->bytes/sizeof(uint32_t));
+              break;
+          case A1_UINT64:
+              A1DI_FETCHANDADD_EXECUTE(uint64_t, source, target, original, header->bytes/sizeof(uint64_t));
+              break;
+          case A1_FLOAT:
+              A1DI_FETCHANDADD_EXECUTE(float, source, target, original, header->bytes/sizeof(float));
+              break;
+          default:
+              status = A1_ERROR;
+              A1U_ERR_ABORT((status != A1_SUCCESS), "Invalid data type in rmw \n");
+              break;
+          }
+       }    
+    }
+    else if(header->op = A1_SWAP)
+    {
+        A1DI_Memcpy(original, target, header->bytes); 
+        A1DI_Memcpy(target, source, header->bytes); 
+    }
+
+    response_request = A1DI_Get_request(0);
+    A1U_ERR_ABORT(status = (response_request == NULL), "A1DI_Get_request returned NULL in RMW callback\n");
+
+    response_request->buffer_ptr = original;
+ 
+    response_header.bytes = header->bytes;
+    response_header.source_ptr_out = header->source_ptr_out;
+    response_header.handle_ptr = header->handle_ptr;
+
+    done_callback.function = A1DI_Request_done;
+    done_callback.clientdata = (void *) response_request;
+
+    status = DCMF_Send(&A1D_Rmw_response_protocol,
+                       &(response_request->request),
+                       done_callback,
+                       DCMF_SEQUENTIAL_CONSISTENCY,
+                       header->source,
+                       header->bytes,
+                       original,
+                       (DCQuad *) &response_header,
+                       (unsigned) 1);
+    A1U_ERR_ABORT((status != DCMF_SUCCESS), "DCMF_Send returned with an error A1D_Rmw\n"); 
+    
 }
 
 int A1DI_Rmw_initialize()
 {
     int status = A1_SUCCESS;
-    DCMF_Control_Configuration_t conf;
-
+    DCMF_Send_Configuration_t conf;
+    
     A1U_FUNC_ENTER();
-
-    conf.protocol = DCMF_DEFAULT_CONTROL_PROTOCOL;
-    conf.network = DCMF_DEFAULT_NETWORK;
-    conf.cb_recv = A1DI_Rmw_callback;
+    
+    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    conf.cb_recv_short = A1DI_RecvSendShort_rmw_callback;
+    conf.cb_recv_short_clientdata = NULL; 
+    conf.cb_recv = A1DI_RecvSend_rmw_callback;
     conf.cb_recv_clientdata = NULL;
 
-    status = DCMF_Control_register(&A1D_Rmw_protocol, &conf);
+    status = DCMF_Send_register(&A1D_Rmw_protocol, &conf);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-                "RMW registartion returned with error %d \n",
+                "rmw registartion returned with error %d \n",
                 status);
 
-  fn_exit: 
+    conf.cb_recv_short = A1DI_RecvSendShort_rmw_response_callback;
+    conf.cb_recv = A1DI_RecvSend_rmw_response_callback;
+
+    status = DCMF_Send_register(&A1D_Rmw_response_protocol, &conf);
+    A1U_ERR_POP(status != DCMF_SUCCESS,
+                "rmw_response registartion returned with error %d \n",
+                status);
+
+  fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
+  fn_fail:
     goto fn_exit;
 }
 
-/*********************************
-        NEEDS REVISION
-**********************************
 int A1D_Rmw(int target,
             void* source_ptr_in,
             void* source_ptr_out,
@@ -98,34 +319,51 @@ int A1D_Rmw(int target,
             A1_datatype_t a1_type)
 {
     int status = A1_SUCCESS;
-    int old_value;
-    A1D_Rmw_pkt_t rmw_pkt;
-    DCMF_Control_t cmsg;
+    DCMF_Callback_t done_callback;
+    A1D_Rmw_header_t header;
+    A1D_Handle_t *a1d_handle;
+    A1D_Request_t *a1d_request; 
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
+
+    a1d_request = A1DI_Get_request(1);
+    A1U_ERR_POP(status = (a1d_request == NULL),
+                "A1DI_Get_request returned NULL in A1D_Rmw\n");
+
+    a1d_handle = A1DI_Get_handle();
+    A1U_ERR_POP(status = (a1d_handle == NULL),
+                "A1DI_Get_handle returned NULL in A1D_Rmw\n");
+
+    header.source = A1D_Process_info.my_rank; 
+    header.source_ptr_out = source_ptr_out;
+    header.target_ptr = target_ptr;
+    header.bytes = bytes;
+    header.op = op;
+    header.datatype = a1_type;
+    header.handle_ptr = a1d_handle;
  
-    rmw_active++;
+    a1d_handle->active++;
 
-    rmw_pkt.counter_ptr = remote_ptr;
-    rmw_pkt.value = value;
-    rmw_pkt.op = op;
+    done_callback.function = A1DI_Request_done;
+    done_callback.clientdata = (void *) a1d_request;    
 
-    memcpy(&cmsg, &rmw_pkt, sizeof(A1D_Rmw_pkt_t));
+    status = DCMF_Send(&A1D_Rmw_protocol,
+                       &(a1d_request->request),
+                       done_callback,
+                       DCMF_SEQUENTIAL_CONSISTENCY,
+                       target,
+                       bytes,
+                       source_ptr_in,
+                       (DCQuad *) &header,
+                       (unsigned) 2);
+    A1U_ERR_POP((status != DCMF_SUCCESS), "DCMF_Send returned with an error A1D_Rmw\n");    
 
-    status = DCMF_Control(&A1D_Rmw_protocol,
-                          DCMF_SEQUENTIAL_CONSISTENCY,
-                          target,
-                          &cmsg);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-               "DCMF_Control failed in A1D_Rmw_counter\n");
-
-    A1DI_Conditional_advance(rmw_active > 0);
-
-    *((int *) local_ptr) = rmw_value_response;
+    A1DI_Conditional_advance(a1d_handle->active > 0);
 
   fn_exit:
+    A1DI_Release_handle(a1d_handle);
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
@@ -133,5 +371,3 @@ int A1D_Rmw(int target,
   fn_fail:
     goto fn_exit;
 }
-
-*********************************/

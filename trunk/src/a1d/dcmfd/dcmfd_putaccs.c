@@ -46,7 +46,7 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
     A1U_ERR_ABORT(status = (a1d_request == NULL),
                 "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputaccs_callback\n");
 
-    a1d_buffer = A1DI_Get_buffer(a1_settings.putacc_packetsize, 0);
+    a1d_buffer = A1DI_Get_buffer(sndlen, 0);
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr;

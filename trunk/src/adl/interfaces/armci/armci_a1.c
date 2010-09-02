@@ -732,7 +732,6 @@ int ARMCI_AccV(int datatype,
 }
 
 
-/*
 int ARMCI_Rmw(int op,
               void *ploc,
               void *prem,
@@ -762,11 +761,14 @@ int ARMCI_Rmw(int op,
                "Unsupported rmw operations\n");
     }
 
+    /*Assuming int is 32bit signed integer*/
     status =  A1_Rmw(proc,
+                     &value,
                      ploc,
                      prem,
+                     sizeof(int),
                      a1_op,
-                     value);
+                     A1_INT32);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Rmw returned an error\n");
 
   fn_exit:
@@ -776,7 +778,6 @@ int ARMCI_Rmw(int op,
   fn_fail:
     goto fn_exit;
 }
-*/
 
 int ARMCI_Wait(armci_hdl_t* handle)
 {

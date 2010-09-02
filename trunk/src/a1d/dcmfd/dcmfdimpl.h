@@ -35,7 +35,7 @@
 
 #define A1C_FLUSHALL_PENDING_LIMIT 512 
 
-#define A1C_REQUEST_POOL_SIZE 500
+#define A1C_REQUEST_POOL_SIZE 100 
 
 #define A1C_HANDLE_POOL_SIZE 20
 
@@ -198,17 +198,30 @@ void A1DI_Handoff_progress();
     }                                                             \
 
 /*************************************************
- *          Non-contiguous macros                *
+ *          Computation macros                   *
  *************************************************/
 
 #define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count)          \
    do {                                                                     \
      int i;                                                                 \
-     datatype *a = (datatype *) source;                                     \
-     datatype *b = (datatype *) target;                                     \
+     datatype *s = (datatype *) source;                                     \
+     datatype *t = (datatype *) target;                                     \
      datatype c = (datatype) scaling;                                       \
      for(i=0; i<count; i++)                                                 \
-          b[i] = b[i] + a[i]*c;                                             \
+          t[i] = t[i] + s[i]*c;                                             \
+   } while(0)                                                               \
+
+#define A1DI_FETCHANDADD_EXECUTE(datatype, source, target, original, count) \
+   do {                                                                     \
+     int i;                                                                 \
+     datatype *s = (datatype *) source;                                     \
+     datatype *t = (datatype *) target;                                     \
+     datatype *o = (datatype *) original;                                   \
+     for(i=0; i<count; i++)                                                 \
+     {                                                                      \
+          o[i] = t[i];                                                      \
+          t[i] = t[i] + s[i];                                               \
+     }                  						    \ 
    } while(0)                                                               \
 
 /*************************************************
@@ -356,12 +369,27 @@ typedef struct
     A1D_Handle_t *handle_ptr;
 } A1D_Packed_gets_header_t;
 
+typedef union
+{
+   DCQuad info[2];
+   struct
+   {
+     int bytes;
+     int source;
+     void* source_ptr_out; 
+     void* target_ptr;
+     A1_atomic_op_t op;
+     A1_datatype_t datatype;
+     A1D_Handle_t* handle_ptr;
+   };
+} A1D_Rmw_header_t;
+
 typedef struct
 {
-    void *counter_ptr;
-    int value;
-    A1_atomic_op_t op;
-} A1D_Rmw_pkt_t;
+   int bytes;
+   void* source_ptr_out; 
+   A1D_Handle_t* handle_ptr;
+} A1D_Rmw_response_header_t;
 
 typedef struct
 {
@@ -410,6 +438,8 @@ extern DCMF_Protocol_t A1D_GlobalBarrier_protocol;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
 extern DCMF_Protocol_t A1D_Generic_putacc_protocol;
+extern DCMF_Protocol_t A1D_Rmw_protocol;
+extern DCMF_Protocol_t A1D_Rmw_response_protocol;
 extern DCMF_Protocol_t A1D_Packed_puts_protocol;
 extern DCMF_Protocol_t A1D_Packed_gets_protocol;
 extern DCMF_Protocol_t A1D_Packed_gets_response_protocol;
@@ -417,7 +447,6 @@ extern DCMF_Protocol_t A1D_Packed_putaccs_protocol;
 extern DCMF_Protocol_t A1D_Counter_create_protocol;
 extern DCMF_Protocol_t A1D_Counter_protocol;
 extern DCMF_Protocol_t A1D_Control_protocol;
-extern DCMF_Protocol_t A1D_Rmw_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
 

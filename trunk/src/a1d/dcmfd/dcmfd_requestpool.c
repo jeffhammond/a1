@@ -14,6 +14,10 @@ A1D_Request_t* A1DI_Get_request(int wait_and_advance)
 
     A1U_FUNC_ENTER();
 
+    if(!A1D_Request_pool.head)
+         A1U_DEBUG_PRINT("Request pool exhausted. Wait and advance is: %d \n", 
+                   wait_and_advance);
+
     if (!wait_and_advance && !A1D_Request_pool.head)
     {
         A1DI_Malloc((void **) &a1d_request, sizeof(A1D_Request_t));

@@ -153,4 +153,17 @@
         }                                                               \
     }
 
+#ifdef A1_DEBUG
+#define A1U_DEBUG_PRINT(args...)                                  \
+do {                                                              \
+    int __my_rank;                                                \
+    __my_rank = A1_Process_rank(A1_GROUP_WORLD);                  \
+    fprintf(stderr, "Debug Message from [%d] :", __my_rank);      \
+    fprintf(stderr, args);                                        \
+    fflush(stderr);                                               \
+} while (0)
+#else
+#define A1U_DEBUG_PRINT(args...)
+#endif
+
 #endif /* A1U_H_INCLUDED */
