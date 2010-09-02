@@ -142,11 +142,13 @@ int A1D_Create_counter(A1_group_t* group, A1_counter_t *counter_ptr)
         a1d_counter->value_ptr = counter_create_response;
     }
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_Destroy_counter(A1_group_t* group, A1_counter_t *counter_ptr)

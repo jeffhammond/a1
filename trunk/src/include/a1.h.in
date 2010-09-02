@@ -145,22 +145,6 @@ typedef void* A1_handle_t;
 typedef void* A1_counter_t;
 
 /**
- * \brief A1 mutex.
- *
- * \see A1_Create_mutexes, A1_Destroy_mutexes, A1_Lock_mutex, A1_Trylock_mutex, A1_Unlock_mutex
- *
- * \ingroup TYPEDEFS
- *
- */
-
-typedef struct A1_mutex_t
-{
-    int rank;
-    void* owner_ptr;
-    int owner; /* TODO: this is only defined on the host given by rank. */
-} A1_mutex_t;
-
-/**
  * \brief A1 io vector type.
  *
  * \see A1_PutV, A1_GetV, A1_PutAccV
@@ -543,14 +527,14 @@ int A1_NbIncr_counter(A1_counter_t counter,
  * \param[out]    rc            The error code.
  * \param[in]     group         A1 group over which the mutexes are shared.
  * \param[in]     count         Number of mutexes to be created.
- * \param[inout]  mutexes       Vector of A1 mutexes.
+ * \param[int]    count_ar      An arrays storing the number of mutexes on each process
  *
  * \see a1_mutex_t, A1_Destroy_mutexes, A1_Lock_mutex, A1_Trylock_mutex, A1_Unlock_mutex
  *
  * \ingroup Atomics
  */
 
-int A1_Create_mutexes(A1_group_t* group, int count, A1_mutex_t* *mutexes);
+int A1_Create_mutexes(A1_group_t* group, int mutex_count, int *mutex_count_ar);
 
 /**
  * \brief Collective operation to deallocate and deregister a list of mutexes
@@ -567,61 +551,69 @@ int A1_Create_mutexes(A1_group_t* group, int count, A1_mutex_t* *mutexes);
  * \ingroup Atomics
  */
 
-int A1_Destroy_mutexes(A1_group_t* group, A1_mutex_t* mutexes);
+int A1_Destroy_mutexes(A1_group_t* group);
 
 /**
  * \brief Local operation to lock a mutex.  This call blocks until the mutex has been locked.
  *
  * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
  * \param[in]     mutex         A1 mutex.
+ * \param[in]     proc          Process on which you want to lock mutex on
  *
  * \see a1_mutex_t, A1_Trylock_mutex, A1_Unlock_mutex, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
  *
  * \ingroup Atomics
  */
 
-int A1_Lock_mutex(A1_mutex_t mutex);
+int A1_Lock_mutex(A1_group_t* group, int mutex, int proc);
 
 /**
  * \brief Local operation to trylock a mutex.
  *
  * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
  * \param[in]     mutex         A1 mutex.
+ * \param[in]     proc          Process on which you want to lock mutex on
  *
  * \see a1_mutex_t, A1_Lock_mutex, A1_Unlock_mutex, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
  *
  * \ingroup Atomics
  */
 
-int A1_Trylock_mutex(A1_mutex_t mutex);
+int A1_Trylock_mutex(A1_group_t* group, int mutex, int proc);
 
 /**
  * \brief Local operation to unlock a mutex.  This call blocks until the mutex has been unlocked.
  *
  * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
  * \param[in]     mutex         A1 mutex.
+ * \param[in]     proc          Process on which you want to lock mutex on
  *
  * \see a1_mutex_t, A1_Lock_mutex, A1_Trylock_mutex, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
  *
  * \ingroup Atomics
  */
 
-int A1_Unlock_mutex(A1_mutex_t mutex);
+int A1_Unlock_mutex(A1_group_t* group, int mutex, int proc);
 
 /**
  * \brief Local operation to lock a list of mutexes.  This call blocks until ALL
  *        mutexes have been locked.
  *
  * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
  * \param[in]     count         Number of mutexes to be locked.
  * \param[in]     mutexes       Pointer to vector A1 mutexes.
+ * \param[in]     proc          Pointer to vector or process ranks.
  *
  * \see a1_mutex_t, A1_Create_mutexes, A1_Destroy_mutex, A1_Trylock_mutex, A1_Unlock_mutex
  *
  * \ingroup Atomics
  */
 
-int A1_Lock_mutexes(int count, A1_mutex_t *mutexes);
+int A1_Lock_mutexes(A1_group_t* group, unsigned count, int *mutex, int *proc);
 
 /**
  * \brief Local operation to trylock a list of mutexes.  This call attempts to acquire all the
@@ -629,6 +621,7 @@ int A1_Lock_mutexes(int count, A1_mutex_t *mutexes);
  *        indicating if the lock was acquired or not.
  *
  * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
  * \param[in]     count         Number of mutexes to be locked.
  * \param[in]     mutexes       Pointer to vector A1 mutexes.
  * \param[inout]  acquired      Pointer to vector A1 booleans indicating if the lock was acquired.
@@ -638,12 +631,13 @@ int A1_Lock_mutexes(int count, A1_mutex_t *mutexes);
  * \ingroup Atomics
  */
 
-int A1_Trylock_mutexes(int count, A1_mutex_t *mutexes, A1_bool_t* *acquired);
+int A1_Trylock_mutexes(A1_group_t* group, unsigned count, int *mutexes, A1_bool_t* *acquired);
 
 /**
  * \brief Local operation to unlock a list of mutexes
  *
  * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
  * \param[in]     count         Number of mutexes to be locked.
  * \param[in]     mutexes       Pointer to vector A1 mutexes.
  *
@@ -652,7 +646,7 @@ int A1_Trylock_mutexes(int count, A1_mutex_t *mutexes, A1_bool_t* *acquired);
  * \ingroup Atomics
  */
 
-int A1_Unlock_mutexes(unsigned count, A1_mutex_t *mutexes);
+int A1_Unlock_mutexes(A1_group_t* group, unsigned count, int *mutexes, A1_mutex_t *mutexes);
 
 /* FIXME: More API functions to come */
 
