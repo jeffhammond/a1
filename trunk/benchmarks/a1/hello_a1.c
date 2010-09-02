@@ -53,14 +53,11 @@
 
 int main()
 {
-
     int rank;
-    int memtype = 1;
 
-    /* FIXME: this is wrong but there's no rush to fix tests we're not using until the API is fixed */
-    A1_Initialize(A1_THREAD_SINGLE, 1, 1, &memtype);
+    A1_Initialize(A1_THREAD_SINGLE);
 
-    A1_Rank(&rank);
+    rank = A1_Process_id(&rank);
 
     printf("[%d] Hello A1 \n", rank);
     fflush(stdout);
