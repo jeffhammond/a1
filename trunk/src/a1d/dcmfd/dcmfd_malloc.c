@@ -99,7 +99,6 @@ int A1DI_Memaddress_xchange(void **ptr)
 
     A1U_FUNC_ENTER();
 
-    /* TODO: Send can be used instead of control messages to take advantage of the TORUS network */
     A1D_Control_xchange_info.xchange_ptr = (void *) ptr;
     A1D_Control_xchange_info.xchange_size = sizeof(void *);
     A1D_Control_xchange_info.rcv_active += A1D_Process_info.num_ranks - 1;

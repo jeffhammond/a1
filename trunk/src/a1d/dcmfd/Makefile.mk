@@ -27,5 +27,6 @@ liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmfd/dcmfd_param.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_handlepool.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_bufferpool.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_counter.c \
+	$(top_srcdir)/src/a1d/dcmfd/dcmfd_mutex.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_cht.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_wait.c

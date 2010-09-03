@@ -579,7 +579,7 @@ int A1D_NbPutAccS(int target,
            A1D_Op_handoff *op_handoff;
            A1DI_Malloc((void **) &op_handoff, sizeof(A1D_Op_handoff));
 
-           op_handoff->op_type = A1D_Packed_putaccs; 
+           op_handoff->op_type = A1D_PACKED_PUTACCS; 
            op_handoff->op.putaccs_op.target = target;
            op_handoff->op.putaccs_op.stride_level = stride_level;
            op_handoff->op.putaccs_op.block_sizes = block_sizes;

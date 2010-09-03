@@ -671,6 +671,87 @@ int A1D_Rmw(int target,
            A1_atomic_op_t op,
            A1_datatype_t a1_type);
 
+
+/**
+ * \brief Device level implementation of A1_Create_mutexes
+ *
+ * Collective operation to allocate and register a list of mutexes.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
+ * \param[in]     count         Number of mutexes to be created.
+ * \param[int]    count_ar      An arrays storing the number of mutexes on each process
+ *
+ * \ingroup Atomics
+ */
+int A1D_Create_mutexes(A1_group_t* group, 
+                       int mutex_count, 
+                       int *mutex_count_ar);
+
+/**
+ * \brief Device level implementation of A1_Destroy_mutexes
+ *
+ * Collective operation to unregister and deallocate a list of mutexes.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
+ *
+ * \ingroup Atomics
+ */
+int A1D_Destroy_mutexes(A1_group_t* group);
+
+/**
+ * \brief Device level implementation of A1_Lock_mutex
+ * 
+ * Operation to lock a mutex. Blocks until lock has been acquired.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
+ * \param[in]     mutex         A1 mutex.
+ * \param[in]     proc          Process on which you want to lock mutex on
+ *
+ * \ingroup Atomics
+ */
+int A1D_Lock_mutex(A1_group_t* group, 
+                   int mutex, 
+                   int proc);
+
+/**
+ * \brief Device level implementation of A1_Trylock_mutex
+ * 
+ * Operation to trylock a mutex.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
+ * \param[in]     mutex         A1 mutex.
+ * \param[in]     proc          Process on which you want to lock mutex on
+ * \param[out]    acquired      returns 1 if was acquired
+ *
+ * \ingroup Atomics
+ */
+
+int A1D_Trylock_mutex(A1_group_t* group, 
+                      int mutex, 
+                      int proc, 
+                      A1_bool_t *acquired);
+
+/**
+ * \brief Device level implementation of A1_Unlock_mutex
+ *  
+ * Operation to unlock a mutex.  This call blocks until the mutex has been unlocked.
+ *
+ * \param[out]    rc            The error code.
+ * \param[in]     group         A1 group over which the mutexes are shared.
+ * \param[in]     mutex         A1 mutex.
+ * \param[in]     proc          Process on which you want to lock mutex on
+ *
+ * \ingroup Atomics
+ */
+
+int A1D_Unlock_mutex(A1_group_t* group, 
+                     int mutex, 
+                     int proc);
+
 /**
  * \brief Device level implementation of A1_Flush 
  * 

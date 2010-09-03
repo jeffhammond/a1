@@ -227,6 +227,13 @@ void A1DI_Handoff_progress();
 /*************************************************
  *             Data Structures                   *
  *************************************************/
+typedef enum
+{
+  A1D_MUTEX_LOCK = 0,
+  A1D_MUTEX_TRYLOCK,
+  A1D_MUTEX_UNLOCK
+} A1D_Mutex_op_type;
+
 typedef struct
 {
     volatile uint32_t enable_cht;
@@ -262,6 +269,19 @@ typedef struct
     long  value;      /*This will contain the value if counter
                         is located locally*/
 } A1D_Counter_t;
+
+typedef struct A1D_Mutex_request_t
+{
+  int rank;
+  struct A1D_Mutex_request_t *next;
+} A1D_Mutex_request_t;
+
+typedef struct
+{
+  int   mutex;
+  A1D_Mutex_request_t *head;
+  A1D_Mutex_request_t *tail;
+} A1D_Mutex_t;
 
 typedef struct A1D_Buffer_t
 {
@@ -399,6 +419,13 @@ typedef struct
 
 typedef struct
 {
+    int mutex_idx;
+    A1D_Mutex_op_type mutex_op;
+    int response;
+} A1D_Mutex_pkt_t;
+
+typedef struct
+{
     int stride_level;
     int block_sizes[A1C_MAX_STRIDED_DIM];
     void *target_ptr;
@@ -431,6 +458,9 @@ extern A1D_Request_pool_t A1D_Request_pool;
 extern A1D_Handle_pool_t A1D_Handle_pool;
 extern A1D_Buffer_pool_t A1D_Buffer_pool;
 
+extern int *A1D_Mutexes_count;
+extern A1D_Mutex_t *A1D_Mutexes;
+
 extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Control_flushack_protocol;
 extern DCMF_Protocol_t A1D_Send_flush_protocol;
@@ -446,6 +476,7 @@ extern DCMF_Protocol_t A1D_Packed_gets_response_protocol;
 extern DCMF_Protocol_t A1D_Packed_putaccs_protocol;
 extern DCMF_Protocol_t A1D_Counter_create_protocol;
 extern DCMF_Protocol_t A1D_Counter_protocol;
+extern DCMF_Protocol_t A1D_Mutex_protocol;
 extern DCMF_Protocol_t A1D_Control_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
 extern DCMF_Memregion_t *A1D_Memregion_global;
@@ -569,8 +600,8 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
 
 typedef enum
 {
-  A1D_Packed_puts = 0,
-  A1D_Packed_putaccs
+  A1D_PACKED_PUTS = 0,
+  A1D_PACKED_PUTACCS
 } A1D_Op_type;
 
 typedef struct

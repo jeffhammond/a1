@@ -25,7 +25,7 @@ void A1DI_Handoff_progress()
     {
         op_handoff = A1D_Op_handoff_queuehead;
 
-        if (op_handoff->op_type == A1D_Packed_puts)
+        if (op_handoff->op_type == A1D_PACKED_PUTS)
         {
 
             status = A1DI_Packed_puts(op_handoff->op.puts_op.target,
@@ -41,7 +41,7 @@ void A1DI_Handoff_progress()
             op_handoff->op.puts_op.a1d_handle->active--;
 
         }
-        else if (op_handoff->op_type == A1D_Packed_putaccs)
+        else if (op_handoff->op_type == A1D_PACKED_PUTACCS)
         {
 
             status

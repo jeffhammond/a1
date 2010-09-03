@@ -581,7 +581,7 @@ int A1_Lock_mutex(A1_group_t* group, int mutex, int proc);
  * \ingroup Atomics
  */
 
-int A1_Trylock_mutex(A1_group_t* group, int mutex, int proc);
+int A1_Trylock_mutex(A1_group_t* group, int mutex, int proc, A1_bool_t *acquired);
 
 /**
  * \brief Local operation to unlock a mutex.  This call blocks until the mutex has been unlocked.
