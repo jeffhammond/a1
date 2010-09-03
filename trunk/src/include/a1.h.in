@@ -613,7 +613,7 @@ int A1_Unlock_mutex(A1_group_t* group, int mutex, int proc);
  * \ingroup Atomics
  */
 
-int A1_Lock_mutexes(A1_group_t* group, unsigned count, int *mutex, int *proc);
+int A1_Lock_mutexes(A1_group_t* group, unsigned count, int *mutexes, int *procs);
 
 /**
  * \brief Local operation to trylock a list of mutexes.  This call attempts to acquire all the
@@ -631,7 +631,7 @@ int A1_Lock_mutexes(A1_group_t* group, unsigned count, int *mutex, int *proc);
  * \ingroup Atomics
  */
 
-int A1_Trylock_mutexes(A1_group_t* group, unsigned count, int *mutexes, A1_bool_t* *acquired);
+int A1_Trylock_mutexes(A1_group_t* group, unsigned count, int *mutexes, int *procs, A1_bool_t* *acquired);
 
 /**
  * \brief Local operation to unlock a list of mutexes
@@ -646,7 +646,7 @@ int A1_Trylock_mutexes(A1_group_t* group, unsigned count, int *mutexes, A1_bool_
  * \ingroup Atomics
  */
 
-int A1_Unlock_mutexes(A1_group_t* group, unsigned count, int *mutexes, A1_mutex_t *mutexes);
+int A1_Unlock_mutexes(A1_group_t* group, unsigned count, int *mutexes, int *procs);
 
 /* FIXME: More API functions to come */
 

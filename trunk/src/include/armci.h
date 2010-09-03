@@ -175,4 +175,114 @@ void ARMCI_AllFence();
 
 int ARMCI_Barrier();
 
+/*************************************
+       Prototypes for Unused Functions
+**************************************/
+
+/**********Setup functions**********/
+
+void ARMCI_Cleanup(void);
+
+/**********Communication************/
+
+int ARMCI_PutS_flag_dir(       /* put with flag that uses direct put */
+                void *src_ptr,        /* pointer to 1st segment at source*/
+                int src_stride_arr[], /* array of strides at source */
+                void* dst_ptr,        /* pointer to 1st segment at destination*/
+                int dst_stride_arr[], /* array of strides at destination */
+                int count[],          /* number of segments at each stride
+                                         levels: count[0]=bytes*/
+                int stride_levels,    /* number of stride levels */
+                int *flag,            /* pointer to remote flag */
+                int val,              /* value to set flag upon completion of
+                                         data transfer */
+                int proc              /* remote process(or) ID */
+                );
+
+int ARMCI_PutS_flag(
+                void *src_ptr,        /* pointer to 1st segment at source*/
+                int src_stride_arr[], /* array of strides at source */
+                void* dst_ptr,        /* pointer to 1st segment at destination*/
+                int dst_stride_arr[], /* array of strides at destination */
+                int count[],          /* number of segments at each stride
+                                         levels: count[0]=bytes*/
+                int stride_levels,    /* number of stride levels */
+                int *flag,            /* pointer to remote flag */
+                int val,              /* value to set flag upon completion of
+                                         data transfer */
+                int proc              /* remote process(or) ID */
+                );
+
+void ARMCI_Copy(void *src, void *dst, int n);
+
+/************ Locality Functions **********************************/
+typedef int armci_domain_t;
+#define ARMCI_DOMAIN_SMP 0        
+int armci_domain_nprocs(armci_domain_t domain, int id);
+int armci_domain_id(armci_domain_t domain, int glob_proc_id);
+int armci_domain_glob_proc_id(armci_domain_t domain, int id, int loc_proc_id);
+int armci_domain_my_id(armci_domain_t domain);
+int armci_domain_count(armci_domain_t domain);
+int armci_domain_same_id(armci_domain_t domain, int proc);
+
+/*********** Group Functions ************************************/
+typedef struct {
+} ARMCI_Group;
+
+typedef struct {
+} armci_clus_t;
+
+typedef struct {
+}armci_grp_attr_t;
+
+void ARMCI_Group_create(int n, int *pid_list, ARMCI_Group *group_out);
+void ARMCI_Group_create_child(int n, int *pid_list, ARMCI_Group *group_out,
+                              ARMCI_Group *group_parent);
+void ARMCI_Group_free(ARMCI_Group *group);
+int  ARMCI_Group_rank(ARMCI_Group *group, int *rank);
+void ARMCI_Group_size(ARMCI_Group *group, int *size);
+void ARMCI_Group_set_default(ARMCI_Group *group);
+void ARMCI_Group_get_default(ARMCI_Group *group_out);
+void ARMCI_Group_get_world(ARMCI_Group *group_out);
+ARMCI_Group * ARMCI_Get_ft_group();
+
+int ARMCI_Malloc_group(void *ptr_arr[], armci_size_t bytes,ARMCI_Group *group);
+int ARMCI_Free_group(void *ptr, ARMCI_Group *group);
+
+armci_grp_attr_t *ARMCI_Group_getattr(ARMCI_Group *grp);
+
+/*********** Group Functions based on MPI ****************************/
+
+extern void armci_msg_gop_init();
+
+void armci_msg_group_igop(int *x, int n, char* op,ARMCI_Group *group);
+void armci_msg_group_lgop(long *x, int n, char* op,ARMCI_Group *group);
+void armci_msg_group_fgop(float *x, int n, char* op,ARMCI_Group *group);
+void armci_msg_group_dgop(double *x, int n,char* op,ARMCI_Group *group);
+void armci_msg_group_bcast_scope(int scope, void *buf, int len,
+                                        int root, ARMCI_Group *group);
+void armci_msg_group_barrier(ARMCI_Group *group);
+void armci_msg_group_gop_scope(int scope, void *x, int n, char* op,
+                                      int type, ARMCI_Group *group);
+void armci_grp_clus_brdcst(void *buf, int len, int grp_master,
+                                  int grp_clus_nproc,ARMCI_Group *mastergroup);
+void armci_exchange_address_grp(void *ptr_arr[], int n, ARMCI_Group *group);
+
+
+/**********Checkpointing************/
+
+typedef struct {
+}armci_ckpt_ds_t;
+
+void ARMCI_Ckpt_create_ds(armci_ckpt_ds_t *ckptds, int count);
+int ARMCI_Ckpt_init(char *filename, ARMCI_Group *grp, int savestack, int saveheap, armci_ckpt_ds_t *ckptds);
+int ARMCI_Ckpt(int rid);
+void ARMCI_Ckpt_finalize(int rid);
+
+/************* Memory *******************************************/
+int ARMCI_Same_node(int proc);
+
+int ARMCI_Uses_shm();
+void ARMCI_Set_shm_limit(unsigned long shmemlimit);
+
 #endif /* ARMCI_H_INCLUDED */
