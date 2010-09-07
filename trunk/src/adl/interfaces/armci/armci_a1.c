@@ -23,15 +23,13 @@ int ARMCI_Init_args(int *argc, char ***argv)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Initialize(A1_THREAD_SINGLE);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n");
+    status = A1_Initialize(A1_THREAD_SINGLE);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 
 }
 
@@ -48,17 +46,15 @@ int ARMCI_Init()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Initialize(A1_THREAD_SINGLE);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n"); 
+    status = A1_Initialize(A1_THREAD_SINGLE);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 
-} 
+}
 
 int ARMCI_Finalize()
 {
@@ -73,20 +69,17 @@ int ARMCI_Finalize()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Finalize();
-     A1U_ERR_POP(status != A1_SUCCESS, "A1D_Finalize returned an error\n");
+    status = A1_Finalize();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Finalize returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 
 }
 
-int ARMCI_Malloc(void* ptr[],
-                 armci_size_t bytes)
+int ARMCI_Malloc(void* ptr[], armci_size_t bytes)
 {
     int status = A1_SUCCESS;
     int my_rank;
@@ -106,14 +99,13 @@ int ARMCI_Malloc(void* ptr[],
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Alloc_segment returned an error\n");
 
     status = A1_Exchange_segments(A1_GROUP_WORLD, ptr);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Exchange_segments returned an error\n");
+    A1U_ERR_POP(status != A1_SUCCESS,
+                "A1_Exchange_segments returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 
 }
 
@@ -131,15 +123,13 @@ void* ARMCI_Malloc_local(armci_size_t bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Alloc_segment(&segment_ptr, bytes);
-     A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Alloc_segement returned an error\n");
+    status = A1_Alloc_segment(&segment_ptr, bytes);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Alloc_segement returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return segment_ptr;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_Free(void *ptr)
@@ -155,18 +145,16 @@ int ARMCI_Free(void *ptr)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Release_segments(A1_GROUP_WORLD, ptr);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Release_segments returned an error\n");
+    status = A1_Release_segments(A1_GROUP_WORLD, ptr);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Release_segments returned an error\n");
 
-     status = A1_Free_segment(ptr);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Free_segment returned an error\n");
+    status = A1_Free_segment(ptr);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Free_segment returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_Free_local(void *ptr)
@@ -182,15 +170,13 @@ int ARMCI_Free_local(void *ptr)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Free_segment(ptr);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Free_segment returned an error\n");
+    status = A1_Free_segment(ptr);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Free_segment returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 void ARMCI_INIT_HANDLE(armci_hdl_t* handle)
@@ -208,22 +194,18 @@ void ARMCI_INIT_HANDLE(armci_hdl_t* handle)
 #   endif
 
     status = A1_Allocate_handle(a1_handle);
-    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allocate_handle returned an error\n");
+    A1U_ERR_ABORT(status != A1_SUCCESS,
+                  "A1_Allocate_handle returned an error\n");
 
     *handle = *a1_handle;
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
-int ARMCI_Put(void* src,
-              void* dst,
-              int bytes,
-              int proc)
+int ARMCI_Put(void* src, void* dst, int bytes, int proc)
 {
     int status = A1_SUCCESS;
 
@@ -236,15 +218,13 @@ int ARMCI_Put(void* src,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Put(proc, src, dst, bytes);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Put returned an error\n");
+    status = A1_Put(proc, src, dst, bytes);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Put returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_PutS(void* src_ptr,
@@ -266,21 +246,19 @@ int ARMCI_PutS(void* src_ptr,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_PutS(proc,
-                      stride_levels,
-                      count,
-                      src_ptr,
-                      src_stride_ar,
-                      dst_ptr,
-                      dst_stride_ar);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutS returned an error\n");
+    status = A1_PutS(proc,
+                     stride_levels,
+                     count,
+                     src_ptr,
+                     src_stride_ar,
+                     dst_ptr,
+                     dst_stride_ar);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutS returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_NbPutS(void* src_ptr,
@@ -304,29 +282,25 @@ int ARMCI_NbPutS(void* src_ptr,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    a1_handle = (A1_handle_t) *handle;
+    a1_handle = (A1_handle_t) * handle;
 
     status = A1_NbPutS(proc,
-                      stride_levels,
-                      count,
-                      src_ptr,
-                      src_stride_ar,
-                      dst_ptr,
-                      dst_stride_ar,
-                      a1_handle);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutS returned an error\n");
+                       stride_levels,
+                       count,
+                       src_ptr,
+                       src_stride_ar,
+                       dst_ptr,
+                       dst_stride_ar,
+                       a1_handle);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutS returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
-int ARMCI_PutV(armci_giov_t *dsrc_arr,
-               int arr_len,
-               int proc)
+int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 {
     int status = A1_SUCCESS;
     A1_iov_t *a1_iov_ar;
@@ -342,26 +316,22 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr,
 
     /* ARMCI iov and A1 iov are similar structures but follow 
      * different naming conventions. So we make a copy.*/
-    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar)*arr_len);
-    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar)*arr_len); 
+    /* TODO Why not use A1D_Malloc here? */
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
 
-    status =  A1_PutV(proc,
-                      a1_iov_ar,
-                      arr_len);
+    status = A1_PutV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutV returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    /* TODO Free a1_iov_ar */
+
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
-int ARMCI_Get(void* src,
-              void* dst,
-              int bytes,
-              int proc)
+int ARMCI_Get(void* src, void* dst, int bytes, int proc)
 {
     int status = A1_SUCCESS;
 
@@ -374,15 +344,13 @@ int ARMCI_Get(void* src,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_Get(proc, src, dst, bytes);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned an error\n");
+    status = A1_Get(proc, src, dst, bytes);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_GetS(void* src_ptr,
@@ -404,21 +372,19 @@ int ARMCI_GetS(void* src_ptr,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-     status = A1_GetS(proc,
-                      stride_levels,
-                      count,
-                      src_ptr,
-                      src_stride_ar,
-                      dst_ptr,
-                      dst_stride_ar);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_GetS returned an error\n");
+    status = A1_GetS(proc,
+                     stride_levels,
+                     count,
+                     src_ptr,
+                     src_stride_ar,
+                     dst_ptr,
+                     dst_stride_ar);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_GetS returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_NbGetS(void* src_ptr,
@@ -442,29 +408,25 @@ int ARMCI_NbGetS(void* src_ptr,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    a1_handle = (A1_handle_t) *handle;
+    a1_handle = (A1_handle_t) * handle;
 
     status = A1_NbGetS(proc,
-                      stride_levels,
-                      count,
-                      src_ptr,
-                      src_stride_ar,
-                      dst_ptr,
-                      dst_stride_ar,
-                      a1_handle);
-     A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutS returned an error\n");
+                       stride_levels,
+                       count,
+                       src_ptr,
+                       src_stride_ar,
+                       dst_ptr,
+                       dst_stride_ar,
+                       a1_handle);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutS returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
-int ARMCI_GetV(armci_giov_t *dsrc_arr,
-               int arr_len,
-               int proc)
+int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 {
     int status = A1_SUCCESS;
     A1_iov_t *a1_iov_ar;
@@ -480,23 +442,21 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr,
 
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
-    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar)*arr_len);
-    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar)*arr_len);            
 
-    status =  A1_GetV(proc,
-                      a1_iov_ar,
-                      arr_len);
+    /* TODO Why not use A1D_Malloc here? */
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
+
+    status = A1_GetV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_GetV returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    /* TODO Free a1_iov_ar */
+
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
-
-
 
 int ARMCI_Acc(int datatype,
               void *scale,
@@ -516,46 +476,38 @@ int ARMCI_Acc(int datatype,
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
-  
-    if(datatype == ARMCI_ACC_INT)
+
+    if (datatype == ARMCI_ACC_INT)
     {
-        a1_type = A1_INT32; 
+        a1_type = A1_INT32;
     }
-    else if(datatype == ARMCI_ACC_FLT)
+    else if (datatype == ARMCI_ACC_FLT)
     {
         a1_type = A1_FLOAT;
-    } 
-    else if(datatype == ARMCI_ACC_DBL)
+    }
+    else if (datatype == ARMCI_ACC_DBL)
     {
         a1_type = A1_DOUBLE;
     }
-    else 
+    else
     {
-        A1U_ERR_POP(status != A1_ERROR, 
-               "Unsupported datatype\n"); 
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
     }
-     
-    status = A1_PutAcc(proc,
-                        src,
-                        dst,
-                        bytes,
-                        a1_type,
-                        scale);
+
+    status = A1_PutAcc(proc, src, dst, bytes, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAcc returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_AccS(int datatype,
                void *scale,
                void* src_ptr,
                int src_stride_ar[],
-               void* dst_ptr, 
+               void* dst_ptr,
                int dst_stride_ar[],
                int count[],
                int stride_levels,
@@ -572,25 +524,24 @@ int ARMCI_AccS(int datatype,
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
-  
-    if(datatype == ARMCI_ACC_INT)
+
+    if (datatype == ARMCI_ACC_INT)
     {
-        a1_type = A1_INT32; 
+        a1_type = A1_INT32;
     }
-    else if(datatype == ARMCI_ACC_FLT)
+    else if (datatype == ARMCI_ACC_FLT)
     {
         a1_type = A1_FLOAT;
-    } 
-    else if(datatype == ARMCI_ACC_DBL)
+    }
+    else if (datatype == ARMCI_ACC_DBL)
     {
         a1_type = A1_DOUBLE;
     }
-    else 
+    else
     {
-        A1U_ERR_POP(status != A1_ERROR, 
-               "Unsupported datatype\n"); 
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
     }
-     
+
     status = A1_PutAccS(proc,
                         stride_levels,
                         count,
@@ -602,19 +553,17 @@ int ARMCI_AccS(int datatype,
                         scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccS returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_NbAccS(int datatype,
                  void *scale,
                  void* src_ptr,
                  int src_stride_ar[],
-                 void* dst_ptr, 
+                 void* dst_ptr,
                  int dst_stride_ar[],
                  int count[],
                  int stride_levels,
@@ -634,26 +583,25 @@ int ARMCI_NbAccS(int datatype,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    a1_handle = (A1_handle_t) *handle;
-  
-    if(datatype == ARMCI_ACC_INT)
+    a1_handle = (A1_handle_t) * handle;
+
+    if (datatype == ARMCI_ACC_INT)
     {
-        a1_type = A1_INT32; 
+        a1_type = A1_INT32;
     }
-    else if(datatype == ARMCI_ACC_FLT)
+    else if (datatype == ARMCI_ACC_FLT)
     {
         a1_type = A1_FLOAT;
-    } 
-    else if(datatype == ARMCI_ACC_DBL)
+    }
+    else if (datatype == ARMCI_ACC_DBL)
     {
         a1_type = A1_DOUBLE;
     }
-    else 
+    else
     {
-        A1U_ERR_POP(status != A1_ERROR, 
-               "Unsupported datatype\n"); 
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
     }
-     
+
     status = A1_NbPutAccS(proc,
                           stride_levels,
                           count,
@@ -666,12 +614,10 @@ int ARMCI_NbAccS(int datatype,
                           a1_handle);
     A1U_ERR_POP(status != A1_SUCCESS, "NbA1_PutAccS returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_AccV(int datatype,
@@ -693,50 +639,41 @@ int ARMCI_AccV(int datatype,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(datatype == ARMCI_ACC_INT)
+    if (datatype == ARMCI_ACC_INT)
     {
         a1_type = A1_INT32;
     }
-    else if(datatype == ARMCI_ACC_FLT)
+    else if (datatype == ARMCI_ACC_FLT)
     {
         a1_type = A1_FLOAT;
     }
-    else if(datatype == ARMCI_ACC_DBL)
+    else if (datatype == ARMCI_ACC_DBL)
     {
         a1_type = A1_DOUBLE;
     }
     else
     {
-        A1U_ERR_POP(status != A1_ERROR,
-               "Unsupported datatype\n");
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
     }
 
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
-    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar)*arr_len);
-    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar)*arr_len);
+    /* TODO Why not use A1D_Malloc here? */
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
 
-    status =  A1_PutAccV(proc,
-                         a1_iov_ar,
-                         arr_len,
-                         a1_type,
-                         scale);
+    status = A1_PutAccV(proc, a1_iov_ar, arr_len, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccV returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    /* TODO Free a1_iov_ar */
+
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
-
-int ARMCI_Rmw(int op,
-              void *ploc,
-              void *prem,
-              int value,
-              int proc)
+int ARMCI_Rmw(int op, void *ploc, void *prem, int value, int proc)
 {
 
     int status = A1_SUCCESS;
@@ -747,36 +684,27 @@ int ARMCI_Rmw(int op,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(op == ARMCI_FETCH_AND_ADD)
+    if (op == ARMCI_FETCH_AND_ADD)
     {
         a1_op = A1_FETCH_AND_ADD;
     }
-    else if(op == ARMCI_SWAP)
-    { 
-        a1_op = ARMCI_SWAP;    
-    } 
+    else if (op == ARMCI_SWAP)
+    {
+        a1_op = ARMCI_SWAP;
+    }
     else
     {
-        A1U_ERR_POP(status != A1_ERROR,
-               "Unsupported rmw operations\n");
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported rmw operations\n");
     }
 
     /*Assuming int is 32bit signed integer*/
-    status =  A1_Rmw(proc,
-                     &value,
-                     ploc,
-                     prem,
-                     sizeof(int),
-                     a1_op,
-                     A1_INT32);
+    status = A1_Rmw(proc, &value, ploc, prem, sizeof(int), a1_op, A1_INT32);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Rmw returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_Wait(armci_hdl_t* handle)
@@ -794,19 +722,16 @@ int ARMCI_Wait(armci_hdl_t* handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    a1_handle = (A1_handle_t) *handle;
+    a1_handle = (A1_handle_t) * handle;
 
-    status =  A1_Wait_handle(a1_handle);
+    status = A1_Wait_handle(a1_handle);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Wait_handle returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
-
 
 int ARMCI_Test(armci_hdl_t* handle)
 {
@@ -824,17 +749,15 @@ int ARMCI_Test(armci_hdl_t* handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    a1_handle = (A1_handle_t) *handle;
+    a1_handle = (A1_handle_t) * handle;
 
     status = A1_Test_handle(a1_handle, &complete);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Test_handle returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return !complete;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_WaitAll()
@@ -850,15 +773,13 @@ int ARMCI_WaitAll()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status =  A1_Wait_handle_all();
+    status = A1_Wait_handle_all();
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Wait_handle_all returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 void ARMCI_Fence(int proc)
@@ -874,15 +795,13 @@ void ARMCI_Fence(int proc)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status =  A1_Flush(proc);
+    status = A1_Flush(proc);
     A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Flush returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 void ARMCI_AllFence()
@@ -898,15 +817,13 @@ void ARMCI_AllFence()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status =  A1_Flush_group(A1_GROUP_WORLD);
+    status = A1_Flush_group(A1_GROUP_WORLD);
     A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Flush_group returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int ARMCI_Barrier()
@@ -922,13 +839,11 @@ int ARMCI_Barrier()
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status =  A1_Barrier_group(A1_GROUP_WORLD);
+    status = A1_Barrier_group(A1_GROUP_WORLD);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Barrier_group returned an error\n");
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
