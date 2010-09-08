@@ -14,25 +14,25 @@ set style line 5 lt 5 lw 2
 set style line 6 lt 6 lw 2
 
 set yrange [0:]
+set xrange [8:2097152]
+set xtics (8,64,512,"4K" 4096,"32K" 32768,"256K" 262144,"2M" 2097152)
+set xlabel 'Message size (bytes)'
+set ylabel 'ARMCI\_Acc Bandwidth (MBPS)'
+set output './ARMCI_Progress_mode.eps'
+plot './armci/Performance/ARMCI_Accumulate_bw.data' using 1:4 index 0 title 'none' with lp lt 1 lw 5 pt 1, \
+     './armci/Performance/ARMCI_Accumulate_bw.data' using 1:2 index 0 title 'interrupts' with lp lt 3 lw 5 pt 2, \
+     './armci/Performance/ARMCI_Accumulate_bw.data' using 1:3 index 0 title 'helper thread' with lp lt 4 lw 5 pt 3
+
+set yrange [0:]
 set xrange [8:16384]
 set xlabel 'Message size (bytes)'
 set ylabel 'Get Latency (usec)'
 set output './ARMCI_Get_latency.eps'
 set xtics (8,16,32,64,128,256,512,1024,2048,4096,8192,16384)
 plot './armci/Performance/ARMCI_Get_latency_comparision.data' using 1:2 index 0 title 'DCMF' with lp lt 1 lw 5, \
-     './armci/Performance/ARMCI_Get_latency_comparision.data' using 1:5 index 0 title 'ARMCI' with lp lt 3 lw 5, \
-     './armci/Performance/ARMCI_Get_latency_comparision.data' using 1:3 index 0 title 'ARMCI-Interrupts' with lp lt 4 lw 5, \
-     './armci/Performance/ARMCI_Get_latency_comparision.data' using 1:4 index 0 title 'ARMCI-CHT' with lp lt 2 lw 5
-
-set yrange [0:]
-set xrange [8:2097152]
-set xtics (8,64,512,"4K" 4096,"32K" 32768,"256K" 262144,"2M" 2097152)
-set xlabel 'Message size (bytes)'
-set ylabel 'ARMCI\_Acc Bandwidth (MBPS)'
-set output './ARMCI_Progress_mode.eps'
-plot './armci/Performance/ARMCI_Accumulate_bw.data' using 1:4 index 0 title 'None' with lp lt 1 lw 5 pt 1, \
-     './armci/Performance/ARMCI_Accumulate_bw.data' using 1:2 index 0 title 'Interrupts' with lp lt 3 lw 5 pt 2, \
-     './armci/Performance/ARMCI_Accumulate_bw.data' using 1:3 index 0 title 'CHT' with lp lt 4 lw 5 pt 3
+     './armci/Performance/ARMCI_Get_latency_comparision.data' using 1:5 index 0 title 'ARMCI (active target)' with lp lt 3 lw 5, \
+     './armci/Performance/ARMCI_Get_latency_comparision.data' using 1:3 index 0 title 'ARMCI (interrupts)' with lp lt 4 lw 5, \
+     './armci/Performance/ARMCI_Get_latency_comparision.data' using 1:4 index 0 title 'ARMCI (helper thread)' with lp lt 2 lw 5
 
 set yrange [:]
 set xrange [4096:262144]
