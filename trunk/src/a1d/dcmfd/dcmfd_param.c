@@ -23,6 +23,11 @@ int A1DI_Read_parameters()
         a1_settings.enable_cht = atoi(value);
     }
 
+    if ((value = getenv("A1_MPI_ACTIVE")) != NULL)
+    {
+        a1_settings.mpi_active = atoi(value);
+    }
+
     a1_settings.cht_pause_cycles = A1C_CHT_PAUSE_CYCLES;
     if ((value = getenv("A1_CHT_PAUSE_CYCLES")) != NULL)
     {

@@ -23,6 +23,7 @@
 
 #define A1C_ENABLE_CHT 1
 #define A1C_ENABLE_INTERRUPTS 0
+#define A1C_MPI_ACTIVE 1
 #define A1C_CHT_PAUSE_CYCLES 200
 
 #define A1C_PUT_PACKING_LIMIT 512
@@ -161,9 +162,9 @@ do {                                      \
 
 void A1DI_Handoff_progress();
 
-#define A1DI_CRITICAL_ENTER()                                     \
+#define A1DI_CRITICAL_ENTER()                                    \
     do {                                                          \
-      if(a1_settings.enable_cht)                                  \
+      if(a1_settings.enable_cht && !a1_settings.mpi_active)       \
       {                                                           \
         A1DI_GLOBAL_LOCK_ACQUIRE();                               \
       }     							  \
@@ -173,9 +174,9 @@ void A1DI_Handoff_progress();
       }                                                           \
     } while (0)                                                   \
 
-#define A1DI_CRITICAL_EXIT()                                      \
+#define A1DI_CRITICAL_EXIT()                                     \
     do {                                                          \
-      if(a1_settings.enable_cht)                                  \
+      if(a1_settings.enable_cht && !a1_settings.mpi_active)       \
       {                                                           \
         A1DI_GLOBAL_LOCK_RELEASE();                               \
       }                                                           \
