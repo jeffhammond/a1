@@ -119,7 +119,7 @@ void *mrate_test(void *threadid)
     t_stop = DCMF_Timebase();
     t_sec = (t_stop - t_start) / (clockMHz * 1000000);
     printf("%10d %20d %26.4f \n",
-           (long) threaid,
+           (long) threadid,
            msgsize,
            ((double) LOCAL_ITERATIONS * msgsize) / (t_sec * (double) 1024
                    * 1024));

@@ -84,27 +84,27 @@ void get_static_nocallback()
              ***********************/
             for (i = 0; i < SKIP; i++)
             {
-                DCMF_Get(&get_protocol,
+                DCMF_Get(&get_reg,
                          &get_req[i],
                          get_done,
                          DCMF_SEQUENTIAL_CONSISTENCY,
                          1,
                          msgsize,
-                         &memregion[myrank],
-                         &memregion[myrank + 1],
+                         memregion[myrank],
+                         memregion[myrank + 1],
                          i * msgsize,
                          i * msgsize);
             }
 
             flush_done_count = 1;
-            DCMF_Get(&get_protocol,
+            DCMF_Get(&get_reg,
                      &get_flush,
                      get_flush_done,
                      DCMF_SEQUENTIAL_CONSISTENCY,
                      1,
                      1,
-                     &memregion[myrank],
-                     &memregion[myrank + 1],
+                     memregion[myrank],
+                     memregion[myrank + 1],
                      0,
                      0);
             while (flush_done_count)
@@ -118,27 +118,27 @@ void get_static_nocallback()
 
             for (i = SKIP; i < ITERATIONS + SKIP; i++)
             {
-                DCMF_Get(&get_protocol,
+                DCMF_Get(&get_reg,
                          &get_req[i],
                          get_done,
                          DCMF_SEQUENTIAL_CONSISTENCY,
                          1,
                          msgsize,
-                         &memregion[myrank],
-                         &memregion[myrank + 1],
+                         memregion[myrank],
+                         memregion[myrank + 1],
                          i * msgsize,
                          i * msgsize);
             }
 
             flush_done_count = 1;
-            DCMF_Get(&get_protocol,
+            DCMF_Get(&get_reg,
                      &get_flush,
                      get_flush_done,
                      DCMF_SEQUENTIAL_CONSISTENCY,
                      1,
                      1,
-                     &memregion[myrank],
-                     &memregion[myrank + 1],
+                     memregion[myrank],
+                     memregion[myrank + 1],
                      0,
                      0);
             while (flush_done_count)
@@ -197,14 +197,14 @@ void get_static_callback()
             done_count = SKIP;
             for (i = 0; i < SKIP; i++)
             {
-                DCMF_Get(&get_protocol,
+                DCMF_Get(&get_reg,
                          &get_req[i],
                          get_done,
                          DCMF_SEQUENTIAL_CONSISTENCY,
                          1,
                          msgsize,
-                         &memregion[myrank],
-                         &memregion[myrank + 1],
+                         memregion[myrank],
+                         memregion[myrank + 1],
                          i * msgsize,
                          i * msgsize);
             }
@@ -220,14 +220,14 @@ void get_static_callback()
 
             for (i = SKIP; i < ITERATIONS + SKIP; i++)
             {
-                DCMF_Get(&get_protocol,
+                DCMF_Get(&get_reg,
                          &get_req[i],
                          get_done,
                          DCMF_SEQUENTIAL_CONSISTENCY,
                          1,
                          msgsize,
-                         &memregion[myrank],
-                         &memregion[myrank + 1],
+                         memregion[myrank],
+                         memregion[myrank + 1],
                          i * msgsize,
                          i * msgsize);
             }
@@ -288,14 +288,14 @@ void get_dynamic_callback()
             done_count = SKIP;
             for (i = 0; i < SKIP; i++)
             {
-                DCMF_Get(&get_protocol,
+                DCMF_Get(&get_reg,
                          &get_req[i],
                          get_done,
                          DCMF_RELAXED_CONSISTENCY,
                          1,
                          msgsize,
-                         &memregion[myrank],
-                         &memregion[myrank + 1],
+                         memregion[myrank],
+                         memregion[myrank + 1],
                          i * msgsize,
                          i * msgsize);
             }
@@ -311,14 +311,14 @@ void get_dynamic_callback()
 
             for (i = SKIP; i < ITERATIONS + SKIP; i++)
             {
-                DCMF_Get(&get_protocol,
+                DCMF_Get(&get_reg,
                          &get_req[i],
                          get_done,
                          DCMF_RELAXED_CONSISTENCY,
                          1,
                          msgsize,
-                         &memregion[myrank],
-                         &memregion[myrank + 1],
+                         memregion[myrank],
+                         memregion[myrank + 1],
                          i * msgsize,
                          i * msgsize);
             }

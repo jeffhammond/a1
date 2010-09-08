@@ -92,8 +92,8 @@ void put_restart()
                          DCMF_SEQUENTIAL_CONSISTENCY,
                          1,
                          msgsize,
-                         &memregion[myrank],
-                         &memregion[myrank + 1],
+                         memregion[myrank],
+                         memregion[myrank + 1],
                          i * msgsize,
                          i * msgsize,
                          put_ack);
@@ -115,8 +115,8 @@ void put_restart()
                          DCMF_SEQUENTIAL_CONSISTENCY,
                          1,
                          msgsize,
-                         &memregion[myrank],
-                         &memregion[myrank + 1],
+                         memregion[myrank],
+                         memregion[myrank + 1],
                          i * msgsize,
                          i * msgsize,
                          put_ack);
