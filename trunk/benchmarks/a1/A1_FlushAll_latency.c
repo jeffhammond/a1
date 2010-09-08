@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     double **buffer;
     double t_start, t_stop, t_latency = 0;
 
-    A1_Initialize(A1_THREAD_GENERAL);
+    A1_Initialize(A1_THREAD_SINGLE);
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     nranks = A1_Process_total(A1_GROUP_WORLD);
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     buffer = (double **) malloc(sizeof(double *) * nranks);
 
     bufsize = MAX_MSG_SIZE * (ITERATIONS + SKIP);
-    A1_Alloc_segment(&(buffer[rank]), bufsize);
+    A1_Alloc_segment((void**)&(buffer[rank]), bufsize);
     A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
     for (i = 0; i < bufsize / sizeof(double); i++)
