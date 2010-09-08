@@ -239,6 +239,7 @@ typedef enum
 typedef struct
 {
     volatile uint32_t enable_cht;
+    volatile uint32_t mpi_active;
     volatile uint32_t cht_pause_cycles;
     volatile uint32_t enable_interrupts;
     volatile uint32_t put_packing_limit;
