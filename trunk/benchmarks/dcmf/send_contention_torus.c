@@ -11,7 +11,7 @@ void send_static(int pick)
     DCMF_NetworkCoord_t myaddr, dstaddr;
     DCMF_Network ntwk;
 
-    rcv_req = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * ITERATIONS);
+    DCMF_Request_t* rcv_req2 = (DCMF_Request_t *) malloc(sizeof(DCMF_Request_t) * ITERATIONS);
     rcv_req_index = 0;
 
     DCMF_Messager_rank2network(myrank, DCMF_TORUS_NETWORK, &myaddr);
@@ -176,7 +176,7 @@ void send_dynamic(int pick)
     DCMF_NetworkCoord_t myaddr, dstaddr;
     DCMF_Network ntwk;
 
-    rcv_req = (DCMF_Request_t*) malloc(sizeof(DCMF_Request_t) * ITERATIONS);
+    DCMF_Request_t* rcv_req2 = (DCMF_Request_t*) malloc(sizeof(DCMF_Request_t) * ITERATIONS);
     rcv_req_index = 0;
 
     DCMF_Messager_rank2network(myrank, DCMF_TORUS_NETWORK, &myaddr);
