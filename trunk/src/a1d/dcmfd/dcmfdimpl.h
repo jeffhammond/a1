@@ -201,14 +201,15 @@ void A1DI_Handoff_progress();
  *          Computation macros                   *
  *************************************************/
 
-#define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count)          \
+/* TODO probably need to optimize these functions for double-hummer */
+#define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count)         \
    do {                                                                     \
      int i;                                                                 \
      datatype *s = (datatype *) source;                                     \
      datatype *t = (datatype *) target;                                     \
      datatype c = (datatype) scaling;                                       \
      for(i=0; i<count; i++)                                                 \
-          t[i] = t[i] + s[i]*c;                                             \
+          t[i] += s[i]*c;                                                   \
    } while(0)                                                               \
 
 #define A1DI_FETCHANDADD_EXECUTE(datatype, source, target, original, count) \
@@ -220,9 +221,9 @@ void A1DI_Handoff_progress();
      for(i=0; i<count; i++)                                                 \
      {                                                                      \
           o[i] = t[i];                                                      \
-          t[i] = t[i] + s[i];                                               \
-     }                  						    \ 
-   } while(0)                                                               \
+          t[i] += s[i];                                                     \
+     }                  						                            \
+   } while(0)                                                              \
 
 /*************************************************
  *             Data Structures                   *
