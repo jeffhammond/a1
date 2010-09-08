@@ -8,7 +8,13 @@ LD      = $(CC)
 CFLAGS  = $(COPT) $(INCLUDE)
 LDFLAGS = $(COPT)
 
-TESTS := $(patsubst %.c,%.x,$(wildcard *.c))
+GET_TESTS := $(patsubst %.c,%.x,$(wildcard get*.c))
+PUT_TESTS := $(patsubst %.c,%.x,$(wildcard put*.c))
+SEND_TESTS := $(patsubst %.c,%.x,$(wildcard send*.c))
+BGP_TESTS := $(patsubst %.c,%.x,$(wildcard bgp*.c))
+COLL_TESTS := $(patsubst %.c,%.x,$(wildcard many*.c))
+
+TESTS := $(GET_TESTS) $(PUT_TESTS) $(SEND_TESTS) $(BGP_TESTS) $(COLL_TESTS)
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 
 all: libbench.a $(TESTS)
