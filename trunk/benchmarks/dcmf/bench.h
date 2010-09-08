@@ -383,5 +383,3 @@ void allreduce(int, char *, char *, unsigned, DCMF_Dt, DCMF_Op);
 * Destroy memory region                       *
 **********************************************/
 void memregion_finalize();
-
- 

@@ -1,8 +1,8 @@
 CC      = mpixlc_r 
 COPT    = -O3 -qstrict
 
-INCLUDE = -I.
-LIBS    = bench_impl.o
+INCLUDE = -I. -I/bgsys/drivers/ppcfloor/arch/include/
+LIBS    = libbench.a
 
 LD      = $(CC)
 CFLAGS  = $(COPT) $(INCLUDE)
@@ -11,7 +11,11 @@ LDFLAGS = $(COPT)
 TESTS := $(patsubst %.c,%.x,$(wildcard *.c))
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 
-all: bench_impl.o $(TESTS)
+all: libbench.a $(TESTS)
+
+libbench.a: bench_impl.o
+	$(CC) $(CFLAGS) -c $< -o $@
+	$(AR) $(ARFLAGS) libbench.a bench_impl.o
 
 %.x: %.o
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
@@ -23,5 +27,5 @@ clean:
 	$(RM) $(RMFLAGS) $(OBJECTS)
 
 realclean: clean
-	$(RM) $(RMFLAGS) $(TESTS)
+	$(RM) $(RMFLAGS) $(TESTS) libbench.a
 
