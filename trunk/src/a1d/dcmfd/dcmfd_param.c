@@ -23,6 +23,7 @@ int A1DI_Read_parameters()
         a1_settings.enable_cht = atoi(value);
     }
 
+    a1_settings.mpi_active = A1C_MPI_ACTIVE;
     if ((value = getenv("A1_MPI_ACTIVE")) != NULL)
     {
         a1_settings.mpi_active = atoi(value);
@@ -46,8 +47,7 @@ int A1DI_Read_parameters()
         a1_settings.flushall_pending_limit = atoi(value);
     }
 
-    a1_settings.put_packing_limit
-            = A1C_PUT_PACKING_LIMIT;
+    a1_settings.put_packing_limit = A1C_PUT_PACKING_LIMIT;
     if ((value = getenv("A1_PUT_PACKING_LIMIT")) != NULL)
     {
         a1_settings.put_packing_limit = atoi(value);
@@ -57,22 +57,20 @@ int A1DI_Read_parameters()
         }
     }
 
-    a1_settings.put_packetsize
-            = A1C_PUT_PACKETSIZE;
+    a1_settings.put_packetsize = A1C_PUT_PACKETSIZE;
     if ((value = getenv("A1_PUT_PACKETSIZE")) != NULL)
     {
         a1_settings.put_packetsize = atoi(value);
 
         /* Having packet size less than the packing limit will not make sense and
-           can lead to deadlocks in the packing code*/
-        if(a1_settings.put_packetsize < a1_settings.put_packing_limit)
+         can lead to deadlocks in the packing code*/
+        if (a1_settings.put_packetsize < a1_settings.put_packing_limit)
         {
-            a1_settings.put_packetsize = a1_settings.put_packing_limit;  
+            a1_settings.put_packetsize = a1_settings.put_packing_limit;
         }
     }
 
-    a1_settings.get_packing_limit
-            = A1C_GET_PACKING_LIMIT;
+    a1_settings.get_packing_limit = A1C_GET_PACKING_LIMIT;
     if ((value = getenv("A1_GET_PACKING_LIMIT")) != NULL)
     {
         a1_settings.get_packing_limit = atoi(value);
@@ -82,22 +80,20 @@ int A1DI_Read_parameters()
         }
     }
 
-    a1_settings.get_packetsize
-            = A1C_GET_PACKETSIZE;
+    a1_settings.get_packetsize = A1C_GET_PACKETSIZE;
     if ((value = getenv("A1_GET_PACKETSIZE")) != NULL)
     {
         a1_settings.get_packetsize = atoi(value);
 
         /* Having packet size less than the packing limit will not make sense and 
-           can lead to deadlocks in the packing code*/
-        if(a1_settings.get_packetsize < a1_settings.get_packing_limit)
+         can lead to deadlocks in the packing code*/
+        if (a1_settings.get_packetsize < a1_settings.get_packing_limit)
         {
-            a1_settings.get_packetsize = a1_settings.get_packing_limit;  
+            a1_settings.get_packetsize = a1_settings.get_packing_limit;
         }
     }
 
-    a1_settings.putacc_packing_limit
-            = A1C_PUTACC_PACKING_LIMIT;
+    a1_settings.putacc_packing_limit = A1C_PUTACC_PACKING_LIMIT;
     if ((value = getenv("A1_PUTACC_PACKING_LIMIT")) != NULL)
     {
         a1_settings.putacc_packing_limit = atoi(value);
@@ -107,22 +103,20 @@ int A1DI_Read_parameters()
         }
     }
 
-    a1_settings.putacc_packetsize
-            = A1C_PUTACC_PACKETSIZE;
+    a1_settings.putacc_packetsize = A1C_PUTACC_PACKETSIZE;
     if ((value = getenv("A1_PUTACC_PACKETSIZE")) != NULL)
     {
         a1_settings.putacc_packetsize = atoi(value);
 
         /* Having packet size less than the packing limit will not make sense and
-           can lead to deadlocks in the packing code*/
-        if(a1_settings.putacc_packetsize < a1_settings.putacc_packing_limit)
+         can lead to deadlocks in the packing code*/
+        if (a1_settings.putacc_packetsize < a1_settings.putacc_packing_limit)
         {
-            a1_settings.putacc_packetsize = a1_settings.putacc_packing_limit;  
+            a1_settings.putacc_packetsize = a1_settings.putacc_packing_limit;
         }
     }
 
-    a1_settings.handlepool_size
-            = A1C_HANDLE_POOL_SIZE;
+    a1_settings.handlepool_size = A1C_HANDLE_POOL_SIZE;
     if ((value = getenv("A1_HANDLE_POOL_SIZE")) != NULL)
     {
         a1_settings.handlepool_size = atoi(value);
@@ -139,17 +133,15 @@ int A1DI_Read_parameters()
     {
         a1_settings.use_handoff = atoi(value);
     }
-    if(!a1_settings.enable_cht)
+    if (!a1_settings.enable_cht)
     {
         a1_settings.use_handoff = 0;
-    } 
+    }
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return result;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1D_Print_parameters(void)
@@ -176,22 +168,17 @@ int A1D_Print_parameters(void)
         A1U_output_printf("passive-target progress disabled (THIS IS BAD)\n");
     }
 
-    A1U_output_printf("cht_pause_cycles = %u\n",
-                      a1_settings.cht_pause_cycles);
-    A1U_output_printf("put_packing_limit = %u\n",
-                      a1_settings.put_packing_limit);
-    A1U_output_printf("get_packing_limit = %u\n",
-                      a1_settings.get_packing_limit);
+    A1U_output_printf("cht_pause_cycles = %u\n", a1_settings.cht_pause_cycles);
+    A1U_output_printf("put_packing_limit = %u\n", a1_settings.put_packing_limit);
+    A1U_output_printf("get_packing_limit = %u\n", a1_settings.get_packing_limit);
     A1U_output_printf("putacc_packing_limit = %u\n",
                       a1_settings.putacc_packing_limit);
     A1U_output_printf("flushall_pending_limit = %u\n",
                       a1_settings.flushall_pending_limit);
 
-  fn_exit: 
-    A1DI_CRITICAL_EXIT();
+    fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return result;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
