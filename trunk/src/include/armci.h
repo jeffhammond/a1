@@ -175,6 +175,15 @@ void ARMCI_AllFence();
 
 int ARMCI_Barrier();
 
+int ARMCI_Create_mutexes(int num);
+
+int ARMCI_Destroy_mutexes(void);
+
+void ARMCI_Lock(int mutex, int proc);
+
+void ARMCI_Unlock(int mutex, int proc);
+
+
 /*************************************
        Prototypes for Unused Functions
 **************************************/
@@ -184,6 +193,12 @@ int ARMCI_Barrier();
 void ARMCI_Cleanup(void);
 
 /**********Communication************/
+
+void armci_read_strided(void *ptr, int stride_levels,
+                           int stride_arr[], int count[], char *buf);
+
+void armci_write_strided(void *ptr, int stride_levels,
+                           int stride_arr[], int count[], char *buf);
 
 int ARMCI_PutS_flag_dir(       /* put with flag that uses direct put */
                 void *src_ptr,        /* pointer to 1st segment at source*/
@@ -253,10 +268,25 @@ armci_grp_attr_t *ARMCI_Group_getattr(ARMCI_Group *grp);
 
 /*********** Group Functions based on MPI ****************************/
 
-extern void armci_msg_gop_init();
+void armci_msg_gop_init();
+int  armci_msg_nproc();
+int  armci_msg_me();
+
+void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type);
+void armci_msg_sel_scope(int scope, void *x, int n, char* op, int type, int contribute);
+void armci_msg_llgop(long long *x, int n, char* op);
+void armci_msg_bcast(void* buffer, int len, int root);
+void armci_msg_barrier();
+void armci_msg_dgop(double *x, int n, char* op);
+void armci_msg_fgop(float *x, int n, char* op);
+void armci_msg_igop(int *x, int n, char* op);
+void armci_msg_lgop(long *x, int n, char* op);
+void armci_msg_bintree(int scope, int* Root, int *Up, int *Left, int *Right);
+void armci_exchange_address(void *ptr_ar[], int n);
 
 void armci_msg_group_igop(int *x, int n, char* op,ARMCI_Group *group);
 void armci_msg_group_lgop(long *x, int n, char* op,ARMCI_Group *group);
+void armci_msg_group_llgop(long long *x, int n, char* op,ARMCI_Group *group);
 void armci_msg_group_fgop(float *x, int n, char* op,ARMCI_Group *group);
 void armci_msg_group_dgop(double *x, int n,char* op,ARMCI_Group *group);
 void armci_msg_group_bcast_scope(int scope, void *buf, int len,
@@ -267,6 +297,12 @@ void armci_msg_group_gop_scope(int scope, void *x, int n, char* op,
 void armci_grp_clus_brdcst(void *buf, int len, int grp_master,
                                   int grp_clus_nproc,ARMCI_Group *mastergroup);
 void armci_exchange_address_grp(void *ptr_arr[], int n, ARMCI_Group *group);
+
+void armci_msg_bcast_scope(int scope, void* buffer, int len, int root);
+void armci_msg_brdcst(void* buffer, int len, int root);
+void armci_msg_snd(int tag, void* buffer, int len, int to);
+void armci_msg_rcv(int tag, void* buffer, int buflen, int *msglen, int from);
+int  armci_msg_rcvany(int tag, void* buffer, int buflen, int *msglen);
 
 
 /**********Checkpointing************/
@@ -284,5 +320,9 @@ int ARMCI_Same_node(int proc);
 
 int ARMCI_Uses_shm();
 void ARMCI_Set_shm_limit(unsigned long shmemlimit);
+
+int ARMCI_Uses_shm_grp(ARMCI_Group *group);
+
+int ARMCI_Absolute_id(ARMCI_Group *group,int group_rank);
 
 #endif /* ARMCI_H_INCLUDED */

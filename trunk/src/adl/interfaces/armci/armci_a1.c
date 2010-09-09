@@ -738,7 +738,7 @@ int ARMCI_Test(armci_hdl_t* handle)
 
     int status = A1_SUCCESS;
     A1_handle_t a1_handle;
-    int complete;
+    A1_bool_t complete;
 
     A1U_FUNC_ENTER();
 
@@ -846,4 +846,883 @@ int ARMCI_Barrier()
     return status;
 
     fn_fail: goto fn_exit;
+}
+
+int  armci_msg_nproc()
+{
+    int nproc;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    nproc = A1_Process_total(A1_GROUP_WORLD);
+
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return nproc;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int  armci_msg_me()
+{
+    int me;
+    
+    A1U_FUNC_ENTER();
+
+    me = A1_Process_id(A1_GROUP_WORLD);
+    
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return me;
+   
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_id(armci_domain_t domain, int glob_proc_id)
+{
+    int domain_id;
+
+    A1U_FUNC_ENTER();
+
+    domain_id = A1_Process_id(A1_GROUP_WORLD);
+    
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return domain_id;
+    
+  fn_fail:
+    goto fn_exit;
+} 
+
+/**********************************************
+   Some Dummy ARMCI Function implemenations
+   but have to be implemented soon
+***********************************************/
+
+int ARMCI_Create_mutexes(int num)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Lock(int mutex, int proc)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Unlock(int mutex, int proc)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Destroy_mutexes(void)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Copy(void *src, void *dst, int n)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+/*************************************************
+  Some More Dummy ARMCI Function implementations
+  which are less important
+**************************************************/
+
+int ARMCI_Absolute_id(ARMCI_Group *group,int group_rank)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Cleanup(void)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Error(char *message,
+                 int code)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Uses_shm()
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Set_shm_limit(unsigned long shmemlimit)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Uses_shm_grp(ARMCI_Group *group)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Group_get_world(ARMCI_Group *group_out)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Group_set_default(ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Group_create(int n, int *pid_list, ARMCI_Group *group_out)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1 \n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Group_free(ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Free_group(void *ptr, ARMCI_Group *group)
+{ 
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Malloc_group(void *ptr_arr[], armci_size_t bytes,ARMCI_Group *group)
+{ 
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_same_id(armci_domain_t domain, int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_snd(int tag, void* buffer, int len, int to)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_rcv(int tag, void* buffer, int buflen, int *msglen, int from)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_msg_rcvany(int tag, void* buffer, int buflen, int *msglen)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_write_strided(void *ptr, 
+                         int stride_levels,
+                         int stride_arr[], 
+                         int count[], 
+                         char *buf)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_read_strided(void *ptr, 
+                        int stride_levels,
+                        int stride_arr[], 
+                        int count[], 
+                        char *buf)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_PutS_flag_dir(    
+                void *src_ptr, 
+                int src_stride_arr[], 
+                void* dst_ptr, 
+                int dst_stride_arr[],
+                int count[], 
+                int stride_levels,
+                int *flag,  
+                int val,  
+                int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_PutS_flag(
+                void *src_ptr,
+                int src_stride_arr[], 
+                void* dst_ptr,  
+                int dst_stride_arr[],
+                int count[], 
+                int stride_levels,
+                int *flag,
+                int val, 
+                int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Same_node(int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_my_id(armci_domain_t domain)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_count(armci_domain_t domain)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_nprocs(armci_domain_t domain, int id)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_glob_proc_id(armci_domain_t domain, int id, int loc_proc_id)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_llgop(long long *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_bcast(void* buffer, int len, int root)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_barrier()
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_dgop(double *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_fgop(float *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_igop(int *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_lgop(long *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_bintree(int scope, int* Root, int *Up, int *Left, int *Right)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_exchange_address(void *ptr_ar[], int n)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_igop(int *x, int n, char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_lgop(long *x, int n, char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_llgop(long long *x, int n, char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_fgop(float *x, int n, char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_dgop(double *x, int n,char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_bcast_scope(int scope, 
+                                 void *buf, 
+                                 int len,
+                                 int root, 
+                                 ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_barrier(ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_gop_scope(int scope, 
+                               void *x, 
+                               int n, 
+                               char* op,
+                               int type, 
+                               ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_grp_clus_brdcst(void *buf, 
+                           int len, 
+                           int grp_master,
+                           int grp_clus_nproc,
+                           ARMCI_Group *mastergroup)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_exchange_address_grp(void *ptr_arr[], int n, ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_bcast_scope(int scope, void* buffer, int len, int root)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_brdcst(void* buffer, int len, int root)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_sel_scope(int scope, void *x, int n, char* op, int type, int contribute)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
 }
