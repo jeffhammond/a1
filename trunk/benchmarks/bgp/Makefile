@@ -3,8 +3,8 @@
 CC      = mpixlc_r 
 COPT    = -O3 -qstrict
 
-INCLUDE = -I$(A1_INSTALL)/include 
-LIBS    = -L$(A1_INSTALL)/lib -la1 
+INCLUDE = -I/bgsys/drivers/ppcfloor/arch/include/
+LIBS    = 
 
 LD      = $(CC)
 CFLAGS  = $(COPT) $(INCLUDE)
