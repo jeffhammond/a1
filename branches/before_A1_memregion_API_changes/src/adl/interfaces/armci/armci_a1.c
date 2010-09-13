@@ -1,0 +1,1708 @@
+/* -*- Mode: C; c-basic-offset:4 ; -*- */
+/*
+ *  Copyright (C) 2010 by Argonne National Laboratory.
+ *      See COPYRIGHT in top-level directory.
+ */
+
+#include "armci.h"
+#include "a1.h"
+#include "a1d.h"
+#include "a1u.h"
+#include "assert.h"
+
+int ARMCI_Init_args(int *argc, char ***argv)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Initialize(A1_THREAD_SINGLE);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+
+}
+
+int ARMCI_Init()
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Initialize(A1_THREAD_SINGLE);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+
+}
+
+int ARMCI_Finalize()
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Finalize();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Finalize returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+
+}
+
+int ARMCI_Malloc(void* ptr[], armci_size_t bytes)
+{
+    int status = A1_SUCCESS;
+    int my_rank;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    my_rank = A1_Process_id(A1_GROUP_WORLD);
+
+    status = A1_Alloc_segment(&ptr[my_rank], bytes);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Alloc_segment returned an error\n");
+
+    status = A1_Exchange_segments(A1_GROUP_WORLD, ptr);
+    A1U_ERR_POP(status != A1_SUCCESS,
+                "A1_Exchange_segments returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+
+}
+
+void* ARMCI_Malloc_local(armci_size_t bytes)
+{
+    int status = A1_SUCCESS;
+    void *segment_ptr;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Alloc_segment(&segment_ptr, bytes);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Alloc_segement returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return segment_ptr;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Free(void *ptr)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Release_segments(A1_GROUP_WORLD, ptr);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Release_segments returned an error\n");
+
+    status = A1_Free_segment(ptr);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Free_segment returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Free_local(void *ptr)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Free_segment(ptr);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Free_segment returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+void ARMCI_INIT_HANDLE(armci_hdl_t* handle)
+{
+    int status = A1_SUCCESS;
+    A1_handle_t *a1_handle;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Allocate_handle(a1_handle);
+    A1U_ERR_ABORT(status != A1_SUCCESS,
+                  "A1_Allocate_handle returned an error\n");
+
+    *handle = *a1_handle;
+
+    fn_exit: A1U_FUNC_EXIT();
+    return;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Put(void* src, void* dst, int bytes, int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Put(proc, src, dst, bytes);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Put returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_PutS(void* src_ptr,
+               int src_stride_ar[],
+               void* dst_ptr,
+               int dst_stride_ar[],
+               int count[],
+               int stride_levels,
+               int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_PutS(proc,
+                     stride_levels,
+                     count,
+                     src_ptr,
+                     src_stride_ar,
+                     dst_ptr,
+                     dst_stride_ar);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutS returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_NbPutS(void* src_ptr,
+                 int src_stride_ar[],
+                 void* dst_ptr,
+                 int dst_stride_ar[],
+                 int count[],
+                 int stride_levels,
+                 int proc,
+                 armci_hdl_t* handle)
+{
+    int status = A1_SUCCESS;
+    A1_handle_t a1_handle;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    a1_handle = (A1_handle_t) * handle;
+
+    status = A1_NbPutS(proc,
+                       stride_levels,
+                       count,
+                       src_ptr,
+                       src_stride_ar,
+                       dst_ptr,
+                       dst_stride_ar,
+                       a1_handle);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutS returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
+{
+    int status = A1_SUCCESS;
+    A1_iov_t *a1_iov_ar;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    /* ARMCI iov and A1 iov are similar structures but follow 
+     * different naming conventions. So we make a copy.*/
+    /* TODO Why not use A1D_Malloc here? */
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
+
+    status = A1_PutV(proc, a1_iov_ar, arr_len);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutV returned an error\n");
+
+    /* TODO Free a1_iov_ar */
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Get(void* src, void* dst, int bytes, int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Get(proc, src, dst, bytes);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_GetS(void* src_ptr,
+               int src_stride_ar[],
+               void* dst_ptr,
+               int dst_stride_ar[],
+               int count[],
+               int stride_levels,
+               int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_GetS(proc,
+                     stride_levels,
+                     count,
+                     src_ptr,
+                     src_stride_ar,
+                     dst_ptr,
+                     dst_stride_ar);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_GetS returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_NbGetS(void* src_ptr,
+                 int src_stride_ar[],
+                 void* dst_ptr,
+                 int dst_stride_ar[],
+                 int count[],
+                 int stride_levels,
+                 int proc,
+                 armci_hdl_t* handle)
+{
+    int status = A1_SUCCESS;
+    A1_handle_t a1_handle;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    a1_handle = (A1_handle_t) * handle;
+
+    status = A1_NbGetS(proc,
+                       stride_levels,
+                       count,
+                       src_ptr,
+                       src_stride_ar,
+                       dst_ptr,
+                       dst_stride_ar,
+                       a1_handle);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutS returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
+{
+    int status = A1_SUCCESS;
+    A1_iov_t *a1_iov_ar;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    /* ARMCI iov and A1 iov are similar structures but follow
+     * different naming conventions. So we make a copy.*/
+
+    /* TODO Why not use A1D_Malloc here? */
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
+
+    status = A1_GetV(proc, a1_iov_ar, arr_len);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_GetV returned an error\n");
+
+    /* TODO Free a1_iov_ar */
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Acc(int datatype,
+              void *scale,
+              void* src,
+              void* dst,
+              int bytes,
+              int proc)
+{
+    int status = A1_SUCCESS;
+    A1_datatype_t a1_type;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    if (datatype == ARMCI_ACC_INT)
+    {
+        a1_type = A1_INT32;
+    }
+    else if (datatype == ARMCI_ACC_FLT)
+    {
+        a1_type = A1_FLOAT;
+    }
+    else if (datatype == ARMCI_ACC_DBL)
+    {
+        a1_type = A1_DOUBLE;
+    }
+    else
+    {
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
+    }
+
+    status = A1_PutAcc(proc, src, dst, bytes, a1_type, scale);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAcc returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_AccS(int datatype,
+               void *scale,
+               void* src_ptr,
+               int src_stride_ar[],
+               void* dst_ptr,
+               int dst_stride_ar[],
+               int count[],
+               int stride_levels,
+               int proc)
+{
+    int status = A1_SUCCESS;
+    A1_datatype_t a1_type;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    if (datatype == ARMCI_ACC_INT)
+    {
+        a1_type = A1_INT32;
+    }
+    else if (datatype == ARMCI_ACC_FLT)
+    {
+        a1_type = A1_FLOAT;
+    }
+    else if (datatype == ARMCI_ACC_DBL)
+    {
+        a1_type = A1_DOUBLE;
+    }
+    else
+    {
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
+    }
+
+    status = A1_PutAccS(proc,
+                        stride_levels,
+                        count,
+                        src_ptr,
+                        src_stride_ar,
+                        dst_ptr,
+                        dst_stride_ar,
+                        a1_type,
+                        scale);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccS returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_NbAccS(int datatype,
+                 void *scale,
+                 void* src_ptr,
+                 int src_stride_ar[],
+                 void* dst_ptr,
+                 int dst_stride_ar[],
+                 int count[],
+                 int stride_levels,
+                 int proc,
+                 armci_hdl_t* handle)
+{
+    int status = A1_SUCCESS;
+    A1_datatype_t a1_type;
+    A1_handle_t a1_handle;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    a1_handle = (A1_handle_t) * handle;
+
+    if (datatype == ARMCI_ACC_INT)
+    {
+        a1_type = A1_INT32;
+    }
+    else if (datatype == ARMCI_ACC_FLT)
+    {
+        a1_type = A1_FLOAT;
+    }
+    else if (datatype == ARMCI_ACC_DBL)
+    {
+        a1_type = A1_DOUBLE;
+    }
+    else
+    {
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
+    }
+
+    status = A1_NbPutAccS(proc,
+                          stride_levels,
+                          count,
+                          src_ptr,
+                          src_stride_ar,
+                          dst_ptr,
+                          dst_stride_ar,
+                          a1_type,
+                          scale,
+                          a1_handle);
+    A1U_ERR_POP(status != A1_SUCCESS, "NbA1_PutAccS returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_AccV(int datatype,
+               void *scale,
+               armci_giov_t *dsrc_arr,
+               int arr_len,
+               int proc)
+{
+    int status = A1_SUCCESS;
+    A1_iov_t *a1_iov_ar;
+    A1_datatype_t a1_type;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    if (datatype == ARMCI_ACC_INT)
+    {
+        a1_type = A1_INT32;
+    }
+    else if (datatype == ARMCI_ACC_FLT)
+    {
+        a1_type = A1_FLOAT;
+    }
+    else if (datatype == ARMCI_ACC_DBL)
+    {
+        a1_type = A1_DOUBLE;
+    }
+    else
+    {
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
+    }
+
+    /* ARMCI iov and A1 iov are similar structures but follow
+     * different naming conventions. So we make a copy.*/
+    /* TODO Why not use A1D_Malloc here? */
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
+
+    status = A1_PutAccV(proc, a1_iov_ar, arr_len, a1_type, scale);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccV returned an error\n");
+
+    /* TODO Free a1_iov_ar */
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Rmw(int op, void *ploc, void *prem, int value, int proc)
+{
+
+    int status = A1_SUCCESS;
+    A1_atomic_op_t a1_op;
+
+    A1U_FUNC_ENTER();
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    if (op == ARMCI_FETCH_AND_ADD)
+    {
+        a1_op = A1_FETCH_AND_ADD;
+    }
+    else if (op == ARMCI_SWAP)
+    {
+        a1_op = ARMCI_SWAP;
+    }
+    else
+    {
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported rmw operations\n");
+    }
+
+    /*Assuming int is 32bit signed integer*/
+    status = A1_Rmw(proc, &value, ploc, prem, sizeof(int), a1_op, A1_INT32);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Rmw returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Wait(armci_hdl_t* handle)
+{
+
+    int status = A1_SUCCESS;
+    A1_handle_t a1_handle;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    a1_handle = (A1_handle_t) * handle;
+
+    status = A1_Wait_handle(a1_handle);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Wait_handle returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Test(armci_hdl_t* handle)
+{
+
+    int status = A1_SUCCESS;
+    A1_handle_t a1_handle;
+    A1_bool_t complete;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    a1_handle = (A1_handle_t) * handle;
+
+    status = A1_Test_handle(a1_handle, &complete);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Test_handle returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return !complete;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_WaitAll()
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Wait_handle_all();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Wait_handle_all returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+void ARMCI_Fence(int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Flush(proc);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Flush returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return;
+
+    fn_fail: goto fn_exit;
+}
+
+void ARMCI_AllFence()
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Flush_group(A1_GROUP_WORLD);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Flush_group returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return;
+
+    fn_fail: goto fn_exit;
+}
+
+int ARMCI_Barrier()
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1_Barrier_group(A1_GROUP_WORLD);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Barrier_group returned an error\n");
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int  armci_msg_nproc()
+{
+    int nproc;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    nproc = A1_Process_total(A1_GROUP_WORLD);
+
+  fn_exit: 
+    A1U_FUNC_EXIT();
+    return nproc;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int  armci_msg_me()
+{
+    int me;
+    
+    A1U_FUNC_ENTER();
+
+    me = A1_Process_id(A1_GROUP_WORLD);
+    
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return me;
+   
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_id(armci_domain_t domain, int glob_proc_id)
+{
+    int domain_id;
+
+    A1U_FUNC_ENTER();
+
+    domain_id = A1_Process_id(A1_GROUP_WORLD);
+    
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return domain_id;
+    
+  fn_fail:
+    goto fn_exit;
+} 
+
+/**********************************************
+   Some Dummy ARMCI Function implemenations
+   but have to be implemented soon
+***********************************************/
+
+int ARMCI_Create_mutexes(int num)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Lock(int mutex, int proc)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Unlock(int mutex, int proc)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Destroy_mutexes(void)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Copy(void *src, void *dst, int n)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+/*************************************************
+  Some More Dummy ARMCI Function implementations
+  which are less important
+**************************************************/
+
+int ARMCI_Absolute_id(ARMCI_Group *group,int group_rank)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Cleanup(void)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Error(char *message,
+                 int code)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Uses_shm()
+{
+    A1U_FUNC_ENTER();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return 0;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Set_shm_limit(unsigned long shmemlimit)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Uses_shm_grp(ARMCI_Group *group)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Group_get_world(ARMCI_Group *group_out)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Group_set_default(ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Group_create(int n, int *pid_list, ARMCI_Group *group_out)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1 \n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void ARMCI_Group_free(ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Free_group(void *ptr, ARMCI_Group *group)
+{ 
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Malloc_group(void *ptr_arr[], armci_size_t bytes,ARMCI_Group *group)
+{ 
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_same_id(armci_domain_t domain, int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_snd(int tag, void* buffer, int len, int to)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_rcv(int tag, void* buffer, int buflen, int *msglen, int from)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_msg_rcvany(int tag, void* buffer, int buflen, int *msglen)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_write_strided(void *ptr, 
+                         int stride_levels,
+                         int stride_arr[], 
+                         int count[], 
+                         char *buf)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_read_strided(void *ptr, 
+                        int stride_levels,
+                        int stride_arr[], 
+                        int count[], 
+                        char *buf)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_PutS_flag_dir(    
+                void *src_ptr, 
+                int src_stride_arr[], 
+                void* dst_ptr, 
+                int dst_stride_arr[],
+                int count[], 
+                int stride_levels,
+                int *flag,  
+                int val,  
+                int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_PutS_flag(
+                void *src_ptr,
+                int src_stride_arr[], 
+                void* dst_ptr,  
+                int dst_stride_arr[],
+                int count[], 
+                int stride_levels,
+                int *flag,
+                int val, 
+                int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int ARMCI_Same_node(int proc)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_my_id(armci_domain_t domain)
+{
+    A1U_FUNC_ENTER();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return (int) 0;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_count(armci_domain_t domain)
+{
+    A1U_FUNC_ENTER();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return (int) 1;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_nprocs(armci_domain_t domain, int id)
+{
+    A1U_FUNC_ENTER();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return A1_Process_total(A1_GROUP_WORLD);
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_glob_proc_id(armci_domain_t domain, int id, int loc_proc_id)
+{
+    A1U_FUNC_ENTER();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return A1_Process_id(A1_GROUP_WORLD);
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_llgop(long long *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_bcast(void* buffer, int len, int root)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_barrier()
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_dgop(double *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_fgop(float *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_igop(int *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_lgop(long *x, int n, char* op)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_bintree(int scope, int* Root, int *Up, int *Left, int *Right)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_exchange_address(void *ptr_ar[], int n)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_igop(int *x, int n, char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_lgop(long *x, int n, char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_llgop(long long *x, int n, char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_fgop(float *x, int n, char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_dgop(double *x, int n,char* op,ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_bcast_scope(int scope, 
+                                 void *buf, 
+                                 int len,
+                                 int root, 
+                                 ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_barrier(ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_group_gop_scope(int scope, 
+                               void *x, 
+                               int n, 
+                               char* op,
+                               int type, 
+                               ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_grp_clus_brdcst(void *buf, 
+                           int len, 
+                           int grp_master,
+                           int grp_clus_nproc,
+                           ARMCI_Group *mastergroup)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_exchange_address_grp(void *ptr_arr[], int n, ARMCI_Group *group)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_bcast_scope(int scope, void* buffer, int len, int root)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_brdcst(void* buffer, int len, int root)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_sel_scope(int scope, void *x, int n, char* op, int type, int contribute)
+{
+    A1U_FUNC_ENTER();
+
+    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
