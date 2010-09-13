@@ -124,6 +124,14 @@ typedef enum
 /*                                                                       */
 /* ********************************************************************* */
 
+typedef struct A1_memregion
+{
+    void* base_address;
+    void* memregion_options; /* This is a pointer to the device-specific memregion options that
+                                 are the motivation for creating this struct in the first place. */
+} A1_memregion_t;
+
+
 /* TODO: Implement A1 group types.  I wonder if the user-accessible type should be
  *        a pointer to the internal implementation to prevent people from doing
  *        stupid kinds of direct access.
@@ -363,7 +371,7 @@ int A1_Abort(int error_code, char error_message[]);
  * \warning Memory allocated with this function must be freed by A1_Free_segment.
  *
  * \param[out] rc            The error code.
- * \param[out] ptr           Pointer to memory.
+ * \param[out] ptr           Pointer to memregion structure to be created.
  * \param[in]  bytes         The amount of memory requested.
  *
  * \see A1_Free_segment, A1_Register_segment
@@ -371,7 +379,7 @@ int A1_Abort(int error_code, char error_message[]);
  * \ingroup MEMORY
  */
 
-int A1_Alloc_segment(void** pointer, int bytes);
+int A1_Allocate_memregion(A1_memregion_t* memregion, int bytes);
 
 /**
  * \brief A local operation to free memory allocated by A1_Alloc_segment.
@@ -379,14 +387,14 @@ int A1_Alloc_segment(void** pointer, int bytes);
  * \warning It is erroneous to attempt to free memory not allocated by A1_Alloc_segment.
  *
  * \param[out] rc            The error code.
- * \param[in] ptr           Pointer to memory.
+ * \param[in]  memregion     Pointer to memregion structure to be destroyed.
  *
  * \see A1_Alloc_segment, A1_Register_segment
  *
  * \ingroup MEMORY
  */
 
-int A1_Free_segment(void* pointer);
+int A1_Free_memregion(A1_memregion_t* memregion);
 
 /**
  * \brief A local operation to register memory to be used in context of A1 copy operations.
@@ -404,7 +412,8 @@ int A1_Free_segment(void* pointer);
  *       function.
  *
  * \param[out] rc            The error code.
- * \param[in]  ptr           Pointer to memory.
+ * \param[in]  ptr           Pointer to memregion structure to be created.
+ * \param[in]  ptr           Pointer to previously-allocated memory.
  * \param[in]  bytes         The amount of memory provided.
  *
  * \see A1_Alloc_segment, A1_Free_segment
@@ -412,7 +421,7 @@ int A1_Free_segment(void* pointer);
  * \ingroup MEMORY
  */
 
-int A1_Register_segment(void** pointer, int bytes);
+int A1_Bind_memregion(A1_memregion_t* memregion, void** pointer, int bytes);
 
 /**
  * \brief A collective operation to exchange addresses of segments to be used in context of A1 copy operations.
@@ -429,7 +438,9 @@ int A1_Register_segment(void** pointer, int bytes);
  *
  * \ingroup MEMORY
  */
-int A1_Exchange_segments(A1_group_t* group, void **ptr);
+
+/* TODO: We should just implement alltoall and eliminate this function from the API. */
+int A1_Exchange_memregions(A1_group_t* group, void **ptr);
 
 /**
  * \brief A collective operation to invalidate and de-register memory segments
@@ -444,6 +455,8 @@ int A1_Exchange_segments(A1_group_t* group, void **ptr);
  * \ingroup MEMORY
  */
 
+/* TODO: I'm not sure this program is required.  One can get this functionality
+ *        by having all processes free their memregions and then calling a barrier. */
 int A1_Release_segments(A1_group_t* group, void* ptr);
 
 /**
@@ -1793,11 +1806,27 @@ int A1_Reset_handle_list(int count, A1_handle_t* handle);
  * \ingroup MANYTOMANY
  */
 
-int A1_Broadcast_group(A1_group_t* group,
+int A1_Multicast_group(A1_group_t* group,
                        int root,
                        int count,
                        A1_datatype_t a1_type,
                        void* buffer);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+int A1_NbMulticast_group(A1_group_t* group,
+                         int root,
+                         int count,
+                         A1_datatype_t a1_type,
+                         void* buffer);
 
 /**
  * \brief
@@ -1827,12 +1856,81 @@ int A1_Reduce_group(A1_group_t* group,
  * \ingroup MANYTOMANY
  */
 
+int A1_NbReduce_group(A1_group_t* group,
+                      int root,
+                      int count,
+                      A1_reduce_op_t a1_op,
+                      A1_datatype_t a1_type,
+                      void* in,
+                      void* out);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
 int A1_Allreduce_group(A1_group_t* group,
                        int count,
                        A1_reduce_op_t a1_op,
                        A1_datatype_t a1_type,
                        void* in,
                        void* out);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+int A1_NbAllreduce_group(A1_group_t* group,
+                         int count,
+                         A1_reduce_op_t a1_op,
+                         A1_datatype_t a1_type,
+                         void* in,
+                         void* out);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+int A1_Manytomany_group(A1_group_t* in_group,
+                        A1_group_t* out_group,
+                        int count,
+                        A1_datatype_t a1_type,
+                        void* in,
+                        void* out);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+int A1_NbManytomany_group(A1_group_t* in_group,
+                          A1_group_t* out_group,
+                          int count,
+                          A1_datatype_t a1_type,
+                          void* in,
+                          void* out);
 
 /* FIXME: More API functions to come */
 
