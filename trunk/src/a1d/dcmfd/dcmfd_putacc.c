@@ -270,7 +270,7 @@ int A1D_PutAcc(int target,
                        source_ptr,
                        (DCQuad *) &header,
                        (unsigned) 2);
-    A1U_ERR_POP((status != A1_SUCCESS), "Putacc returned with an error \n");
+    A1U_ERR_POP((status != A1_SUCCESS), "DCMF_Send returned with an error \n");
 
     A1D_Connection_send_active[target]++;
     A1DI_Conditional_advance(active > 0);
@@ -356,7 +356,7 @@ int A1D_NbPutAcc(int target,
                        source_ptr,
                        (DCQuad *) &header,
                        (unsigned) 2);
-    A1U_ERR_POP((status != DCMF_SUCCESS), "Putacc returned with an error \n");
+    A1U_ERR_POP((status != DCMF_SUCCESS), "DCMF_Send returned with an error \n");
 
     A1D_Connection_send_active[target]++;
 

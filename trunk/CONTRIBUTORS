@@ -1,4 +1,7 @@
-This is a list of people who have contributed to this project:
+This is a list of people who have contributed to this project in one form or another.
+Similar to MADNESS, we choose to acknowledge contributions of information as well as
+source code.  Contributors not affiliated with or responsible for the content or quality
+of this project are denoted "N/A" for their active dates.
 
 ===========================================
 
@@ -28,3 +31,24 @@ Contributions: build system, MPICH-like design
 
 ===========================================
 
+Kazutomo Yoshii (kazutomo@mcs.anl.gov)
+Math and Computer Science Division
+Argonne National Laboratory
+Active: N/A
+Contributions: tick counter assembly, valuable information regarding BG/P CNK.
+
+===========================================
+
+Michael Blocksome (blocksom@us.ibm.com)
+IBM Rochester
+Active: N/A
+Contributions: numerous suggestions and clarifications about ARMCIX, DCMF, BG/P network, etc.
+
+===========================================
+
+Brian Smith (smithbr@us.ibm.com) 
+IBM Rochester
+Active: N/A
+Contributions: numerous suggestions and clarifications about ARMCIX, DCMF, BG/P network, etc.
+
+===========================================

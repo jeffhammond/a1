@@ -34,7 +34,7 @@ void A1DI_Mutex_callback(void *clientdata,
                 A1D_Mutexes[mutex_pkt->mutex_idx].mutex = peer;
                 
                 /* other fields do not matter in response packet 
-                   as the requestor will be waiting for just one 
+                   as the requester will be waiting for just one
                    mutex response at a time */
                 response_pkt.response = A1_TRUE;
 
@@ -154,7 +154,7 @@ int A1DI_Mutex_initialize()
 
     status = DCMF_Control_register(&A1D_Mutex_protocol, &conf);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-                "Mutexes protocol registartion returned with error %d \n",
+                "Mutexes protocol registration returned with error %d \n",
                 status);
 
   fn_exit: 

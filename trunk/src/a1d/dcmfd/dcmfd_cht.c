@@ -44,16 +44,15 @@ void A1DI_Handoff_progress()
         else if (op_handoff->op_type == A1D_PACKED_PUTACCS)
         {
 
-            status
-                    = A1DI_Packed_putaccs(op_handoff->op.putaccs_op.target,
-                                          op_handoff->op.putaccs_op.stride_level,
-                                          op_handoff->op.putaccs_op.block_sizes,
-                                          op_handoff->op.putaccs_op.source_ptr,
-                                          op_handoff->op.putaccs_op.src_stride_ar,
-                                          op_handoff->op.putaccs_op.target_ptr,
-                                          op_handoff->op.putaccs_op.trg_stride_ar,
-                                          op_handoff->op.putaccs_op.datatype,
-                                          op_handoff->op.putaccs_op.scaling);
+            status = A1DI_Packed_putaccs(op_handoff->op.putaccs_op.target,
+                                         op_handoff->op.putaccs_op.stride_level,
+                                         op_handoff->op.putaccs_op.block_sizes,
+                                         op_handoff->op.putaccs_op.source_ptr,
+                                         op_handoff->op.putaccs_op.src_stride_ar,
+                                         op_handoff->op.putaccs_op.target_ptr,
+                                         op_handoff->op.putaccs_op.trg_stride_ar,
+                                         op_handoff->op.putaccs_op.datatype,
+                                         op_handoff->op.putaccs_op.scaling);
             A1U_ERR_ABORT(status,
                           "A1DI_Packed_putaccs returned with an error handoff progress\n");
 
@@ -63,7 +62,7 @@ void A1DI_Handoff_progress()
         else
         {
             A1U_ERR_ABORT(status = A1_ERROR,
-                          "Invalid op encountered in Handoff progress. \n");
+                          "Invalid op encountered in handoff progress. \n");
         }
 
         if (A1D_Op_handoff_queuehead == A1D_Op_handoff_queuetail)
