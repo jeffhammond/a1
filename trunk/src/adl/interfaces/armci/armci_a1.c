@@ -1034,15 +1034,11 @@ void ARMCI_Error(char *message,
 
 int ARMCI_Uses_shm()
 {
-    int status = A1_SUCCESS;
-
     A1U_FUNC_ENTER();
-
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return 0;
 
   fn_fail:
     goto fn_exit;
@@ -1344,15 +1340,11 @@ int ARMCI_Same_node(int proc)
 
 int armci_domain_my_id(armci_domain_t domain)
 {
-    int status = A1_SUCCESS;
-
     A1U_FUNC_ENTER();
-
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return (int) 0;
 
   fn_fail:
     goto fn_exit;
@@ -1360,15 +1352,11 @@ int armci_domain_my_id(armci_domain_t domain)
 
 int armci_domain_count(armci_domain_t domain)
 {
-    int status = A1_SUCCESS;
-
     A1U_FUNC_ENTER();
-
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return (int) 1;
 
   fn_fail:
     goto fn_exit;
@@ -1376,15 +1364,11 @@ int armci_domain_count(armci_domain_t domain)
 
 int armci_domain_nprocs(armci_domain_t domain, int id)
 {
-    int status = A1_SUCCESS;
-
     A1U_FUNC_ENTER();
-
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return A1_Process_total(A1_GROUP_WORLD);
 
   fn_fail:
     goto fn_exit;
@@ -1392,15 +1376,11 @@ int armci_domain_nprocs(armci_domain_t domain, int id)
 
 int armci_domain_glob_proc_id(armci_domain_t domain, int id, int loc_proc_id)
 {
-    int status = A1_SUCCESS;
-
     A1U_FUNC_ENTER();
-
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return A1_Process_id(A1_GROUP_WORLD);
 
   fn_fail:
     goto fn_exit;
