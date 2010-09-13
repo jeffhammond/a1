@@ -43,13 +43,12 @@ extern "C"
 
 typedef enum
 {
-    A1_THREAD_SINGLE, /**< There is only one thread present. */
-    A1_THREAD_FUNNELED, /**< There are multiple threads present
-     but only the main thread makes A1 calls. */
+    A1_THREAD_SINGLE,     /**< There is only one thread present. */
+    A1_THREAD_FUNNELED,   /**< There are multiple threads present
+                               but only the main thread makes A1 calls. */
     A1_THREAD_SERIALIZED, /**< There are multiple threads present and each can make A1 calls,
-     but never simultaneously. */
-    A1_THREAD_MULTIPLE
-/**< There are multiple threads present and each can make A1 calls. */
+                               but never simultaneously. */
+    A1_THREAD_MULTIPLE    /**< There are multiple threads present and each can make A1 calls. */
 } A1_thread_level;
 
 /**
@@ -64,13 +63,12 @@ typedef enum
 
 typedef enum
 {
-    A1_INT32, /**< int32  */
-    A1_INT64, /**< int64  */
+    A1_INT32,  /**< int32  */
+    A1_INT64,  /**< int64  */
     A1_UINT32, /**< uint32 */
     A1_UINT64, /**< uint64 */
-    A1_FLOAT, /**< single-precision */
-    A1_DOUBLE,
-/**< double-precision */
+    A1_FLOAT,  /**< single-precision */
+    A1_DOUBLE, /**< double-precision */
 } A1_datatype_t;
 
 /**
@@ -82,8 +80,30 @@ typedef enum
 
 typedef enum
 {
-    A1_TRUE = 1, A1_FALSE = 0,
+    A1_TRUE = 1,
+    A1_FALSE = 0,
 } A1_bool_t;
+
+/**
+ * \brief A1 reduction operations
+ *
+ * \ingroup ENUMS
+ *
+ */
+
+typedef enum
+{
+    A1_SUM,
+    A1_PROD,
+    A1_MAX,
+    A1_MIN,
+    A1_MAXABS, /* Returns MAX(ABS(buffer)) */
+    A1_MINABS, /* Returns MIN(ABS(buffer)) */
+    A1_OR,
+    A1_SAME,   /* Sets the return value if the buffer (element) is the same across all nodes.
+                  This operation is equivalent to doing MAX(buffer) and MIN(-buffer) simultaneously
+                  and testing for equality element-wise. */
+} A1_reduce_op_t;
 
 /**
  * \brief A1 RMW operations
@@ -94,7 +114,8 @@ typedef enum
 
 typedef enum
 {
-    A1_FETCH_AND_ADD, A1_SWAP,
+    A1_FETCH_AND_ADD,
+    A1_SWAP,
 } A1_atomic_op_t;
 
 /* ********************************************************************* */
@@ -1772,15 +1793,56 @@ int A1_Reset_handle_list(int count, A1_handle_t* handle);
  * \ingroup MANYTOMANY
  */
 
-int A1_Broadcast(A1_group_t* group,
-                 int root,
-                 int count,
-                 A1_datatype_t a1_type,
-                 void* buffer);
+int A1_Broadcast_group(A1_group_t* group,
+                       int root,
+                       int count,
+                       A1_datatype_t a1_type,
+                       void* buffer);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+int A1_Reduce_group(A1_group_t* group,
+                    int root,
+                    int count,
+                    A1_reduce_op_t a1_op,
+                    A1_datatype_t a1_type,
+                    void* in,
+                    void* out);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+int A1_Allreduce_group(A1_group_t* group,
+                       int count,
+                       A1_reduce_op_t a1_op,
+                       A1_datatype_t a1_type,
+                       void* in,
+                       void* out);
 
 /* FIXME: More API functions to come */
 
 /*! @} */
+
+/* ********************************************************************** */
+/*                                                                        */
+/*               A1 version information                                   */
+/*                                                                        */
+/* ********************************************************************** */
 
 /* A1_VERSION is the version string. A1_NUMVERSION is the
  * numeric version that can be used in numeric comparisons.
