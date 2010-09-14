@@ -90,7 +90,10 @@ int A1D_Initialize(int thread_level)
 
     if (a1_settings.enable_cht)
     {
+        /*Initialize LockBox if it is the locking mechanism used*/
         /*A1DI_GLOBAL_LBMUTEX_INITIALIZE();*/
+
+        /*Create CHT*/
         status = pthread_create(&A1DI_CHT_pthread,
                                 NULL,
                                 &A1DI_CHT_advance_lock,
@@ -166,10 +169,12 @@ int A1D_Initialize(int thread_level)
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Memregion_Global_initialize returned with error \n");
 
-    fn_exit: A1DI_CRITICAL_EXIT();
+  fn_exit: 
+    A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 

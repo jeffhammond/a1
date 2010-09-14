@@ -9,7 +9,7 @@
 void A1DI_Flush_all() 
 {
     int status = A1_SUCCESS;
-    int dst;
+    int dst,request_count;
     DCMF_Request_t *request;
     DCQuad msginfo;
     DCMF_Callback_t ack_callback;
@@ -18,8 +18,10 @@ void A1DI_Flush_all()
 
     A1U_FUNC_ENTER();
 
-    A1DI_Malloc((void **) &request, sizeof(DCMF_Request_t) * a1_settings.flushall_pending_limit); 
-    A1U_ERR_POP(!status, "A1DI_Malloc failed in A1DI_Flush_all\n"); 
+    request_count = (a1_settings.flushall_pending_limit < A1D_Process_info.num_ranks) ? 
+                      a1_settings.flushall_pending_limit : A1D_Process_info.num_ranks;
+    status = A1DI_Malloc((void **) &request, sizeof(DCMF_Request_t) * request_count); 
+    A1U_ERR_POP(status != 0, "A1DI_Malloc failed in A1DI_Flush_all\n"); 
 
     pending_count = 0;
     ack_callback.function = A1DI_Generic_done;

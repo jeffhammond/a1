@@ -22,7 +22,7 @@
 #define A1C_ALIGNMENT 16
 
 #define A1C_ENABLE_CHT 1
-#define A1C_ENABLE_INTERRUPTS 0
+#define A1C_ENABLE_INTERRUPTS 1
 #define A1C_MPI_ACTIVE 1
 #define A1C_CHT_PAUSE_CYCLES 200
 
@@ -101,16 +101,37 @@ extern LockBox_Mutex_t global_lbmutex;
 *           Lock Type Selection                  *
 *************************************************/
 
+/*
 #define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_ATOMIC_ACQUIRE
 #define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_ATOMIC_RELEASE
 
-/*
 #define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
 #define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
-
-#define A1DI_GLOBAL_LOCK_ACQUIRE() DCMF_CriticalSection_enter(0)
-#define A1DI_GLOBAL_LOCK_RELEASE() DCMF_CriticalSection_exit(0)
 */
+
+#define A1DI_GLOBAL_LOCK_ACQUIRE()     \
+ do {                                  \
+    if(!a1_settings.mpi_active)        \
+    {                                  \
+         A1DI_GLOBAL_ATOMIC_ACQUIRE(); \
+    }                                  \
+    else                               \
+    {                                  \
+        DCMF_CriticalSection_enter(0); \
+    }                                  \
+ } while(0);                           \
+
+#define A1DI_GLOBAL_LOCK_RELEASE()     \
+ do {                                  \
+    if(!a1_settings.mpi_active)        \
+    {                                  \
+        A1DI_GLOBAL_ATOMIC_RELEASE();  \
+    }                                  \
+    else                               \
+    {                                  \
+        DCMF_CriticalSection_exit(0);  \
+    }                                  \
+ } while(0);                           \
 
 /*************************************************
 *           Likely and Unlikely Ifs              *
@@ -124,10 +145,10 @@ extern LockBox_Mutex_t global_lbmutex;
  *************************************************/
 
 #define A1DI_Wait_cycles(cycles)                     \
-   do {                                               \
-      unsigned long long start = DCMF_Timebase();   \
-      while((DCMF_Timebase() - start) < cycles);      \
-   } while(0)                                         \
+   do {                                              \
+      unsigned long long start = DCMF_Timebase();    \
+      while((DCMF_Timebase() - start) < cycles);     \
+   } while(0)                                        \
 
 #define A1DI_Wait_seconds(seconds)               \
    do {                                           \

@@ -1418,7 +1418,7 @@ void armci_msg_barrier()
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    A1_Barrier_group(A1_GROUP_WORLD);
 
   fn_exit:
     A1U_FUNC_EXIT();
