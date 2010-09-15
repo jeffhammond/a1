@@ -1826,7 +1826,8 @@ int A1_NbMulticast_group(A1_group_t* group,
                          int root,
                          int count,
                          A1_datatype_t a1_type,
-                         void* buffer);
+                         void* buffer,
+                         A1_handle_t a1_handle);
 
 /**
  * \brief
@@ -1862,7 +1863,8 @@ int A1_NbReduce_group(A1_group_t* group,
                       A1_reduce_op_t a1_op,
                       A1_datatype_t a1_type,
                       void* in,
-                      void* out);
+                      void* out,
+                      A1_handle_t a1_handle);
 
 /**
  * \brief
@@ -1896,7 +1898,8 @@ int A1_NbAllreduce_group(A1_group_t* group,
                          A1_reduce_op_t a1_op,
                          A1_datatype_t a1_type,
                          void* in,
-                         void* out);
+                         void* out,
+                         A1_handle_t a1_handle);
 
 /**
  * \brief
@@ -1930,7 +1933,8 @@ int A1_NbManytomany_group(A1_group_t* in_group,
                           int count,
                           A1_datatype_t a1_type,
                           void* in,
-                          void* out);
+                          void* out,
+                          A1_handle_t a1_handle);
 
 /* FIXME: More API functions to come */
 

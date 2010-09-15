@@ -22,7 +22,7 @@ void A1DI_RecvDone_putacc_callback(void *clientdata, DCMF_Error_t *error)
 
     likely_if(header->datatype == A1_DOUBLE) 
     {
-       A1DI_ACC_EXECUTE(double,
+       A1DI_ACC(double,
                         source_ptr,
                         header->target_ptr,
                         (header->scaling).double_value,
@@ -33,35 +33,35 @@ void A1DI_RecvDone_putacc_callback(void *clientdata, DCMF_Error_t *error)
        switch (header->datatype)
        {
        case A1_INT32:
-            A1DI_ACC_EXECUTE(int32_t,
+            A1DI_ACC(int32_t,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).int32_value,
                             data_size / sizeof(int32_t));
            break;
        case A1_INT64:
-           A1DI_ACC_EXECUTE(int64_t,
+           A1DI_ACC(int64_t,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).int64_value,
                             data_size / sizeof(int64_t));
            break;
        case A1_UINT32:
-           A1DI_ACC_EXECUTE(uint32_t,
+           A1DI_ACC(uint32_t,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).uint32_value,
                             data_size / sizeof(uint32_t));
            break;
        case A1_UINT64:
-           A1DI_ACC_EXECUTE(uint64_t,
+           A1DI_ACC(uint64_t,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).uint64_value,
                             data_size / sizeof(uint64_t));
            break;
        case A1_FLOAT:
-           A1DI_ACC_EXECUTE(float,
+           A1DI_ACC(float,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).float_value,
@@ -128,7 +128,7 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
 
     likely_if(header->datatype == A1_DOUBLE) 
     {
-       A1DI_ACC_EXECUTE(double,
+       A1DI_ACC(double,
                         source_ptr,
                         header->target_ptr,
                         (header->scaling).double_value,
@@ -139,35 +139,35 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
        switch (header->datatype)
        {
        case A1_INT32:
-            A1DI_ACC_EXECUTE(int32_t,
+            A1DI_ACC(int32_t,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).int32_value,
                             bytes / sizeof(int32_t));
            break;
        case A1_INT64:
-           A1DI_ACC_EXECUTE(int64_t,
+           A1DI_ACC(int64_t,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).int64_value,
                             bytes / sizeof(int64_t));
            break;
        case A1_UINT32:
-           A1DI_ACC_EXECUTE(uint32_t,
+           A1DI_ACC(uint32_t,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).uint32_value,
                             bytes / sizeof(uint32_t));
            break;
        case A1_UINT64:
-           A1DI_ACC_EXECUTE(uint64_t,
+           A1DI_ACC(uint64_t,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).uint64_value,
                             bytes / sizeof(uint64_t));
            break;
        case A1_FLOAT:
-           A1DI_ACC_EXECUTE(float,
+           A1DI_ACC(float,
                             source_ptr,
                             header->target_ptr,
                             (header->scaling).float_value,

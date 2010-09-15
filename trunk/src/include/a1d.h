@@ -194,6 +194,15 @@ int A1D_Test_handle(A1_handle_t handle, A1_bool_t* completed);
 int A1D_Barrier_group(A1_group_t* group);
 
 /**
+ * \brief Device level implementation of A1_NbBarrier_group.
+ *
+ * \param[in] group          Group of processes to synchronize.
+ *
+ * \ingroup  SYNCHRONIZATION
+ */
+int A1_NbBarrier_group(A1_group_t* group, A1_handle_t handle);
+
+/**
  * \brief Device level implementation of A1_Sync_group.
  *
  * On return, this call ensures that all processes within the entire group
@@ -204,6 +213,15 @@ int A1D_Barrier_group(A1_group_t* group);
  * \ingroup  SYNCHRONIZATION
  */
 int A1D_Sync_group(A1_group_t* group);
+
+/**
+ * \brief Device level implementation of A1_NbSync_group.
+ *
+ * \param[in] group          Group of processes to synchronize.
+ *
+ * \ingroup  SYNCHRONIZATION
+ */
+int A1D_NbSync_group(A1_group_t* group, A1_handle_t handle);
 
 /**
  * \brief Device level implementation of A1_Put.
@@ -775,6 +793,39 @@ int A1D_Flush(int proc);
  * \ingroup COMPLETION
  */
 int A1D_Flush_group(A1_group_t *group);
+
+/**
+ * \brief Reduce data from all processes and broadcast results to all processes.  
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+int A1D_Allreduce_group(A1_group_t* group,
+                       int count,
+                       A1_reduce_op_t a1_op,
+                       A1_datatype_t a1_type,
+                       void* in,
+                       void* out);
+
+/**
+ * \brief Reduce data from all processes and broadcast results to all processes.
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+int A1D_NbAllreduce_group(A1_group_t* group,
+                         int count,
+                         A1_reduce_op_t a1_op,
+                         A1_datatype_t a1_type,
+                         void* in,
+                         void* out,
+                         A1_handle_t a1_handle);
 
 /**
  * \brief Device level implementation of A1_Process_id 

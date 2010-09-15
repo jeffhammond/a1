@@ -224,7 +224,7 @@ void A1DI_Handoff_progress();
  *************************************************/
 
 /* TODO probably need to optimize these functions for double-hummer */
-#define A1DI_ACC_EXECUTE(datatype, source, target, scaling, count)         \
+#define A1DI_ACC(datatype, source, target, scaling, count)                  \
    do {                                                                     \
      int i;                                                                 \
      datatype *s = (datatype *) source;                                     \
@@ -232,6 +232,20 @@ void A1DI_Handoff_progress();
      datatype c = (datatype) scaling;                                       \
      for(i=0; i<count; i++)                                                 \
           t[i] += s[i]*c;                                                   \
+   } while(0)                                                               \
+
+#define A1DI_ABS(datatype, source, target, count)                           \
+   do {                                                                     \
+     int i;                                                                 \
+     datatype *s = (datatype *) source;                                     \
+     datatype *t = (datatype *) target;                                     \
+     for(i=0; i<count; i++)                                                 \
+     {        								    \
+        if(s[i] < 0)     						    \
+          t[i] = -s[i];                                                     \
+        else								    \
+          t[i] = s[i]; 							    \
+     }									    \
    } while(0)                                                               \
 
 #define A1DI_FETCHANDADD_EXECUTE(datatype, source, target, original, count) \
@@ -489,6 +503,7 @@ extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Control_flushack_protocol;
 extern DCMF_Protocol_t A1D_Send_flush_protocol;
 extern DCMF_Protocol_t A1D_GlobalBarrier_protocol;
+extern DCMF_Protocol_t A1D_GlobalAllreduce_protocol;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
 extern DCMF_Protocol_t A1D_Generic_putacc_protocol;

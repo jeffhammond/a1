@@ -32,6 +32,30 @@ int A1_Barrier_group(A1_group_t* group)
     goto fn_exit;
 }
 
+int A1_NbBarrier_group(A1_group_t* group, A1_handle_t a1_handle)
+{
+    int result = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    result = A1D_NbBarrier_group(group, a1_handle);
+    A1U_ERR_POP(result!=A1_SUCCESS, "A1D_NbBarrier_group returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
 int A1_Sync_group(A1_group_t* group)
 {
     int result = A1_SUCCESS;
@@ -53,5 +77,99 @@ int A1_Sync_group(A1_group_t* group)
     return result;
 
   fn_fail: 
+    goto fn_exit;
+}
+
+int A1_NbSync_group(A1_group_t* group, A1_handle_t a1_handle)
+{
+    int result = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    result = A1D_NbSync_group(group, a1_handle);
+    A1U_ERR_POP(result!=A1_SUCCESS, "A1D_NbSync_group returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int A1_Allreduce_group(A1_group_t* group,
+                       int count,
+                       A1_reduce_op_t a1_op,
+                       A1_datatype_t a1_type,
+                       void* in,
+                       void* out)
+{
+    int result = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    result = A1D_Allreduce_group(group,
+                                 count,
+                                 a1_op,
+                                 a1_type,
+                                 in,
+                                 out);
+    A1U_ERR_POP(result!=A1_SUCCESS, "A1D_Allreduce_group returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int A1_NbAllreduce_group(A1_group_t* group,
+                         int count,
+                         A1_reduce_op_t a1_op,
+                         A1_datatype_t a1_type,
+                         void* in,
+                         void* out,
+                         A1_handle_t a1_handle)
+{
+    int result = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    result = A1D_NbAllreduce_group(group,
+                                   count,
+                                   a1_op,
+                                   a1_type,
+                                   in,
+                                   out,
+                                   a1_handle);
+    A1U_ERR_POP(result!=A1_SUCCESS, "A1D_NbAllreduce_group returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
     goto fn_exit;
 }

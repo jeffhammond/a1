@@ -213,7 +213,7 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
     {
         likely_if(a1_type == A1_DOUBLE)
         {
-            A1DI_ACC_EXECUTE(double,
+            A1DI_ACC(double,
                     data_ptr,
                     target_ptr,
                     *((double *) scaling),
@@ -224,35 +224,35 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
             switch (a1_type)
             {
                 case A1_INT32:
-                A1DI_ACC_EXECUTE(int32_t,
+                A1DI_ACC(int32_t,
                         data_ptr,
                         target_ptr,
                         *((int32_t *) scaling),
                         block_sizes[0] / sizeof(int32_t));
                 break;
                 case A1_INT64:
-                A1DI_ACC_EXECUTE(int64_t,
+                A1DI_ACC(int64_t,
                         data_ptr,
                         target_ptr,
                         *((int64_t *) scaling),
                         block_sizes[0] / sizeof(int64_t));
                 break;
                 case A1_UINT32:
-                A1DI_ACC_EXECUTE(uint32_t,
+                A1DI_ACC(uint32_t,
                         data_ptr,
                         target_ptr,
                         *((uint32_t *) scaling),
                         block_sizes[0] / sizeof(uint32_t));
                 break;
                 case A1_UINT64:
-                A1DI_ACC_EXECUTE(uint64_t,
+                A1DI_ACC(uint64_t,
                         data_ptr,
                         target_ptr,
                         *((uint64_t *) scaling),
                         block_sizes[0] / sizeof(uint64_t));
                 break;
                 case A1_FLOAT:
-                A1DI_ACC_EXECUTE(float,
+                A1DI_ACC(float,
                         data_ptr,
                         target_ptr,
                         *((float *) scaling),
