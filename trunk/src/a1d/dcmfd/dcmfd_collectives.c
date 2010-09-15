@@ -274,26 +274,34 @@ int A1DI_GlobalAllreduce(int count,
 
     switch (a1_op)
     {
-      case A1_SUM:
-            reduce_op = DCMF_SUM;
-            break;
-      case A1_PROD:
-            reduce_op = DCMF_PROD;
-            break;
-      case A1_MAX:
-      case A1_MAXABS:
-            reduce_op = DCMF_MAX;
-            break;
-      case A1_MIN:
-      case A1_MINABS:
-            reduce_op = DCMF_MIN;
-            break;
-      case A1_OR:
-            reduce_op = DCMF_LOR;
-            break;
-      default:
-            A1U_ERR_POP(status != DCMF_SUCCESS, "Unsupported A1_reduce_op \n");
-            break;
+    case A1_SUM:
+        reduce_op = DCMF_SUM;
+        break;
+    case A1_PROD:
+        reduce_op = DCMF_PROD;
+        break;
+    case A1_MAX:
+        reduce_op = DCMF_MAX;
+        break;
+    case A1_MAXABS:
+        /* FIXME I don't think any DCMF built-in ops will give us the maximum absolute
+         *        value, so we might have to do something more complicated here.        */
+        A1U_ERR_POP(status != DCMF_SUCCESS, "A1_MAXABS not implemented yet \n");
+        break;
+    case A1_MIN:
+        reduce_op = DCMF_MIN;
+        break;
+    case A1_MINABS:
+        /* FIXME I don't think any DCMF built-in ops will give us the minimum absolute
+         *        value, so we might have to do something more complicated here.        */
+        A1U_ERR_POP(status != DCMF_SUCCESS, "A1_MINABS not implemented yet \n");
+        break;
+    case A1_OR:
+        reduce_op = DCMF_LOR;
+        break;
+    default:
+        A1U_ERR_POP(status != DCMF_SUCCESS, "Unsupported A1_reduce_op \n");
+        break;
     }
 
     if(a1_op == A1_MAXABS || a1_op == A1_MINABS)
