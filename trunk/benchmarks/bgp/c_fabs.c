@@ -69,6 +69,23 @@ int main()
     t1 = getticks();
     printf("time for  a?b:c  version = %30llu\n",t1-t0);
 
+    printf("FABS VERSION\n");
+
+    double _Complex z1,z2;
+
+    // WARM-UP
+    for (i=0;i<dim;i+=2)
+        y1[i] = fabs(x[i]);
+
+    // TIMING
+    t0 = getticks();
+    for (j=0;j<count;j++)
+        for (i=0;i<dim;i+=2)
+            y1[i] = fabs(x[i]);
+    t1 = getticks();
+    printf("time for  fabs() version = %30llu\n",t1-t0);
+
+/*
     printf("ASM VERSION\n");
 
     double _Complex z1,z2;
@@ -87,13 +104,14 @@ int main()
            z2 = __fpabs(z1);
            __stfpd(&y2[i],z2); 
     t1 = getticks();
-    printf("time for  fabs   version = %30llu\n",t1-t0);
+    printf("time for  ASM    version = %30llu\n",t1-t0);
 
     printf("VERIFYING ASM VERSION\n");
 
     for (i=0;i<dim;i++)
         if (y1[i] != y2[i])
             printf("%4d %30.15f %30.15f %30.15f\n",i,x[i],y1[i],y2[i]);
+*/
 
     printf("ALL DONE\n");
 

@@ -11,21 +11,31 @@ LIBS    =
 CFLAGS  = $(COPT) $(INCLUDE)
 FFLAGS  = $(FOPT) $(INCLUDE)
 
-LD      = $(CC)
-LDFLAGS = $(COPT)
+CLD      = $(CC)
+CLDFLAGS = $(COPT)
 
-TESTS := $(patsubst %.c,%.x,$(wildcard *.c))
-ASSEMBLY := $(patsubst %.c,%.s,$(wildcard *.c))
-COBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
-FOBJECTS := $(patsubst %.f,%.o,$(wildcard *.f))
+FLD      = $(FC)
+FLDFLAGS = $(FOPT)
+
+CTESTS := $(patsubst %.c,%.x,$(wildcard *.c))
+FTESTS := $(patsubst %.f,%.fx,$(wildcard *.f))
+COBJ := $(patsubst %.c,%.o,$(wildcard *.c))
+FOBJ := $(patsubst %.f,%.o,$(wildcard *.f))
+CASM := $(patsubst %.c,%.s,$(wildcard *.c))
+FASM := $(patsubst %.f,%.s,$(wildcard *.f))
+
+SUBMIT := qsub -n 1 --mode smp -t 5 
 
 all: tests
 
-tests: $(TESTS)
-asm: $(ASSEMBLY)
+tests: $(CTESTS) $(FTESTS)
+asm: $(CASM) $(FASM)
 
 %.x: %.o
-	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
+	$(CLD) $(CLDFLAGS) $< $(LIBS) -o $@
+
+%.fx: %.o
+	$(FLD) $(FLDFLAGS) $< $(LIBS) -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -34,12 +44,20 @@ asm: $(ASSEMBLY)
 	$(FC) $(FFLAGS) -c $< -o $@
 
 %.s: %.c
-	$(CC) $(CFLAGS) -S $< -o $@
+	$(CC) $(CFLAGS) -qlist -qsource -qreport -S $< -o $@
 
+%.s: %.f
+	$(FC) $(FFLAGS) -qlist -qsource -qreport -S $< -o $@
 
+%.submit: %.x
+	$(SUBMIT) $<
+    
 clean:
-	$(RM) $(RMFLAGS) $(OBJECTS)
+	$(RM) $(RMFLAGS) $(COBJ) $(FOBJ)
 
 realclean: clean
-	$(RM) $(RMFLAGS) $(TESTS) $(ASSEMBLY)
+	$(RM) $(RMFLAGS) $(CTESTS) $(FTESTS)
+	$(RM) $(RMFLAGS) $(CASM) $(FASM)
+	$(RM) $(RMFLAGS) *.lst
+	$(RM) $(RMFLAGS) core.*
 
