@@ -41,15 +41,15 @@ int main(int argc, char* argv[])
     posix_memalign((void**)&c, 16*sizeof(double), dim*sizeof(double));
 
     for (i=0;i<dim;i++) a[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
-    for (i=0;i<dim;i++) b[i] = 0.0;
-    for (i=0;i<dim;i++) c[i] = 0.0;
 
     printf("BASIC VERSION\n");
 
     // WARM-UP
-    for (i=0;i<dim;i++) b[i] = scale*a[i];
+    for (i=0;i<dim;i++) b[i] = 0.0;
+    for (i=0;i<dim;i++) b[i] += scale*a[i];
 
     // TIMING
+    for (i=0;i<dim;i++) b[i] = 0.0;
     t0 = getticks();
     for (j=0;j<count;j++)
     {
@@ -61,12 +61,14 @@ int main(int argc, char* argv[])
     printf("INTRINSICS VERSION 1\n");
 
     // WARM-UP
+    for (i=0;i<dim;i++) c[i] = 0.0;
     for (i=0;i<dim;i+=2)
     {
         __stfpd(&c[i], __fxcpmadd( __lfpd(&c[i]), __lfpd(&a[i]), scale) );
     }
 
     // TIMING
+    for (i=0;i<dim;i++) c[i] = 0.0;
     t0 = getticks();
     for (j=0;j<count;j++)
     {
@@ -86,25 +88,44 @@ int main(int argc, char* argv[])
             printf("%4d %30.15f %30.15f\n",i,b[i],c[i]);
         }
     }
-    for (i=0;i<dim;i++) c[i] = 0.0;
 
     printf("INTRINSICS VERSION 2\n");
 
     // WARM-UP
+    for (i=0;i<dim;i++) c[i] = 0.0;
     for (i=0;i<dim;i+=4)
     {
-        __stfpd(&c[i  ], __fxcpmadd( __lfpd(&c[i  ]), __lfpd(&a[i  ]), scale) );
-        __stfpd(&c[i+2], __fxcpmadd( __lfpd(&c[i+2]), __lfpd(&a[i+2]), scale) );
+        {
+            double _Complex a0, a2, c0, c2;
+            a0 = __lfpd(&a[i  ]);
+            a2 = __lfpd(&a[i+2]);
+            c0 = __lfpd(&c[i  ]);
+            c2 = __lfpd(&c[i+2]);
+            c0 = __fxcpmadd(c0,a0,scale);
+            c2 = __fxcpmadd(c2,a2,scale);
+            __stfpd(&c[i  ],c0);
+            __stfpd(&c[i+2],c2);
+        }
     }
 
     // TIMING
+    for (i=0;i<dim;i++) c[i] = 0.0;
     t0 = getticks();
     for (j=0;j<count;j++)
     {
         for (i=0;i<dim;i+=4)
         {
-            __stfpd(&c[i  ], __fxcpmadd( __lfpd(&c[i  ]), __lfpd(&a[i  ]), scale) );
-            __stfpd(&c[i+2], __fxcpmadd( __lfpd(&c[i+2]), __lfpd(&a[i+2]), scale) );
+            {
+                double _Complex a0, a2, c0, c2;
+                a0 = __lfpd(&a[i  ]);
+                a2 = __lfpd(&a[i+2]);
+                c0 = __lfpd(&c[i  ]);
+                c2 = __lfpd(&c[i+2]);
+                c0 = __fxcpmadd(c0,a0,scale);
+                c2 = __fxcpmadd(c2,a2,scale);
+                __stfpd(&c[i  ],c0);
+                __stfpd(&c[i+2],c2);
+            }
         }
     }
     t1 = getticks();
@@ -118,11 +139,11 @@ int main(int argc, char* argv[])
             printf("%4d %30.15f %30.15f\n",i,b[i],c[i]);
         }
     }
-    for (i=0;i<dim;i++) c[i] = 0.0;
 
     printf("INTRINSICS VERSION 3\n");
 
     // WARM-UP
+    for (i=0;i<dim;i++) c[i] = 0.0;
     for (i=0;i<dim;i+=8)
     {
         __stfpd(&c[i  ], __fxcpmadd( __lfpd(&c[i  ]), __lfpd(&a[i  ]), scale) );
@@ -132,6 +153,7 @@ int main(int argc, char* argv[])
     }
 
     // TIMING
+    for (i=0;i<dim;i++) c[i] = 0.0;
     t0 = getticks();
     for (j=0;j<count;j++)
     {
@@ -154,11 +176,11 @@ int main(int argc, char* argv[])
             printf("%4d %30.15f %30.15f\n",i,b[i],c[i]);
         }
     }
-    for (i=0;i<dim;i++) c[i] = 0.0;
 
     printf("INTRINSICS VERSION 4\n");
 
     // WARM-UP
+    for (i=0;i<dim;i++) c[i] = 0.0;
     for (i=0;i<dim;i+=16)
     {
         __stfpd(&c[i   ], __fxcpmadd( __lfpd(&c[i   ]), __lfpd(&a[i   ]), scale) );
@@ -172,6 +194,7 @@ int main(int argc, char* argv[])
     }
 
     // TIMING
+    for (i=0;i<dim;i++) c[i] = 0.0;
     t0 = getticks();
     for (j=0;j<count;j++)
     {
@@ -198,7 +221,26 @@ int main(int argc, char* argv[])
             printf("%4d %30.15f %30.15f\n",i,b[i],c[i]);
         }
     }
-    for (i=0;i<dim;i++) c[i] = 0.0;
+
+    printf("BASIC VERSION\n");
+
+    // WARM-UP
+    for (i=0;i<dim;i++) b[i] = 0.0;
+    for (i=0;i<dim;i++) b[i] += scale*a[i];
+
+    // TIMING
+    for (i=0;i<dim;i++) b[i] = 0.0;
+    t0 = getticks();
+    for (j=0;j<count;j++)
+    {
+        for (i=0;i<dim;i++) b[i] += scale*a[i];
+    }
+    t1 = getticks();
+    printf("time for basic version        = %30llu\n",t1-t0);
+
+    free(a);
+    free(b);
+    free(c);
 
     printf("ALL DONE\n");
 
