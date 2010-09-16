@@ -1430,9 +1430,35 @@ void armci_msg_barrier()
 
 void armci_msg_dgop(double *x, int n, char* op)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_DOUBLE,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1444,9 +1470,35 @@ void armci_msg_dgop(double *x, int n, char* op)
 
 void armci_msg_fgop(float *x, int n, char* op)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_FLOAT,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1458,9 +1510,35 @@ void armci_msg_fgop(float *x, int n, char* op)
 
 void armci_msg_igop(int *x, int n, char* op)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+             	                n,
+	                        a1_op,
+         	                A1_INT32,
+                	        x,
+                     	        x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1472,9 +1550,35 @@ void armci_msg_igop(int *x, int n, char* op)
 
 void armci_msg_lgop(long *x, int n, char* op)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT32,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1512,7 +1616,7 @@ void armci_exchange_address(void *ptr_ar[], int n)
     goto fn_exit;
 }
 
-void armci_msg_group_igop(int *x, int n, char* op,ARMCI_Group *group)
+void armci_msg_group_igop(int *x, int n, char* op, ARMCI_Group *group)
 {
     A1U_FUNC_ENTER();
 
@@ -1621,9 +1725,58 @@ void armci_msg_group_gop_scope(int scope,
                                int type, 
                                ARMCI_Group *group)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+    A1_datatype_t a1_type;
+
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    switch(type)
+    {
+       case ARMCI_INT:
+       case ARMCI_LONG:
+             a1_type = A1_INT32;
+             break;
+       case ARMCI_LONG_LONG:
+             a1_type = A1_INT64; 
+             break;
+       case ARMCI_FLOAT:
+             a1_type = A1_FLOAT;
+             break;
+       case ARMCI_DOUBLE:
+             a1_type = A1_DOUBLE;
+             break;
+       default: 
+             A1U_ERR_ABORT(A1_ERROR, "Invalid datatype received in\
+                        armci_msg_group_gop_scope");
+             break;
+    }
+
+    if(strncmp(op,"+",1) == 0) 
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS; 
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_ABORT(A1_ERROR, "Invalid op received in\
+                        armci_msg_group_gop_scope");    
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                       n,
+                       a1_op,
+                       a1_type,
+                       x,
+                       x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();

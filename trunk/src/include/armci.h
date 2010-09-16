@@ -11,6 +11,15 @@
       Data Structures
 *************************/
 
+typedef enum
+{
+   ARMCI_INT,
+   ARMCI_LONG,
+   ARMCI_LONG_LONG,
+   ARMCI_FLOAT,
+   ARMCI_DOUBLE
+} armci_gop_datatype_t;
+
 typedef enum 
 {
    ARMCI_ACC_INT,
