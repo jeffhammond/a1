@@ -47,11 +47,13 @@ int main()
     // TIMING
     t0 = getticks();
     for (j=0;j<count;j++)
+    {
         for (i=0;i<dim;i++)
         {
             if (x[i]>0.0) y1[i] = x[i];
             else          y1[i] = -x[i];
         }
+    }
     t1 = getticks();
     printf("time for if-else version = %30llu\n",t1-t0);
 
@@ -59,13 +61,19 @@ int main()
 
     // WARM-UP
     for (i=0;i<dim;i++)
+    {
         y1[i] = x[i]>0.0 ? x[i] : -x[i];
+    }
 
     // TIMING
     t0 = getticks();
     for (j=0;j<count;j++)
+    {
         for (i=0;i<dim;i++)
+        {
             y1[i] = x[i]>0.0 ? x[i] : -x[i];
+        }
+    }
     t1 = getticks();
     printf("time for  a?b:c  version = %30llu\n",t1-t0);
 
@@ -73,45 +81,72 @@ int main()
 
     // WARM-UP
     for (i=0;i<dim;i+=2)
-        y1[i] = fabs(x[i]);
-
-    // TIMING
-    t0 = getticks();
-    for (j=0;j<count;j++)
-        for (i=0;i<dim;i+=2)
-            y1[i] = fabs(x[i]);
-    t1 = getticks();
-    printf("time for  fabs() version = %30llu\n",t1-t0);
-
-    printf("ASM VERSION\n");
-
-    double _Complex z1,z2;
-
-    // WARM-UP
-    for (i=0;i<dim;i+=2)
     {
-       z1 = __lfpd(&x[i]); 
-       z2 = __fpabs(z1);
-       __stfpd(&y2[i],z2); 
+        y1[i] = fabs(x[i]);
     }
 
     // TIMING
     t0 = getticks();
     for (j=0;j<count;j++)
+    {
         for (i=0;i<dim;i+=2)
         {
-           z1 = __lfpd(&x[i]); 
-           z2 = __fpabs(z1);
-           __stfpd(&y2[i],z2); 
+            y1[i] = fabs(x[i]);
         }
+    }
     t1 = getticks();
-    printf("time for  ASM    version = %30llu\n",t1-t0);
+    printf("time for  fabs() version = %30llu\n",t1-t0);
 
-    printf("VERIFYING ASM VERSION\n");
+    printf("ASM VERSION\n");
+
+    double* a = malloc(dim*sizeof(double));
+    double* b = malloc(dim*sizeof(double));
+
+    for (i=0;i<dim;i++) a[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
+    for (i=0;i<dim;i++) b[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
+    for (i=0;i<dim;i++) y1[i] = 0.0;
+    for (i=0;i<dim;i++) y2[i] = 0.0;
 
     for (i=0;i<dim;i++)
+    {
+        y1[i] = fabs(a[i]);// - b[i];
+    }
+
+    t0 = getticks();
+    for (j=0;j<count;j++)
+    {
+        for (i=0;i<dim;i+=2)
+        {
+            {
+                double _Complex t1, t2, t3;
+                t1 = __lfpd(&a[i]);
+                //t2 = __lfpd(&b[i]);
+                //t3 = __fpsub(t1,t2);
+                t3 = __fpabs(t1);
+                __stfpd(&y2[i],t3);
+            }/*
+            {
+                double _Complex t1, t2, t3;
+                t1 = __lfpd(&a[i+2]);
+                //t2 = __lfpd(&b[i+2]);
+                //t3 = __fpsub(t1,t2);
+                t3 = __fpabs(t1);
+                __stfpd(&y2[i+2],t3);
+            }*/
+        }
+    }
+    t1 = getticks();
+    printf("time for   ASM   version = %30llu\n",t1-t0);
+
+    printf("VERIFYING\n");
+
+    for (i=0;i<dim;i++)
+    {
         if (y1[i] != y2[i])
-            printf("%4d %30.15f %30.15f %30.15f\n",i,x[i],y1[i],y2[i]);
+        {
+            printf("%4d %30.15f %30.15f\n",i,y1[i],y2[i]);
+        }
+    }
 
     printf("ALL DONE\n");
 
