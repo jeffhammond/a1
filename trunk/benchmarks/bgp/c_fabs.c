@@ -101,8 +101,8 @@ int main()
 
     double* a;
     double* b;
-    posix_memalign((void**)&a, 2*sizeof(double), dim*sizeof(double));
-    posix_memalign((void**)&b, 2*sizeof(double), dim*sizeof(double));
+    posix_memalign((void**)&a, 16*sizeof(double), dim*sizeof(double));
+    posix_memalign((void**)&b, 16*sizeof(double), dim*sizeof(double));
 
     for (i=0;i<dim;i++) a[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
     for (i=0;i<dim;i++) b[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
@@ -123,7 +123,7 @@ int main()
         }
     }
     t1 = getticks();
-    printf("time for   ASM   version = %30llu\n",t1-t0);
+    printf("time for   ASM1  version = %30llu\n",t1-t0);
 
     printf("VERIFYING\n");
 
