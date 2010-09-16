@@ -121,7 +121,7 @@ int A1DI_Packed_puts(int target,
     A1D_Buffer_t *a1d_buffer;
     A1D_Packed_puts_header_t header;
     void *packet_ptr, *data_ptr;
-    int packet_size, data_size, data_limit;
+    int packet_size = 0, data_size = 0 , data_limit = 0;
     int block_idx[A1C_MAX_STRIDED_DIM];
     int complete = 0;
 

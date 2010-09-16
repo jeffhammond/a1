@@ -88,6 +88,7 @@ int A1DI_Pack_strided(void *data_ptr,
 
     while ((*data_size + block_sizes[0]) <= data_limit)
     {
+
         memcpy(data_ptr, *source_ptr, block_sizes[0]);
         data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
         *data_size = *data_size + block_sizes[0];
@@ -95,7 +96,7 @@ int A1DI_Pack_strided(void *data_ptr,
         block_idx[1]++;
         if (block_idx[1] == block_sizes[1])
         {
-            y = 2;
+            y = 1;
             while (block_idx[y] == block_sizes[y])
             {
                 if (y == stride_level)
@@ -150,6 +151,7 @@ int A1DI_Unpack_strided(void *data_ptr,
 
     while (data_size > 0)
     {
+
         memcpy(target_ptr, data_ptr, block_sizes[0]);
 
         data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
@@ -158,7 +160,7 @@ int A1DI_Unpack_strided(void *data_ptr,
         block_idx[1]++;
         if (block_idx[1] == block_sizes[1])
         {
-            y = 2;
+            y = 1;
             while (block_idx[y] == block_sizes[y])
             {
                 if (y == stride_level)
@@ -271,7 +273,7 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
         block_idx[1]++;
         if (block_idx[1] == block_sizes[1])
         {
-            y = 2;
+            y = 1;
             while (block_idx[y] == block_sizes[y])
             {
                 if (y == stride_level)
