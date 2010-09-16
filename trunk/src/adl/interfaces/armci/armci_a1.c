@@ -316,14 +316,13 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     /* ARMCI iov and A1 iov are similar structures but follow 
      * different naming conventions. So we make a copy.*/
-    /* TODO Why not use A1D_Malloc here? */
     posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
 
     status = A1_PutV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutV returned an error\n");
 
-    /* TODO Free a1_iov_ar */
+    free(a1_iov_ar);
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -442,15 +441,13 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
-
-    /* TODO Why not use A1D_Malloc here? */
     posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
 
     status = A1_GetV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_GetV returned an error\n");
 
-    /* TODO Free a1_iov_ar */
+    free(a1_iov_ar);
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -658,14 +655,13 @@ int ARMCI_AccV(int datatype,
 
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
-    /* TODO Why not use A1D_Malloc here? */
     posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
 
     status = A1_PutAccV(proc, a1_iov_ar, arr_len, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccV returned an error\n");
 
-    /* TODO Free a1_iov_ar */
+    free(a1_iov_ar);
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
