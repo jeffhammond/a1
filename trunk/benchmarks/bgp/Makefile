@@ -2,8 +2,8 @@
 
 FC      = mpixlf77_r 
 CC      = mpixlc_r 
-COPT    = -g -O3 -qtune=450 -qarch=450d -qstrict
-FOPT    = -g -O3 -qtune=450 -qarch=450d -qstrict
+COPT    = -g -qstrict -O5 -qtune=450 -qarch=450d
+FOPT    = -g -qstrict -O5 -qtune=450 -qarch=450d
 
 INCLUDE = -I/bgsys/drivers/ppcfloor/arch/include/
 LIBS    = 

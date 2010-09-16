@@ -24,9 +24,15 @@ static __inline__ unsigned long long getticks(void)
 
 int main()
 {
-    int i,j,count=1,dim=1024;
-    double x[dim],y1[dim],y2[dim];
-    double t0,t1;
+    int i,j,count=10,dim=1024;
+    unsigned long long t0,t1;
+    double* x;
+    double* y1;
+    double* y2;
+
+    posix_memalign((void**)&x , 16*sizeof(double), dim*sizeof(double));
+    posix_memalign((void**)&y1, 16*sizeof(double), dim*sizeof(double));
+    posix_memalign((void**)&y2, 16*sizeof(double), dim*sizeof(double));
 
     printf("TESTING IMPLEMENTATIONS OF VECTOR ABSOLUTE VALUE\n");
 
@@ -97,8 +103,6 @@ int main()
     t1 = getticks();
     printf("time for  fabs() version = %30llu\n",t1-t0);
 
-    printf("ASM VERSION\n");
-
     double* a;
     double* b;
     posix_memalign((void**)&a, 16*sizeof(double), dim*sizeof(double));
@@ -109,11 +113,15 @@ int main()
     for (i=0;i<dim;i++) y1[i] = 0.0;
     for (i=0;i<dim;i++) y2[i] = 0.0;
 
+    // WARM-UP
     for (i=0;i<dim;i++)
     {
         y1[i] = fabs(a[i]);// - b[i];
     }
 
+    printf("ASM1 VERSION\n");
+
+    // TIMING
     t0 = getticks();
     for (j=0;j<count;j++)
     {
@@ -134,6 +142,93 @@ int main()
             printf("%4d %30.15f %30.15f\n",i,y1[i],y2[i]);
         }
     }
+    for (i=0;i<dim;i++) y2[i] = 0.0;
+
+    printf("ASM2 VERSION\n");
+
+    // TIMING
+    t0 = getticks();
+    for (j=0;j<count;j++)
+    {
+        for (i=0;i<dim;i+=4)
+        {
+            __stfpd(&y2[i  ], __fpabs( __lfpd(&a[i  ]) ) );
+            __stfpd(&y2[i+2], __fpabs( __lfpd(&a[i+2]) ) );
+        }
+    }
+    t1 = getticks();
+    printf("time for   ASM2  version = %30llu\n",t1-t0);
+
+    printf("VERIFYING\n");
+
+    for (i=0;i<dim;i++)
+    {
+        if (y1[i] != y2[i])
+        {
+            printf("%4d %30.15f %30.15f\n",i,y1[i],y2[i]);
+        }
+    }
+    for (i=0;i<dim;i++) y2[i] = 0.0;
+
+    printf("ASM3 VERSION\n");
+
+    // TIMING
+    t0 = getticks();
+    for (j=0;j<count;j++)
+    {
+        for (i=0;i<dim;i+=8)
+        {
+            __stfpd(&y2[i  ], __fpabs( __lfpd(&a[i  ]) ) );
+            __stfpd(&y2[i+2], __fpabs( __lfpd(&a[i+2]) ) );
+            __stfpd(&y2[i+4], __fpabs( __lfpd(&a[i+4]) ) );
+            __stfpd(&y2[i+6], __fpabs( __lfpd(&a[i+6]) ) );
+        }
+    }
+    t1 = getticks();
+    printf("time for   ASM3  version = %30llu\n",t1-t0);
+
+    printf("VERIFYING\n");
+
+    for (i=0;i<dim;i++)
+    {
+        if (y1[i] != y2[i])
+        {
+            printf("%4d %30.15f %30.15f\n",i,y1[i],y2[i]);
+        }
+    }
+    for (i=0;i<dim;i++) y2[i] = 0.0;
+
+    printf("ASM4 VERSION\n");
+
+    // TIMING
+    t0 = getticks();
+    for (j=0;j<count;j++)
+    {
+        for (i=0;i<dim;i+=16)
+        {
+            __stfpd(&y2[i   ], __fpabs( __lfpd(&a[i   ]) ) );
+            __stfpd(&y2[i+ 2], __fpabs( __lfpd(&a[i+ 2]) ) );
+            __stfpd(&y2[i+ 4], __fpabs( __lfpd(&a[i+ 4]) ) );
+            __stfpd(&y2[i+ 6], __fpabs( __lfpd(&a[i+ 6]) ) );
+            __stfpd(&y2[i+ 8], __fpabs( __lfpd(&a[i+ 8]) ) );
+            __stfpd(&y2[i+10], __fpabs( __lfpd(&a[i+10]) ) );
+            __stfpd(&y2[i+12], __fpabs( __lfpd(&a[i+12]) ) );
+            __stfpd(&y2[i+14], __fpabs( __lfpd(&a[i+14]) ) );
+        }
+    }
+    t1 = getticks();
+    printf("time for   ASM4  version = %30llu\n",t1-t0);
+
+    printf("VERIFYING\n");
+
+    for (i=0;i<dim;i++)
+    {
+        if (y1[i] != y2[i])
+        {
+            printf("%4d %30.15f %30.15f\n",i,y1[i],y2[i]);
+        }
+    }
+    for (i=0;i<dim;i++) y2[i] = 0.0;
 
     printf("ALL DONE\n");
 
