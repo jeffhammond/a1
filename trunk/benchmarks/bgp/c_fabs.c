@@ -99,8 +99,10 @@ int main()
 
     printf("ASM VERSION\n");
 
-    double* a = malloc(dim*sizeof(double));
-    double* b = malloc(dim*sizeof(double));
+    double* a;
+    double* b;
+    posix_memalign((void**)&a, 2*sizeof(double), dim*sizeof(double));
+    posix_memalign((void**)&b, 2*sizeof(double), dim*sizeof(double));
 
     for (i=0;i<dim;i++) a[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
     for (i=0;i<dim;i++) b[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
@@ -117,22 +119,7 @@ int main()
     {
         for (i=0;i<dim;i+=2)
         {
-            {
-                double _Complex t1, t2, t3;
-                t1 = __lfpd(&a[i]);
-                //t2 = __lfpd(&b[i]);
-                //t3 = __fpsub(t1,t2);
-                t3 = __fpabs(t1);
-                __stfpd(&y2[i],t3);
-            }/*
-            {
-                double _Complex t1, t2, t3;
-                t1 = __lfpd(&a[i+2]);
-                //t2 = __lfpd(&b[i+2]);
-                //t3 = __fpsub(t1,t2);
-                t3 = __fpabs(t1);
-                __stfpd(&y2[i+2],t3);
-            }*/
+            __stfpd(&y2[i], __fpabs( __lfpd(&a[i]) ) );
         }
     }
     t1 = getticks();
