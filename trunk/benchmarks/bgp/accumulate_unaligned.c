@@ -149,12 +149,6 @@ int main(int argc, char* argv[])
         posix_memalign((void**)&target2, 16*sizeof(double), dim*sizeof(double));
         posix_memalign((void**)&source2, 16*sizeof(double), dim*sizeof(double));
 
-        printf("checking alignment...\n");
-        printf("target1 %d\n",((int)target1)%16);
-        printf("source1 %d\n",((int)source1)%16);
-        printf("target2 %d\n",((int)target2)%16);
-        printf("source2 %d\n",((int)source2)%16);
-
         for (i=0;i<dim;i++) target1[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
         for (i=0;i<dim;i++) source1[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
         for (i=0;i<dim;i++) target2[i] = target1[i];
