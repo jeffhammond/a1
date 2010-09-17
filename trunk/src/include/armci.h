@@ -7,13 +7,21 @@
 #if !defined ARMCI_H_INCLUDED
 #define ARMCI_H_INCLUDED
 
+/*******************************
+      Data Structures message.h
+*********************************/
+
+#define SCOPE_ALL     333
+#define SCOPE_NODE    337
+#define SCOPE_MASTERS 339
+
 /*************************
       Data Structures
 *************************/
 
 typedef enum
 {
-   ARMCI_INT,
+   ARMCI_INT = 10,
    ARMCI_LONG,
    ARMCI_LONG_LONG,
    ARMCI_FLOAT,
@@ -22,10 +30,12 @@ typedef enum
 
 typedef enum 
 {
-   ARMCI_ACC_INT,
+   ARMCI_ACC_INT = 20,
+   ARMCI_ACC_LNG,
    ARMCI_ACC_FLT,
    ARMCI_ACC_DBL,
    ARMCI_ACC_CPL,
+   ARMCI_ACC_DCP,
    ARMCI_ACC_DCPL
 } armci_datatype_t;
 
@@ -38,10 +48,10 @@ typedef enum
 } armci_rmw_op_t;
 
 typedef struct {
-   void **src_ptr_ar; 
-   void **dst_ptr_ar; 
+   void **src_ptr_array; 
+   void **dst_ptr_array; 
    int bytes;         
-   int ptr_ar_len;    
+   int ptr_array_len;    
 } armci_giov_t;
 
 typedef int armci_size_t;
@@ -280,6 +290,9 @@ armci_grp_attr_t *ARMCI_Group_getattr(ARMCI_Group *grp);
 void armci_msg_gop_init();
 int  armci_msg_nproc();
 int  armci_msg_me();
+
+#define armci_msg_sel(x,n,op,type,contribute)\
+        armci_msg_sel_scope(SCOPE_ALL,(x),(n),(op),(type),(contribute))
 
 void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type);
 void armci_msg_sel_scope(int scope, void *x, int n, char* op, int type, int contribute);

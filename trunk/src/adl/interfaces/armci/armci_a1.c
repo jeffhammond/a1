@@ -316,6 +316,7 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     /* ARMCI iov and A1 iov are similar structures but follow 
      * different naming conventions. So we make a copy.*/
+    /* TODO Why not use A1D_Malloc here? */
     posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
 
@@ -324,10 +325,12 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     free(a1_iov_ar);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int ARMCI_Get(void* src, void* dst, int bytes, int proc)
@@ -441,6 +444,8 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
+
+    /* TODO Why not use A1D_Malloc here? */
     posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
 
@@ -449,10 +454,12 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     free(a1_iov_ar);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int ARMCI_Acc(int datatype,
@@ -474,21 +481,30 @@ int ARMCI_Acc(int datatype,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (datatype == ARMCI_ACC_INT)
+    switch(datatype)
     {
-        a1_type = A1_INT32;
-    }
-    else if (datatype == ARMCI_ACC_FLT)
-    {
-        a1_type = A1_FLOAT;
-    }
-    else if (datatype == ARMCI_ACC_DBL)
-    {
-        a1_type = A1_DOUBLE;
-    }
-    else
-    {
-        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
+       case ARMCI_INT:
+       case ARMCI_LONG:
+       case ARMCI_ACC_INT:
+          a1_type = A1_INT32;
+          break;
+       case ARMCI_LONG_LONG:
+          a1_type = A1_INT64;
+          break;      
+       case ARMCI_FLOAT:
+       case ARMCI_ACC_FLT:
+          a1_type = A1_FLOAT;
+          break;
+       case ARMCI_DOUBLE:
+       case ARMCI_ACC_DBL:
+          a1_type = A1_DOUBLE;
+          break;
+       case ARMCI_ACC_CPL:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+       case ARMCI_ACC_DCPL:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
+       default:
+          A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
     status = A1_PutAcc(proc, src, dst, bytes, a1_type, scale);
@@ -522,21 +538,33 @@ int ARMCI_AccS(int datatype,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (datatype == ARMCI_ACC_INT)
+    switch(datatype)
     {
-        a1_type = A1_INT32;
-    }
-    else if (datatype == ARMCI_ACC_FLT)
-    {
-        a1_type = A1_FLOAT;
-    }
-    else if (datatype == ARMCI_ACC_DBL)
-    {
-        a1_type = A1_DOUBLE;
-    }
-    else
-    {
-        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
+       case ARMCI_INT:
+       case ARMCI_LONG:
+       case ARMCI_ACC_INT:
+       case ARMCI_ACC_LNG:
+          a1_type = A1_INT32;
+          break;
+       case ARMCI_LONG_LONG:
+          a1_type = A1_INT64;
+          break;
+       case ARMCI_FLOAT:
+       case ARMCI_ACC_FLT:
+          a1_type = A1_FLOAT;
+          break;
+       case ARMCI_DOUBLE:
+       case ARMCI_ACC_DBL:
+          a1_type = A1_DOUBLE;
+          break;
+       case ARMCI_ACC_CPL:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+       case ARMCI_ACC_DCP:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
+       case ARMCI_ACC_DCPL:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
+       default:
+          A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype %d \n", datatype);
     }
 
     status = A1_PutAccS(proc,
@@ -550,10 +578,12 @@ int ARMCI_AccS(int datatype,
                         scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccS returned an error\n");
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int ARMCI_NbAccS(int datatype,
@@ -582,21 +612,30 @@ int ARMCI_NbAccS(int datatype,
 
     a1_handle = (A1_handle_t) * handle;
 
-    if (datatype == ARMCI_ACC_INT)
+    switch(datatype)
     {
-        a1_type = A1_INT32;
-    }
-    else if (datatype == ARMCI_ACC_FLT)
-    {
-        a1_type = A1_FLOAT;
-    }
-    else if (datatype == ARMCI_ACC_DBL)
-    {
-        a1_type = A1_DOUBLE;
-    }
-    else
-    {
-        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
+       case ARMCI_INT:
+       case ARMCI_LONG:
+       case ARMCI_ACC_INT:
+          a1_type = A1_INT32;
+          break;
+       case ARMCI_LONG_LONG:
+          a1_type = A1_INT64;
+          break;
+       case ARMCI_FLOAT:
+       case ARMCI_ACC_FLT:
+          a1_type = A1_FLOAT;
+          break;
+       case ARMCI_DOUBLE:
+       case ARMCI_ACC_DBL:
+          a1_type = A1_DOUBLE;
+          break;
+       case ARMCI_ACC_CPL:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+       case ARMCI_ACC_DCPL:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
+       default:
+          A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
     status = A1_NbPutAccS(proc,
@@ -611,10 +650,12 @@ int ARMCI_NbAccS(int datatype,
                           a1_handle);
     A1U_ERR_POP(status != A1_SUCCESS, "NbA1_PutAccS returned an error\n");
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int ARMCI_AccV(int datatype,
@@ -636,25 +677,35 @@ int ARMCI_AccV(int datatype,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (datatype == ARMCI_ACC_INT)
+    switch(datatype)
     {
-        a1_type = A1_INT32;
-    }
-    else if (datatype == ARMCI_ACC_FLT)
-    {
-        a1_type = A1_FLOAT;
-    }
-    else if (datatype == ARMCI_ACC_DBL)
-    {
-        a1_type = A1_DOUBLE;
-    }
-    else
-    {
-        A1U_ERR_POP(status != A1_ERROR, "Unsupported datatype\n");
+       case ARMCI_INT:
+       case ARMCI_LONG:
+       case ARMCI_ACC_INT:
+          a1_type = A1_INT32;
+          break;
+       case ARMCI_LONG_LONG:
+          a1_type = A1_INT64;
+          break;
+       case ARMCI_FLOAT:
+       case ARMCI_ACC_FLT:
+          a1_type = A1_FLOAT;
+          break;
+       case ARMCI_DOUBLE:
+       case ARMCI_ACC_DBL:
+          a1_type = A1_DOUBLE;
+          break;
+       case ARMCI_ACC_CPL:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+       case ARMCI_ACC_DCPL:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
+       default:
+          A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
+    /* TODO Why not use A1D_Malloc here? */
     posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
 
@@ -663,10 +714,12 @@ int ARMCI_AccV(int datatype,
 
     free(a1_iov_ar);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int ARMCI_Rmw(int op, void *ploc, void *prem, int value, int proc)
@@ -1160,15 +1213,11 @@ int ARMCI_Malloc_group(void *ptr_arr[], armci_size_t bytes,ARMCI_Group *group)
 
 int armci_domain_same_id(armci_domain_t domain, int proc)
 {
-    int status = A1_SUCCESS;
-
     A1U_FUNC_ENTER();
-
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return 0;
 
   fn_fail:
     goto fn_exit;
@@ -1176,9 +1225,64 @@ int armci_domain_same_id(armci_domain_t domain, int proc)
 
 void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+    A1_datatype_t a1_type;
+
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    if(scope != SCOPE_ALL)
+    {
+        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported in\
+                          armci_msg_gop_scope");
+    }
+
+    switch(type)
+    {
+       case ARMCI_INT:
+       case ARMCI_LONG:
+             a1_type = A1_INT32;
+             break;
+       case ARMCI_LONG_LONG:
+             a1_type = A1_INT64; 
+             break;
+       case ARMCI_FLOAT:
+             a1_type = A1_FLOAT;
+             break;
+       case ARMCI_DOUBLE:
+             a1_type = A1_DOUBLE;
+             break;
+       default: 
+             A1U_ERR_ABORT(A1_ERROR, "Invalid datatype received in\
+                        armci_msg_group_gop_scope");
+             break;
+    }
+
+    if(strncmp(op,"+",1) == 0) 
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS; 
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_ABORT(A1_ERROR, "Invalid op received in\
+                        armci_msg_group_gop_scope");    
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                a1_type,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
