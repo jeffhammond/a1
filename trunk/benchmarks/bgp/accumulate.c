@@ -24,9 +24,9 @@ static __inline__ unsigned long long getticks(void)
 int main(int argc, char* argv[])
 {
     fprintf(stderr,"BEGIN TESTING OF DP ACCUMULATE\n");
+    printf("%18s %18s %18s %18s %18s %18s\n","dim","basic","1-hummer","2-hummers","4-hummers","8-hummers");
 
     int k;
-
     for (k=6;k<20;k++)
     {
         int dim = pow(2,k);
@@ -318,7 +318,6 @@ int main(int argc, char* argv[])
             }
         }
 
-        if (k==6) printf("%18s %18s %18s %18s %18s %18s\n","dim","basic","1-hummer","2-hummers","4-hummers","8-hummers");
         printf("%18d %18llu %18llu %18llu %18llu %18llu\n",dim,dt0,dt1,dt2,dt3,dt4);
 
         free(a);

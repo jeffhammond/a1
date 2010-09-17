@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define likely_if(x) if(__builtin_expect(x,1))
+#define unlikely_if(x) if(__builtin_expect(x,0))
+
 static __inline__ unsigned long long getticks(void)
 {
   unsigned long long int result=0;
@@ -21,316 +24,175 @@ static __inline__ unsigned long long getticks(void)
   return(result);
 }
 
-general_acc(int count, double* target, double* source, double scale)
+static __inline__ void aligned_target_accumulate(int targetount, double* target, double* source, double scale)
 {
+    int i, j, num;
 
+    #pragma disjoint (*target, *source)
+    __alignx(16,target);
+    __alignx(16,source);
 
+    num = ( count - 16 );
+    for (i = 0; i <= num; i += 16)
+    {
+        {
+            double _Complex s0, s2, s4, s6, s8, s10, s12, s14;
+            double _Complex t0, t2, t4, t6, t8, t10, t12, t14;
+
+            s0  = __lfpd(&source[i     ]);
+            s2  = __lfpd(&source[i +  2]);
+            s4  = __lfpd(&source[i +  4]);
+            s6  = __lfpd(&source[i +  6]);
+            s8  = __lfpd(&source[i +  8]);
+            s10 = __lfpd(&source[i + 10]);
+            s12 = __lfpd(&source[i + 12]);
+            s14 = __lfpd(&source[i + 14]);
+
+            t0  = __lfpd(&target[i     ]);
+            t2  = __lfpd(&target[i +  2]);
+            t4  = __lfpd(&target[i +  4]);
+            t6  = __lfpd(&target[i +  6]);
+            t8  = __lfpd(&target[i +  8]);
+            t10 = __lfpd(&target[i + 10]);
+            t12 = __lfpd(&target[i + 12]);
+            t14 = __lfpd(&target[i + 14]);
+
+            t0  = __fxcpmadd( t0,  s0, scale);
+            t2  = __fxcpmadd( t2,  s2, scale);
+            t4  = __fxcpmadd( t4,  s4, scale);
+            t6  = __fxcpmadd( t6,  s6, scale);
+            t8  = __fxcpmadd( t8,  s8, scale);
+            t10 = __fxcpmadd(t10, s10, scale);
+            t12 = __fxcpmadd(t12, s12, scale);
+            t14 = __fxcpmadd(t14, s14, scale);
+
+            __stfpd(&target[i     ],  t0);
+            __stfpd(&target[i +  2],  t2);
+            __stfpd(&target[i +  4],  t4);
+            __stfpd(&target[i +  6],  t6);
+            __stfpd(&target[i +  8],  t8);
+            __stfpd(&target[i + 10], t10);
+            __stfpd(&target[i + 12], t12);
+            __stfpd(&target[i + 14], t14);
+        }
+    }
+    num = ( count & 15 );
+    for ( j = 0; j < num; j++ )
+    {
+        target[j+i] += ( scale * source[j+i] );
+    }
+}
+
+static __inline__ void unaligned_target_accumulate(int count, double* target, double* source, double scale)
+{
+    int i;
+
+    #pragma disjoint (*target, *source)
+    __alignx( 8,target);
+    __alignx(16,source);
+    #pragma unroll(8)
+    for ( i = 0; i < count; i++ ) target[i] += ( scale * source[i] );
+}
+
+static __inline__ void generic_accumulate(int count, double* target, double* source, double scale)
+{
+    int i;
+    for ( i = 0; i < count; i++ ) target[i] += ( scale * source[i] );
 }
 
 
-int main(int argc, char* argv[])
+static __inline__ void optimized_accumulate(int count, double* target, double* source, double scale)
 {
-    fprintf(stderr,"BEGIN TESTING OF DP ACCUMULATE\n");
+    /* sourcere both x & f 16 byte sourceligned? */
+    //if ( ((((int) x) | ((int) f)) & 0xf) == 0){};
+    /* sourcelternative implementation: */
+    // if (((int) x % 16 == 0) && ((int) f % 16) == 0)
 
-    int k;
-
-    for (k=0;k<13;k++)
+    likely_if (count>1)
     {
-        int dim = pow(3,k);
+        assert( ( (int) source ) % 16);
+        if      ( ( ( (int) target ) % 16 ) == 0 ) aligned_target_accumulate(count,target,source,scale);
+        else if ( ( ( (int) target ) % 8 ) == 0 ) unaligned_target_accumulate(count,target,source,scale);
+        else { fprintf("IMPROPER ALIGNMENT\n"); abort(); }
+    }
+    else
+    {
+        if (count==1) target[0] += ( scale * source[0] );
+    }
+}
 
-        int count = 10;
 
-        int i,j;
+int main(int agc, char* argv[])
+{
+    fprintf(stderr,"BEGINNING TEST OF DP ACCUMULATE USING ALIGNMENT\n");
+    printf("%18s %37s %37s\n","","aligned target ","unaligned target");
+    printf("%18s %18s %18s %18s %18s\n","dim","generic","optimized","generic","optimized");
 
-        unsigned long long t0, t1;
-        unsigned long long dt0, dt1, dt2, dt3, dt4;
+    int dim,;
+    int max = ( argc>1 ? atoi(argv[1]) : 1024 );
+    for (dim=1;dim<max;dim++)
+    {
+        int i;
 
-        double* a;
-        double* b;
-        double* c;
+        unsigned long long t0, t1, dt0, dt1, dt2;
 
         double  scale = 0.1;
 
-        posix_memalign((void**)&a, 16*sizeof(double), dim*sizeof(double));
-        posix_memalign((void**)&b, 16*sizeof(double), dim*sizeof(double));
-        posix_memalign((void**)&c, 16*sizeof(double), dim*sizeof(double));
+        double* target1;
+        double* source1;
+        double* target2;
+        double* source2;
 
-        for (i=0;i<dim;i++) a[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
+        posix_memalign((void**)&target1, 16*sizeof(double), dim*sizeof(double));
+        posix_memalign((void**)&source1, 16*sizeof(double), dim*sizeof(double));
+        posix_memalign((void**)&target2, 16*sizeof(double), dim*sizeof(double));
+        posix_memalign((void**)&source2, 16*sizeof(double), dim*sizeof(double));
 
-        fprintf(stderr,"BASIC VERSION\n");
+        for (i=0;i<dim;i++) target1[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
+        for (i=0;i<dim;i++) source1[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
+        for (i=0;i<dim;i++) target2[i] = target1[i];
+        for (i=0;i<dim;i++) source2[i] = source1[i];
 
-        // WARM-UP
-        for (i=0;i<dim;i++) b[i] = 0.0;
-        for (i=0;i<dim;i++) b[i] += scale*a[i];
-
-        // TIMING
-        for (i=0;i<dim;i++) b[i] = 0.0;
         t0 = getticks();
-        for (j=0;j<count;j++)
-        {
-            for (i=0;i<dim;i++) b[i] += scale*a[i];
-        }
+        generic_accumulate(dim, target1, source1, scale)
         t1 = getticks();
         dt0 = t1 - t0;
 
-        fprintf(stderr,"INTRINSICS VERSION 1\n");
-
-        // WARM-UP
-        for (i=0;i<dim;i++) c[i] = 0.0;
-        for (i=0;i<dim;i+=2)
-        {
-            __stfpd(&c[i], __fxcpmadd( __lfpd(&c[i]), __lfpd(&a[i]), scale) );
-        }
-
-        // TIMING
-        for (i=0;i<dim;i++) c[i] = 0.0;
         t0 = getticks();
-        for (j=0;j<count;j++)
-        {
-            for (i=0;i<dim;i+=2)
-            {
-                __stfpd(&c[i], __fxcpmadd( __lfpd(&c[i]), __lfpd(&a[i]), scale) );
-            }
-        }
+        optimized_accumulate(dim, target2, source2, scale)
         t1 = getticks();
         dt1 = t1 - t0;
 
-        // VERIFICATION
-        for (i=0;i<dim;i++)
-        {
-            if (b[i] != c[i])
-            {
-                printf("%4d %30.15f %30.15f\n",i,b[i],c[i]);
-            }
-        }
+        for (i=0;i<dim;i++) target1[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
+        for (i=0;i<dim;i++) source1[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
+        for (i=0;i<dim;i++) target2[i] = target1[i];
+        for (i=0;i<dim;i++) source2[i] = source1[i];
 
-        fprintf(stderr,"INTRINSICS VERSION 2\n");
-
-        // WARM-UP
-        for (i=0;i<dim;i++) c[i] = 0.0;
-        for (i=0;i<dim;i+=4)
-        {
-            {
-                double _Complex a0, a2, c0, c2;
-                a0 = __lfpd(&a[i  ]);
-                a2 = __lfpd(&a[i+2]);
-                c0 = __lfpd(&c[i  ]);
-                c2 = __lfpd(&c[i+2]);
-                c0 = __fxcpmadd(c0,a0,scale);
-                c2 = __fxcpmadd(c2,a2,scale);
-                __stfpd(&c[i  ],c0);
-                __stfpd(&c[i+2],c2);
-            }
-        }
-
-        // TIMING
-        for (i=0;i<dim;i++) c[i] = 0.0;
         t0 = getticks();
-        for (j=0;j<count;j++)
-        {
-            for (i=0;i<dim;i+=4)
-            {
-                {
-                    double _Complex a0, a2, c0, c2;
-                    a0 = __lfpd(&a[i  ]);
-                    a2 = __lfpd(&a[i+2]);
-                    c0 = __lfpd(&c[i  ]);
-                    c2 = __lfpd(&c[i+2]);
-                    c0 = __fxcpmadd(c0,a0,scale);
-                    c2 = __fxcpmadd(c2,a2,scale);
-                    __stfpd(&c[i  ],c0);
-                    __stfpd(&c[i+2],c2);
-                }
-            }
-        }
+        generic_accumulate(dim-1, target1[1], source1, scale)
         t1 = getticks();
         dt2 = t1 - t0;
 
-        // VERIFICATION
-        for (i=0;i<dim;i++)
-        {
-            if (b[i] != c[i])
-            {
-                printf("%4d %30.15f %30.15f\n",i,b[i],c[i]);
-            }
-        }
-
-        fprintf(stderr,"INTRINSICS VERSION 3\n");
-
-        // WARM-UP
-        for (i=0;i<dim;i++) c[i] = 0.0;
-        for (i=0;i<dim;i+=8)
-        {
-            {
-                double _Complex a0, a2, a4, a6;
-                double _Complex c0, c2, c4, c6;
-                a0 = __lfpd(&a[i  ]);
-                a2 = __lfpd(&a[i+2]);
-                a4 = __lfpd(&a[i+4]);
-                a6 = __lfpd(&a[i+6]);
-                c0 = __lfpd(&c[i  ]);
-                c2 = __lfpd(&c[i+2]);
-                c4 = __lfpd(&c[i+4]);
-                c6 = __lfpd(&c[i+6]);
-                c0 = __fxcpmadd(c0,a0,scale);
-                c2 = __fxcpmadd(c2,a2,scale);
-                c4 = __fxcpmadd(c4,a4,scale);
-                c6 = __fxcpmadd(c6,a6,scale);
-                __stfpd(&c[i  ],c0);
-                __stfpd(&c[i+2],c2);
-                __stfpd(&c[i+4],c4);
-                __stfpd(&c[i+6],c6);
-            }
-        }
-
-        // TIMING
-        for (i=0;i<dim;i++) c[i] = 0.0;
         t0 = getticks();
-        for (j=0;j<count;j++)
-        {
-            for (i=0;i<dim;i+=8)
-            {
-                {
-                    double _Complex a0, a2, a4, a6;
-                    double _Complex c0, c2, c4, c6;
-                    a0 = __lfpd(&a[i  ]);
-                    a2 = __lfpd(&a[i+2]);
-                    a4 = __lfpd(&a[i+4]);
-                    a6 = __lfpd(&a[i+6]);
-                    c0 = __lfpd(&c[i  ]);
-                    c2 = __lfpd(&c[i+2]);
-                    c4 = __lfpd(&c[i+4]);
-                    c6 = __lfpd(&c[i+6]);
-                    c0 = __fxcpmadd(c0,a0,scale);
-                    c2 = __fxcpmadd(c2,a2,scale);
-                    c4 = __fxcpmadd(c4,a4,scale);
-                    c6 = __fxcpmadd(c6,a6,scale);
-                    __stfpd(&c[i  ],c0);
-                    __stfpd(&c[i+2],c2);
-                    __stfpd(&c[i+4],c4);
-                    __stfpd(&c[i+6],c6);
-                }
-            }
-        }
+        optimized_accumulate(dim-1, target2[1], source2, scale)
         t1 = getticks();
         dt3 = t1 - t0;
 
         // VERIFICATION
         for (i=0;i<dim;i++)
         {
-            if (b[i] != c[i])
+            if (target1[i] != target2[i])
             {
-                printf("%4d %30.15f %30.15f\n",i,b[i],c[i]);
+                printf("%4d %30.15f %30.15f\n",i,target1[i],target2[i]);
             }
         }
 
-        fprintf(stderr,"INTRINSICS VERSION 4\n");
+        free(target1);
+        free(source1);
+        free(target2);
+        free(source2);
 
-        // WARM-UP
-        for (i=0;i<dim;i++) c[i] = 0.0;
-        for (i=0;i<dim;i+=16)
-        {
-            {
-                double _Complex a0, a2, a4, a6, a8, a10, a12, a14;
-                double _Complex c0, c2, c4, c6, c8, c10, c12, c14;
-                a0 = __lfpd(&a[i   ]);
-                a2 = __lfpd(&a[i+ 2]);
-                a4 = __lfpd(&a[i+ 4]);
-                a6 = __lfpd(&a[i+ 6]);
-                a4 = __lfpd(&a[i+ 8]);
-                a6 = __lfpd(&a[i+10]);
-                a4 = __lfpd(&a[i+12]);
-                a6 = __lfpd(&a[i+14]);
-                c0 = __lfpd(&c[i   ]);
-                c2 = __lfpd(&c[i+ 2]);
-                c4 = __lfpd(&c[i+ 4]);
-                c6 = __lfpd(&c[i+ 6]);
-                c4 = __lfpd(&c[i+ 8]);
-                c6 = __lfpd(&c[i+10]);
-                c4 = __lfpd(&c[i+12]);
-                c6 = __lfpd(&c[i+14]);
-                c0 = __fxcpmadd( c0, a0,scale);
-                c2 = __fxcpmadd( c2, a2,scale);
-                c4 = __fxcpmadd( c4, a4,scale);
-                c6 = __fxcpmadd( c6, a6,scale);
-                c4 = __fxcpmadd( c8, a8,scale);
-                c6 = __fxcpmadd(c10,a10,scale);
-                c4 = __fxcpmadd(c12,a12,scale);
-                c6 = __fxcpmadd(c14,a14,scale);
-                __stfpd(&c[i   ],c0);
-                __stfpd(&c[i+ 2],c2);
-                __stfpd(&c[i+ 4],c4);
-                __stfpd(&c[i+ 6],c6);
-                __stfpd(&c[i+ 8],c4);
-                __stfpd(&c[i+10],c6);
-                __stfpd(&c[i+12],c4);
-                __stfpd(&c[i+14],c6);
-            }
-        }
-
-        // TIMING
-        for (i=0;i<dim;i++) c[i] = 0.0;
-        t0 = getticks();
-        for (j=0;j<count;j++)
-        {
-            for (i=0;i<dim;i+=16)
-            {
-                {
-                    double _Complex a0, a2, a4, a6, a8, a10, a12, a14;
-                    double _Complex c0, c2, c4, c6, c8, c10, c12, c14;
-                    a0  = __lfpd(&a[i   ]);
-                    a2  = __lfpd(&a[i+ 2]);
-                    a4  = __lfpd(&a[i+ 4]);
-                    a6  = __lfpd(&a[i+ 6]);
-                    a8  = __lfpd(&a[i+ 8]);
-                    a10 = __lfpd(&a[i+10]);
-                    a12 = __lfpd(&a[i+12]);
-                    a14 = __lfpd(&a[i+14]);
-                    c0  = __lfpd(&c[i   ]);
-                    c2  = __lfpd(&c[i+ 2]);
-                    c4  = __lfpd(&c[i+ 4]);
-                    c6  = __lfpd(&c[i+ 6]);
-                    c8  = __lfpd(&c[i+ 8]);
-                    c10 = __lfpd(&c[i+10]);
-                    c12 = __lfpd(&c[i+12]);
-                    c14 = __lfpd(&c[i+14]);
-                    c0  = __fxcpmadd( c0, a0,scale);
-                    c2  = __fxcpmadd( c2, a2,scale);
-                    c4  = __fxcpmadd( c4, a4,scale);
-                    c6  = __fxcpmadd( c6, a6,scale);
-                    c8  = __fxcpmadd( c8, a8,scale);
-                    c10 = __fxcpmadd(c10,a10,scale);
-                    c12 = __fxcpmadd(c12,a12,scale);
-                    c14 = __fxcpmadd(c14,a14,scale);
-                    __stfpd(&c[i   ], c0);
-                    __stfpd(&c[i+ 2], c2);
-                    __stfpd(&c[i+ 4], c4);
-                    __stfpd(&c[i+ 6], c6);
-                    __stfpd(&c[i+ 8], c8);
-                    __stfpd(&c[i+10],c10);
-                    __stfpd(&c[i+12],c12);
-                    __stfpd(&c[i+14],c14);
-                }
-            }
-        }
-        t1 = getticks();
-        dt4 = t1 - t0;
-
-        // VERIFICATION
-        for (i=0;i<dim;i++)
-        {
-            if (b[i] != c[i])
-            {
-                printf("%4d %30.15f %30.15f\n",i,b[i],c[i]);
-            }
-        }
-
-        if (k==6) printf("%18s %18s %18s %18s %18s %18s\n","dim","basic","1-hummer","2-hummers","4-hummers","8-hummers");
-        printf("%18d %18llu %18llu %18llu %18llu %18llu\n",dim,dt0,dt1,dt2,dt3,dt4);
-
-        free(a);
-        free(b);
-        free(c);
+        printf("%18d %18llu %18llu %18llu %18llu\n",dim,dt0,dt1,dt2,dt3);
 
     }
 
