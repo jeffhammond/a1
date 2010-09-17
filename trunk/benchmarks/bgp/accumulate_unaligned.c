@@ -3,6 +3,8 @@
 #include <math.h>
 #include <assert.h>
 
+#define UNROLLING 4
+
 #define likely_if(x) if(__builtin_expect(x,1))
 #define unlikely_if(x) if(__builtin_expect(x,0))
 
@@ -91,13 +93,15 @@ static __inline__ void unaligned_target_accumulate(int count, double* target, do
     #pragma disjoint (*target, *source)
     __alignx( 8,target);
     __alignx(16,source);
-    #pragma unroll(8)
+    #pragma unroll(UNROLLING)
     for ( i = 0; i < count; i++ ) target[i] += ( scale * source[i] );
 }
 
 static __inline__ void generic_accumulate(int count, double* target, double* source, double scale)
 {
     int i;
+
+    #pragma disjoint (*target, *source)
     for ( i = 0; i < count; i++ ) target[i] += ( scale * source[i] );
 }
 
@@ -125,7 +129,8 @@ static __inline__ void optimized_accumulate(int count, double* target, double* s
 
 int main(int argc, char* argv[])
 {
-    fprintf(stderr,"BEGINNING TEST OF DP ACCUMULATE USING ALIGNMENT\n");
+    printf("TEST OF DP ACCUMULATE USING ALIGNMENT\n");
+    printf("optimized unaligned accumulate uses %d-way unrolling",UNROLLING)
     printf("%18s %37s %37s\n","","aligned target ","unaligned target");
     printf("%18s %18s %18s %18s %18s\n","dim","generic","optimized","generic","optimized");
 
