@@ -4,6 +4,12 @@
  *      See COPYRIGHT in top-level directory.
  */
 
+/** @file dcmfdimpl.h */
+
+/*! \addtogroup a1 A1D dcmfd device interface
+ * @{
+ */
+
 #include "a1.h"
 #include "a1u.h"
 #include "a1d.h"
@@ -11,6 +17,7 @@
 #include <dcmf_globalcollectives.h>
 #include <dcmf_collectives.h>
 #include <assert.h>
+#include <math.h>
 #include <pthread.h>
 #include <bpcore/bgp_atomic_ops.h>
 #include <spi/bgp_SPI.h>
@@ -181,6 +188,13 @@ do {                                      \
  *          Critical Section Macros              *
  *************************************************/
 
+/**
+ * \brief Handles non-contiguous puts which have been handed-off to the CHT.
+ *
+ * \see A1D_NbPutS, A1DI_CHT_advance_lock
+ *
+ * \ingroup CHT
+ */
 void A1DI_Handoff_progress();
 
 #define A1DI_CRITICAL_ENTER()                                    \
@@ -223,7 +237,6 @@ void A1DI_Handoff_progress();
  *          Computation macros                   *
  *************************************************/
 
-/* TODO probably need to optimize these functions for double-hummer */
 #define A1DI_ACC(datatype, source, target, scaling, count)                  \
    do {                                                                     \
      int i;                                                                 \
@@ -234,19 +247,33 @@ void A1DI_Handoff_progress();
           t[i] += s[i]*c;                                                   \
    } while(0)                                                               \
 
+ /* TODO probably need to optimize these functions for double-hummer */
+#define A1DI_ACC_DOUBLE(source, target, scaling, count)                  \
+   do {                                                                     \
+     int i;                                                                 \
+     double *s = (double *) source;                                     \
+     double *t = (double *) target;                                     \
+     double c = (double) scaling;                                       \
+     for(i=0; i<count; i++)                                                 \
+          t[i] += s[i]*c;                                                   \
+   } while(0)                                                               \
+
 #define A1DI_ABS(datatype, source, target, count)                           \
    do {                                                                     \
      int i;                                                                 \
      datatype *s = (datatype *) source;                                     \
      datatype *t = (datatype *) target;                                     \
-     for(i=0; i<count; i++)                                                 \
-     {        								    \
-        if(s[i] < 0)     						    \
-          t[i] = -s[i];                                                     \
-        else								    \
-          t[i] = s[i]; 							    \
-     }									    \
+     for(i=0; i<count; i++) t[i] = ( s[i] > 0 ? s[i] : -s[i]);              \
    } while(0)                                                               \
+
+/* NOTE: fabs will compile to the best assembly. */
+ #define A1DI_ABS_DOUBLE(source, target, count)                           \
+    do {                                                                  \
+      int i;                                                              \
+      double *s = (double *) source;                                     \
+      double *t = (double *) target;                                     \
+      for(i=0; i<count; i++) t[i] = fabs(s[i]);                            \
+    } while(0)                                                             \
 
 #define A1DI_FETCHANDADD_EXECUTE(datatype, source, target, original, count) \
    do {                                                                     \
@@ -683,3 +710,5 @@ typedef struct A1D_Op_handoff
 
 extern A1D_Op_handoff *A1D_Op_handoff_queuehead;
 extern A1D_Op_handoff *A1D_Op_handoff_queuetail;
+
+/*! @} */
