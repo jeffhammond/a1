@@ -104,9 +104,9 @@ static __inline__ void generic_accumulate(int count, double* target, double* sou
 
 static __inline__ void optimized_accumulate(int count, double* target, double* source, double scale)
 {
-    /* sourcere both x & f 16 byte sourceligned? */
+    /* are both x & f 16 byte aligned? */
     //if ( ((((int) x) | ((int) f)) & 0xf) == 0){};
-    /* sourcelternative implementation: */
+    /* alternative implementation: */
     // if (((int) x % 16 == 0) && ((int) f % 16) == 0)
 
     likely_if (count>1)
