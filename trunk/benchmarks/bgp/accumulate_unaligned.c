@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 
 #define likely_if(x) if(__builtin_expect(x,1))
 #define unlikely_if(x) if(__builtin_expect(x,0))
@@ -24,7 +25,7 @@ static __inline__ unsigned long long getticks(void)
   return(result);
 }
 
-static __inline__ void aligned_target_accumulate(int targetount, double* target, double* source, double scale)
+static __inline__ void aligned_target_accumulate(int count, double* target, double* source, double scale)
 {
     int i, j, num;
 
@@ -110,10 +111,10 @@ static __inline__ void optimized_accumulate(int count, double* target, double* s
 
     likely_if (count>1)
     {
-        assert( ( (int) source ) % 16);
+        assert( ( ( (int) source ) % 16 ) == 0 );
         if      ( ( ( (int) target ) % 16 ) == 0 ) aligned_target_accumulate(count,target,source,scale);
-        else if ( ( ( (int) target ) % 8 ) == 0 ) unaligned_target_accumulate(count,target,source,scale);
-        else { fprintf("IMPROPER ALIGNMENT\n"); abort(); }
+        else if ( ( ( (int) target ) %  8 ) == 0 ) unaligned_target_accumulate(count,target,source,scale);
+        else { fprintf(stderr,"IMPROPER ALIGNMENT\n"); abort(); }
     }
     else
     {
@@ -122,19 +123,19 @@ static __inline__ void optimized_accumulate(int count, double* target, double* s
 }
 
 
-int main(int agc, char* argv[])
+int main(int argc, char* argv[])
 {
     fprintf(stderr,"BEGINNING TEST OF DP ACCUMULATE USING ALIGNMENT\n");
     printf("%18s %37s %37s\n","","aligned target ","unaligned target");
     printf("%18s %18s %18s %18s %18s\n","dim","generic","optimized","generic","optimized");
 
-    int dim,;
+    int dim;
     int max = ( argc>1 ? atoi(argv[1]) : 1024 );
     for (dim=1;dim<max;dim++)
     {
         int i;
 
-        unsigned long long t0, t1, dt0, dt1, dt2;
+        unsigned long long t0, t1, dt0, dt1, dt2, dt3;
 
         double  scale = 0.1;
 
@@ -148,18 +149,24 @@ int main(int agc, char* argv[])
         posix_memalign((void**)&target2, 16*sizeof(double), dim*sizeof(double));
         posix_memalign((void**)&source2, 16*sizeof(double), dim*sizeof(double));
 
+        printf("checking alignment...\n");
+        printf("target1 %d\n",((int)target1)%16);
+        printf("source1 %d\n",((int)source1)%16);
+        printf("target2 %d\n",((int)target2)%16);
+        printf("source2 %d\n",((int)source2)%16);
+
         for (i=0;i<dim;i++) target1[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
         for (i=0;i<dim;i++) source1[i] = 1.0 - 2*(double)rand()/(double)RAND_MAX;
         for (i=0;i<dim;i++) target2[i] = target1[i];
         for (i=0;i<dim;i++) source2[i] = source1[i];
 
         t0 = getticks();
-        generic_accumulate(dim, target1, source1, scale)
+        generic_accumulate(dim, target1, source1, scale);
         t1 = getticks();
         dt0 = t1 - t0;
 
         t0 = getticks();
-        optimized_accumulate(dim, target2, source2, scale)
+        optimized_accumulate(dim, target2, source2, scale);
         t1 = getticks();
         dt1 = t1 - t0;
 
@@ -169,12 +176,12 @@ int main(int agc, char* argv[])
         for (i=0;i<dim;i++) source2[i] = source1[i];
 
         t0 = getticks();
-        generic_accumulate(dim-1, target1[1], source1, scale)
+        generic_accumulate(dim-1, &target1[1], source1, scale);
         t1 = getticks();
         dt2 = t1 - t0;
 
         t0 = getticks();
-        optimized_accumulate(dim-1, target2[1], source2, scale)
+        optimized_accumulate(dim-1, &target2[1], source2, scale);
         t1 = getticks();
         dt3 = t1 - t0;
 
