@@ -85,6 +85,21 @@ typedef enum
 } A1_bool_t;
 
 /**
+ * \brief A1 result (error code).
+ *
+ * \ingroup ENUMS
+ *
+ */
+
+typedef enum
+{
+    A1_NO_ERROR = 0, /* Can't use A1_SUCCESS since we're already using that.  Should fix this. */
+    A1_MEMORY_ERROR,
+    A1_NETWORK_ERROR,
+    A1_UNKNOWN_ERROR,
+} A1_result_t;
+
+/**
  * \brief A1 reduction operations
  *
  * \ingroup ENUMS
@@ -124,6 +139,15 @@ typedef enum
 /*                                                                       */
 /* ********************************************************************* */
 
+/**
+ * \brief A1 memregion type.
+ *
+ * \see A1_Allocate_memregion, A1_Free_memregion, A1_Bind_memregion
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
 typedef struct A1_memregion
 {
     void* base_address;
@@ -131,6 +155,25 @@ typedef struct A1_memregion
                                  are the motivation for creating this struct in the first place. */
 } A1_memregion_t;
 
+/**
+ * \brief A1 offset type.
+ *
+ * \see A1_PutMR
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
+typedef unsigned int A1_offset_t;
+
+/**
+ * \brief A1 group type.
+ *
+ * \see A1_PutMR
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
 
 /* TODO: Implement A1 group types.  I wonder if the user-accessible type should be
  *        a pointer to the internal implementation to prevent people from doing
@@ -150,6 +193,28 @@ typedef struct A1_group
 A1_group_t a1_group_world;
 
 #define A1_GROUP_WORLD &a1_group_world
+
+/**
+ * \brief A1 endpoint type.
+ *
+ * \see A1_PutMR
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
+typedef unsigned int A1_endpoint_t;
+
+/**
+ * \brief A1 size type.
+ *
+ * \see A1_PutMR
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
+typedef unsigned int A1_size_t;
 
 /**
  * \brief A1 non-blocking handle type.
@@ -296,7 +361,7 @@ int A1_Node_total(A1_group_t* group);
 /**
  * \brief Initializes the Al environment.
  *
- * \warning This must be the first A1 call made in any code.
+ * \warning If the MPID device is used, one should be careful in using A1_Initialize and MPI_Init/MPI_Init_thread.
  *
  * \note Unlike MPI, A1_Initialize may be called many times and but is not thread-safe.
  *       Improper use of A1_Initialize (calling it more than once) shall be
@@ -322,7 +387,7 @@ int A1_Initialize(int A1_thread_level);
 /**
  * \brief Terminates the A1 environment normally.
  *
- * \warning This must be the last A1 call made in any code unless A1_Abort is called instead.
+ * \warning If the MPID device is used, one should be careful in using A1_Finalize and MPI_Finalize.
  *
  * \note Unlike MPI, A1_Finalize may be called many times and is thread-safe.
  *       Improper use of A1_Finalize (calling it more than once) shall be
@@ -346,7 +411,6 @@ int A1_Finalize(void);
  *
  * \warning This must be the last A1 call made in any code unless A1_Finalize is called instead.
  *
- * \param[out] rc            The error code from terminating A1.  Not sure what one would do with this.
  * \param[in]  error_code    The error code to be returned to the submitting environment.
  * \param[in]  error_message Text string to print to stderr upon termination.
  *
@@ -355,7 +419,7 @@ int A1_Finalize(void);
  * \ingroup MANAGEMENT
  */
 
-int A1_Abort(int error_code, char error_message[]);
+void A1_Abort(int error_code, char error_message[]);
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -374,7 +438,7 @@ int A1_Abort(int error_code, char error_message[]);
  * \param[out] ptr           Pointer to memregion structure to be created.
  * \param[in]  bytes         The amount of memory requested.
  *
- * \see A1_Free_segment, A1_Register_segment
+ * \see A1_Free_memregion, A1_Bind_memregion
  *
  * \ingroup MEMORY
  */
@@ -410,6 +474,10 @@ int A1_Free_memregion(A1_memregion_t* memregion);
  * \note This call may not work in all contexts.  For example, CUDA provides no API call to
  *       register pre-allocated memory.  A truly portable A1 program must not call this
  *       function.
+ *
+ * \note We can make this call portable if we copy the existing data into the memregion
+ *       and free the original buffer, but this is going to have nasty side-effects
+ *       if the user doesn't realize this is what is going on.
  *
  * \param[out] rc            The error code.
  * \param[in]  ptr           Pointer to memregion structure to be created.
@@ -557,6 +625,8 @@ int A1_Register_segment(void** pointer, int bytes);
  *
  * \ingroup MEMORY
  */
+
+/* TODO: We should just implement alltoall and eliminate this function from the API. */
 int A1_Exchange_segments(A1_group_t* group, void **ptr);
 
 /**
@@ -782,6 +852,36 @@ int A1_Unlock_mutexes(A1_group_t* group, unsigned count, int *mutexes, int *proc
 /*               A1 external API - data transfer operations               */
 /*                                                                        */
 /* ********************************************************************** */
+
+////////////////////////////////////////////////////////////////////////////////////////
+//    WARNING: THIS IS THE NEW API AND IS NOT YET IMPLEMENTED                         //
+////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Blocking copy of contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc               The error code.
+ * \param[in]  target           Rank of the remote endpoint.
+ * \param[in]  source_mr        Source (local) memory region.
+ * \param[in]  source_offset    Offset into source (local) memory region.
+ * \param[in]  target_mr        Target (remote) memory region.
+ * \param[in]  target_offset    Offset into target (remote) memory region.
+ * \param[in]  bytes            Amount of data to transfer in bytes.
+ *
+ * \see A1_Put
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+//int A1_PutMR(A1_endpoint_t target,
+//             A1_memregion_t* source_mr,
+//             A1_offset_t source_offset,
+//             A1_memregion_t* target_mr,
+//             A1_offset_t target_offset,
+//             A1_size_t bytes);
+
+////////////////////////////////////////////////////////////////////////////////////////
+//    WARNING: THIS PART OF THE API IS DEPRECATED AND WILL BE REMOVED EVENTUALLY      //
+////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
