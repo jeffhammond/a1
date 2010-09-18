@@ -455,10 +455,6 @@ int A1_Exchange_memregions(A1_group_t* group, void **ptr);
  * \ingroup MEMORY
  */
 
-/* TODO: I'm not sure this program is required.  One can get this functionality
- *        by having all processes free their memregions and then calling a barrier. */
-int A1_Release_segments(A1_group_t* group, void* ptr);
-
 /**
  * \brief Initializes the give non-blocking handle.
  *
@@ -471,7 +467,7 @@ int A1_Release_segments(A1_group_t* group, void* ptr);
 
 int A1_Allocate_handle(A1_handle_t *handle);
 
-/** 
+/**
  * \brief Initializes the give non-blocking handle.
  *
  * \param[in] handle      Non-blocking handle upon which to be waited.
@@ -482,6 +478,103 @@ int A1_Allocate_handle(A1_handle_t *handle);
  */
 
 int A1_Release_handle(A1_handle_t handle);
+
+////////////////////////////////////////////////////////////////////////////////////////
+//    WARNING: THIS PART OF THE API IS DEPRECATED AND WILL BE REMOVED EVENTUALLY      //
+////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * \brief A local operation to allocate memory to be used in context of A1 copy operations.
+ *
+ * \note Memory allocated with this function will be properly aligned for the architecture.
+ *
+ * \warning Memory allocated with this function must be freed by A1_Free_segment.
+ *
+ * \param[out] rc            The error code.
+ * \param[out] ptr           Pointer to memory.
+ * \param[in]  bytes         The amount of memory requested.
+ *
+ * \see A1_Free_segment, A1_Register_segment
+ *
+ * \ingroup MEMORY
+ */
+
+int A1_Alloc_segment(void** pointer, int bytes);
+
+/**
+ * \brief A local operation to free memory allocated by A1_Alloc_segment.
+ *
+ * \warning It is erroneous to attempt to free memory not allocated by A1_Alloc_segment.
+ *
+ * \param[out] rc            The error code.
+ * \param[in] ptr           Pointer to memory.
+ *
+ * \see A1_Alloc_segment, A1_Register_segment
+ *
+ * \ingroup MEMORY
+ */
+
+int A1_Free_segment(void* pointer);
+
+/**
+ * \brief A local operation to register memory to be used in context of A1 copy operations.
+ *
+ * \note This call is not necessary for memory allocated with A1_Alloc_segment.
+ *
+ * \note Memory allocated with this function will be tested for proper alignment and return
+ *       an error if alignment checking has been disabled and the pointer is not properly aligned.
+ *
+ * \note A1_Register_segment will check for valid allocation of the memory provided,
+ *       potentially by writing "\0" to all bytes.
+ *
+ * \note This call may not work in all contexts.  For example, CUDA provides no API call to
+ *       register pre-allocated memory.  A truly portable A1 program must not call this
+ *       function.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  ptr           Pointer to memory.
+ * \param[in]  bytes         The amount of memory provided.
+ *
+ * \see A1_Alloc_segment, A1_Free_segment
+ *
+ * \ingroup MEMORY
+ */
+
+int A1_Register_segment(void** pointer, int bytes);
+
+/**
+ * \brief A collective operation to exchange addresses of segments to be used in context of A1 copy operations.
+ *
+ * \note There is no local de-registration call because that could lead to erroneous programs.
+ *       De-registration can only be effected by a call to A1_Release_segments, which is collective.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  group         Group of processes within which the pointer list is exchanged.
+ * \param[in]  ptr           Pointer array. Each one points to memory allocated at one process, in order of ranks.
+ * \param[in]  bytes         The size of memory allocated at each process.
+ *
+ * \see A1_Release_segments
+ *
+ * \ingroup MEMORY
+ */
+int A1_Exchange_segments(A1_group_t* group, void **ptr);
+
+/**
+ * \brief A collective operation to invalidate and de-register memory segments
+ *        associated with an A1_Exchange_segments call.
+ *
+ * \param[out] rc            The error code.
+ * \param[in]  group         Group of processes within which the pointer list was exchanged.
+ * \param[in]  ptr           Pointer to the allocated memory.
+ *
+ * \see A1_Exchange_segments
+ *
+ * \ingroup MEMORY
+ */
+
+/* TODO: I'm not sure this function is required.  One can get this functionality
+ *        by having all processes free their segments and then calling a barrier. */
+int A1_Release_segments(A1_group_t* group, void* ptr);
 
 /* ********************************************************************** */
 /*                                                                        */
