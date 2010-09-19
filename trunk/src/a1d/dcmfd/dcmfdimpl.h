@@ -199,7 +199,7 @@ void A1DI_Handoff_progress();
       }                                                           \
     } while (0)                                                   \
 
-#define A1DI_CRITICAL_EXIT()                                     \
+#define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
       if(a1_settings.enable_cht && !a1_settings.mpi_active)       \
       {                                                           \
@@ -211,17 +211,23 @@ void A1DI_Handoff_progress();
       }                                                           \
     } while (0)                                                   \
 
-#define A1DI_Advance()                     \
- do {                                      \
-         DCMF_Messager_advance(0);         \
-         A1DI_Handoff_progress();          \
-    } while(0)                             \
+#define A1DI_Advance()                                             \
+ do {                                                              \
+         DCMF_Messager_advance(0);                                 \
+         if (a1_settings.use_handoff && (A1D_Inside_handoff==0))   \
+         {        						   \
+             A1DI_Handoff_progress();                              \
+         }                                                         \
+    } while(0)                                                     \
 
-#define A1DI_Conditional_advance(boolean)                         \
-    while(boolean) {                                              \
-          DCMF_Messager_advance(0);                               \
-          A1DI_Handoff_progress();                                \
-    }                                                             \
+#define A1DI_Conditional_advance(boolean)                           \
+    while(boolean) {                                                \
+          DCMF_Messager_advance(0);                                 \
+          if (a1_settings.use_handoff && (A1D_Inside_handoff==0))   \
+          {							    \
+                A1DI_Handoff_progress();                            \
+          }							    \
+    }                                                               \
 
 /*************************************************
  *          Computation macros                   *
@@ -544,7 +550,7 @@ extern volatile int *A1D_Connection_send_active;
 extern volatile int *A1D_Connection_put_active;
 extern volatile int A1D_Control_flushack_active;
 extern volatile int A1D_Put_flushack_active;
-extern volatile int A1D_Expecting_getresponse;
+extern volatile int A1D_Inside_handoff;
 
 extern A1_Settings_t a1_settings;
 

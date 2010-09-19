@@ -14,12 +14,16 @@ pthread_t A1DI_CHT_pthread;
 A1D_Op_handoff *A1D_Op_handoff_queuehead = NULL;
 A1D_Op_handoff *A1D_Op_handoff_queuetail = NULL;
 
+volatile int A1D_Inside_handoff;
+
 void A1DI_Handoff_progress()
 {
     int status = A1_SUCCESS;
     A1D_Op_handoff *op_handoff;
 
     A1U_FUNC_ENTER();
+
+    A1D_Inside_handoff = 1;
 
     if (A1D_Op_handoff_queuehead)
     {
@@ -78,6 +82,8 @@ void A1DI_Handoff_progress()
         A1DI_Free(op_handoff);
     }
 
+    A1D_Inside_handoff = 0;
+
     fn_exit: A1U_FUNC_EXIT();
     return;
 
@@ -90,7 +96,7 @@ void *A1DI_CHT_advance_lock(void * dummy)
     while (1)
     {
         DCMF_Messager_advance(0);
-        if (a1_settings.use_handoff)
+        if (a1_settings.use_handoff && (A1D_Inside_handoff==0))
         {
             A1DI_Handoff_progress();
         }
