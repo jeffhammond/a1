@@ -129,6 +129,10 @@ int A1DI_Packed_gets_response(int target,
        data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_gets_response_header_t));
        data_limit = a1_settings.get_packetsize - sizeof(A1D_Packed_gets_response_header_t);
 
+       printf("[%d] On the remote side, Source address : %p value: %lf ",
+          A1D_Process_info.my_rank, source_ptr, *((double *) source_ptr));
+       fflush(stdout);
+
        /*The packing function can modify the source ptr, target ptr, and block index*/
        A1DI_Pack_strided(data_ptr,
                          data_limit,
@@ -145,6 +149,9 @@ int A1DI_Packed_gets_response(int target,
        /*Setting data size information in the header and copying it into the packet*/
        header.data_size = data_size;
        A1DI_Memcpy((void *) packet_ptr, (void *) &header, sizeof(A1D_Packed_gets_response_header_t));
+   
+       printf("data size: %d \n", data_size);
+       fflush(stdout);
 
        packet_size = data_size + sizeof(A1D_Packed_gets_response_header_t);
 
@@ -188,6 +195,9 @@ void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
 {
 
     A1D_Packed_gets_header_t *header = (A1D_Packed_gets_header_t *) src;
+
+    printf("[%d] Calling packed gets response \n", A1D_Process_info.my_rank);
+    fflush(stdout);
 
     A1DI_Packed_gets_response(header->target,
                               header->stride_level,
@@ -259,6 +269,9 @@ int A1DI_Packed_gets(int target,
     status = A1DI_Malloc((void **) &header, sizeof(A1D_Packed_gets_header_t));
     A1U_ERR_POP(status,"Malloc failed in A1DI_Packed_gets \n");
 
+    printf("[%d] Source(remote) address : %p \n", A1D_Process_info.my_rank, source_ptr);
+    fflush(stdout);
+
     /*Copying header information*/
     header->target = A1D_Process_info.my_rank;
     header->source_ptr = source_ptr;
@@ -311,7 +324,7 @@ int A1DI_Direct_gets(int target,
                      int *trg_stride_ar,
                      A1D_Handle_t *a1d_handle)
 {
-    int i, status = A1_SUCCESS;
+    int i, j, status = A1_SUCCESS;
     size_t src_disp, dst_disp;
     DCMF_Callback_t done_callback;
     A1D_Request_t *a1d_request = NULL;
@@ -378,8 +391,14 @@ int A1DI_Direct_gets(int target,
                }
                block_sizes_w[y]--;
 
-               source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[y-1]);
-               target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y-1]);
+               /*The strides done on lower dimensions should be subtracted as these are
+                 included in the stride along the current dimension*/
+               source_ptr = (void *) ((size_t) source_ptr 
+                     + src_stride_ar[y-1] 
+                     - (block_sizes[y-1] - 1) * src_stride_ar[y-2]);
+               target_ptr = (void *) ((size_t) target_ptr 
+                     + trg_stride_ar[y-1] 
+                     - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
 
                y--;
                while(y >= 1)

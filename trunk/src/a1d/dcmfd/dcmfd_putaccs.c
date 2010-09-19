@@ -239,7 +239,7 @@ int A1DI_Direct_putaccs(int target,
                         void *scaling,
                         A1D_Handle_t *a1d_handle)
 {
-    int i, status = A1_SUCCESS;
+    int i, j, status = A1_SUCCESS;
     A1D_Putacc_header_t header;
     DCMF_Callback_t done_callback;
     A1D_Request_t *a1d_request;
@@ -333,8 +333,14 @@ int A1DI_Direct_putaccs(int target,
                }
                block_sizes_w[y]--;
 
-               source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[y-1]);
-               target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y-1]);
+               /*The strides done on lower dimensions should be subtracted as these are
+                 included in the stride along the current dimension*/
+               source_ptr = (void *) ((size_t) source_ptr 
+                      + src_stride_ar[y-1] 
+                      - (block_sizes[y-1] - 1) * src_stride_ar[y-2]);
+               target_ptr = (void *) ((size_t) target_ptr 
+                      + trg_stride_ar[y-1] 
+                      - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
 
                y--;
                while(y >= 1)

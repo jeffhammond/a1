@@ -93,6 +93,9 @@ int A1DI_Pack_strided(void *data_ptr,
         data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
         *data_size = *data_size + block_sizes[0];
 
+        printf("[%d] Packing data - block_size : %d, source_ptr: %p datasize: %d \n", A1D_Process_info.my_rank,
+                             block_sizes[0], *source_ptr, *data_size);
+
         block_idx[1]++;
         if (block_idx[1] == block_sizes[1])
         {
@@ -108,10 +111,14 @@ int A1DI_Pack_strided(void *data_ptr,
             }
             block_idx[y]++;
 
-            *source_ptr = (void *) ((size_t) * source_ptr
-                    + src_stride_ar[y - 1]);
-            *target_ptr = (void *) ((size_t) * target_ptr
-                    + trg_stride_ar[y - 1]);
+            /*The strides done on lower dimension should be subtracted as these are
+              included in the stride along the current dimension*/ 
+            *source_ptr = (void *) ((size_t) *source_ptr
+                    + src_stride_ar[y - 1] 
+                    - (block_sizes[y-1] - 1) * src_stride_ar[y-2]);
+            *target_ptr = (void *) ((size_t) *target_ptr
+                    + trg_stride_ar[y - 1] 
+                    - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
 
             y--;
             while (y >= 1)
@@ -122,8 +129,8 @@ int A1DI_Pack_strided(void *data_ptr,
         }
         else
         {
-            *source_ptr = (void *) ((size_t) * source_ptr + src_stride_ar[0]);
-            *target_ptr = (void *) ((size_t) * target_ptr + trg_stride_ar[0]);
+            *source_ptr = (void *) ((size_t) *source_ptr + src_stride_ar[0]);
+            *target_ptr = (void *) ((size_t) *target_ptr + trg_stride_ar[0]);
         }
     }
 
@@ -149,16 +156,16 @@ int A1DI_Unpack_strided(void *data_ptr,
 
     A1U_FUNC_ENTER();
 
-    //printf("[%d] In unpack data\n", A1D_Process_info.my_rank);
-    //fflush(stdout);
+    printf("[%d] In unpack data\n", A1D_Process_info.my_rank);
+    fflush(stdout);
 
     while (data_size > 0)
     {
         memcpy(target_ptr, data_ptr, block_sizes[0]);
 
-        //printf("[%d] Value copied over %lf, block_size : %d, target_ptr: %p datasize: %d \n", A1D_Process_info.my_rank,
-        //                     *((double *) data_ptr), block_sizes[0], target_ptr, data_size);
-        //fflush(stdout);
+        printf("[%d] Unpacking data - block_size : %d, target_ptr: %p datasize: %d \n", A1D_Process_info.my_rank,
+                             block_sizes[0], target_ptr, data_size);
+        fflush(stdout);
 
         data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
         data_size = data_size - block_sizes[0];
@@ -178,7 +185,11 @@ int A1DI_Unpack_strided(void *data_ptr,
             }
             block_idx[y]++;
 
-            target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y - 1]);
+            /*The strides done on lower dimension should be subtracted as these are
+              included in the stride along the current dimension*/
+            target_ptr = (void *) ((size_t) target_ptr 
+                   + trg_stride_ar[y - 1] 
+                   - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
 
             y--;
             while (y >= 1)
@@ -213,7 +224,7 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
                             int *complete)
 {
     int status = A1_SUCCESS;
-    int y, index;
+    int y;
 
     A1U_FUNC_ENTER();
 
@@ -291,7 +302,11 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
             }
             block_idx[y]++;
 
-            target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[y - 1]);
+            /*The strides done on lower dimension should be subtracted as these are
+              included in the stride along the current dimension*/
+            target_ptr = (void *) ((size_t) target_ptr 
+                   + trg_stride_ar[y - 1] 
+                   - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
 
             y--;
             while (y >= 1)

@@ -16,6 +16,7 @@ int A1_PutAcc(int target,
               void* scaling)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -26,7 +27,7 @@ int A1_PutAcc(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_Acc_memcpy(source_ptr,
                                 target_ptr,
@@ -61,6 +62,7 @@ int A1_NbPutAcc(int target,
                 A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -71,7 +73,7 @@ int A1_NbPutAcc(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_Acc_memcpy(source_ptr,
                                 target_ptr,

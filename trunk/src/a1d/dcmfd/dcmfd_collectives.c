@@ -32,7 +32,6 @@ int A1DI_GlobalBarrier_initialize()
 
 int A1DI_GlobalBarrier()
 {
-
     int status = A1_SUCCESS;
     DCMF_Request_t request;
     DCMF_Callback_t done_callback;
@@ -242,10 +241,12 @@ int A1DI_GlobalAllreduce_initialize()
                 "DCMF_GlobalAllreduce_register returned with error %d \n",
                 status);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1DI_GlobalAllreduce(int count,
@@ -261,7 +262,7 @@ int A1DI_GlobalAllreduce(int count,
     DCMF_Dt datatype;
     int bytes = 0;
     void *in_abs = NULL;
-    volatile int active;
+    volatile unsigned ga_active = 0;
 
     A1U_FUNC_ENTER();
 
@@ -380,9 +381,9 @@ int A1DI_GlobalAllreduce(int count,
         }
     }
    
-    active = 1;
+    ga_active += 1;
     done_callback.function = A1DI_Generic_done;
-    done_callback.clientdata = (void *) &active;
+    done_callback.clientdata = (void *) &ga_active;
 
     status = DCMF_GlobalAllreduce(&A1D_GlobalAllreduce_protocol,
                                   &request,
@@ -395,7 +396,7 @@ int A1DI_GlobalAllreduce(int count,
                                   datatype,
                                   reduce_op);
 
-    A1DI_Conditional_advance(active > 0);
+     A1DI_Conditional_advance(ga_active > 0);
 
   fn_exit: 
     if (in_abs != NULL) 
@@ -496,7 +497,7 @@ int A1DI_NbGlobalAllreduce(int count,
             bytes = count * sizeof(double);
             status = A1DI_Malloc(&in_abs, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,
-                        "A1DI_Malloc returned error in A1DI_GlobalAllreduce \n");
+                        "A1DI_Malloc returned error in A1DI_NbGlobalAllreduce \n");
             A1DI_ABS(double, in, in_abs, count);
             in = in_abs;      
         }
@@ -509,7 +510,7 @@ int A1DI_NbGlobalAllreduce(int count,
                    bytes = count * 4;
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
-                               "A1DI_Malloc returned error in A1DI_GlobalAllreduce \n");
+                               "A1DI_Malloc returned error in A1DI_NbGlobalAllreduce \n");
                    A1DI_ABS(int32_t, in, in_abs, count);
                    in = in_abs;
                    break;
@@ -518,7 +519,7 @@ int A1DI_NbGlobalAllreduce(int count,
                    bytes = count * 8;
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
-                               "A1DI_Malloc returned error in A1DI_GlobalAllreduce \n");
+                               "A1DI_Malloc returned error in A1DI_NbGlobalAllreduce \n");
                    A1DI_ABS(int64_t, in, in_abs, count);
                    in = in_abs;
                    break;
@@ -533,7 +534,7 @@ int A1DI_NbGlobalAllreduce(int count,
                    bytes = count * sizeof(float);
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
-                               "A1DI_Malloc returned error in A1DI_GlobalAllreduce \n");
+                               "A1DI_Malloc returned error in A1DI_NbGlobalAllreduce \n");
                    A1DI_ABS(float, in, in_abs, count);
                    in = in_abs;
                    break;
@@ -600,11 +601,12 @@ int A1DI_NbGlobalAllreduce(int count,
     A1U_ERR_POP(status != DCMF_SUCCESS,
                 "DCMF_GlobalAllreduce returned with an error");
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
-
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1D_NbAllreduce_group(A1_group_t* group,

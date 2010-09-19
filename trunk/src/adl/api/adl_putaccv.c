@@ -21,6 +21,7 @@ int A1_PutAccV(int target,
                void* scaling)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -31,7 +32,7 @@ int A1_PutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -62,6 +63,7 @@ int A1_NbPutAccV(int target,
                A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -72,7 +74,7 @@ int A1_NbPutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -105,11 +107,12 @@ int A1_PutAccV(int target,
                void* scaling);
 {
     int i, j, status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
     A1_handle_t a1_handle;
 
     A1U_FUNC_ENTER();
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -142,7 +145,7 @@ int A1_PutAccV(int target,
 
   fn_exit:
     /* Could also test for NULL, assuming we set it as such in the declaration. */
-    if (proc != my_rank) A1D_Release_handle(a1_handle);
+    if (target != my_rank) A1D_Release_handle(a1_handle);
     A1U_FUNC_EXIT();
     return status;
 
@@ -158,10 +161,11 @@ int A1_NbPutAccV(int target,
                  A1_handle_t a1_handle);
 {
     int i, j, status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");

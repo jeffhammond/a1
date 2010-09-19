@@ -23,6 +23,7 @@ int A1_GetS(int target,
             int *trg_stride_ar)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -33,7 +34,7 @@ int A1_GetS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(proc == my_rank)
+    if(target == my_rank)
     {
         status = A1U_GetS_memcpy(stride_level,
                                  block_sizes,
@@ -71,6 +72,7 @@ int A1_NbGetS(int target,
              A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -81,7 +83,7 @@ int A1_NbGetS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(proc == my_rank)
+    if(target == my_rank)
     {
         status = A1U_GetS_memcpy(stride_level,
                                  block_sizes,

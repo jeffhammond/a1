@@ -25,6 +25,7 @@ int A1_PutAccS(int target,
                void* scaling)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -35,7 +36,7 @@ int A1_PutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_AccS_memcpy(stride_level,
                                  block_sizes,
@@ -81,6 +82,7 @@ int A1_NbPutAccS(int target,
                  A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -91,7 +93,7 @@ int A1_NbPutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_AccS_memcpy(stride_level,
                                  block_sizes,
@@ -192,6 +194,7 @@ int A1_PutAccS(int target,
                void* scaling)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
     A1_handle_t a1_handle;
 
     A1U_FUNC_ENTER();
@@ -203,7 +206,7 @@ int A1_PutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_AccS_memcpy(stride_level,
                                  block_sizes,
@@ -238,7 +241,7 @@ int A1_PutAccS(int target,
 
     fn_exit:
     /* Could also test for NULL, assuming we set it as such in the declaration. */
-    if (proc != my_rank) A1D_Release_handle(a1_handle);
+    if (target != my_rank) A1D_Release_handle(a1_handle);
     A1U_FUNC_EXIT();
     return status;
 
@@ -258,6 +261,7 @@ int A1_NbPutAccS(int target,
                  A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -268,7 +272,7 @@ int A1_NbPutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (proc == my_rank)
+    if (target == my_rank)
     {
         status = A1U_AccS_memcpy(stride_level,
                                  block_sizes,

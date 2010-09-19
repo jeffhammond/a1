@@ -17,6 +17,10 @@
 #include <stdlib.h>
 #endif /* HAVE_STDLIB_H */
 
+#if defined HAVE_STDINT_H
+#include <stdint.h>
+#endif /* HAVE_STDINT_H */
+
 #if defined HAVE_STRING_H
 #include <string.h>
 #endif /* HAVE_STRING_H */
@@ -165,5 +169,52 @@ do {                                                              \
 #else
 #define A1U_DEBUG_PRINT(args...)
 #endif
+
+int A1U_Put_memcpy(void* src,
+                   void* dst,
+                   int bytes);
+
+int A1U_PutS_memcpy(int stride_level,
+                    int *block_sizes,
+                    void* source_ptr,
+                    int *src_stride_ar,
+                    void* target_ptr,
+                    int *trg_stride_ar);
+
+int A1U_PutV_memcpy(A1_iov_t *iov_ar,
+                    int ar_len);
+
+int A1U_Get_memcpy(void* src,
+                   void* dst,
+                   int bytes);
+
+int A1U_GetS_memcpy(int stride_level,
+                    int *block_sizes,
+                    void* source_ptr,
+                    int *src_stride_ar,
+                    void* target_ptr,
+                    int *trg_stride_ar);
+
+int A1U_GetV_memcpy(A1_iov_t *iov_ar, int ar_len);
+
+int A1U_Acc_memcpy(void* source_ptr,
+                   void* target_ptr,
+                   int bytes,
+                   A1_datatype_t a1_type,
+                   void* scaling);
+
+int A1U_AccS_memcpy(int stride_level,
+                    int *block_sizes,
+                    void* source_ptr,
+                    int *src_stride_ar,
+                    void* target_ptr,
+                    int *trg_stride_ar,
+                    A1_datatype_t a1_type,
+                    void* scaling);
+
+int A1U_AccV_memcpy(A1_iov_t *iov_ar,
+                    int ar_len,
+                    A1_datatype_t a1_type,
+                    void* scaling);
 
 #endif /* A1U_H_INCLUDED */
