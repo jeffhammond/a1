@@ -27,9 +27,11 @@ int A1_Get(int proc, void* src, void* dst, int bytes)
        status = A1U_Get_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
     }
-
-    status = A1D_Get(proc, src, dst, bytes);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1D_Get returned an error\n");
+    else
+    {
+        status = A1D_Get(proc, src, dst, bytes);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1D_Get returned an error\n");
+    }
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -59,9 +61,11 @@ int A1_NbGet(int proc, void* src, void* dst, int bytes, A1_handle_t a1_handle)
        status = A1U_Get_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
     }
-
-    status = A1D_NbGet(proc, src, dst, bytes, a1_handle);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned an error\n");
+    else
+    {
+        status = A1D_NbGet(proc, src, dst, bytes, a1_handle);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned an error\n");
+    }
 
   fn_exit: 
     A1U_FUNC_EXIT();

@@ -14,9 +14,7 @@
 
 #if defined A1D_IMPLEMENTS_PUTV
 
-int A1_PutV(int target,
-            A1_iov_t *iov_ar,
-            int ar_len)
+int A1_PutV(int target, A1_iov_t *iov_ar, int ar_len)
 {
     int status = A1_SUCCESS;
 
@@ -29,24 +27,25 @@ int A1_PutV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_PutV(target,
-                     iov_ar,
-                     ar_len);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_PutV returned error\n");
+    if (proc == my_rank)
+    {
+        status = A1U_PutV_memcpy(iov_ar, ar_len);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_PutV_memcpy returned error\n");
+    }
+    else
+    {
+        status = A1D_PutV(target, iov_ar, ar_len);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_PutV returned error\n");
+    }
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
-int A1_NbPutV(int target,
-              A1_iov_t *iov_ar,
-              int ar_len,
-              A1_handle_t a1_handle)
-{   
+int A1_NbPutV(int target, A1_iov_t *iov_ar, int ar_len, A1_handle_t a1_handle)
+{
     int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
@@ -58,90 +57,106 @@ int A1_NbPutV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_NbPutV(target,
-                        iov_ar,
-                        ar_len,
-                        a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbPutV returned error\n");
+    if (proc == my_rank)
+    {
+        status = A1U_PutV_memcpy(iov_ar, ar_len);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_PutV_memcpy returned error\n");
+    }
+    else
+    {
+        status = A1D_NbPutV(target, iov_ar, ar_len, a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbPutV returned error\n");
+    }
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
-    
-  fn_fail: 
-    goto fn_exit;
+
+    fn_fail: goto fn_exit;
 }
 
 #else
 
 int A1_PutV(int target,
-            A1_iov_t *iov_ar,
-            int ar_len)
+        A1_iov_t *iov_ar,
+        int ar_len)
 {
     int i, j, status = A1_SUCCESS;
     A1_handle_t a1_handle;
 
     A1U_FUNC_ENTER();
 
-    status = A1D_Allocate_handle(&a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");
-
-    for (i=0; i<ar_len; i++)
+    if (proc == my_rank)
     {
-        for(j=0; j<iov_ar[i].ptr_ar_len; j++)
+        status = A1U_PutV_memcpy(iov_ar, ar_len);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_PutV_memcpy returned error\n");
+    }
+    else
+    {
+        status = A1D_Allocate_handle(&a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");
+
+        for (i=0; i<ar_len; i++)
         {
-
-             status = A1D_NbPut(target,
-                                iov_ar[i].source_ptr_ar[j],
-                                iov_ar[i].target_ptr_ar[j],
-                                iov_ar[i].size,
-                                a1_handle);
-             A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPut returned with an error \n");
-
+            for(j=0; j<iov_ar[i].ptr_ar_len; j++)
+            {
+                status = A1D_NbPut(target,
+                                   iov_ar[i].source_ptr_ar[j],
+                                   iov_ar[i].target_ptr_ar[j],
+                                   iov_ar[i].size,
+                                   a1_handle);
+                A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPut returned with an error \n");
+            }
         }
+
+        status = A1D_Wait_handle(a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
     }
 
-    status = A1D_Wait_handle(a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
-
-  fn_exit: 
-    A1D_Release_handle(a1_handle);
+    fn_exit:
+    /* Could also test for NULL, assuming we set it as such in the declaration. */
+    if (proc != my_rank) A1D_Release_handle(a1_handle);
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
+    fn_fail:
     goto fn_exit;
 }
 
 int A1_NbPutV(int target,
-              A1_iov_t *iov_ar,
-              int ar_len,
-              A1_handle_t a1_handle)
+        A1_iov_t *iov_ar,
+        int ar_len,
+        A1_handle_t a1_handle)
 {
     int i, j, status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
-    for (i=0; i<ar_len; i++)
+    if (proc == my_rank)
     {
-        for(j=0; j<iov_ar[i].ptr_ar_len; j++)
+        status = A1U_PutV_memcpy(iov_ar, ar_len);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_PutV_memcpy returned error\n");
+    }
+    else
+    {
+        for (i=0; i<ar_len; i++)
         {
-
-             status = A1D_NbPut(target,
-                                iov_ar[i].source_ptr_ar[j],
-                                iov_ar[i].target_ptr_ar[j],
-                                iov_ar[i].size,
-                                a1_handle);
-             A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPut returned with an error \n");
-
+            for(j=0; j<iov_ar[i].ptr_ar_len; j++)
+            {
+                status = A1D_NbPut(target,
+                                   iov_ar[i].source_ptr_ar[j],
+                                   iov_ar[i].target_ptr_ar[j],
+                                   iov_ar[i].size,
+                                   a1_handle);
+                A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPut returned with an error \n");
+            }
         }
     }
 
-  fn_exit:
+    fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
+    fn_fail:
     goto fn_exit;
 }
 

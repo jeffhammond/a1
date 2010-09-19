@@ -35,172 +35,37 @@ int A1_PutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_PutAccS(target,
-                         stride_level,
-                         block_sizes,
-                         source_ptr,
-                         src_stride_ar,
-                         target_ptr,
-                         trg_stride_ar,
-                         a1_type,
-                         scaling);
-    A1U_ERR_POP(status, "A1D_PutAccS returned error\n");
-
-  fn_exit: 
-    A1U_FUNC_EXIT();
-    return status;
-
-  fn_fail: 
-    goto fn_exit;
-}
-
-int A1_NbPutAccS(int target,
-                int stride_level,
-                int *block_sizes,
-                void* source_ptr,
-                int *src_stride_ar,
-                void* target_ptr,
-                int *trg_stride_ar,
-                A1_datatype_t a1_type,
-                void* scaling,
-                A1_handle_t a1_handle)
-{
-    int status = A1_SUCCESS;
-
-    A1U_FUNC_ENTER();
-
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
-#   ifdef HAVE_ERROR_CHECKING
-#   endif
-
-    status = A1D_NbPutAccS(target,
-                          stride_level,
-                          block_sizes,
-                          source_ptr,
-                          src_stride_ar,
-                          target_ptr,
-                          trg_stride_ar,
-                          a1_type,
-                          scaling,
-                          a1_handle);
-    A1U_ERR_POP(status, "NbPutAccS returned error\n");
-
-  fn_exit: 
-    A1U_FUNC_EXIT();
-    return status;
-
-  fn_fail: 
-    goto fn_exit;
-}
-
-#else
-
-int A1I_Recursive_PutAcc(int target,
-                         int stride_level,
-                         int *block_sizes,
-                         void* source_ptr,
-                         int *src_stride_ar,
-                         void* target_ptr,
-                         int *trg_stride_ar,
-                         A1_datatype_t a1_type,
-                         void* scaling,
-                         A1_handle_t a1_handle)
-{
-    int i, status = A1_SUCCESS;
-
-    A1U_FUNC_ENTER();
-
-    if (stride_level > 0)
+    if (proc == my_rank)
     {
-
-        for (i = 0; i < block_sizes[stride_level]; i++)
-        {
-            status = A1I_Recursive_PutAcc(target,
-                                          stride_level - 1,
-                                          block_sizes,
-                                          (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
-                                          src_stride_ar,
-                                          (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
-                                          trg_stride_ar,
-                                          a1_type,
-                                          scaling,
-                                          a1_handle);
-            A1U_ERR_POP(status != A1_SUCCESS,
-                  "A1I_Recursive_PutAcc returned error in A1I_Recursive_PutAcc.\n");
-        }
-
+        status = A1U_AccS_memcpy(stride_level,
+                                 block_sizes,
+                                 source_ptr,
+                                 src_stride_ar,
+                                 target_ptr,
+                                 trg_stride_ar,
+                                 a1_type,
+                                 scaling);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccS_memcpy returned an error\n");
     }
     else
     {
+        status = A1D_PutAccS(target,
+                             stride_level,
+                             block_sizes,
+                             source_ptr,
+                             src_stride_ar,
+                             target_ptr,
+                             trg_stride_ar,
+                             a1_type,
+                             scaling);
+        A1U_ERR_POP(status, "A1D_PutAccS returned error\n");
+    }
 
-        status = A1D_NbPutAcc(target,
-                              source_ptr,
-                              target_ptr,
-                              block_sizes[0],
-                              a1_type,
-                              scaling,
-                              a1_handle);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
-
-     }
-
-  fn_exit:
+    fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
-}
-
-int A1_PutAccS(int target,
-               int stride_level,
-               int *block_sizes,
-               void* source_ptr,
-               int *src_stride_ar,
-               void* target_ptr,
-               int *trg_stride_ar,
-               A1_datatype_t a1_type,
-               void* scaling)
-{
-    int status = A1_SUCCESS;
-    A1_handle_t a1_handle;
-
-    A1U_FUNC_ENTER();
-
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
-#   ifdef HAVE_ERROR_CHECKING
-#   endif
-
-    status = A1D_Allocate_handle(&a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");
-
-    status = A1I_Recursive_PutAcc(target,
-                                  stride_level,
-                                  block_sizes,
-                                  source_ptr,
-                                  src_stride_ar,
-                                  target_ptr,
-                                  trg_stride_ar,
-                                  a1_type,
-                                  scaling,
-                                  a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_PutAcc returned error\n");
-
-    status = A1D_Wait_handle(a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
-
-  fn_exit:
-    A1D_Release_handle(a1_handle);
-    A1U_FUNC_EXIT();
-    return status;
-
-  fn_fail:
+    fn_fail:
     goto fn_exit;
 }
 
@@ -226,23 +91,215 @@ int A1_NbPutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1I_Recursive_PutAcc(target,
-                                  stride_level,
-                                  block_sizes,
-                                  source_ptr,
-                                  src_stride_ar,
-                                  target_ptr,
-                                  trg_stride_ar,
-                                  a1_type,
-                                  scaling,
-                                  a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_PutAcc returned error\n");
+    if (proc == my_rank)
+    {
+        status = A1U_AccS_memcpy(stride_level,
+                                 block_sizes,
+                                 source_ptr,
+                                 src_stride_ar,
+                                 target_ptr,
+                                 trg_stride_ar,
+                                 a1_type,
+                                 scaling);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccS_memcpy returned an error\n");
+    }
+    else
+    {
+        status = A1D_NbPutAccS(target,
+                               stride_level,
+                               block_sizes,
+                               source_ptr,
+                               src_stride_ar,
+                               target_ptr,
+                               trg_stride_ar,
+                               a1_type,
+                               scaling,
+                               a1_handle);
+        A1U_ERR_POP(status, "NbPutAccS returned error\n");
+    }
 
-  fn_exit:
+    fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
+    fn_fail:
+    goto fn_exit;
+}
+
+#else
+
+int A1I_Recursive_PutAcc(int target,
+                         int stride_level,
+                         int *block_sizes,
+                         void* source_ptr,
+                         int *src_stride_ar,
+                         void* target_ptr,
+                         int *trg_stride_ar,
+                         A1_datatype_t a1_type,
+                         void* scaling,
+                         A1_handle_t a1_handle)
+{
+    int i, status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    if (stride_level > 0)
+    {
+        for (i = 0; i < block_sizes[stride_level]; i++)
+        {
+            status = A1I_Recursive_PutAcc(target,
+                                          stride_level - 1,
+                                          block_sizes,
+                                          (void *) ((size_t) source_ptr + i * src_stride_ar[stride_level - 1]),
+                                          src_stride_ar,
+                                          (void *) ((size_t) target_ptr + i * trg_stride_ar[stride_level - 1]),
+                                          trg_stride_ar,
+                                          a1_type,
+                                          scaling,
+                                          a1_handle);
+            A1U_ERR_POP(status != A1_SUCCESS,
+                        "A1I_Recursive_PutAcc returned error in A1I_Recursive_PutAcc.\n");
+        }
+    }
+    else
+    {
+        status = A1D_NbPutAcc(target,
+                              source_ptr,
+                              target_ptr,
+                              block_sizes[0],
+                              a1_type,
+                              scaling,
+                              a1_handle);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
+    }
+
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail:
+    goto fn_exit;
+}
+
+int A1_PutAccS(int target,
+               int stride_level,
+               int *block_sizes,
+               void* source_ptr,
+               int *src_stride_ar,
+               void* target_ptr,
+               int *trg_stride_ar,
+               A1_datatype_t a1_type,
+               void* scaling)
+{
+    int status = A1_SUCCESS;
+    A1_handle_t a1_handle;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    if (proc == my_rank)
+    {
+        status = A1U_AccS_memcpy(stride_level,
+                                 block_sizes,
+                                 source_ptr,
+                                 src_stride_ar,
+                                 target_ptr,
+                                 trg_stride_ar,
+                                 a1_type,
+                                 scaling);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccS_memcpy returned an error\n");
+    }
+    else
+    {
+        status = A1D_Allocate_handle(&a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");
+
+        status = A1I_Recursive_PutAcc(target,
+                                      stride_level,
+                                      block_sizes,
+                                      source_ptr,
+                                      src_stride_ar,
+                                      target_ptr,
+                                      trg_stride_ar,
+                                      a1_type,
+                                      scaling,
+                                      a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_PutAcc returned error\n");
+
+        status = A1D_Wait_handle(a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
+    }
+
+    fn_exit:
+    /* Could also test for NULL, assuming we set it as such in the declaration. */
+    if (proc != my_rank) A1D_Release_handle(a1_handle);
+    A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail:
+    goto fn_exit;
+}
+
+int A1_NbPutAccS(int target,
+                 int stride_level,
+                 int *block_sizes,
+                 void* source_ptr,
+                 int *src_stride_ar,
+                 void* target_ptr,
+                 int *trg_stride_ar,
+                 A1_datatype_t a1_type,
+                 void* scaling,
+                 A1_handle_t a1_handle)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    if (proc == my_rank)
+    {
+        status = A1U_AccS_memcpy(stride_level,
+                                 block_sizes,
+                                 source_ptr,
+                                 src_stride_ar,
+                                 target_ptr,
+                                 trg_stride_ar,
+                                 a1_type,
+                                 scaling);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccS_memcpy returned an error\n");
+    }
+    else
+    {
+        status = A1I_Recursive_PutAcc(target,
+                                      stride_level,
+                                      block_sizes,
+                                      source_ptr,
+                                      src_stride_ar,
+                                      target_ptr,
+                                      trg_stride_ar,
+                                      a1_type,
+                                      scaling,
+                                      a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_PutAcc returned error\n");
+    }
+
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail:
     goto fn_exit;
 }
 

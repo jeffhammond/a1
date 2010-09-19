@@ -33,14 +33,27 @@ int A1_GetS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_GetS(target,
-                      stride_level,
-                      block_sizes,
-                      source_ptr,
-                      src_stride_ar,
-                      target_ptr,
-                      trg_stride_ar);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_GetS returned error\n");
+    if(proc == my_rank)
+    {
+        status = A1U_GetS_memcpy(stride_level,
+                                 block_sizes,
+                                 source_ptr,
+                                 src_stride_ar,
+                                 target_ptr,
+                                 trg_stride_ar);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
+    }
+    else
+    {
+        status = A1D_GetS(target,
+                          stride_level,
+                          block_sizes,
+                          source_ptr,
+                          src_stride_ar,
+                          target_ptr,
+                          trg_stride_ar);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_GetS returned error\n");
+    }
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -68,15 +81,28 @@ int A1_NbGetS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_NbGetS(target,
-                       stride_level,
-                       block_sizes,
-                       source_ptr,
-                       src_stride_ar,
-                       target_ptr,
-                       trg_stride_ar,
-                       a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbGetS returned error\n");
+    if(proc == my_rank)
+    {
+        status = A1U_GetS_memcpy(stride_level,
+                                 block_sizes,
+                                 source_ptr,
+                                 src_stride_ar,
+                                 target_ptr,
+                                 trg_stride_ar);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
+    }
+    else
+    {
+        status = A1D_NbGetS(target,
+                            stride_level,
+                            block_sizes,
+                            source_ptr,
+                            src_stride_ar,
+                            target_ptr,
+                            trg_stride_ar,
+                            a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbGetS returned error\n");
+    }
 
     fn_exit: A1U_FUNC_EXIT();
     return status;

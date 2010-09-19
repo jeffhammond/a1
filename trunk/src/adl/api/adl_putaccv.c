@@ -31,12 +31,20 @@ int A1_PutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_PutAccV(target, 
-                         iov_ar,
-                         ar_len,
-                         a1_type,
-                         scaling); 
-    A1U_ERR_POP(status, "A1D_PutAccV returned error\n");
+    if (proc == my_rank)
+    {
+        status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
+    }
+    else
+    {
+        status = A1D_PutAccV(target,
+                             iov_ar,
+                             ar_len,
+                             a1_type,
+                             scaling);
+        A1U_ERR_POP(status, "A1D_PutAccV returned error\n");
+    }
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -64,13 +72,21 @@ int A1_NbPutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_NbPutAccV(target,    
-                           iov_ar,
-                           ar_len,
-                           a1_type,
-                           scaling,
-                           a1_handle);      
-    A1U_ERR_POP(status, "A1D_NbPutAccV returned error\n");
+    if (proc == my_rank)
+    {
+        status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
+    }
+    else
+    {
+        status = A1D_NbPutAccV(target,
+                               iov_ar,
+                               ar_len,
+                               a1_type,
+                               scaling,
+                               a1_handle);
+        A1U_ERR_POP(status, "A1D_NbPutAccV returned error\n");
+    }
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -93,23 +109,31 @@ int A1_PutAccV(int target,
 
     A1U_FUNC_ENTER();
 
-    status = A1D_Allocate_handle(&a1_handle);
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");
-
-    for (i=0; i<ar_len; i++)
+    if (proc == my_rank)
     {
-        for(j=0; j<iov_ar[i].ptr_ar_len; j++)
+        status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
+    }
+    else
+    {
+        status = A1D_Allocate_handle(&a1_handle);
+        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");
+
+        for (i=0; i<ar_len; i++)
         {
+            for(j=0; j<iov_ar[i].ptr_ar_len; j++)
+            {
 
-             status = A1D_NbPutAcc(target,
-                                   iov_ar[i].source_ptr_ar[j],
-                                   iov_ar[i].target_ptr_ar[j],
-                                   iov_ar[i].size,
-                                   a1_type,
-                                   scaling,
- 	   			  a1_handle);
-             A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
+                status = A1D_NbPutAcc(target,
+                                      iov_ar[i].source_ptr_ar[j],
+                                      iov_ar[i].target_ptr_ar[j],
+                                      iov_ar[i].size,
+                                      a1_type,
+                                      scaling,
+                                      a1_handle);
+                A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
 
+            }
         }
     }
 
@@ -117,7 +141,8 @@ int A1_PutAccV(int target,
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
 
   fn_exit:
-    A1D_Release_handle(a1_handle);
+    /* Could also test for NULL, assuming we set it as such in the declaration. */
+    if (proc != my_rank) A1D_Release_handle(a1_handle);
     A1U_FUNC_EXIT();
     return status;
 
@@ -136,20 +161,28 @@ int A1_NbPutAccV(int target,
 
     A1U_FUNC_ENTER();
 
-    for (i=0; i<ar_len; i++)
+    if (proc == my_rank)
     {
-        for(j=0; j<iov_ar[i].ptr_ar_len; j++)
+        status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
+    }
+    else
+    {
+        for (i=0; i<ar_len; i++)
         {
+            for(j=0; j<iov_ar[i].ptr_ar_len; j++)
+            {
 
-             status = A1D_NbPutAcc(target,
-                                   iov_ar[i].source_ptr_ar[j],
-                                   iov_ar[i].target_ptr_ar[j],
-                                   iov_ar[i].size,
-                                   a1_type,
-                                   scaling,
- 	   			  a1_handle);
-             A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
+                status = A1D_NbPutAcc(target,
+                                      iov_ar[i].source_ptr_ar[j],
+                                      iov_ar[i].target_ptr_ar[j],
+                                      iov_ar[i].size,
+                                      a1_type,
+                                      scaling,
+                                      a1_handle);
+                A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
 
+            }
         }
     }
 
