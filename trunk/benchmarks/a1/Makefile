@@ -19,7 +19,10 @@ all: $(TESTS)
 submit-all: $(OUTPUTS)
 
 %.output: %.x
-	qsub -n 4 -t 15 --mode smp -O $* $<
+	qsub -n 4 --mode smp -t 30 -O $* $<
+
+%.$(NODES).$(MODE).output: %.x
+	qsub -n $(NODES) --mode $(MODE) -t 30 -O $*.$(NODES).$(MODE) $<
 
 %.x: %.o
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
@@ -32,4 +35,6 @@ clean:
 
 realclean: clean
 	$(RM) $(RMFLAGS) $(TESTS)
+
+.PHONY: $(OUTPUTS)
 
