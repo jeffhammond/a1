@@ -1,1 +1,1 @@
-setenv NODES 512 ; setenv MODE dual ; make A1_FlushAll_latency.512.dual.output
+setenv TESTNAME A1_Put_latency ; setenv NODES 512 ; setenv MODE dual ; make ${TESTNAME}.${NODES}.${MODE}.output
