@@ -897,4 +897,8 @@ double A1D_Time_seconds();
  */
 unsigned long long A1D_Time_cycles();
 
+void A1D_Global_lock_acquire();
+
+void A1D_Global_lock_release();
+
 #endif /* A1D_H_INCLUDED */

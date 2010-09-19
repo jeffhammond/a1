@@ -65,8 +65,6 @@
 
 extern _BGP_Atomic global_atomic;
 
-/* TODO: we should have a more general lock system which can do 
- *        backoff and other lock designs. */
 #define A1DI_GLOBAL_ATOMIC_ACQUIRE()                 \
  {                                                   \
    volatile int done=0;                              \
@@ -108,19 +106,11 @@ extern LockBox_Mutex_t global_lbmutex;
 *           Lock Type Selection                  *
 *************************************************/
 
-/*
-#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_ATOMIC_ACQUIRE
-#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_ATOMIC_RELEASE
-
-#define A1DI_GLOBAL_LOCK_ACQUIRE A1DI_GLOBAL_LBMUTEX_ACQUIRE
-#define A1DI_GLOBAL_LOCK_RELEASE A1DI_GLOBAL_LBMUTEX_RELEASE
-*/
-
 #define A1DI_GLOBAL_LOCK_ACQUIRE()     \
  do {                                  \
     if(!a1_settings.mpi_active)        \
     {                                  \
-         A1DI_GLOBAL_ATOMIC_ACQUIRE(); \
+         A1DI_GLOBAL_LBMUTEX_ACQUIRE();\
     }                                  \
     else                               \
     {                                  \
@@ -132,7 +122,7 @@ extern LockBox_Mutex_t global_lbmutex;
  do {                                  \
     if(!a1_settings.mpi_active)        \
     {                                  \
-        A1DI_GLOBAL_ATOMIC_RELEASE();  \
+        A1DI_GLOBAL_LBMUTEX_RELEASE(); \
     }                                  \
     else                               \
     {                                  \

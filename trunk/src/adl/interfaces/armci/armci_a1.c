@@ -1071,7 +1071,7 @@ void ARMCI_Error(char *message,
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    A1_Abort(code, message);
 
   fn_exit:
     A1U_FUNC_EXIT();

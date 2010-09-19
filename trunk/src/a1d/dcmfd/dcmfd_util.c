@@ -149,10 +149,16 @@ int A1DI_Unpack_strided(void *data_ptr,
 
     A1U_FUNC_ENTER();
 
+    //printf("[%d] In unpack data\n", A1D_Process_info.my_rank);
+    //fflush(stdout);
+
     while (data_size > 0)
     {
-
         memcpy(target_ptr, data_ptr, block_sizes[0]);
+
+        //printf("[%d] Value copied over %lf, block_size : %d, target_ptr: %p datasize: %d \n", A1D_Process_info.my_rank,
+        //                     *((double *) data_ptr), block_sizes[0], target_ptr, data_size);
+        //fflush(stdout);
 
         data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
         data_size = data_size - block_sizes[0];
@@ -308,3 +314,32 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
     goto fn_exit;
 }
 
+/**** Exposing locking to ADL layer ****/
+
+void A1D_Global_lock_acquire()
+{
+    A1U_FUNC_ENTER();
+
+    A1DI_GLOBAL_LOCK_ACQUIRE();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+void A1D_Global_lock_release()
+{
+    A1U_FUNC_ENTER();
+
+    A1DI_GLOBAL_LOCK_RELEASE();
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+  fn_fail:
+    goto fn_exit;
+}

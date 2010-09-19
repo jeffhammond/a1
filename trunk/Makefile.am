@@ -12,7 +12,7 @@ liba1_la_LDFLAGS = -version-info $(liba1_abi_version)
 
 include_HEADERS = $(top_builddir)/src/include/a1.h $(top_builddir)/src/include/armci.h
 
-#TODO# include src/adl/util/Makefile.mk
+include src/adl/util/Makefile.mk
 include src/adl/api/Makefile.mk
 include src/adl/interfaces/armci/Makefile.mk
 #TODO# include src/adl/interfaces/global-arrays/Makefile.mk

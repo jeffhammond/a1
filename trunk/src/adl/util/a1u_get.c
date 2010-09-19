@@ -16,10 +16,16 @@ int A1U_Get_memcpy(void* src,
 
     A1U_FUNC_ENTER();
 
-    fn_exit: A1U_FUNC_EXIT();
+    A1D_Global_lock_acquire();
+
+    A1D_Global_lock_release();
+
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1U_GetS_memcpy(int stride_level,
@@ -33,10 +39,16 @@ int A1U_GetS_memcpy(int stride_level,
 
     A1U_FUNC_ENTER();
 
-    fn_exit: A1U_FUNC_EXIT();
+    A1D_Global_lock_acquire();
+
+    A1D_Global_lock_release();
+
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1U_GetV_memcpy(A1_iov_t *iov_ar, int ar_len)
@@ -45,8 +57,14 @@ int A1U_GetV_memcpy(A1_iov_t *iov_ar, int ar_len)
 
     A1U_FUNC_ENTER();
 
-    fn_exit: A1U_FUNC_EXIT();
+    A1D_Global_lock_acquire();
+
+    A1D_Global_lock_release();
+
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

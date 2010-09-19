@@ -11,6 +11,7 @@
 int A1_Put(int proc, void* src, void* dst, int bytes)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1D_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -20,6 +21,12 @@ int A1_Put(int proc, void* src, void* dst, int bytes)
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
+
+    if(proc == my_rank)
+    {
+       status = A1U_Put_memcpy(src, dst, bytes);
+       A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
+    }
 
     status = A1D_Put(proc, src, dst, bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1D_Put returned an error\n");
@@ -35,6 +42,7 @@ int A1_Put(int proc, void* src, void* dst, int bytes)
 int A1_NbPut(int proc, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
+    int my_rank = A1D_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -44,6 +52,12 @@ int A1_NbPut(int proc, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
+
+    if(proc == my_rank)
+    {
+       status = A1U_Put_memcpy(src, dst, bytes);
+       A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
+    }
 
     status = A1D_NbPut(proc, src, dst, bytes, a1_handle);
     A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPut returned an error\n");
