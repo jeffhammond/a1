@@ -129,10 +129,6 @@ int A1DI_Packed_gets_response(int target,
        data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_gets_response_header_t));
        data_limit = a1_settings.get_packetsize - sizeof(A1D_Packed_gets_response_header_t);
 
-       printf("[%d] On the remote side, Source address : %p value: %lf ",
-          A1D_Process_info.my_rank, source_ptr, *((double *) source_ptr));
-       fflush(stdout);
-
        /*The packing function can modify the source ptr, target ptr, and block index*/
        A1DI_Pack_strided(data_ptr,
                          data_limit,
@@ -150,9 +146,6 @@ int A1DI_Packed_gets_response(int target,
        header.data_size = data_size;
        A1DI_Memcpy((void *) packet_ptr, (void *) &header, sizeof(A1D_Packed_gets_response_header_t));
    
-       printf("data size: %d \n", data_size);
-       fflush(stdout);
-
        packet_size = data_size + sizeof(A1D_Packed_gets_response_header_t);
 
        /*Fetching request from the pool*/
@@ -195,9 +188,6 @@ void A1DI_RecvSendShort_packedgets_callback(void *clientdata,
 {
 
     A1D_Packed_gets_header_t *header = (A1D_Packed_gets_header_t *) src;
-
-    printf("[%d] Calling packed gets response \n", A1D_Process_info.my_rank);
-    fflush(stdout);
 
     A1DI_Packed_gets_response(header->target,
                               header->stride_level,
@@ -268,9 +258,6 @@ int A1DI_Packed_gets(int target,
 
     status = A1DI_Malloc((void **) &header, sizeof(A1D_Packed_gets_header_t));
     A1U_ERR_POP(status,"Malloc failed in A1DI_Packed_gets \n");
-
-    printf("[%d] Source(remote) address : %p \n", A1D_Process_info.my_rank, source_ptr);
-    fflush(stdout);
 
     /*Copying header information*/
     header->target = A1D_Process_info.my_rank;
