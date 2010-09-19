@@ -57,7 +57,7 @@ int main()
 
     A1_Initialize(A1_THREAD_SINGLE);
 
-    rank = A1_Process_id(&rank);
+    rank = A1_Process_id(A1_GROUP_WORLD);
 
     printf("[%d] Hello A1 \n", rank);
     fflush(stdout);
