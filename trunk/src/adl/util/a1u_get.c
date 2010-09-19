@@ -109,11 +109,21 @@ int A1U_GetS_memcpy(int stride_level,
 
 int A1U_GetV_memcpy(A1_iov_t *iov_ar, int ar_len)
 {
-    int status = A1_SUCCESS;
+    int i, j, status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
     A1D_Global_lock_acquire();
+
+    for (i=0; i<ar_len; i++)
+    {
+        for(j=0; j<iov_ar[i].ptr_ar_len; j++) 
+        {
+
+           memcpy(iov_ar[i].target_ptr_ar[j], iov_ar[i].source_ptr_ar[j], iov_ar[i].size);
+
+        }
+    }
 
     A1D_Global_lock_release();
 
