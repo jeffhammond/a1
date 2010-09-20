@@ -41,8 +41,10 @@ void A1_Abort(int error_code, char error_message[])
 
     A1D_Abort(error_code,  error_message);
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }

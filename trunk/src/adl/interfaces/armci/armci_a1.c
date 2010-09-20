@@ -304,6 +304,7 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 {
     int status = A1_SUCCESS;
     A1_iov_t *a1_iov_ar;
+    int i;
 
     A1U_FUNC_ENTER();
 
@@ -316,9 +317,22 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     /* ARMCI iov and A1 iov are similar structures but follow 
      * different naming conventions. So we make a copy.*/
-    /* TODO Why not use A1D_Malloc here? */
-    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
-    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
+    /* TODO Why not use A1D_Malloc here? A1D_Malloc is not exposed here, currently*/
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(A1_iov_t) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
+
+
+    for(i=0; i<arr_len; i++)
+    {
+      printf("ARMCI Length at index: %d, is: %d \n", i, dsrc_arr[i].bytes);
+      fflush(stdout);
+    }
+ 
+    for(i=0; i<arr_len; i++)
+    {
+      printf("A1 Length at index: %d, is: %d \n", i, a1_iov_ar[i].size);
+      fflush(stdout);
+    }
 
     status = A1_PutV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutV returned an error\n");
@@ -446,8 +460,8 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
      * different naming conventions. So we make a copy.*/
 
     /* TODO Why not use A1D_Malloc here? */
-    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
-    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(A1_iov_t) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
     status = A1_GetV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_GetV returned an error\n");
@@ -706,8 +720,8 @@ int ARMCI_AccV(int datatype,
     /* ARMCI iov and A1 iov are similar structures but follow
      * different naming conventions. So we make a copy.*/
     /* TODO Why not use A1D_Malloc here? */
-    posix_memalign((void **) &a1_iov_ar, 16, sizeof(a1_iov_ar) * arr_len);
-    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(a1_iov_ar) * arr_len);
+    posix_memalign((void **) &a1_iov_ar, 16, sizeof(A1_iov_t) * arr_len);
+    memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
     status = A1_PutAccV(proc, a1_iov_ar, arr_len, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccV returned an error\n");

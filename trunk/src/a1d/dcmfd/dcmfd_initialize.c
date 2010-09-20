@@ -33,6 +33,10 @@ int A1D_Initialize(int thread_level)
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Read_parameters returned with error \n");
 
+    status = A1DI_Print_parameters();
+    A1U_ERR_POP(status != A1_SUCCESS,
+                "A1DI_Print_parameters returned with error \n");
+
     if (a1d_settings.enable_cht)
     {
         if (!a1d_settings.mpi_active)

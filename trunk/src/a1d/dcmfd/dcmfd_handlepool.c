@@ -76,10 +76,12 @@ A1D_Handle_t* A1DI_Get_handle()
     A1D_Active_handle_list[index] = a1d_handle;
     a1d_handle->active_list_index = index;
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return a1d_handle;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 void A1DI_Release_handle(A1D_Handle_t *a1d_handle)
