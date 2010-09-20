@@ -57,7 +57,7 @@ int A1D_Finalize(void)
     fn_fail: goto fn_exit;
 }
 
-int A1D_Abort(int error_code, char error_message[])
+void A1D_Abort(int error_code, char error_message[])
 {
     int status = A1_SUCCESS;
 
@@ -69,7 +69,7 @@ int A1D_Abort(int error_code, char error_message[])
             error_message);
 
     fn_exit: A1U_FUNC_EXIT();
-    return status;
+    return;
 
     fn_fail: goto fn_exit;
 }
