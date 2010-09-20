@@ -14,7 +14,7 @@
 
 #if defined A1D_IMPLEMENTS_PUTACCV
 
-int A1_PutAccV(int target, 
+int A1_PutAccV(int target,
                A1_iov_t *iov_ar,
                int ar_len,
                A1_datatype_t a1_type,
@@ -32,35 +32,29 @@ int A1_PutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (target == my_rank)
+    if (target == my_rank && a1_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
     }
     else
     {
-        status = A1D_PutAccV(target,
-                             iov_ar,
-                             ar_len,
-                             a1_type,
-                             scaling);
+        status = A1D_PutAccV(target, iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status, "A1D_PutAccV returned error\n");
     }
 
-  fn_exit: 
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 int A1_NbPutAccV(int target,
-               A1_iov_t *iov_ar,
-               int ar_len,
-               A1_datatype_t a1_type,
-               void* scaling,
-               A1_handle_t a1_handle)
+                 A1_iov_t *iov_ar,
+                 int ar_len,
+                 A1_datatype_t a1_type,
+                 void* scaling,
+                 A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
     int my_rank = A1_Process_id(A1_GROUP_WORLD);
@@ -74,7 +68,7 @@ int A1_NbPutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (target == my_rank)
+    if (target == my_rank && a1_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -90,21 +84,19 @@ int A1_NbPutAccV(int target,
         A1U_ERR_POP(status, "A1D_NbPutAccV returned error\n");
     }
 
-  fn_exit:
-    A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
-    goto fn_exit;
+    fn_fail: goto fn_exit;
 }
 
 #else
 
 int A1_PutAccV(int target,
-               A1_iov_t *iov_ar,
-               int ar_len,
-               A1_datatype_t a1_type,
-               void* scaling);
+        A1_iov_t *iov_ar,
+        int ar_len,
+        A1_datatype_t a1_type,
+        void* scaling);
 {
     int i, j, status = A1_SUCCESS;
     int my_rank = A1_Process_id(A1_GROUP_WORLD);
@@ -112,7 +104,7 @@ int A1_PutAccV(int target,
 
     A1U_FUNC_ENTER();
 
-    if (target == my_rank)
+    if (target == my_rank && a1_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -126,7 +118,6 @@ int A1_PutAccV(int target,
         {
             for(j=0; j<iov_ar[i].ptr_ar_len; j++)
             {
-
                 status = A1D_NbPutAcc(target,
                                       iov_ar[i].source_ptr_ar[j],
                                       iov_ar[i].target_ptr_ar[j],
@@ -135,7 +126,6 @@ int A1_PutAccV(int target,
                                       scaling,
                                       a1_handle);
                 A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
-
             }
         }
     }
@@ -143,29 +133,29 @@ int A1_PutAccV(int target,
     status = A1D_Wait_handle(a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
 
-  fn_exit:
+    fn_exit:
     /* Could also test for NULL, assuming we set it as such in the declaration. */
-    if (target != my_rank) A1D_Release_handle(a1_handle);
+    if(target == my_rank && a1_settings.network_bypass) A1D_Release_handle(a1_handle);
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
+    fn_fail:
     goto fn_exit;
 }
 
 int A1_NbPutAccV(int target,
-                 A1_iov_t *iov_ar,
-                 int ar_len,
-                 A1_datatype_t a1_type,
-                 void* scaling,
-                 A1_handle_t a1_handle);
+        A1_iov_t *iov_ar,
+        int ar_len,
+        A1_datatype_t a1_type,
+        void* scaling,
+        A1_handle_t a1_handle);
 {
     int i, j, status = A1_SUCCESS;
     int my_rank = A1_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
-    if (target == my_rank)
+    if (target == my_rank && a1_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -176,7 +166,6 @@ int A1_NbPutAccV(int target,
         {
             for(j=0; j<iov_ar[i].ptr_ar_len; j++)
             {
-
                 status = A1D_NbPutAcc(target,
                                       iov_ar[i].source_ptr_ar[j],
                                       iov_ar[i].target_ptr_ar[j],
@@ -185,16 +174,15 @@ int A1_NbPutAccV(int target,
                                       scaling,
                                       a1_handle);
                 A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPutAcc returned with an error \n");
-
             }
         }
     }
 
-  fn_exit:
+    fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail:
+    fn_fail:
     goto fn_exit;
 }
 

@@ -22,7 +22,7 @@ int A1_Get(int proc, void* src, void* dst, int bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(proc == my_rank)
+    if(proc == my_rank && a1_settings.network_bypass)
     {
        status = A1U_Get_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
@@ -56,7 +56,7 @@ int A1_NbGet(int proc, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(proc == my_rank)
+    if(proc == my_rank && a1_settings.network_bypass)
     {
        status = A1U_Get_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
