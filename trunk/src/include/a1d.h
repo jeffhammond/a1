@@ -15,6 +15,11 @@
 /*                                                                       */
 /* ********************************************************************* */
 
+/* FIXME: This should be in another header but we're using a1u.h
+ *         already exists for other purposes.  I will deal with all of
+ *         this after we submit the IPDPS paper and fix the build system.
+ */
+
 /**
  * \brief A1 device-independent settings type.
  *
@@ -31,19 +36,32 @@ typedef struct
 
 extern A1U_Settings_t a1u_settings;
 
+/* ********************************************************************* */
+/*                                                                       */
+/*               A1 device-independent internal functions                */
+/*                                                                       */
+/* ********************************************************************* */
+
 /**
- * \brief Prints out parameter information
+ * \brief Parses the device-indpendent parameter information
  *
- * \param[out] rc               The error code from initalizing A1
+ * \param[out] rc               The error code
  *
  * \ingroup MANAGEMENT
  */
-int A1D_Print_parameters();
+
+int A1U_Read_parameters();
+
+/* ********************************************************************* */
+/*                                                                       */
+/*               A1 device-level functions                               */
+/*                                                                       */
+/* ********************************************************************* */
 
 /**
  * \brief Device level implementation of A1_Initialize.
  *
- * \param[out] rc               The error code from initalizing A1
+ * \param[out] rc               The error code from initializing A1
  * \param[in]  A1_thread_level  The type of thread support for A1
  *
  * \ingroup MANAGEMENT
