@@ -29,7 +29,7 @@ int A1_Finalize(void)
     goto fn_exit;
 }
 
-int A1_Abort(int error_code, char error_message[])
+void A1_Abort(int error_code, char error_message[])
 {
     int status = A1_SUCCESS;
 
