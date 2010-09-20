@@ -19,7 +19,7 @@ all: $(TESTS)
 submit-all: $(OUTPUTS)
 
 %.output: %.x
-	qsub -n 4 --mode smp -t 30 -O $* $<
+	qsub -n 2 --mode smp -t 30 -O $* $<
 
 %.$(NODES).$(MODE).output: %.x
 	qsub -n $(NODES) --mode $(MODE) -t 30 -O $*.$(NODES).$(MODE) $<
@@ -29,6 +29,9 @@ submit-all: $(OUTPUTS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
+
+submit-clean:
+	$(RM) $(RMFLAGS) *.output *.error *.cobaltlog
 
 clean:
 	$(RM) $(RMFLAGS) $(OBJECTS)
