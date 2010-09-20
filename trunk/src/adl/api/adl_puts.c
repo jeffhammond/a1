@@ -34,7 +34,7 @@ int A1_PutS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(target == my_rank && a1_settings.network_bypass)
+    if(target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_PutS_memcpy(stride_level,
                                  block_sizes,
@@ -84,7 +84,7 @@ int A1_NbPutS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(target == my_rank && a1_settings.network_bypass)
+    if(target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_PutS_memcpy(stride_level,
                                  block_sizes,
@@ -184,7 +184,7 @@ int A1_PutS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(target == my_rank && a1_settings.network_bypass)
+    if(target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_PutS_memcpy(stride_level,
                                  block_sizes,
@@ -215,7 +215,7 @@ int A1_PutS(int target,
 
     fn_exit:
     /* Could also test for NULL, assuming we set it as such in the declaration. */
-    if(target == my_rank && a1_settings.network_bypass) A1D_Release_handle(a1_handle);
+    if(target == my_rank && a1u_settings.network_bypass) A1D_Release_handle(a1_handle);
     A1U_FUNC_EXIT();
     return status;
 
@@ -244,7 +244,7 @@ int A1_NbPutS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(proc == my_rank && a1_settings.network_bypass)
+    if(proc == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_PutS_memcpy(stride_level,
                                  block_sizes,

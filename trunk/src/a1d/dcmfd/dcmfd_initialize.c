@@ -33,9 +33,9 @@ int A1D_Initialize(int thread_level)
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Read_parameters returned with error \n");
 
-    if (a1_settings.enable_cht)
+    if (a1d_settings.enable_cht)
     {
-        if (!a1_settings.mpi_active)
+        if (!a1d_settings.mpi_active)
         {
             /* We can use THREAD_SERIALIZED if we are implementing out own locks
              * ~AND~ MPI is not active */
@@ -71,10 +71,7 @@ int A1D_Initialize(int thread_level)
                         "Unsupported thread level provided in A1D_Initialize \n");
             break;
         }
-
-        if (a1_settings.enable_interrupts) A1D_Messager_info.interrupts
-                = DCMF_INTERRUPTS_ON;
-        else A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
+        A1D_Messager_info.interrupts = ( a1d_settings.enable_interrupts ? DCMF_INTERRUPTS_ON : DCMF_INTERRUPTS_OFF );
     }
 
     status = DCMF_Messager_configure(&A1D_Messager_info, &A1D_Messager_info);
@@ -88,12 +85,12 @@ int A1D_Initialize(int thread_level)
     A1D_Process_info.my_node = DCMF_Messager_rank();
     A1D_Process_info.num_nodes = DCMF_Messager_size();
 
-    if (a1_settings.enable_cht)
+    if (a1d_settings.enable_cht)
     {
-        /*Initialize LockBox if it is the locking mechanism used*/
-        /*A1DI_GLOBAL_LBMUTEX_INITIALIZE();*/
+        /* Initialize LockBox if it is the locking mechanism used */
+        // A1DI_GLOBAL_LBMUTEX_INITIALIZE();
 
-        /*Create CHT*/
+        /* Create CHT */
         status = pthread_create(&A1DI_CHT_pthread,
                                 NULL,
                                 &A1DI_CHT_advance_lock,

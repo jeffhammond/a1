@@ -15,7 +15,7 @@ int A1D_Wait_handle_all()
 
     A1DI_CRITICAL_ENTER();
 
-    for (index = 0; index < a1_settings.handlepool_size; index++)
+    for (index = 0; index < a1d_settings.handlepool_size; index++)
     {
         if (A1D_Active_handle_list[index] != NULL)
             A1DI_Conditional_advance((A1D_Active_handle_list[index])->active > 0);

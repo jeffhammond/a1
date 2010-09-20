@@ -38,7 +38,7 @@ int A1D_Finalize(void)
     A1DI_Free(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]);
     A1DI_Free(A1D_Put_Flushcounter_ptr);
 
-    if (a1_settings.enable_cht)
+    if (a1d_settings.enable_cht)
     {
         status = pthread_cancel(A1DI_CHT_pthread);
     }

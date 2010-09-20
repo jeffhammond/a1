@@ -91,14 +91,14 @@ int A1DI_Request_pool_initialize()
 
     status = A1DI_Malloc((void **) &(A1D_Request_pool.region_ptr),
                                  sizeof(A1D_Request_t)
-                                         * a1_settings.requestpool_size);
+                                         * a1d_settings.requestpool_size);
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Malloc failed while allocating request pool\
                       in A1DI_Request_pool_initialize\n");
 
     a1d_request = A1D_Request_pool.region_ptr;
     A1D_Request_pool.head = a1d_request;
-    for (index = 0; index < a1_settings.requestpool_size - 1; index++)
+    for (index = 0; index < a1d_settings.requestpool_size - 1; index++)
     {
         a1d_request[index].next = &a1d_request[index + 1];
     }

@@ -9,6 +9,28 @@
 #if !defined A1D_H_INCLUDED
 #define A1D_H_INCLUDED
 
+/* ********************************************************************* */
+/*                                                                       */
+/*               A1 data structures                                      */
+/*                                                                       */
+/* ********************************************************************* */
+
+/**
+ * \brief A1 device-independent settings type.
+ *
+ * \see A1_Initialize
+ *
+ * \ingroup TYPEDEFS
+ *
+ */
+
+typedef struct
+{
+    volatile uint32_t network_bypass;
+} A1U_Settings_t;
+
+extern A1U_Settings_t a1u_settings;
+
 /**
  * \brief Prints out parameter information
  *

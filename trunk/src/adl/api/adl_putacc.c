@@ -27,7 +27,7 @@ int A1_PutAcc(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (target == my_rank && a1_settings.network_bypass)
+    if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_Acc_memcpy(source_ptr,
                                 target_ptr,
@@ -73,7 +73,7 @@ int A1_NbPutAcc(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (target == my_rank && a1_settings.network_bypass)
+    if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_Acc_memcpy(source_ptr,
                                 target_ptr,

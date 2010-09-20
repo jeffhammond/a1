@@ -45,7 +45,7 @@ DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
     A1U_ERR_ABORT(status = (a1d_request == NULL),
                   "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputs_callback.\n");
 
-    a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize, 0);
+    a1d_buffer = A1DI_Get_buffer(a1d_settings.put_packetsize, 0);
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr;
@@ -139,12 +139,12 @@ int A1DI_Packed_puts(int target,
         A1DI_Memcpy(header.block_idx, block_idx, (stride_level + 1) * sizeof(int));
 
         /*Fetching buffer from the pool*/
-        a1d_buffer = A1DI_Get_buffer(a1_settings.put_packetsize, 1);
+        a1d_buffer = A1DI_Get_buffer(a1d_settings.put_packetsize, 1);
         packet_ptr = a1d_buffer->buffer_ptr;
 
         data_ptr = (void *) ((size_t) packet_ptr
                 + sizeof(A1D_Packed_puts_header_t));
-        data_limit = a1_settings.put_packetsize
+        data_limit = a1d_settings.put_packetsize
                 - sizeof(A1D_Packed_puts_header_t);
 
         /*The packing function can modify the source ptr, target ptr, and block index*/
@@ -385,7 +385,7 @@ int A1D_PutS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    if (block_sizes[0] + sizeof(A1D_Packed_puts_header_t) >= a1_settings.put_packing_limit)
+    if (block_sizes[0] + sizeof(A1D_Packed_puts_header_t) >= a1d_settings.put_packing_limit)
     {
         a1d_handle = A1DI_Get_handle();
         A1U_ERR_POP(status = (a1d_handle == NULL),
@@ -443,7 +443,7 @@ int A1D_NbPutS(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    if (block_sizes[0] + sizeof(A1D_Packed_puts_header_t) >= a1_settings.put_packing_limit)
+    if (block_sizes[0] + sizeof(A1D_Packed_puts_header_t) >= a1d_settings.put_packing_limit)
     {
 
         status = A1DI_Direct_puts(target,
@@ -460,7 +460,7 @@ int A1D_NbPutS(int target,
     else
     {
 
-        if (a1_settings.use_handoff)
+        if (a1d_settings.use_handoff)
         {
             A1D_Op_handoff *op_handoff;
             A1DI_Malloc((void **) &op_handoff, sizeof(A1D_Op_handoff));

@@ -32,7 +32,7 @@ int A1_PutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (target == my_rank && a1_settings.network_bypass)
+    if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -68,7 +68,7 @@ int A1_NbPutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (target == my_rank && a1_settings.network_bypass)
+    if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -104,7 +104,7 @@ int A1_PutAccV(int target,
 
     A1U_FUNC_ENTER();
 
-    if (target == my_rank && a1_settings.network_bypass)
+    if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");
@@ -135,7 +135,7 @@ int A1_PutAccV(int target,
 
     fn_exit:
     /* Could also test for NULL, assuming we set it as such in the declaration. */
-    if(target == my_rank && a1_settings.network_bypass) A1D_Release_handle(a1_handle);
+    if(target == my_rank && a1u_settings.network_bypass) A1D_Release_handle(a1_handle);
     A1U_FUNC_EXIT();
     return status;
 
@@ -155,7 +155,7 @@ int A1_NbPutAccV(int target,
 
     A1U_FUNC_ENTER();
 
-    if (target == my_rank && a1_settings.network_bypass)
+    if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_AccV_memcpy returned an error\n");

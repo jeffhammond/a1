@@ -22,16 +22,16 @@ int A1D_Initialize(int thread_level)
     switch (thread_level)
     {
     case A1_THREAD_SINGLE:
-        a1_settings.thread_safe = 0;
+        a1d_settings.thread_safe = 0;
         break;
     case A1_THREAD_FUNNELED:
-        a1_settings.thread_safe = 0;
+        a1d_settings.thread_safe = 0;
         break;
     case A1_THREAD_SERIALIZED:
-        a1_settings.thread_safe = 0;
+        a1d_settings.thread_safe = 0;
         break;
     case A1_THREAD_MULTIPLE:
-        a1_settings.thread_safe = 1;
+        a1d_settings.thread_safe = 1;
         break;
     default:
         A1U_ERR_POP(A1_ERROR,

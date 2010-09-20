@@ -45,7 +45,7 @@ extern pthread_mutex_t global_mutex;
  *          Memory Allocation Macros             *
  *************************************************/
 
-//#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
+//#define A1DI_Malloc_aligned(ptr, num) posix_memalign(ptr, a1d_settings.alignment, num)
 #define A1DI_Malloc_aligned(ptr, num) ((*ptr = malloc(num)) == NULL)
 
 #define A1DI_Malloc(ptr, num)  ((ptr = malloc(num)) == NULL)
@@ -62,7 +62,7 @@ extern pthread_mutex_t global_mutex;
 
 #define A1DI_CRITICAL_ENTER()                                    \
     do {                                                          \
-      if(a1_settings.thread_safe)                                 \
+      if(a1d_settings.thread_safe)                                 \
       {                                                           \
           A1DI_GLOBAL_MUTEX_ACQUIRE();                            \
       }                                                           \
@@ -70,7 +70,7 @@ extern pthread_mutex_t global_mutex;
 
 #define A1DI_CRITICAL_EXIT()                                     \
     do {                                                          \
-      if(a1_settings.thread_safe)                                 \
+      if(a1d_settings.thread_safe)                                 \
       {                                                           \
           A1DI_GLOBAL_MUTEX_RELEASE();                            \
       }                                                           \
@@ -97,7 +97,7 @@ typedef struct
 {
     volatile uint32_t thread_safe;
     volatile uint32_t alignment;
-} A1_Settings_t;
+} A1D_Settings_t;
 
 typedef struct
 {
@@ -112,7 +112,7 @@ typedef struct
  ************************************************/
 
 extern A1D_Process_info_t A1D_Process_info;
-extern A1_Settings_t a1_settings;
+extern A1D_Settings_t a1d_settings;
 
 /*************************************************
  *             Function Prototypes               *

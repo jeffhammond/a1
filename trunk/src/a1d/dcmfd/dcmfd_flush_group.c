@@ -18,8 +18,8 @@ void A1DI_Flush_all()
 
     A1U_FUNC_ENTER();
 
-    request_count = (a1_settings.flushall_pending_limit < A1D_Process_info.num_ranks) ? 
-                      a1_settings.flushall_pending_limit : A1D_Process_info.num_ranks;
+    request_count = (a1d_settings.flushall_pending_limit < A1D_Process_info.num_ranks) ? 
+                      a1d_settings.flushall_pending_limit : A1D_Process_info.num_ranks;
     status = A1DI_Malloc((void **) &request, sizeof(DCMF_Request_t) * request_count); 
     A1U_ERR_POP(status != 0, "A1DI_Malloc failed in A1DI_Flush_all\n"); 
 
@@ -76,7 +76,7 @@ void A1DI_Flush_all()
 
             }
 
-            if (pending_count >= a1_settings.flushall_pending_limit)
+            if (pending_count >= a1d_settings.flushall_pending_limit)
             {
                 A1DI_Conditional_advance(A1D_Control_flushack_active > 0 || A1D_Put_flushack_active > 0);
                 pending_count = 0;

@@ -172,11 +172,11 @@ int A1DI_Packed_putaccs(int target,
        A1DI_Memcpy(header.block_idx, block_idx, (stride_level + 1) * sizeof(int));
 
        /*Fetching buffer from the pool*/
-       a1d_buffer = A1DI_Get_buffer(a1_settings.putacc_packetsize, 1);
+       a1d_buffer = A1DI_Get_buffer(a1d_settings.putacc_packetsize, 1);
        packet_ptr = a1d_buffer->buffer_ptr;
 
        data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_putaccs_header_t));
-       data_limit = a1_settings.putacc_packetsize - sizeof(A1D_Packed_putaccs_header_t);
+       data_limit = a1d_settings.putacc_packetsize - sizeof(A1D_Packed_putaccs_header_t);
 
        /*The packing function can modify the source ptr, target ptr, and block index*/
        A1DI_Pack_strided(data_ptr,
@@ -491,7 +491,7 @@ int A1D_PutAccS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    if (block_sizes[0] + sizeof(A1D_Packed_putaccs_header_t) >= a1_settings.putacc_packing_limit)
+    if (block_sizes[0] + sizeof(A1D_Packed_putaccs_header_t) >= a1d_settings.putacc_packing_limit)
     {
 
         a1d_handle = A1DI_Get_handle();
@@ -561,7 +561,7 @@ int A1D_NbPutAccS(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    if (block_sizes[0] + sizeof(A1D_Packed_putaccs_header_t) >= a1_settings.putacc_packing_limit)
+    if (block_sizes[0] + sizeof(A1D_Packed_putaccs_header_t) >= a1d_settings.putacc_packing_limit)
     {
 
         status = A1DI_Direct_putaccs(target,
@@ -580,7 +580,7 @@ int A1D_NbPutAccS(int target,
     else
     {
 
-        if(a1_settings.use_handoff)
+        if(a1d_settings.use_handoff)
         {
            A1D_Op_handoff *op_handoff;
            A1DI_Malloc((void **) &op_handoff, sizeof(A1D_Op_handoff));

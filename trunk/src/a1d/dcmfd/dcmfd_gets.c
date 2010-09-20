@@ -123,11 +123,11 @@ int A1DI_Packed_gets_response(int target,
        A1DI_Memcpy(header.block_idx, block_idx, (stride_level + 1) * sizeof(int));
 
        /*Fetching buffer from the pool*/
-       a1d_buffer = A1DI_Get_buffer(a1_settings.get_packetsize, 0);
+       a1d_buffer = A1DI_Get_buffer(a1d_settings.get_packetsize, 0);
        packet_ptr = a1d_buffer->buffer_ptr;
 
        data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_gets_response_header_t));
-       data_limit = a1_settings.get_packetsize - sizeof(A1D_Packed_gets_response_header_t);
+       data_limit = a1d_settings.get_packetsize - sizeof(A1D_Packed_gets_response_header_t);
 
        /*The packing function can modify the source ptr, target ptr, and block index*/
        A1DI_Pack_strided(data_ptr,
@@ -507,7 +507,7 @@ int A1D_GetS(int target,
     for(i=1; i<=stride_level; i++)
         chunk_count = block_sizes[i]*chunk_count;
 
-    if (block_sizes[0] + sizeof(A1D_Packed_gets_response_header_t) >= a1_settings.get_packing_limit)
+    if (block_sizes[0] + sizeof(A1D_Packed_gets_response_header_t) >= a1d_settings.get_packing_limit)
     {
 
         status = A1DI_Direct_gets(target,
@@ -574,7 +574,7 @@ int A1D_NbGetS(int target,
     for(i=1; i<=stride_level; i++)
         chunk_count = block_sizes[i]*chunk_count;
 
-    if (block_sizes[0] + sizeof(A1D_Packed_gets_response_header_t) >= a1_settings.get_packing_limit)
+    if (block_sizes[0] + sizeof(A1D_Packed_gets_response_header_t) >= a1d_settings.get_packing_limit)
     {
 
         status = A1DI_Direct_gets(target,

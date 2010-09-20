@@ -108,7 +108,7 @@ extern LockBox_Mutex_t global_lbmutex;
 
 #define A1DI_GLOBAL_LOCK_ACQUIRE()     \
  do {                                  \
-    if(!a1_settings.mpi_active)        \
+    if(!a1d_settings.mpi_active)        \
     {                                  \
          A1DI_GLOBAL_LBMUTEX_ACQUIRE();\
     }                                  \
@@ -120,7 +120,7 @@ extern LockBox_Mutex_t global_lbmutex;
 
 #define A1DI_GLOBAL_LOCK_RELEASE()     \
  do {                                  \
-    if(!a1_settings.mpi_active)        \
+    if(!a1d_settings.mpi_active)        \
     {                                  \
         A1DI_GLOBAL_LBMUTEX_RELEASE(); \
     }                                  \
@@ -162,7 +162,7 @@ do {                                      \
  *          Memory Allocation Macros             *
  *************************************************/
 
-#define A1DI_Malloc(ptr, num) posix_memalign(ptr, a1_settings.alignment, num)
+#define A1DI_Malloc(ptr, num) posix_memalign(ptr, a1d_settings.alignment, num)
 /*
  * I don't know why one would want unaligned memory, but here it is for posterity
  * #define A1DI_Malloc(ptr, num)  ((ptr = malloc(num)) == NULL)
@@ -189,7 +189,7 @@ void A1DI_Handoff_progress();
 
 #define A1DI_CRITICAL_ENTER()                                    \
     do {                                                          \
-      if(a1_settings.enable_cht && !a1_settings.mpi_active)       \
+      if(a1d_settings.enable_cht && !a1d_settings.mpi_active)       \
       {                                                           \
         A1DI_GLOBAL_LOCK_ACQUIRE();                               \
       }     							  \
@@ -201,7 +201,7 @@ void A1DI_Handoff_progress();
 
 #define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
-      if(a1_settings.enable_cht && !a1_settings.mpi_active)       \
+      if(a1d_settings.enable_cht && !a1d_settings.mpi_active)       \
       {                                                           \
         A1DI_GLOBAL_LOCK_RELEASE();                               \
       }                                                           \
@@ -214,7 +214,7 @@ void A1DI_Handoff_progress();
 #define A1DI_Advance()                                             \
  do {                                                              \
          DCMF_Messager_advance(0);                                 \
-         if (a1_settings.use_handoff && (A1D_Inside_handoff==0))   \
+         if (a1d_settings.use_handoff && (A1D_Inside_handoff==0))   \
          {        						   \
              A1DI_Handoff_progress();                              \
          }                                                         \
@@ -223,7 +223,7 @@ void A1DI_Handoff_progress();
 #define A1DI_Conditional_advance(boolean)                           \
     while(boolean) {                                                \
           DCMF_Messager_advance(0);                                 \
-          if (a1_settings.use_handoff && (A1D_Inside_handoff==0))   \
+          if (a1d_settings.use_handoff && (A1D_Inside_handoff==0))   \
           {							    \
                 A1DI_Handoff_progress();                            \
           }							    \
@@ -311,7 +311,7 @@ typedef struct
     volatile uint32_t handlepool_size;
     volatile uint32_t requestpool_size;
     volatile uint32_t use_handoff;
-} A1_Settings_t;
+} A1D_Settings_t;
 
 typedef struct
 {
@@ -552,7 +552,7 @@ extern volatile int A1D_Control_flushack_active;
 extern volatile int A1D_Put_flushack_active;
 extern volatile int A1D_Inside_handoff;
 
-extern A1_Settings_t a1_settings;
+extern A1D_Settings_t a1d_settings;
 
 /************************************************* 
  *             Function Prototypes               *

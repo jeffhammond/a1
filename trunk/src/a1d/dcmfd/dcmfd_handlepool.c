@@ -110,14 +110,14 @@ int A1DI_Handle_pool_initialize()
     A1U_FUNC_ENTER();
 
     status = A1DI_Malloc((void **) &a1d_handle, sizeof(A1D_Handle_t)
-            * a1_settings.handlepool_size);
+            * a1d_settings.handlepool_size);
     A1U_ERR_POP(status != 0,
                 "A1DI_Malloc failed while allocating handle pool\
                       in A1DI_Handle_pool_initialize\n");
 
     A1D_Handle_pool.region_ptr = (void *) a1d_handle;
     A1D_Handle_pool.head = a1d_handle;
-    for (index = 0; index < a1_settings.handlepool_size; index++)
+    for (index = 0; index < a1d_settings.handlepool_size; index++)
     {
         a1d_handle[index].next = &a1d_handle[index + 1];
     }
@@ -125,11 +125,11 @@ int A1DI_Handle_pool_initialize()
 
     status = A1DI_Malloc((void **) &A1D_Active_handle_list,
                                  sizeof(A1D_Handle_t *)
-                                         * a1_settings.handlepool_size);
+                                         * a1d_settings.handlepool_size);
     A1U_ERR_POP(status != 0,
                 "A1DI_Malloc failed in A1DI_Handle_pool_initialize\n");
 
-    for (index = 0; index < a1_settings.handlepool_size; index++)
+    for (index = 0; index < a1d_settings.handlepool_size; index++)
     {
         A1D_Active_handle_list[index] = NULL;
     }
@@ -146,7 +146,7 @@ void A1DI_Handle_pool_finalize()
 
     A1U_FUNC_ENTER();
 
-    for (index = 0; index < a1_settings.handlepool_size; index++)
+    for (index = 0; index < a1d_settings.handlepool_size; index++)
     {
         if (A1D_Active_handle_list[index] != NULL)
             A1DI_Conditional_advance((A1D_Active_handle_list[index])->active > 0);

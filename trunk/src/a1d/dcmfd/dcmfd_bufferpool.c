@@ -99,9 +99,9 @@ int A1DI_Buffer_pool_initialize()
     A1U_FUNC_ENTER();
 
     /*TODO: We should make these assignments dynamic*/
-    A1D_Buffer_pool.sizes[0] = a1_settings.put_packetsize;
-    A1D_Buffer_pool.sizes[1] = a1_settings.get_packetsize;
-    A1D_Buffer_pool.sizes[2] = a1_settings.putacc_packetsize;
+    A1D_Buffer_pool.sizes[0] = a1d_settings.put_packetsize;
+    A1D_Buffer_pool.sizes[1] = a1d_settings.get_packetsize;
+    A1D_Buffer_pool.sizes[2] = a1d_settings.putacc_packetsize;
 
     A1D_Buffer_pool.limits[0] = A1C_PUT_BUFFERPOOL_LIMIT;
     A1D_Buffer_pool.limits[1] = A1C_GET_BUFFERPOOL_LIMIT;

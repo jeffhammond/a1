@@ -96,12 +96,12 @@ void *A1DI_CHT_advance_lock(void * dummy)
     while (1)
     {
         DCMF_Messager_advance(0);
-        if (a1_settings.use_handoff && (A1D_Inside_handoff==0))
+        if (a1d_settings.use_handoff && (A1D_Inside_handoff==0))
         {
             A1DI_Handoff_progress();
         }
         A1DI_GLOBAL_LOCK_RELEASE();
-        A1DI_Wait_cycles(a1_settings.cht_pause_cycles);
+        A1DI_Wait_cycles(a1d_settings.cht_pause_cycles);
         A1DI_GLOBAL_LOCK_ACQUIRE();
     }
     A1DI_GLOBAL_LOCK_RELEASE();
