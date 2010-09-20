@@ -13,12 +13,12 @@
 
 #define A1UI_ACC(datatype, source, target, scaling, count)                  \
    do {                                                                     \
-     int i;                                                                 \
+     int w;                                                                 \
      datatype *s = (datatype *) source;                                     \
      datatype *t = (datatype *) target;                                     \
      datatype c = (datatype) scaling;                                       \
-     for(i=0; i<count; i++)                                                 \
-          t[i] += s[i]*c;                                                   \
+     for(w=0; w<count; w++)                                                 \
+          t[w] += s[w]*c;                                                   \
    } while(0)                                                               \
 
 int A1U_Acc_memcpy(void* source_ptr,
@@ -250,7 +250,7 @@ int A1U_AccV_memcpy(A1_iov_t *iov_ar,
                       iov_ar[i].source_ptr_ar[j],
                       iov_ar[i].target_ptr_ar[j],
                       *((double *) scaling),
-                      iov_ar[i].size/sizeof(double));
+                      (iov_ar[i].size)/sizeof(double));
            } 
            else
            {
@@ -261,35 +261,35 @@ int A1U_AccV_memcpy(A1_iov_t *iov_ar,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((int32_t *) scaling),
-                             iov_ar[i].size/sizeof(int32_t));
+                             (iov_ar[i].size)/sizeof(int32_t));
                      break;
                  case A1_INT64:
                      A1UI_ACC(int64_t,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((int64_t *) scaling),
-                             iov_ar[i].size/sizeof(int64_t));
+                             (iov_ar[i].size)/sizeof(int64_t));
                      break;
                  case A1_UINT32:
                      A1UI_ACC(uint32_t,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((uint32_t *) scaling),
-                             iov_ar[i].size/sizeof(uint32_t));
+                             (iov_ar[i].size)/sizeof(uint32_t));
                      break;
                  case A1_UINT64:
                      A1UI_ACC(uint64_t,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((uint64_t *) scaling),
-                             iov_ar[i].size/sizeof(uint64_t));
+                             (iov_ar[i].size)/sizeof(uint64_t));
                      break;
                  case A1_FLOAT:
                      A1UI_ACC(float,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((float *) scaling),
-                             iov_ar[i].size/sizeof(float));
+                             (iov_ar[i].size)/sizeof(float));
                      break;
                  default:
                      status = A1_ERROR;
