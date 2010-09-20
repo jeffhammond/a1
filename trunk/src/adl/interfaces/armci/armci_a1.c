@@ -321,19 +321,6 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
     posix_memalign((void **) &a1_iov_ar, 16, sizeof(A1_iov_t) * arr_len);
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
-
-    for(i=0; i<arr_len; i++)
-    {
-      printf("ARMCI Length at index: %d, is: %d \n", i, dsrc_arr[i].bytes);
-      fflush(stdout);
-    }
- 
-    for(i=0; i<arr_len; i++)
-    {
-      printf("A1 Length at index: %d, is: %d \n", i, a1_iov_ar[i].size);
-      fflush(stdout);
-    }
-
     status = A1_PutV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutV returned an error\n");
 
