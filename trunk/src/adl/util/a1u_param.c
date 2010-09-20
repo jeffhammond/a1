@@ -24,7 +24,7 @@ int A1U_Read_parameters()
     a1d_settings.network_bypass = A1C_NETWORK_BYPASS;
     if ((value = getenv("A1_NETWORK_BYPASS")) != NULL)
     {
-        a1d_settings.network_bypass = atoi(value);
+        a1u_settings.network_bypass = atoi(value);
     }
 
     fn_exit: A1U_FUNC_EXIT();
