@@ -5,6 +5,7 @@
  */
 
 #include "a1.h"
+#include "a1u.h"
 
 #if !defined A1D_H_INCLUDED
 #define A1D_H_INCLUDED
@@ -80,14 +81,13 @@ int A1D_Finalize(void);
 /**
  * \brief Device level implementation of A1_Abort.
  *
- * \param[out] rc            The error code from terminating A1.  Not sure what one would do with this.
  * \param[in]  error_code    The error code to be returned to the submitting environment.
  * \param[in]  error_message Text string to print to stderr upon termination.
  *
  * \ingroup MANAGEMENT
  */
 
-int A1D_Abort(int error_code, char error_message[]);
+void A1D_Abort(int error_code, char error_message[]);
 
 /**
  * \brief Device level implementation of A1D_Alloc_segment.
