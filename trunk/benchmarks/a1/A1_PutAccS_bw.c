@@ -54,13 +54,13 @@
 
 #define MAX_XDIM 1024 
 #define MAX_YDIM 1024
-#define ITERATIONS 1000
-#define SKIP 10
+#define ITERATIONS 100
+#define SKIP 0
 
 int main()
 {
 
-    int i, j, rank, nranks, msgsize, dest;
+    int i, j, rank, nranks, msgsize, peer;
     int xdim, ydim;
     long bufsize;
     double **buffer;
@@ -95,37 +95,41 @@ int main()
         printf("A1_PutAccS Bandwidth in MBPS \n");
         printf("%30s %22s \n", "Dimensions(array of doubles)", "Latency");
         fflush(stdout);
+    }
 
-        dest = 1;
+    src_stride = MAX_YDIM * sizeof(double);
+    trg_stride = MAX_YDIM * sizeof(double);
+    stride_level = 1;
+    scaling = 2.0;
 
-        src_stride = MAX_YDIM * sizeof(double);
-        trg_stride = MAX_YDIM * sizeof(double);
-        stride_level = 1;
-        scaling = 2.0;
+    for (xdim = 1; xdim <= MAX_XDIM; xdim *= 2)
+    {
 
-        for (xdim = 1; xdim <= MAX_XDIM; xdim *= 2)
-        {
+       count[1] = xdim;
 
-            count[1] = xdim;
+       for (ydim = 1; ydim <= MAX_YDIM; ydim *= 2)
+       {
 
-            for (ydim = 1; ydim <= MAX_YDIM; ydim *= 2)
+            count[0] = ydim * sizeof(double);
+
+            if(rank == 0)
+
             {
-
-                count[0] = ydim * sizeof(double);
 
                 for (i = 0; i < ITERATIONS + SKIP; i++)
                 {
-
+ 
+                    peer = 1;                 
+ 
                     if (i == SKIP) 
                           t_start = A1_Time_seconds();
 
-
-                    A1_NbPutAccS(dest,
+                    A1_NbPutAccS(peer,
                                  stride_level,
                                  count,
                                  (void *) buffer[rank],
                                  &src_stride,
-                                 (void *) buffer[dest],
+                                 (void *) buffer[peer],
                                  &trg_stride,
                                  A1_DOUBLE,
                                  (void *) &scaling,
@@ -144,9 +148,44 @@ int main()
                 printf("%30s %20.2f \n", temp, bw);
                 fflush(stdout);
 
-            }
+                A1_Barrier_group(A1_GROUP_WORLD);
 
-        }
+                A1_Barrier_group(A1_GROUP_WORLD);
+
+            }
+            else
+            {
+                peer = 0;    
+
+                A1_Barrier_group(A1_GROUP_WORLD);
+
+                for (i = 0; i < xdim; i++)
+                {
+                    for (j = 0; j < ydim; j++)
+                    {
+                        if (*(buffer[rank] + i * MAX_XDIM + j) != ((1.0 + rank) + scaling*(1.0 + peer)*(ITERATIONS + SKIP)))
+                        {
+                            printf("Data validation failed at X: %d Y: %d Expected : %f Actual : %f \n",
+                                   i,
+                                   j,
+                                   (1.0 + rank) + (1.0 + peer)*(ITERATIONS + SKIP),
+                                   *(buffer[rank] + i * MAX_XDIM + j));
+                            fflush(stdout);
+                            return -1;
+                        }
+                    }
+                }
+
+                for (i = 0; i < bufsize / sizeof(double); i++)
+                {
+                    *(buffer[rank] + i) = 1.0 + rank;
+                }
+
+                A1_Barrier_group(A1_GROUP_WORLD);
+
+              }
+
+         }
 
     }
 
