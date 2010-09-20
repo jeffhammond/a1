@@ -36,5 +36,5 @@ clean:
 realclean: clean
 	$(RM) $(RMFLAGS) $(TESTS)
 
-.PHONY: $(OUTPUTS)
+.PHONY: 
 
