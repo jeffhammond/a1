@@ -54,8 +54,8 @@
 
 #define MAX_XDIM 1024 
 #define MAX_YDIM 1024
-#define ITERATIONS 100
-#define SKIP 0
+#define ITERATIONS 1000
+#define SKIP 10
 
 int main()
 {
