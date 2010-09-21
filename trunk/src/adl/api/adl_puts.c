@@ -37,8 +37,16 @@ int A1_PutS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
-        status = A1D_Put(target, source_ptr, target_ptr, block_sizes[0]);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1D_Put returned an error\n");        
+        if(target == my_rank && a1u_settings.network_bypass)
+        {
+           status = A1U_Put_memcpy(source_ptr, target_ptr, block_sizes[0]);
+           A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
+        }
+        else
+        {
+           status = A1D_Put(target, source_ptr, target_ptr, block_sizes[0]);
+           A1U_ERR_POP(status != A1_SUCCESS, "A1D_Put returned an error\n");        
+        }
         goto fn_exit;
     }
 
@@ -96,9 +104,17 @@ int A1_NbPutS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
-        status = A1D_NbPut(target, source_ptr, target_ptr, 
-                    block_sizes[0], a1_handle);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPut returned an error\n");
+        if(target == my_rank && a1u_settings.network_bypass)
+        {
+           status = A1U_Put_memcpy(source_ptr, target_ptr, block_sizes[0]);
+           A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
+        }
+        else
+        {
+           status = A1D_NbPut(target, source_ptr, target_ptr, 
+                       block_sizes[0], a1_handle);
+           A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbPut returned an error\n");
+        }
         goto fn_exit;
     }
 
@@ -262,7 +278,7 @@ int A1_NbPutS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(proc == my_rank && a1u_settings.network_bypass)
+    if(target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_PutS_memcpy(stride_level,
                                  block_sizes,
