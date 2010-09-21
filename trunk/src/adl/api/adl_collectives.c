@@ -179,3 +179,65 @@ int A1_NbAllreduce_group(A1_group_t* group,
   fn_fail:
     goto fn_exit;
 }
+
+int A1_Bcast_group(A1_group_t* group,
+                   int root,
+                   int count,
+                   void* buffer)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1D_Bcast_group(group,
+                             root,
+                             count,
+                             buffer);
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Bcast_group returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int A1_NbBcast_group(A1_group_t* group,
+                     int root,
+                     int count,
+                     void* buffer,
+                     A1_handle_t a1_handle)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    /* FIXME: The profiling interface needs to go here */
+
+    /* FIXME: Locking functionality needs to go here */
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+    status = A1D_NbBcast_group(group,
+                               root,
+                               count,
+                               buffer,
+                               a1_handle);
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbBcast_group returned an error\n");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
