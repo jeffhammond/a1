@@ -126,6 +126,10 @@ int A1D_Initialize(int thread_level)
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_GlobalAllreduce_initialize returned with error \n");
 
+    status = A1DI_GlobalBcast_initialize();
+    A1U_ERR_POP(status != A1_SUCCESS,
+                "A1DI_GlobalBcast_initialize returned with error \n");
+
     status = A1DI_Put_initialize();
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Put_initialize returned with error \n");

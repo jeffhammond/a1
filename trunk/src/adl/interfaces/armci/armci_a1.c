@@ -1513,10 +1513,10 @@ void armci_msg_bcast(void* buffer, int len, int root)
     int status = A1_SUCCESS;
     A1U_FUNC_ENTER();
 
-    A1_Bcast_group(A1_GROUP_WORLD,
-                   root,
-                   len,
-                   buffer);
+    status = A1_Bcast_group(A1_GROUP_WORLD,
+                            root,
+                            len,
+                            buffer);
     A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Bcast_group returned error\n");
 
   fn_exit:
@@ -1731,6 +1731,9 @@ void armci_exchange_address(void *ptr_ar[], int n)
 
 void armci_msg_group_igop(int *x, int n, char* op, ARMCI_Group *group)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+  
     A1U_FUNC_ENTER();
 
     /*We need a check if it is a world group, we assume it for now*/
@@ -1770,6 +1773,9 @@ void armci_msg_group_igop(int *x, int n, char* op, ARMCI_Group *group)
 
 void armci_msg_group_lgop(long *x, int n, char* op,ARMCI_Group *group)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
     /*We need a check if it is a world group, we assume it for now*/
@@ -1809,6 +1815,9 @@ void armci_msg_group_lgop(long *x, int n, char* op,ARMCI_Group *group)
 
 void armci_msg_group_llgop(long long *x, int n, char* op,ARMCI_Group *group)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
     /*We need a check if it is a world group, we assume it for now*/
@@ -1848,6 +1857,9 @@ void armci_msg_group_llgop(long long *x, int n, char* op,ARMCI_Group *group)
 
 void armci_msg_group_fgop(float *x, int n, char* op,ARMCI_Group *group)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
     /*We need a check if it is a world group, we assume it for now*/
@@ -1887,6 +1899,9 @@ void armci_msg_group_fgop(float *x, int n, char* op,ARMCI_Group *group)
 
 void armci_msg_group_dgop(double *x, int n,char* op,ARMCI_Group *group)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
     /*We need a check if it is a world group, we assume it for now*/
@@ -1930,6 +1945,7 @@ void armci_msg_group_bcast_scope(int scope,
                                  int root, 
                                  ARMCI_Group *group)
 {
+    int status = A1_SUCCESS;
     A1U_FUNC_ENTER();
 
     if(scope != SCOPE_ALL)
@@ -1939,10 +1955,10 @@ void armci_msg_group_bcast_scope(int scope,
 
     /*We need a check if it is a world group, we assume it for now*/
 
-    A1_Bcast_group(A1_GROUP_WORLD,
-                   root,
-                   len,
-                   buffer);
+    status = A1_Bcast_group(A1_GROUP_WORLD,
+                            root,
+                            len,
+                            buf);
     A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Bcast_group returned error\n");
 
   fn_exit:
@@ -1956,11 +1972,6 @@ void armci_msg_group_bcast_scope(int scope,
 void armci_msg_group_barrier(ARMCI_Group *group)
 {
     A1U_FUNC_ENTER();
-
-    if(scope != SCOPE_ALL)
-    {
-        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported \n");
-    }
 
     /*We need a check if it is a world group, we assume it for now*/
 
