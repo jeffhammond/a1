@@ -34,6 +34,14 @@ int A1_GetS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /*Check if it is a contiguous transfer, issue a contiguous op*/
+    if(stride_level == 0)
+    {
+        status = A1D_Get(target, source_ptr, target_ptr, block_sizes[0]);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1D_Get returned an error\n");
+        goto fn_exit;
+    }
+
     if(target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_GetS_memcpy(stride_level,
@@ -56,10 +64,12 @@ int A1_GetS(int target,
         A1U_ERR_POP(status!=A1_SUCCESS, "A1D_GetS returned error\n");
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit:  
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 int A1_NbGetS(int target,
@@ -82,6 +92,15 @@ int A1_NbGetS(int target,
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
+
+    /*Check if it is a contiguous transfer, issue a contiguous op*/
+    if(stride_level == 0)
+    {
+        status = A1D_NbGet(target, source_ptr, target_ptr, 
+                      block_sizes[0], a1_handle);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned an error\n");
+        goto fn_exit;
+    }
 
     if(target == my_rank && a1u_settings.network_bypass)
     {
@@ -106,10 +125,12 @@ int A1_NbGetS(int target,
         A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbGetS returned error\n");
     }
 
-    fn_exit: A1U_FUNC_EXIT();
+  fn_exit: 
+    A1U_FUNC_EXIT();
     return status;
 
-    fn_fail: goto fn_exit;
+  fn_fail: 
+    goto fn_exit;
 }
 
 #else

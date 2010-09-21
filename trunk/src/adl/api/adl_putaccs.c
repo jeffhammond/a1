@@ -36,6 +36,19 @@ int A1_PutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /*Check if it is a contiguous transfer, issue a contiguous op*/
+    if(stride_level == 0)
+    {
+        status = A1D_PutAcc(target,
+                            source_ptr,
+                            target_ptr,
+                            block_sizes[0],
+                            a1_type,
+                            scaling);
+        A1U_ERR_POP((status!=A1_SUCCESS), "A1D_PutAcc returned error\n");
+        goto fn_exit;
+    }
+
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccS_memcpy(stride_level,
@@ -92,6 +105,20 @@ int A1_NbPutAccS(int target,
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
+
+    /*Check if it is a contiguous transfer, issue a contiguous op*/
+    if(stride_level == 0)
+    {
+        status = A1D_NbPutAcc(target,
+                              source_ptr,
+                              target_ptr,
+                              block_sizes[0],
+                              a1_type,
+                              scaling,
+			      a1_handle);
+        A1U_ERR_POP((status!=A1_SUCCESS), "A1D_PutAcc returned error\n");
+        goto fn_exit;
+    }
 
     if (target == my_rank && a1u_settings.network_bypass)
     {
