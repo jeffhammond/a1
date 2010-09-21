@@ -1135,7 +1135,7 @@ void ARMCI_Group_get_world(ARMCI_Group *group_out)
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    *group_out = A1_GROUP_WORLD;
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1733,8 +1733,33 @@ void armci_msg_group_igop(int *x, int n, char* op, ARMCI_Group *group)
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    /*We need a check if it is a world group, we assume it for now*/
 
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT32,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    
   fn_exit:
     A1U_FUNC_EXIT();
     return;
@@ -1747,7 +1772,32 @@ void armci_msg_group_lgop(long *x, int n, char* op,ARMCI_Group *group)
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    /*We need a check if it is a world group, we assume it for now*/
+
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT32,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1761,7 +1811,32 @@ void armci_msg_group_llgop(long long *x, int n, char* op,ARMCI_Group *group)
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    /*We need a check if it is a world group, we assume it for now*/
+
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT64,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1775,7 +1850,32 @@ void armci_msg_group_fgop(float *x, int n, char* op,ARMCI_Group *group)
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    /*We need a check if it is a world group, we assume it for now*/
+
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_FLOAT,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1789,7 +1889,32 @@ void armci_msg_group_dgop(double *x, int n,char* op,ARMCI_Group *group)
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    /*We need a check if it is a world group, we assume it for now*/
+
+    if(strncmp(op,"+",1) == 0)
+       a1_op = A1_SUM;
+    else if(strncmp(op,"*",1) == 0)
+       a1_op = A1_PROD;
+    else if(strncmp(op,"max",1) == 0)
+       a1_op = A1_MAX;
+    else if(strncmp(op,"min",1) == 0)
+       a1_op = A1_MIN;
+    else if(strncmp(op,"absmax",1) == 0)
+       a1_op = A1_MAXABS;
+    else if(strncmp(op,"absmin",1) == 0)
+       a1_op = A1_MINABS;
+    else if(strncmp(op,"or",1) == 0)
+       a1_op = A1_OR;
+    else
+       A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_DOUBLE,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1807,7 +1932,18 @@ void armci_msg_group_bcast_scope(int scope,
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    if(scope != SCOPE_ALL)
+    {
+        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported \n");
+    }
+
+    /*We need a check if it is a world group, we assume it for now*/
+
+    A1_Bcast_group(A1_GROUP_WORLD,
+                   root,
+                   len,
+                   buffer);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Bcast_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1821,7 +1957,14 @@ void armci_msg_group_barrier(ARMCI_Group *group)
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    if(scope != SCOPE_ALL)
+    {
+        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported \n");
+    }
+
+    /*We need a check if it is a world group, we assume it for now*/
+
+    A1_Barrier_group(A1_GROUP_WORLD);
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1843,6 +1986,12 @@ void armci_msg_group_gop_scope(int scope,
     A1_datatype_t a1_type;
 
     A1U_FUNC_ENTER();
+
+    if(scope != SCOPE_ALL)
+    {
+        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported in\
+                          armci_msg_gop_scope");
+    }
 
     switch(type)
     {
