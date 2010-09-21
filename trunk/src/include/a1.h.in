@@ -2104,6 +2104,35 @@ int A1_NbAllreduce_group(A1_group_t* group,
  * \ingroup MANYTOMANY
  */
 
+int A1_Bcast_group(A1_group_t* group,
+                   int count,
+                   void* buffer);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+int A1_NbBcast_group(A1_group_t* group,
+                     int count,
+                     void* buffer,
+                     A1_handle_t a1_handle);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
 int A1_Manytomany_group(A1_group_t* in_group,
                         A1_group_t* out_group,
                         int count,
