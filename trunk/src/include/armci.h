@@ -260,8 +260,7 @@ int armci_domain_count(armci_domain_t domain);
 int armci_domain_same_id(armci_domain_t domain, int proc);
 
 /*********** Group Functions ************************************/
-typedef struct {
-} ARMCI_Group;
+typedef void* ARMCI_Group;
 
 typedef struct {
 } armci_clus_t;
