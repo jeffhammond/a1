@@ -1510,9 +1510,14 @@ void armci_msg_llgop(long long *x, int n, char* op)
 
 void armci_msg_bcast(void* buffer, int len, int root)
 {
+    int status = A1_SUCCESS;
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    A1_Bcast_group(A1_GROUP_WORLD,
+                   root,
+                   len,
+                   buffer);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Bcast_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
