@@ -10,6 +10,7 @@ A1D_Request_pool_t A1D_Request_pool;
 
 A1D_Request_t* A1DI_Get_request(int wait_and_advance)
 {
+    int status = A1_SUCCESS;
     A1D_Request_t *a1d_request = NULL;
 
     A1U_FUNC_ENTER();
@@ -20,7 +21,10 @@ A1D_Request_t* A1DI_Get_request(int wait_and_advance)
 
     if (!wait_and_advance && !A1D_Request_pool.head)
     {
-        A1DI_Malloc((void **) &a1d_request, sizeof(A1D_Request_t));
+        status = A1DI_Malloc((void **) &a1d_request, sizeof(A1D_Request_t));
+        A1U_ERR_ABORT(status != 0,
+                   "A1DI_Malloc failed while allocating request pool\
+                        in A1DI_Get_request\n");
         a1d_request->in_pool = 0;
     }
     else

@@ -868,6 +868,36 @@ int A1D_NbAllreduce_group(A1_group_t* group,
                          A1_handle_t a1_handle);
 
 /**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+int A1D_Bcast_group(A1_group_t* group,
+                   int root,
+                   int count,
+                   void* buffer);
+
+/**
+ * \brief
+ *
+ * \param[in] group          Group of processes.
+ *
+ * \see
+ *
+ * \ingroup MANYTOMANY
+ */
+
+int A1D_NbBcast_group(A1_group_t* group,
+                      int root,
+                      int count,
+                      void* buffer,
+                      A1_handle_t a1_handle);
+
+/**
  * \brief Device level implementation of A1_Process_id 
  *
  * Returns process rank relative to the group base specified.

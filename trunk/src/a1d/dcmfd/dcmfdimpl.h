@@ -214,7 +214,7 @@ void A1DI_Handoff_progress();
 #define A1DI_Advance()                                             \
  do {                                                              \
          DCMF_Messager_advance(0);                                 \
-         if (a1d_settings.use_handoff && (A1D_Inside_handoff==0))   \
+         if (a1d_settings.use_handoff && (A1D_Inside_handoff==0))  \
          {        						   \
              A1DI_Handoff_progress();                              \
          }                                                         \
@@ -223,7 +223,7 @@ void A1DI_Handoff_progress();
 #define A1DI_Conditional_advance(boolean)                           \
     while(boolean) {                                                \
           DCMF_Messager_advance(0);                                 \
-          if (a1d_settings.use_handoff && (A1D_Inside_handoff==0))   \
+          if (a1d_settings.use_handoff && (A1D_Inside_handoff==0))  \
           {							    \
                 A1DI_Handoff_progress();                            \
           }							    \
@@ -527,6 +527,7 @@ extern DCMF_Protocol_t A1D_Control_flushack_protocol;
 extern DCMF_Protocol_t A1D_Send_flush_protocol;
 extern DCMF_Protocol_t A1D_GlobalBarrier_protocol;
 extern DCMF_Protocol_t A1D_GlobalAllreduce_protocol;
+extern DCMF_Protocol_t A1D_GlobalBcast_protocol;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
 extern DCMF_Protocol_t A1D_Generic_putacc_protocol;
