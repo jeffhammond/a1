@@ -2105,6 +2105,7 @@ int A1_NbAllreduce_group(A1_group_t* group,
  */
 
 int A1_Bcast_group(A1_group_t* group,
+                   int root,
                    int count,
                    void* buffer);
 
@@ -2119,6 +2120,7 @@ int A1_Bcast_group(A1_group_t* group,
  */
 
 int A1_NbBcast_group(A1_group_t* group,
+                     int root,
                      int count,
                      void* buffer,
                      A1_handle_t a1_handle);
