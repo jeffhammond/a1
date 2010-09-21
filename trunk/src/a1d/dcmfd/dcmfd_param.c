@@ -150,29 +150,32 @@ int A1DI_Print_parameters(void)
 
     A1U_FUNC_ENTER();
 
-    A1U_output_printf("=============== A1 Parameters ================\n");
-    A1U_output_printf("A1 is using the DCMF (Blue Gene/P) device\n");
-
-    if (a1d_settings.enable_cht)
+    if (A1D_Process_info.my_rank == 0)
     {
-        A1U_output_printf("passive-target progress enabled via CHT\n");
-    }
-    else if (a1d_settings.enable_interrupts)
-    {
-        A1U_output_printf("passive-target progress enabled via DCMF interrupts\n");
-    }
-    else
-    {
-        A1U_output_printf("passive-target progress disabled (THIS IS BAD)\n");
-    }
+        A1U_output_printf("=============== A1 Parameters ================\n");
+        A1U_output_printf("A1 is using the DCMF (Blue Gene/P) device\n");
 
-    A1U_output_printf("cht_pause_cycles = %u\n", a1d_settings.cht_pause_cycles);
-    A1U_output_printf("put_packing_limit = %u\n", a1d_settings.put_packing_limit);
-    A1U_output_printf("get_packing_limit = %u\n", a1d_settings.get_packing_limit);
-    A1U_output_printf("putacc_packing_limit = %u\n", a1d_settings.putacc_packing_limit);
-    A1U_output_printf("flushall_pending_limit = %u\n", a1d_settings.flushall_pending_limit);
+        if (a1d_settings.enable_cht)
+        {
+            A1U_output_printf("passive-target progress enabled via CHT\n");
+        }
+        else if (a1d_settings.enable_interrupts)
+        {
+            A1U_output_printf("passive-target progress enabled via DCMF interrupts\n");
+        }
+        else
+        {
+            A1U_output_printf("passive-target progress disabled (THIS IS BAD)\n");
+        }
 
-    /* TODO: finish output for the rest of the device-dependent settings */
+        A1U_output_printf("cht_pause_cycles = %u\n", a1d_settings.cht_pause_cycles);
+        A1U_output_printf("put_packing_limit = %u\n", a1d_settings.put_packing_limit);
+        A1U_output_printf("get_packing_limit = %u\n", a1d_settings.get_packing_limit);
+        A1U_output_printf("putacc_packing_limit = %u\n", a1d_settings.putacc_packing_limit);
+        A1U_output_printf("flushall_pending_limit = %u\n", a1d_settings.flushall_pending_limit);
+
+        /* TODO: finish output for the rest of the device-dependent settings */
+    }
 
   fn_exit: 
     A1U_FUNC_EXIT();
