@@ -23,8 +23,14 @@ int A1D_Initialize(int thread_level)
     /* TODO: need to set "A1 is alive" global variable */
 
     count = DCMF_Messager_initialize();
-    A1U_WARNING(count == 0,
-                "DCMF_Messager_initialize has been called more than once.");
+    /* Do not issue this warning if using MPI since in that case we know DCMF
+       will be initialized by MPI before A1 (assuming GA->ARMCI->A1 call path). */
+    // OMIT THIS WARNING FOR NOW.  WE HAVE BIGGER PROBLEMS AT THE MOMENT.
+    //if(!a1d_settings.mpi_active)
+    //{
+    //    A1U_WARNING(count == 0,
+    //                "DCMF_Messager_initialize has been called more than once.");
+    //}
 
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
