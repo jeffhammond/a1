@@ -46,8 +46,10 @@ int main(int argc, char **argv)
     int ga_nproc = GA_Nnodes();
     int ga_me    = GA_Nodeid();
 
-    dims[0] = pow(2,rank);
+    dims[0] = ( argc>1 ? atoi(argv[1]) : 1024 );
+    dims[1] = ( argc>2 ? atoi(argv[2]) : 1024 );
     chunk[0] = -1;
+    chunk[1] = -1;
 
     int g_a = GA_Create_handle();
     GA_Set_pgroup(g_a,GA_Pgroup_get_world());
@@ -61,15 +63,21 @@ int main(int argc, char **argv)
     GA_Set_chunk(g_a,chunk);
 
     int status = GA_Allocate(g_a);
-    if(0 != status){ GA_Error("GA_Allocate failed",0); };
+    if(0 != status) GA_Error("GA_Allocate failed",0);
+
+    GA_Print_distribution(g_a);
 
     GA_Zero(g_a);
     GA_Sync();
-    double val = -1.0;
-    GA_Fill(g_a,&val);
-    GA_Sync();
 
-    GA_Print_distribution(g_a);
+    int i;
+    for (i=0;i<n;i++) buf[i]=(DoublePrecision)(i+row+1);
+    lo[0]=hi[0]=row;
+    lo[1]=0;  hi[1]=n-1;
+    NGA_Put(g_a, lo, hi, buf, &n);
+
+
+
 
     GA_Destroy(g_a);
 
