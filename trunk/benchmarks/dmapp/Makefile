@@ -1,7 +1,7 @@
 FC      = ftn 
 CC      = cc 
-COPT    = -g
-FOPT    = -g
+COPT    = -g -O2
+FOPT    = -g -O2
 
 # CSCS paths
 DMAPP_PATH=/opt/cray/dmapp/2.2-1.0301.2349.6.6.gem
@@ -22,8 +22,7 @@ ASM   := $(patsubst %.c,%.s,$(wildcard *.c))
 
 all: tests
 
-tests: $(CTESTS)
-asm: $(CASM)
+tests: $(TESTS)
 
 %.x: %.o
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
