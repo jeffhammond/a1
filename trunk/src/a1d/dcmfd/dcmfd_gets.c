@@ -494,7 +494,6 @@ int A1D_GetS(int target,
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
-    int i, chunk_count = 1;
 
     A1U_FUNC_ENTER();
 
@@ -503,9 +502,6 @@ int A1D_GetS(int target,
     a1d_handle = A1DI_Get_handle();
     A1U_ERR_POP(status = (a1d_handle == NULL),
                 "A1DI_Get_handle returned NULL in A1D_GetS. \n");
-
-    for(i=1; i<=stride_level; i++)
-        chunk_count = block_sizes[i]*chunk_count;
 
     if (block_sizes[0] + sizeof(A1D_Packed_gets_response_header_t) >= a1d_settings.get_packing_limit)
     {
@@ -563,16 +559,12 @@ int A1D_NbGetS(int target,
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle;
-    int i, chunk_count = 1;
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
-
-    for(i=1; i<=stride_level; i++)
-        chunk_count = block_sizes[i]*chunk_count;
 
     if (block_sizes[0] + sizeof(A1D_Packed_gets_response_header_t) >= a1d_settings.get_packing_limit)
     {

@@ -379,7 +379,6 @@ int A1D_PutS(int target,
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle = NULL;
-    int i, chunk_count = 1;
 
     A1U_FUNC_ENTER();
 
@@ -435,7 +434,6 @@ int A1D_NbPutS(int target,
 {
     int status = A1_SUCCESS;
     A1D_Handle_t *a1d_handle = NULL;
-    int i, chunk_count = 1;
 
     A1U_FUNC_ENTER();
 

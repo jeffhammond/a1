@@ -318,7 +318,7 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
     /* ARMCI iov and A1 iov are similar structures but follow 
      * different naming conventions. So we make a copy.*/
     /* TODO Why not use A1D_Malloc here? A1D_Malloc is not exposed here, currently*/
-    posix_memalign((void **) &a1_iov_ar, 16, sizeof(A1_iov_t) * arr_len);
+    status = posix_memalign((void **) &a1_iov_ar, 16, sizeof(A1_iov_t) * arr_len);
     A1U_ERR_POP(status != 0, "posix_memalign returned an error\n");
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
@@ -2003,6 +2003,8 @@ void armci_msg_group_gop_scope(int scope,
         A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported in\
                           armci_msg_gop_scope");
     }
+
+    /*We need a check if it is a world group, we assume it for now*/
 
     switch(type)
     {
