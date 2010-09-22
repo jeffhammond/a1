@@ -79,23 +79,27 @@
         {                                                                   \
             fprintf(stderr, "%s (%s:%d): ", A1U_FUNC, __FILE__, __LINE__);  \
             fprintf(stderr, __VA_ARGS__);                                   \
+            fflush(stderr);                                                 \
         }
 #elif defined __FILE__
     #define A1U_error_printf(...)                               \
         {                                                        \
             fprintf(stderr, "%s (%d): ", __FILE__, __LINE__);    \
             fprintf(stderr, __VA_ARGS__);                        \
+            fflush(stderr);                                      \
         }
 #else
     #define A1U_error_printf(...)                                          \
         {                                                                   \
             fprintf(stderr, __VA_ARGS__);                                   \
+            fflush(stderr);                                                 \
         }
 #endif
 
 #define A1U_output_printf(...)                                         \
     {                                                                   \
-        fprintf(stderr, __VA_ARGS__);                                   \
+        fprintf(stdout, __VA_ARGS__);                                   \
+        fflush(stdout);                                                 \
     }
 
 #define A1U_ASSERT_ABORT(x, ...)                                        \
