@@ -2022,8 +2022,7 @@ void armci_msg_group_gop_scope(int scope,
              a1_type = A1_DOUBLE;
              break;
        default: 
-             A1U_ERR_ABORT(A1_ERROR, "Invalid datatype received in\
-                        armci_msg_group_gop_scope");
+             A1U_ERR_ABORT(A1_ERROR, "Invalid datatype received in armci_msg_group_gop_scope");
              break;
     }
 

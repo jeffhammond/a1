@@ -11,41 +11,68 @@
       Data Structures message.h
 *********************************/
 
+#define ARMCI_INT       -99
+#define ARMCI_LONG      -101
+#define ARMCI_LONG_LONG -102
+#define ARMCI_FLOAT     -306
+#define ARMCI_DOUBLE    -307
+
 #define SCOPE_ALL     333
 #define SCOPE_NODE    337
 #define SCOPE_MASTERS 339
+
+/*******************************
+      Data Structures armci.h
+*********************************/
+
+#define ARMCI_ACC_OFF 36
+#define ARMCI_ACC_INT (ARMCI_ACC_OFF + 1)
+#define ARMCI_ACC_DBL (ARMCI_ACC_OFF + 2)
+#define ARMCI_ACC_FLT (ARMCI_ACC_OFF + 3)
+#define ARMCI_ACC_CPL (ARMCI_ACC_OFF + 4)
+#define ARMCI_ACC_DCP (ARMCI_ACC_OFF + 5)
+#define ARMCI_ACC_LNG (ARMCI_ACC_OFF + 6)
+
+#define ARMCI_SWAP 10
+#define ARMCI_SWAP_LONG 11
+#define ARMCI_FETCH_AND_ADD 12
+#define ARMCI_FETCH_AND_ADD_LONG 13
 
 /*************************
       Data Structures
 *************************/
 
-typedef enum
-{
-   ARMCI_INT = 10,
-   ARMCI_LONG,
-   ARMCI_LONG_LONG,
-   ARMCI_FLOAT,
-   ARMCI_DOUBLE
-} armci_gop_datatype_t;
+typedef int armci_gop_datatype_t;
+typedef int armci_datatype_t;
+typedef int armci_rmw_op_t;
 
-typedef enum 
-{
-   ARMCI_ACC_INT = 20,
-   ARMCI_ACC_LNG,
-   ARMCI_ACC_FLT,
-   ARMCI_ACC_DBL,
-   ARMCI_ACC_CPL,
-   ARMCI_ACC_DCP,
-   ARMCI_ACC_DCPL
-} armci_datatype_t;
+//typedef enum
+//{
+//   ARMCI_INT = -99,
+//   ARMCI_LONG = -101,
+//   ARMCI_LONG_LONG = -102,
+//   ARMCI_FLOAT = -306,
+//   ARMCI_DOUBLE = -307
+//} armci_gop_datatype_t;
 
-typedef enum
-{
-   ARMCI_FETCH_AND_ADD,
-   ARMCI_FETCH_AND_ADD_LONG,
-   ARMCI_SWAP,
-   ARMCI_SWAP_LONG
-} armci_rmw_op_t;
+//typedef enum
+//{
+//   ARMCI_ACC_INT = 20,
+//   ARMCI_ACC_LNG,
+//   ARMCI_ACC_FLT,
+//   ARMCI_ACC_DBL,
+//   ARMCI_ACC_CPL,
+//   ARMCI_ACC_DCP,
+//   ARMCI_ACC_DCPL
+//} armci_datatype_t;
+
+//typedef enum
+//{
+//   ARMCI_FETCH_AND_ADD,
+//   ARMCI_FETCH_AND_ADD_LONG,
+//   ARMCI_SWAP,
+//   ARMCI_SWAP_LONG
+//} armci_rmw_op_t;
 
 typedef struct {
    void **src_ptr_array; 
