@@ -1268,15 +1268,15 @@ void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS; 
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_ABORT(A1_ERROR, "Invalid op received in\
@@ -1550,15 +1550,15 @@ void armci_msg_dgop(double *x, int n, char* op)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -1590,15 +1590,15 @@ void armci_msg_fgop(float *x, int n, char* op)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -1630,15 +1630,15 @@ void armci_msg_igop(int *x, int n, char* op)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -1670,15 +1670,15 @@ void armci_msg_lgop(long *x, int n, char* op)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -1740,15 +1740,15 @@ void armci_msg_group_igop(int *x, int n, char* op, ARMCI_Group *group)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -1782,15 +1782,15 @@ void armci_msg_group_lgop(long *x, int n, char* op,ARMCI_Group *group)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -1824,15 +1824,15 @@ void armci_msg_group_llgop(long long *x, int n, char* op,ARMCI_Group *group)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -1866,15 +1866,15 @@ void armci_msg_group_fgop(float *x, int n, char* op,ARMCI_Group *group)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -1908,15 +1908,15 @@ void armci_msg_group_dgop(double *x, int n,char* op,ARMCI_Group *group)
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS;
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
@@ -2028,15 +2028,15 @@ void armci_msg_group_gop_scope(int scope,
        a1_op = A1_SUM;
     else if(strncmp(op,"*",1) == 0)
        a1_op = A1_PROD;
-    else if(strncmp(op,"max",1) == 0)
+    else if(strncmp(op,"max",3) == 0)
        a1_op = A1_MAX;
-    else if(strncmp(op,"min",1) == 0)
+    else if(strncmp(op,"min",3) == 0)
        a1_op = A1_MIN;
-    else if(strncmp(op,"absmax",1) == 0)
+    else if(strncmp(op,"absmax",6) == 0)
        a1_op = A1_MAXABS;
-    else if(strncmp(op,"absmin",1) == 0)
+    else if(strncmp(op,"absmin",6) == 0)
        a1_op = A1_MINABS; 
-    else if(strncmp(op,"or",1) == 0)
+    else if(strncmp(op,"or",2) == 0)
        a1_op = A1_OR;
     else
        A1U_ERR_ABORT(A1_ERROR, "Invalid op received in\
