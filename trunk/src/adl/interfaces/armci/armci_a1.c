@@ -507,7 +507,7 @@ int ARMCI_Acc(int datatype,
           break;
        case ARMCI_ACC_CPL:
           A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
-       case ARMCI_ACC_DCPL:
+       case ARMCI_ACC_DCP:
           A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
        default:
           A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
