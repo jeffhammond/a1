@@ -75,7 +75,6 @@ int main(int argc, char **argv)
        buffer[i] = 10;
     }
 
-   
     armci_msg_igop(buffer, 1024*sizeof(int), &op); 
 
     for(i=0; i<1024; i++) 
@@ -91,7 +90,7 @@ int main(int argc, char **argv)
     printf("Validation successful \n");
     fflush(stdout);
 
-    ARMCI_Free((void *) buffer);
+    free(buffer);
 
     ARMCI_Finalize();
 
