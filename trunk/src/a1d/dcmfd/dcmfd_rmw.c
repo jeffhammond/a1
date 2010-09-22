@@ -144,10 +144,10 @@ void A1DI_RecvDone_rmw_callback(void *clientdata,
     response_header.handle_ptr = header->handle_ptr;
 
     done_callback.function = A1DI_Request_done;
-    done_callback.clientdata = (void *) a1d_request;
+    done_callback.clientdata = (void *) response_request;
 
     status = DCMF_Send(&A1D_Rmw_response_protocol,
-                       &(a1d_request->request),
+                       &(response_request->request),
                        done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        header->source,
@@ -185,7 +185,7 @@ DCMF_Request_t* A1DI_RecvSend_rmw_callback(void *clientdata,
     *rcvbuf = a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_header_t);
 
     a1d_request->a1d_buffer_ptr = a1d_buffer;
-    cb_done->function = A1DI_RecvDone_rmw_response_callback;
+    cb_done->function = A1DI_RecvDone_rmw_callback;
     cb_done->clientdata = (void *) a1d_request;
 
     return &(a1d_request->request);
