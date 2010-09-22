@@ -48,8 +48,15 @@ int A1D_Finalize(void)
     /* NOTE: exit critical section before finalize since CS may not work after DCMF is terminated */
 
     count = DCMF_Messager_finalize();
-    A1U_WARNING(count == 0,
-                "DCMF_Messager_finalize has been called more than once.");
+    /* Do not issue this warning if using MPI since in that case we know DCMF
+       will be initialized by MPI before A1 (assuming GA->ARMCI->A1 call path). */
+    //if(!a1d_settings.mpi_active)
+    //{
+    //    A1U_WARNING(count == 0,
+    //                "DCMF_Messager_finalize has been called more than once.");
+    //}
+
+
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
