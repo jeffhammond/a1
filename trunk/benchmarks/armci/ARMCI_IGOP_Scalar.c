@@ -79,15 +79,12 @@ int main(int argc, char **argv)
 
     armci_msg_igop(&buffer, sizeof(int), &op); 
 
-    for(i=0; i<1024; i++) 
+    if(buffer != 1)
     {
-       if(buffer != 1)
-       {
           printf("Validation failed expected: 1 actual: %d \n", buffer);
           fflush(stdout);
           exit(-1);
-       }  
-    }
+    }  
 
     printf("Validation successful \n");
     fflush(stdout);
