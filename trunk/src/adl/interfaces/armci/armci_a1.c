@@ -508,7 +508,7 @@ int ARMCI_Acc(int datatype,
        case ARMCI_ACC_CPL:
           A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
        case ARMCI_ACC_DCP:
-          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
        default:
           A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
@@ -567,8 +567,6 @@ int ARMCI_AccS(int datatype,
           A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
        case ARMCI_ACC_DCP:
           A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
-       case ARMCI_ACC_DCPL:
-          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
        default:
           A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype %d \n", datatype);
     }
@@ -638,8 +636,8 @@ int ARMCI_NbAccS(int datatype,
           break;
        case ARMCI_ACC_CPL:
           A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
-       case ARMCI_ACC_DCPL:
-          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
+       case ARMCI_ACC_DCP:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
        default:
           A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
@@ -703,8 +701,8 @@ int ARMCI_AccV(int datatype,
           break;
        case ARMCI_ACC_CPL:
           A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
-       case ARMCI_ACC_DCPL:
-          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCPL datatype not supported\n");
+       case ARMCI_ACC_DCP:
+          A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
        default:
           A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
