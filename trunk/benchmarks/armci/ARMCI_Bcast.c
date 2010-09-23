@@ -80,6 +80,12 @@ int main(int argc, char **argv)
           buffer[i] = 0;
     }
 
+    if(rank == 0)
+    {
+      printf("Testing functionality of ARMCI_Bcast \n");
+      fflush(stdout);
+    } 
+
     for(msgsize=sizeof(int); msgsize<=MAX_MSG_SIZE; msgsize*=2)
     {
        armci_msg_bcast(buffer, msgsize, 0); 
@@ -88,7 +94,8 @@ int main(int argc, char **argv)
        {
           if(buffer[i] != (2<<20 - 1))
           {
-             printf("[%d] Validation failed expected: %d actual: %d \n", rank, (2<<20 - 1), buffer[i]);
+             printf("[%d] Validation failed for msg size: %d at index: %d expected: %d actual: %d \n",
+                     rank, msgsize, i, (2<<20 - 1), buffer[i]);
              fflush(stdout);
              exit(-1);
           }  
@@ -101,10 +108,11 @@ int main(int argc, char **argv)
           else
              buffer[i] = 0;
        }
-    }
 
-    printf("[%d] Validation successful \n", rank);
-    fflush(stdout);
+       printf("[%d] Validation successful for msg size: %d\n", rank, msgsize);
+       fflush(stdout);
+ 
+    }
 
     free(buffer);
 
