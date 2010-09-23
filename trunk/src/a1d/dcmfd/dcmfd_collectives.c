@@ -321,7 +321,7 @@ int A1DI_GlobalAllreduce(int count,
             {
                case A1_INT32:
                    datatype = DCMF_SIGNED_INT;
-                   bytes = count * 4;
+                   bytes = count * sizeof(int32_t);
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
                                "A1DI_Malloc returned error in A1DI_GlobalAllreduce \n");
@@ -330,7 +330,7 @@ int A1DI_GlobalAllreduce(int count,
                    break;
                case A1_INT64:
                    datatype = DCMF_SIGNED_LONG_LONG;
-                   bytes = count * 8;
+                   bytes = count * sizeof(int64_t);
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
                                "A1DI_Malloc returned error in A1DI_GlobalAllreduce \n");
@@ -516,7 +516,7 @@ int A1DI_NbGlobalAllreduce(int count,
             {
                case A1_INT32:
                    datatype = DCMF_SIGNED_INT;
-                   bytes = count * 4;
+                   bytes = count * sizeof(int32_t);
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
                                "A1DI_Malloc returned error in A1DI_NbGlobalAllreduce \n");
@@ -525,7 +525,7 @@ int A1DI_NbGlobalAllreduce(int count,
                    break;
                case A1_INT64:
                    datatype = DCMF_SIGNED_LONG_LONG;
-                   bytes = count * 8;
+                   bytes = count * sizeof(int64_t);
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
                                "A1DI_Malloc returned error in A1DI_NbGlobalAllreduce \n");
