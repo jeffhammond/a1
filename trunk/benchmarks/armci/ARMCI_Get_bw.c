@@ -62,7 +62,8 @@
 int main(int argc, char *argv[])
 {
 
-    size_t i, rank, nranks, msgsize, dest;
+    int rank, nranks;
+    size_t i, msgsize, dest;
     size_t iterations, max_msgsize;
     int bufsize;
     double **buffer;
