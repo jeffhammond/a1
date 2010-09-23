@@ -948,7 +948,7 @@ int armci_domain_id(armci_domain_t domain, int glob_proc_id)
 
     A1U_FUNC_ENTER();
 
-    domain_id = A1_Process_id(A1_GROUP_WORLD);
+    domain_id = 0;
     
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1217,18 +1217,6 @@ int ARMCI_Malloc_group(void *ptr_arr[], armci_size_t bytes,ARMCI_Group *group)
     goto fn_exit;
 }
 
-int armci_domain_same_id(armci_domain_t domain, int proc)
-{
-    A1U_FUNC_ENTER();
-
-  fn_exit:
-    A1U_FUNC_EXIT();
-    return 0;
-
-  fn_fail:
-    goto fn_exit;
-}
-
 void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type)
 {
     int status = A1_SUCCESS;
@@ -1434,11 +1422,29 @@ int ARMCI_Same_node(int proc)
 
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    /* each process is its own node */
+    test = (proc==A1_Process_id(A1_GROUP_WORLD) ? 1 : 0);
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return status;
+    return test;
+
+  fn_fail:
+    goto fn_exit;
+}
+
+int armci_domain_same_id(armci_domain_t domain, int proc)
+{
+    int val;
+
+    A1U_FUNC_ENTER();
+
+    /* this function always returns false */
+    val = 0;
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return val;
 
   fn_fail:
     goto fn_exit;
@@ -1446,11 +1452,16 @@ int ARMCI_Same_node(int proc)
 
 int armci_domain_my_id(armci_domain_t domain)
 {
+    int val;
+
     A1U_FUNC_ENTER();
+
+    /* this function always returns false */
+    val = 0;
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return (int) 0;
+    return val;
 
   fn_fail:
     goto fn_exit;
@@ -1458,11 +1469,16 @@ int armci_domain_my_id(armci_domain_t domain)
 
 int armci_domain_count(armci_domain_t domain)
 {
+    int val;
+
     A1U_FUNC_ENTER();
+
+    /* this function always returns one */
+    val = 1;
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return (int) 1;
+    return val;
 
   fn_fail:
     goto fn_exit;
@@ -1470,11 +1486,15 @@ int armci_domain_count(armci_domain_t domain)
 
 int armci_domain_nprocs(armci_domain_t domain, int id)
 {
+    int nproc;
+
     A1U_FUNC_ENTER();
+
+    nproc = A1_Process_total(A1_GROUP_WORLD);
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return A1_Process_total(A1_GROUP_WORLD);
+    return nproc;
 
   fn_fail:
     goto fn_exit;
@@ -1482,11 +1502,16 @@ int armci_domain_nprocs(armci_domain_t domain, int id)
 
 int armci_domain_glob_proc_id(armci_domain_t domain, int id, int loc_proc_id)
 {
+    int val;
+
     A1U_FUNC_ENTER();
+
+    /* this function always returns zero */
+    val = 0;
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return A1_Process_id(A1_GROUP_WORLD);
+    return val;
 
   fn_fail:
     goto fn_exit;
