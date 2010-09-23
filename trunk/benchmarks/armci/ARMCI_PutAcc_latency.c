@@ -60,7 +60,8 @@
 int main(int argc, char **argv)
 {
 
-    size_t i, rank, nranks, msgsize, peer;
+    int rank, nranks;
+    size_t i, msgsize, peer;
     long bufsize;
     double **buffer;
     double scaling;
