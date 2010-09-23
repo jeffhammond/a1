@@ -320,7 +320,7 @@ int A1DI_GlobalAllreduce(int count,
             switch (a1_type)
             {
                case A1_INT32:
-                   datatype = DCMF_SIGNED_SHORT;
+                   datatype = DCMF_SIGNED_INT;
                    bytes = count * 4;
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
@@ -338,7 +338,7 @@ int A1DI_GlobalAllreduce(int count,
                    in = in_abs;
                    break;
                case A1_UINT32:
-                   datatype = DCMF_UNSIGNED_SHORT;
+                   datatype = DCMF_UNSIGNED_INT;
                    break;
                case A1_UINT64:
                    datatype = DCMF_UNSIGNED_LONG_LONG;
@@ -369,13 +369,13 @@ int A1DI_GlobalAllreduce(int count,
            switch (a1_type)
            {
               case A1_INT32:
-                  datatype = DCMF_SIGNED_SHORT;
+                  datatype = DCMF_SIGNED_INT;
                   break;
               case A1_INT64:
                   datatype = DCMF_SIGNED_LONG_LONG;
                   break;
               case A1_UINT32:
-                  datatype = DCMF_UNSIGNED_SHORT;
+                  datatype = DCMF_UNSIGNED_INT;
                   break;
               case A1_UINT64:
                   datatype = DCMF_UNSIGNED_LONG_LONG;
@@ -515,7 +515,7 @@ int A1DI_NbGlobalAllreduce(int count,
             switch (a1_type)
             {
                case A1_INT32:
-                   datatype = DCMF_SIGNED_SHORT;
+                   datatype = DCMF_SIGNED_INT;
                    bytes = count * 4;
                    status = A1DI_Malloc(&in_abs, bytes);
                    A1U_ERR_POP(status != A1_SUCCESS,
@@ -533,7 +533,7 @@ int A1DI_NbGlobalAllreduce(int count,
                    in = in_abs;
                    break;
                case A1_UINT32:
-                   datatype = DCMF_UNSIGNED_SHORT;
+                   datatype = DCMF_UNSIGNED_INT;
                    break;
                case A1_UINT64:
                    datatype = DCMF_UNSIGNED_LONG_LONG;
@@ -564,13 +564,13 @@ int A1DI_NbGlobalAllreduce(int count,
            switch (a1_type)
            {
               case A1_INT32:
-                  datatype = DCMF_SIGNED_SHORT;
+                  datatype = DCMF_SIGNED_INT;
                   break;
               case A1_INT64:
                   datatype = DCMF_SIGNED_LONG_LONG;
                   break;
               case A1_UINT32:
-                  datatype = DCMF_UNSIGNED_SHORT;
+                  datatype = DCMF_UNSIGNED_INT;
                   break;
               case A1_UINT64:
                   datatype = DCMF_UNSIGNED_LONG_LONG;
