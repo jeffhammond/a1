@@ -109,9 +109,13 @@ int main(int argc, char **argv)
              buffer[i] = 0;
        }
 
-       printf("[%d] Validation successful for msg size: %d\n", rank, msgsize);
-       fflush(stdout);
- 
+       ARMCI_Barrier();
+
+       if(rank == 0)
+       {
+         printf("Validation successful for msg size: %d\n", msgsize);
+         fflush(stdout);
+       }
     }
 
     free(buffer);
