@@ -1418,16 +1418,16 @@ int ARMCI_PutS_flag(
 
 int ARMCI_Same_node(int proc)
 {
-    int status = A1_SUCCESS;
+    int val;
 
     A1U_FUNC_ENTER();
 
     /* each process is its own node */
-    test = (proc==A1_Process_id(A1_GROUP_WORLD) ? 1 : 0);
+    val = (proc==A1_Process_id(A1_GROUP_WORLD) ? 1 : 0);
 
   fn_exit:
     A1U_FUNC_EXIT();
-    return test;
+    return val;
 
   fn_fail:
     goto fn_exit;
