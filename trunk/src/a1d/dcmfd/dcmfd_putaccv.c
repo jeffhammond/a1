@@ -21,14 +21,11 @@ int A1DI_Direct_putaccv(int target,
     A1U_FUNC_ENTER();
 
     header.datatype = a1_type;
-    likely_if(a1_type == A1_DOUBLE)
+    switch (a1_type)
     {
-        (header.scaling).double_value = *((double *) scaling);
-    }
-    else
-    {
-        switch (a1_type)
-        {
+        case A1_DOUBLE:
+            (header.scaling).double_value = *((double *) scaling);
+            break;
         case A1_INT32:
             (header.scaling).int32_value = *((int32_t *) scaling);
             break;
@@ -46,10 +43,8 @@ int A1DI_Direct_putaccv(int target,
             break;
         default:
             status = A1_ERROR;
-            A1U_ERR_POP((status != A1_SUCCESS),
-                        "Invalid data type in putacc \n");
+            A1U_ERR_POP((status != A1_SUCCESS),"Invalid data type in putacc \n");
             break;
-        }
     }
 
     for (i=0; i<ar_len; i++)

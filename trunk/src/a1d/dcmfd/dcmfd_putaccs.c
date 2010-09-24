@@ -137,14 +137,11 @@ int A1DI_Packed_putaccs(int target,
     memcpy(header.trg_stride_ar, trg_stride_ar, stride_level * sizeof(int));
     memcpy(header.block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
     header.datatype = a1_type;
-    likely_if(a1_type == A1_DOUBLE)
+    switch (a1_type)
     {
-        memcpy((void *) &(header.scaling), scaling, sizeof(double));
-    }
-    else
-    {
-        switch (a1_type)
-        {
+        case A1_DOUBLE:
+            memcpy((void *) &(header.scaling), scaling, sizeof(double));
+            break;
         case A1_INT32:
             memcpy((void *) &(header.scaling), scaling, sizeof(int32_t));
             break;
@@ -163,7 +160,6 @@ int A1DI_Packed_putaccs(int target,
         default:
             A1U_ERR_POP(status, "Invalid a1_type received in Putacc operation \n");
             break;
-        }
     }
 
     while(!complete)
@@ -259,14 +255,11 @@ int A1DI_Direct_putaccs(int target,
         chunk_count = block_sizes[i]*chunk_count;
 
     header.datatype = a1_type;
-    likely_if(a1_type == A1_DOUBLE)
+    switch (a1_type)
     {
-        (header.scaling).double_value = *((double *) scaling);
-    }
-    else
-    {
-        switch (a1_type)
-        {
+        case A1_DOUBLE:
+            (header.scaling).double_value = *((double *) scaling);
+            break;
         case A1_INT32:
             (header.scaling).int32_value = *((int32_t *) scaling);
             break;
@@ -287,7 +280,6 @@ int A1DI_Direct_putaccs(int target,
             A1U_ERR_POP((status != A1_SUCCESS),
                         "Invalid data type in putacc \n");
             break;
-        }
     }
 
     for(i=0; i<chunk_count; i++)
@@ -419,14 +411,11 @@ int A1DI_Recursive_putaccs(int target,
 
         header.target_ptr = target_ptr;
         header.datatype = a1_type;
-        likely_if(a1_type == A1_DOUBLE) 
+        switch (a1_type)
         {
-            (header.scaling).double_value = *((double *) scaling);
-        } 
-        else 
-        {
-            switch (a1_type)
-            {
+            case A1_DOUBLE:
+                (header.scaling).double_value = *((double *) scaling);
+                break;
             case A1_INT32:
                 (header.scaling).int32_value = *((int32_t *) scaling);
                 break;
@@ -444,10 +433,8 @@ int A1DI_Recursive_putaccs(int target,
                 break;
             default:
                 status = A1_ERROR;
-                A1U_ERR_POP((status != A1_SUCCESS),
-                            "Invalid data type in putacc \n");
+                A1U_ERR_POP((status != A1_SUCCESS),"Invalid data type in putacc\n");
                 break;
-            }
         }
 
         status = DCMF_Send(&A1D_Generic_putacc_protocol,
