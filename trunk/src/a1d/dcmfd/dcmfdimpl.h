@@ -510,7 +510,6 @@ typedef struct
  *             Global variables                  *
  ************************************************/
 
-/* TODO: is extern rather than static the right declaration here? */
 extern pthread_t A1DI_CHT_pthread;
 
 extern A1D_Process_info_t A1D_Process_info;
