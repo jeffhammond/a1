@@ -168,13 +168,25 @@ int A1DI_Print_parameters(void)
             A1U_output_printf("passive-target progress disabled (THIS IS BAD)\n");
         }
 
-        A1U_output_printf("cht_pause_cycles = %u\n", a1d_settings.cht_pause_cycles);
-        A1U_output_printf("put_packing_limit = %u\n", a1d_settings.put_packing_limit);
-        A1U_output_printf("get_packing_limit = %u\n", a1d_settings.get_packing_limit);
-        A1U_output_printf("putacc_packing_limit = %u\n", a1d_settings.putacc_packing_limit);
-        A1U_output_printf("flushall_pending_limit = %u\n", a1d_settings.flushall_pending_limit);
+        A1U_output_printf("mpi_active             = %u\n", a1d_settings.mpi_active);
+        A1U_output_printf("cht_pause_cycles       = %u\n", a1d_settings.cht_pause_cycles);
+        A1U_output_printf("use_handoff            = %u\n", a1d_settings.use_handoff);
 
-        /* TODO: finish output for the rest of the device-dependent settings */
+        A1U_output_printf("get_packing_limit      = %u\n", a1d_settings.get_packing_limit);
+        A1U_output_printf("put_packing_limit      = %u\n", a1d_settings.put_packing_limit);
+        A1U_output_printf("putacc_packing_limit   = %u\n", a1d_settings.putacc_packing_limit);
+
+        A1U_output_printf("get_packetsize         = %u\n", a1d_settings.get_packetsize);
+        A1U_output_printf("put_packetsize         = %u\n", a1d_settings.put_packetsize);
+        A1U_output_printf("putacc_packetsize      = %u\n", a1d_settings.putacc_packetsize);
+
+        A1U_output_printf("flushall_pending_limit = %u\n", a1d_settings.flushall_pending_limit);
+        A1U_output_printf("handlepool_size        = %u\n", a1d_settings.handlepool_size);
+        A1U_output_printf("requestpool_size       = %u\n", a1d_settings.requestpool_size);
+
+        A1U_output_printf("memory alignment       = %u\n", a1d_settings.alignment);
+
+        fflush(stdout);
     }
 
   fn_exit: 
