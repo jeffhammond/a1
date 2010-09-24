@@ -53,7 +53,6 @@ int A1D_Initialize(int thread_level)
              * to work properly */
             A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;
         }
-        /*A1D_Messager_info.thread_level = DCMF_THREAD_MULTIPLE;*/
         A1D_Messager_info.interrupts = DCMF_INTERRUPTS_OFF;
     }
     else
