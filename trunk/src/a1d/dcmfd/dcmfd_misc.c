@@ -113,11 +113,15 @@ int A1D_Node_total(A1_group_t* group)
 
 double A1D_Time_seconds()
 {
+    double time;
+
     A1U_FUNC_ENTER();
+
+    time = DCMF_Timer();
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return DCMF_Timer();
+    return time;
 
   fn_fail: 
     goto fn_exit;
@@ -125,11 +129,15 @@ double A1D_Time_seconds()
 
 unsigned long long A1D_Time_cycles()
 {
+    unsigned long long time;
+
     A1U_FUNC_ENTER();
+
+    time = DCMF_Timebase();
 
   fn_exit: 
     A1U_FUNC_EXIT();
-    return DCMF_Timebase();
+    return time;
 
   fn_fail: 
     goto fn_exit;
