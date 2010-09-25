@@ -17,6 +17,10 @@ int A1D_Finalize(void)
 
     A1DI_CRITICAL_ENTER();
 
+    status = A1DI_GlobalBarrier();
+    A1U_ERR_POP(status != A1_SUCCESS, 
+              "A1DI_GlobalBarrier returned with an error");
+
     /* Freeing request pool */
     A1DI_Request_pool_finalize();
 
@@ -55,8 +59,6 @@ int A1D_Finalize(void)
     //    A1U_WARNING(count == 0,
     //                "DCMF_Messager_finalize has been called more than once.");
     //}
-
-
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
