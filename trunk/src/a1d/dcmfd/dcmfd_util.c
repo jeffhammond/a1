@@ -30,10 +30,10 @@ void A1DI_Control_xchange_callback(void *clientdata,
                                    const DCMF_Control_t *info,
                                    size_t peer)
 {
-    memcpy((void *) ((size_t) A1D_Control_xchange_info.xchange_ptr
+    A1DI_Memcpy((void *) ((size_t) A1D_Control_xchange_info.xchange_ptr
                    + (size_t)(peer * A1D_Control_xchange_info.xchange_size)),
-           (void *) info,
-           A1D_Control_xchange_info.xchange_size);
+                (void *) info,
+                A1D_Control_xchange_info.xchange_size);
 
     --(*((uint32_t *) clientdata));
 }
@@ -89,7 +89,7 @@ int A1DI_Pack_strided(void *data_ptr,
     while ((*data_size + block_sizes[0]) <= data_limit)
     {
 
-        memcpy(data_ptr, *source_ptr, block_sizes[0]);
+        A1DI_Memcpy(data_ptr, *source_ptr, block_sizes[0]);
         data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
         *data_size = *data_size + block_sizes[0];
 
@@ -155,7 +155,7 @@ int A1DI_Unpack_strided(void *data_ptr,
 
     while (data_size > 0)
     {
-        memcpy(target_ptr, data_ptr, block_sizes[0]);
+        A1DI_Memcpy(target_ptr, data_ptr, block_sizes[0]);
 
         data_ptr = (void *) ((size_t) data_ptr + block_sizes[0]);
         data_size = data_size - block_sizes[0];

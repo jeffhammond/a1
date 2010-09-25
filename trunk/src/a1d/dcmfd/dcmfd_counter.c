@@ -18,7 +18,7 @@ void A1DI_Counter_create_callback(void *clientdata,
                                   const DCMF_Control_t *info,
                                   size_t peer)
 {
-    memcpy((void *) &counter_create_response, (void *) info, sizeof(void *));
+    A1DI_Memcpy((void *) &counter_create_response, (void *) info, sizeof(void *));
     counter_create_active--;
 }
 
@@ -47,7 +47,7 @@ void A1DI_Counter_callback(void *clientdata,
         response_pkt.value_ptr = NULL;
         response_pkt.value = original;
 
-        memcpy(&cmsg, &response_pkt, sizeof(A1D_Counter_pkt_t));
+        A1DI_Memcpy(&cmsg, &response_pkt, sizeof(A1D_Counter_pkt_t));
 
         status = DCMF_Control(&A1D_Counter_protocol,
                               DCMF_SEQUENTIAL_CONSISTENCY,
@@ -203,7 +203,7 @@ int A1D_Incr_counter(A1_counter_t counter, long increment, long* original)
         counter_pkt.value_ptr = a1d_counter->value_ptr;
         counter_pkt.value = increment;
 
-        memcpy(&cmsg, &counter_pkt, sizeof(A1D_Counter_pkt_t));
+        A1DI_Memcpy(&cmsg, &counter_pkt, sizeof(A1D_Counter_pkt_t));
 
         counter_incr_active = 1;
 

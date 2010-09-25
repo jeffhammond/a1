@@ -134,28 +134,28 @@ int A1DI_Packed_putaccs(int target,
     A1DI_Memset(block_idx, 0, (stride_level + 1) * sizeof(int));
 
     header.stride_level = stride_level;
-    memcpy(header.trg_stride_ar, trg_stride_ar, stride_level * sizeof(int));
-    memcpy(header.block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
+    A1DI_Memcpy(header.trg_stride_ar, trg_stride_ar, stride_level * sizeof(int));
+    A1DI_Memcpy(header.block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
     header.datatype = a1_type;
     switch (a1_type)
     {
         case A1_DOUBLE:
-            memcpy((void *) &(header.scaling), scaling, sizeof(double));
+            A1DI_Memcpy((void *) &(header.scaling), scaling, sizeof(double));
             break;
         case A1_INT32:
-            memcpy((void *) &(header.scaling), scaling, sizeof(int32_t));
+            A1DI_Memcpy((void *) &(header.scaling), scaling, sizeof(int32_t));
             break;
         case A1_INT64:
-            memcpy((void *) &(header.scaling), scaling, sizeof(int64_t));
+            A1DI_Memcpy((void *) &(header.scaling), scaling, sizeof(int64_t));
             break;
         case A1_UINT32:
-            memcpy((void *) &(header.scaling), scaling, sizeof(uint32_t));
+            A1DI_Memcpy((void *) &(header.scaling), scaling, sizeof(uint32_t));
             break;
         case A1_UINT64:
-            memcpy((void *) &(header.scaling), scaling, sizeof(uint64_t));
+            A1DI_Memcpy((void *) &(header.scaling), scaling, sizeof(uint64_t));
             break;
         case A1_FLOAT:
-            memcpy((void *) &(header.scaling), scaling, sizeof(float));
+            A1DI_Memcpy((void *) &(header.scaling), scaling, sizeof(float));
             break;
         default:
             A1U_ERR_POP(status, "Invalid a1_type received in Putacc operation \n");

@@ -94,10 +94,7 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
     A1U_ERR_ABORT(status != 0,
             "A1DI_Malloc failed in A1DI_RecvSend_packedputs_callback\n");
 
-    /* FIXME Don't we have A1U_Memcpy for this? */
-    memcpy(a1d_request->buffer_ptr,
-            (void *) msginfo,
-            sizeof(A1D_Putacc_header_t));
+    A1DI_Memcpy(a1d_request->buffer_ptr,(void *) msginfo,sizeof(A1D_Putacc_header_t));
 
     *rcvlen = sndlen;
     *rcvbuf = (char *) ((size_t) a1d_request->buffer_ptr + sizeof(A1D_Putacc_header_t));

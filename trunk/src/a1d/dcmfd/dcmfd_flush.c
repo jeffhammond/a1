@@ -146,9 +146,9 @@ int A1DI_Put_flush_initialize()
 
     A1DI_GlobalBarrier();
 
-    memcpy((void *) &info,
-            (void *) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
-            sizeof(void *));
+    A1DI_Memcpy((void *) &info,
+                (void *) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
+                sizeof(void *));
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
         likely_if (rank != A1D_Process_info.my_rank)

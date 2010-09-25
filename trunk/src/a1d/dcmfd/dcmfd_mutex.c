@@ -199,9 +199,9 @@ int A1D_Create_mutexes(A1_group_t* group, int mutex_count, int *mutex_count_ar)
 
     A1DI_GlobalBarrier();
 
-    memcpy((void *) &cmsg,
-           (void *) &A1D_Mutexes_count[A1D_Process_info.my_rank],
-           sizeof(int));
+    A1DI_Memcpy((void *) &cmsg,
+                (void *) &A1D_Mutexes_count[A1D_Process_info.my_rank],
+                sizeof(int));
 
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {

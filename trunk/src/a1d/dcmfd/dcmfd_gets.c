@@ -264,12 +264,10 @@ int A1DI_Packed_gets(int target,
     header->source_ptr = source_ptr;
     header->target_ptr = target_ptr;
     header->stride_level = stride_level;
-    memcpy(header->src_stride_ar, src_stride_ar, stride_level
-            * sizeof(int));
-    memcpy(header->trg_stride_ar, trg_stride_ar, stride_level
-            * sizeof(int));
+    A1DI_Memcpy(header->src_stride_ar, src_stride_ar, stride_level * sizeof(int));
+    A1DI_Memcpy(header->trg_stride_ar, trg_stride_ar, stride_level * sizeof(int));
     header->handle_ptr = a1d_handle;
-    memcpy(header->block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
+    A1DI_Memcpy(header->block_sizes, block_sizes, (stride_level + 1) * sizeof(int));
 
     a1d_request = A1DI_Get_request(1);
     A1U_ERR_POP(status = (a1d_request == NULL),
