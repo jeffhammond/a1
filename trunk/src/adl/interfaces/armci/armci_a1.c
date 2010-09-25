@@ -739,20 +739,20 @@ int ARMCI_Rmw(int op, void *ploc, void *prem, int value, int proc)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if (op == ARMCI_FETCH_AND_ADD)
+    if (op == ARMCI_FETCH_AND_ADD || op == ARMCI_FETCH_AND_ADD_LONG)
     {
         a1_op = A1_FETCH_AND_ADD;
     }
-    else if (op == ARMCI_SWAP)
+    else if (op == ARMCI_SWAP || op == ARMCI_SWAP_LONG)
     {
         a1_op = ARMCI_SWAP;
     }
     else
     {
-        A1U_ERR_POP(status != A1_ERROR, "Unsupported rmw operations\n");
+        A1U_ERR_POP(status != A1_ERROR, "Unsupported rmw operation : %d \n", op);
     }
 
-    /*Assuming int is 32bit signed integer*/
+    /*Assuming int and long as 32bit signed integers*/
     status = A1_Rmw(proc, &value, ploc, prem, sizeof(int), a1_op, A1_INT32);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Rmw returned an error\n");
 
