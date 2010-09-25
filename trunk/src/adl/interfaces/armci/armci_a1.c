@@ -10,7 +10,7 @@
 #include "a1u.h"
 #include "assert.h"
 
-#define A1_ARMCI_PROFILING
+//#define A1_ARMCI_PROFILING
 
 #ifdef A1_ARMCI_PROFILING
     int __a1_prof_me = -1;
