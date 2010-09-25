@@ -95,8 +95,15 @@ int ARMCI_Malloc(void* ptr[], armci_size_t bytes)
 
     my_rank = A1_Process_id(A1_GROUP_WORLD);
 
-    status = A1_Alloc_segment(&ptr[my_rank], bytes);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Alloc_segment returned an error\n");
+    if (bytes==0)
+    {
+        ptr[my_rank] = NULL;
+    }
+    else
+    {
+        status = A1_Alloc_segment(&ptr[my_rank], bytes);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Alloc_segment returned an error\n");
+    }
 
     status = A1_Exchange_segments(A1_GROUP_WORLD, ptr);
     A1U_ERR_POP(status != A1_SUCCESS,
