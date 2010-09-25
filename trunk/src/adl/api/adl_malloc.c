@@ -45,6 +45,12 @@ int  A1_Alloc_segment(void** pointer, int bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    if(bytes == 0)
+    {
+      *pointer = NULL;
+      goto fn_exit;
+    }
+
     status = A1D_Alloc_segment(pointer, bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1D_Alloc_segment returned an error\n");
 
