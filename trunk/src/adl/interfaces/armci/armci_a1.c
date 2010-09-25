@@ -13,32 +13,41 @@
 #define A1_ARMCI_PROFILING
 
 #ifdef A1_ARMCI_PROFILING
-    int __a1_prof_me = A1_Process_id(A1_GROUP_WORLD);
+    int __a1_prof_me = -1;
     char* __a1_prof_name[32];
     double __a1_prof_t0;
     double __a1_prof_t1;
+    double __a1_prof_dt;
 
-    #define AAP_START(a)                  \
+    #define AAP_INIT()                                    \
+        do {                                              \
+            __a1_prof_me = A1_Process_id(A1_GROUP_WORLD); \
+        } while (0)
+
+
+    #define AAP_START(a)                      \
         do {                                  \
-            __a1_prof_name = a;               \
+            __a1_prof_name[0] = a;            \
             __a1_prof_t0 = A1_Time_seconds(); \
         } while (0)
 
-    #define AAP_STOP()                                        \
-        do {                                                      \
-            __a1_prof_t1 = A1_Time_seconds();                     \
-            printf("iam %d: %s took %10.4lf s\n",__a1_prof_me,);  \
-            fflush(stdout);                                       \
+    #define AAP_STOP()                                                                      \
+        do {                                                                                \
+            __a1_prof_t1 = A1_Time_seconds();                                               \
+            __a1_prof_dt = __a1_prof_t1 - __a1_prof_t0;                                     \
+            printf("iam %d: %s took %10.4lf s\n",__a1_prof_me,__a1_prof_name,__a1_prof_dt); \
+            fflush(stdout);                                                                 \
         } while (0)
-
+/*
     #define AAP_ARGS(...)                  \
         do {                               \
         {                                  \
-            printf( __VA_ARGS__);          \
+            printf( __VA_ARGS__ );         \
             fflush(stdout);                \
         } while (0)
-
+*/
 #else
+    #define AAP_INIT()
     #define AAP_START(a)
     #define AAP_STOP(a)
     #define AAP_ARGS(...)
@@ -56,6 +65,8 @@ int ARMCI_Init_args(int *argc, char ***argv)
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
+
+    AAP_INIT();
 
     status = A1_Initialize(A1_THREAD_SINGLE);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n");
@@ -79,6 +90,8 @@ int ARMCI_Init()
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
+
+    AAP_INIT();
 
     status = A1_Initialize(A1_THREAD_SINGLE);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Initialize returned an error\n");
@@ -259,7 +272,7 @@ int ARMCI_Put(void* src, void* dst, int bytes, int proc)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    AAP_ARGS("iam %d: A1_Put proc = %d, bytes = %d\n",proc,bytes);
+    AAP_ARGS("iam %d: A1_Put proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
     AAP_START("A1_Put          ");
     status = A1_Put(proc, src, dst, bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Put returned an error\n");
@@ -290,7 +303,7 @@ int ARMCI_PutS(void* src_ptr,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    AAP_ARGS("iam %d: A1_PutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_ARGS("iam %d: A1_PutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_PutS          ");
     status = A1_PutS(proc,
                      stride_levels,
@@ -331,7 +344,7 @@ int ARMCI_NbPutS(void* src_ptr,
 
     a1_handle = (A1_handle_t) * handle;
 
-    AAP_ARGS("iam %d: A1_NbPutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_ARGS("iam %d: A1_NbPutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_NbPutS          ");
     status = A1_NbPutS(proc,
                        stride_levels,
@@ -399,7 +412,7 @@ int ARMCI_Get(void* src, void* dst, int bytes, int proc)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    AAP_ARGS("iam %d: A1_Get proc = %d, bytes = %d\n",proc,bytes);
+    AAP_ARGS("iam %d: A1_Get proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
     AAP_START("A1_Get         ");
     status = A1_Get(proc, src, dst, bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned an error\n");
@@ -430,7 +443,7 @@ int ARMCI_GetS(void* src_ptr,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    AAP_ARGS("iam %d: A1_GetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_ARGS("iam %d: A1_GetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_GetS           ");
     status = A1_GetS(proc,
                      stride_levels,
@@ -471,7 +484,7 @@ int ARMCI_NbGetS(void* src_ptr,
 
     a1_handle = (A1_handle_t) * handle;
 
-    AAP_ARGS("iam %d: A1_NbGetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_ARGS("iam %d: A1_NbGetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_NbGetS           ");
     status = A1_NbGetS(proc,
                        stride_levels,
@@ -512,7 +525,6 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
     A1U_ERR_POP(status != 0, "posix_memalign returned an error\n");
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
-
 
     status = A1_GetV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_GetV returned an error\n");
@@ -572,7 +584,7 @@ int ARMCI_Acc(int datatype,
           A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
-    AAP_ARGS("iam %d: A1_PutAcc proc = %d, bytes = %d\n",proc,bytes);
+    AAP_ARGS("iam %d: A1_PutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
     AAP_START("A1_PutAcc             ");
     status = A1_PutAcc(proc, src, dst, bytes, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAcc returned an error\n");
@@ -633,7 +645,7 @@ int ARMCI_AccS(int datatype,
           A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype %d \n", datatype);
     }
 
-    AAP_ARGS("iam %d: A1_PutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_ARGS("iam %d: A1_PutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_PutAccS             ");
     status = A1_PutAccS(proc,
                         stride_levels,
@@ -707,7 +719,7 @@ int ARMCI_NbAccS(int datatype,
           A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
-    AAP_ARGS("iam %d: A1_NbPutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_ARGS("iam %d: A1_NbPutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_NbPutAccS             ");
     status = A1_NbPutAccS(proc,
                           stride_levels,
