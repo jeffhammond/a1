@@ -18,17 +18,15 @@ int A1DI_Memregion_Global_xchange()
 
     A1U_FUNC_ENTER();
 
-    /*TODO: Use DCMF_Send operations instead to exploit TORUS network */
-
     A1D_Control_xchange_info.xchange_ptr = (void *) A1D_Memregion_global;
     A1D_Control_xchange_info.xchange_size = sizeof(DCMF_Memregion_t);
     A1D_Control_xchange_info.rcv_active += A1D_Process_info.num_ranks - 1;
 
     A1DI_GlobalBarrier();
 
-    memcpy((void *) &info,
-            (void *) &A1D_Memregion_global[A1D_Process_info.my_rank],
-            sizeof(DCMF_Memregion_t));
+    A1DI_Memcpy((void *) &info,
+                (void *) &A1D_Memregion_global[A1D_Process_info.my_rank],
+                sizeof(DCMF_Memregion_t));
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
         likely_if (rank != A1D_Process_info.my_rank)
@@ -105,9 +103,9 @@ int A1DI_Memaddress_xchange(void **ptr)
 
     A1DI_GlobalBarrier();
 
-    memcpy((void *) &cmsg,
-           (void *) &ptr[A1D_Process_info.my_rank],
-           sizeof(void *));
+    A1DI_Memcpy((void *) &cmsg,
+                (void *) &ptr[A1D_Process_info.my_rank],
+                sizeof(void *));
 
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
