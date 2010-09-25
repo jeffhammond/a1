@@ -1602,6 +1602,7 @@ void armci_msg_llgop(long long *x, int n, char* op)
 void armci_msg_bcast(void* buffer, int len, int root)
 {
     int status = A1_SUCCESS;
+
     A1U_FUNC_ENTER();
 
     status = A1_Bcast_group(A1_GROUP_WORLD,
@@ -1620,9 +1621,13 @@ void armci_msg_bcast(void* buffer, int len, int root)
 
 void armci_msg_barrier()
 {
+    int status = A1_SUCCESS;
+
     A1U_FUNC_ENTER();
 
-    A1_Barrier_group(A1_GROUP_WORLD);
+    status = A1_Barrier_group(A1_GROUP_WORLD);
+
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Barrier_group returned error\n");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -1738,10 +1743,10 @@ void armci_msg_igop(int *x, int n, char* op)
 
     status = A1_Allreduce_group(A1_GROUP_WORLD,
              	                n,
-	                        a1_op,
-         	                A1_INT32,
-                	        x,
-                     	        x);
+                                a1_op,
+                                A1_INT32,
+                                x,
+                                x);
     A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
@@ -2136,11 +2141,11 @@ void armci_msg_group_gop_scope(int scope,
                         armci_msg_group_gop_scope");    
 
     status = A1_Allreduce_group(A1_GROUP_WORLD,
-                       n,
-                       a1_op,
-                       a1_type,
-                       x,
-                       x);
+                                n,
+                                a1_op,
+                                a1_type,
+                                x,
+                                x);
     A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
   fn_exit:
