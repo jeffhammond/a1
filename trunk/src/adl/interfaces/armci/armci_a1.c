@@ -38,14 +38,9 @@
             printf("iam %d: %s took %10.4lf s\n",__a1_prof_me,__a1_prof_name,__a1_prof_dt); \
             fflush(stdout);                                                                 \
         } while (0)
-/*
-    #define AAP_ARGS(...)                  \
-        do {                               \
-        {                                  \
-            printf( __VA_ARGS__ );         \
-            fflush(stdout);                \
-        } while (0)
-*/
+
+    #define AAP_ARGS printf
+
 #else
     #define AAP_INIT()
     #define AAP_START(a)
