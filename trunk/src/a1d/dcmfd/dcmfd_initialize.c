@@ -182,6 +182,11 @@ int A1D_Initialize(int thread_level)
     status = A1DI_Memregion_Global_initialize();
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Memregion_Global_initialize returned with error \n");
+  
+    /*waiting for everyone*/
+    status = A1DI_GlobalBarrier();
+    A1U_ERR_POP(status != A1_SUCCESS,
+              "A1DI_GlobalBarrier returned with an error");
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();

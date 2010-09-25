@@ -17,6 +17,7 @@ int A1D_Finalize(void)
 
     A1DI_CRITICAL_ENTER();
 
+    /*waiting for everyone*/
     status = A1DI_GlobalBarrier();
     A1U_ERR_POP(status != A1_SUCCESS, 
               "A1DI_GlobalBarrier returned with an error");
