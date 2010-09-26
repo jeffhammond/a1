@@ -92,14 +92,14 @@ int main(int argc, char **argv)
     buffer = ( rank==1 ? 1 : 0 );
     answer = 1;
     armci_msg_igop(&buffer, sizeof(int), sum); 
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     buffer = 1;
     answer = size;
     armci_msg_igop(&buffer, sizeof(int), sum);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
@@ -108,14 +108,14 @@ int main(int argc, char **argv)
     buffer = ( rank==0 ? 0 : 1 );
     answer = 0;
     armci_msg_igop(&buffer, sizeof(int), prod);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     buffer = 2;
     answer = pow(2,size);
     armci_msg_igop(&buffer, sizeof(int), prod);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
     buffer = rank;
     answer = (size-1);
     armci_msg_igop(&buffer, sizeof(int), max);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
     buffer = rank;
     answer = 0;
     armci_msg_igop(&buffer, sizeof(int), min);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
@@ -142,14 +142,14 @@ int main(int argc, char **argv)
     buffer = rank;
     answer = rank;
     armci_msg_igop(&buffer, sizeof(int), absmax);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     buffer = -rank;
     answer = -rank;
     armci_msg_igop(&buffer, sizeof(int), absmax);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
@@ -158,14 +158,14 @@ int main(int argc, char **argv)
     buffer = rank;
     answer = 0;
     armci_msg_igop(&buffer, sizeof(int), absmin);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     buffer = -rank;
     answer = 0;
     armci_msg_igop(&buffer, sizeof(int), absmin);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
@@ -174,14 +174,14 @@ int main(int argc, char **argv)
     buffer = ( rank==0 ? 1 : 0 );
     answer = 1;
     armci_msg_igop(&buffer, sizeof(int), or);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     buffer = 0;
     answer = 0;
     armci_msg_igop(&buffer, sizeof(int), or);
-    checkanswer(buffer,answer);
+    checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
