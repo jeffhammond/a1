@@ -48,6 +48,10 @@
     #define AAP_ARGS(...)
 #endif
 
+
+/* TODO We really should have ARMCI-to-A1 type/op conversion functions/macros
+ *      instead of repeating that code so many times */
+
 int ARMCI_Init_args(int *argc, char ***argv)
 {
     int status = A1_SUCCESS;
