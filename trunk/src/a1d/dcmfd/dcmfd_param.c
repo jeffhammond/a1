@@ -170,7 +170,7 @@ int A1DI_Print_parameters(void)
                 A1U_output_printf("node mode              = %s\n","VN");
                 break;
             default:
-                A1U_ERR_ABORT(status, "This is not possible.\n");
+                A1U_output_printf("node mode              = %s\n","WTF");
                 break;
         }
 
