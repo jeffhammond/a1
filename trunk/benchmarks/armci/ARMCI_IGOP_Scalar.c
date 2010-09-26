@@ -53,17 +53,18 @@
 #include <mpi.h>
 #include <armci.h>
 
+void checkanswer(int num, int buffer, int answer)
+{
+    if ( buffer != answer ) printf("Test %d failed expected: %d actual: %d \n", num, answer, buffer);
+    else                    printf("Test %d passed expected: %d actual: %d \n", num, answer, buffer);
+    fflush(stdout);
+}
+
 int main(int argc, char **argv)
 {
     int provided;
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 
     int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-    ARMCI_Init_args(&argc, &argv);
-    ARMCI_Barrier();
 
     char* sum    = "+";
     char* prod   = "*";
@@ -73,109 +74,118 @@ int main(int argc, char **argv)
     char* absmin = "absmin";
     char* or     = "or";
 
+    int count = 0;
     int buffer;
+    int answer;
+
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    ARMCI_Init_args(&argc, &argv);
+
+    ARMCI_Barrier();
 
     /* TESTING SUM OPERATOR */
 
     buffer = ( rank==1 ? 1 : 0 );
+    answer = 1;
     armci_msg_igop(&buffer, sizeof(int), sum); 
-
-    if ( buffer != 1 ) printf("Validation failed expected: %d actual: %d \n", 1, buffer);
-    else               printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     buffer = 1;
+    answer = size;
     armci_msg_igop(&buffer, sizeof(int), sum);
-
-    if ( buffer != size ) printf("Validation failed expected: %d actual: %d \n", size, buffer);
-    else                  printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     /* TESTING PROD OPERATOR */
 
     buffer = ( rank==0 ? 0 : 1 );
+    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), prod);
-
-    if ( buffer != 0 ) printf("Validation failed expected: %d actual: %d \n", 0, buffer);
-    else               printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     buffer = 2;
+    answer = pow(2,size);
     armci_msg_igop(&buffer, sizeof(int), prod);
-
-    if ( buffer != pow(2,size) ) printf("Validation failed expected: %d actual: %d \n", pow(2,size), buffer);
-    else                         printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     /* TEST OF MAX OPERATOR */
 
     buffer = rank;
+    answer = (size-1);
     armci_msg_igop(&buffer, sizeof(int), max);
-
-    if ( buffer != (size-1) ) printf("Validation failed expected: %d actual: %d \n", size-1, buffer);
-    else                      printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     /* TEST OF MIN OPERATOR */
 
     buffer = rank;
+    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), min);
-
-    if( buffer !=0 ) printf("Validation failed expected: %d actual: %d \n", 0, buffer);
-    else             printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     /* TEST OF ABSMAX OPERATOR */
 
     buffer = rank;
+    answer = rank;
     armci_msg_igop(&buffer, sizeof(int), absmax);
-
-    if ( buffer != rank ) printf("Validation failed expected: %d actual: %d \n", rank, buffer);
-    else                  printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     buffer = -rank;
+    answer = -rank;
     armci_msg_igop(&buffer, sizeof(int), absmax);
-
-    if ( buffer != -rank ) printf("Validation failed expected: %d actual: %d \n", -rank, buffer);
-    else                   printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     /* TEST OF ABSMIN OPERATOR */
 
     buffer = rank;
+    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), absmin);
-
-    if ( buffer != 0 ) printf("Validation failed expected: %d actual: %d \n", 0, buffer);
-    else               printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     buffer = -rank;
+    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), absmin);
-
-    if ( buffer != 0 ) printf("Validation failed expected: %d actual: %d \n", 0, buffer);
-    else                   printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     /* TESTING OR OPERATOR */
 
     buffer = ( rank==0 ? 1 : 0 );
+    answer = 1;
     armci_msg_igop(&buffer, sizeof(int), or);
-
-    if ( buffer != 1 ) printf("Validation failed expected: %d actual: %d \n", 1, buffer);
-    else               printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     buffer = 0;
+    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), or);
-
-    if ( buffer != 0 ) printf("Validation failed expected: %d actual: %d \n", 0, buffer);
-    else               printf("Validation successful \n");
-    fflush(stdout);
+    checkanswer(buffer,answer);
+    count++;
+    ARMCI_Barrier();
 
     /* END OF TESTS */
-
-    ARMCI_Barrier();
 
     ARMCI_Finalize();
 
