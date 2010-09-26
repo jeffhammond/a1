@@ -65,11 +65,12 @@ int main(int argc, char **argv)
     ARMCI_Init_args(&argc, &argv);
     ARMCI_Barrier();
 
+    char op;
     int buffer;
 
     /* TESTING SUM OPERATOR */
 
-    char op = '+';
+    op = '+';
 
     buffer = ( rank==1 ? 1 : 0 );
     armci_msg_igop(&buffer, sizeof(int), &op); 
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
 
     /* TESTING PROD OPERATOR */
 
-    char op = '*';
+    op = '*';
 
     buffer = ( rank==0 ? 0 : 1 );
     armci_msg_igop(&buffer, sizeof(int), &op);
@@ -105,7 +106,7 @@ int main(int argc, char **argv)
 
     /* TEST OF MAX OPERATOR */
 
-    char op = 'max';
+    op = 'max';
 
     buffer = rank;
     armci_msg_igop(&buffer, sizeof(int), &op);
@@ -116,7 +117,7 @@ int main(int argc, char **argv)
 
     /* TEST OF MIN OPERATOR */
 
-    char op = 'min';
+    op = 'min';
 
     buffer = rank;
     armci_msg_igop(&buffer, sizeof(int), &op);
@@ -127,7 +128,7 @@ int main(int argc, char **argv)
 
     /* TEST OF ABSMAX OPERATOR */
 
-    char op = 'absmax';
+    op = 'absmax';
 
     buffer = rank;
     armci_msg_igop(&buffer, sizeof(int), &op);
@@ -145,7 +146,7 @@ int main(int argc, char **argv)
 
     /* TEST OF ABSMIN OPERATOR */
 
-    char op = 'absmin';
+    op = 'absmin';
 
     buffer = rank;
     armci_msg_igop(&buffer, sizeof(int), &op);
@@ -163,7 +164,7 @@ int main(int argc, char **argv)
 
     /* TESTING OR OPERATOR */
 
-    char op = 'or';
+    op = 'or';
 
     buffer = ( rank==0 ? 1 : 0 );
     armci_msg_igop(&buffer, sizeof(int), &op);
