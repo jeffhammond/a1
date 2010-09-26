@@ -155,10 +155,10 @@ int A1DI_Print_parameters(void)
         A1U_output_printf("=============== A1 Parameters ================\n");
         A1U_output_printf("A1 is using the DCMF (Blue Gene/P) device\n");
 
-        A1U_output_printf("num_ranks              = %u\n", a1d_settings.num_ranks);
-        A1U_output_printf("num_nodes              = %u\n", a1d_settings.num_nodes);
+        A1U_output_printf("num_ranks              = %u\n", A1D_Process_info.num_ranks);
+        A1U_output_printf("num_nodes              = %u\n", A1D_Process_info.num_nodes);
 
-        switch (a1d_settings.num_ranks/a1d_settings.num_nodes)
+        switch (A1D_Process_info.num_ranks/A1D_Process_info.num_nodes)
         {
             case 1:
                 A1U_output_printf("node mode              = %s\n","SMP");
