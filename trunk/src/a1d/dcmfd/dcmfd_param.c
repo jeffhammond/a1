@@ -176,15 +176,15 @@ int A1DI_Print_parameters(void)
 
         if (a1d_settings.enable_cht)
         {
-            A1U_output_printf("passive-target progress enabled via CHT\n");
+            A1U_output_printf("passive progress mode  = %s\n","CHT");
         }
         else if (a1d_settings.enable_interrupts)
         {
-            A1U_output_printf("passive-target progress enabled via DCMF interrupts\n");
+            A1U_output_printf("passive progress mode  = %s\n","DCMF interrupts");
         }
         else
         {
-            A1U_output_printf("passive-target progress disabled (THIS IS BAD)\n");
+            A1U_output_printf("passive progress mode  = %s\n","OFF");
         }
 
         A1U_output_printf("mpi_active             = %u\n", a1d_settings.mpi_active);
