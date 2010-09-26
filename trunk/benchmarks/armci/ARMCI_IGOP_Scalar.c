@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: prod B\n",count);
     buffer = 2;
-    answer = pow(2,size);
+    answer = 1 << size;
     armci_msg_igop(&buffer, sizeof(int), prod);
     checkanswer(count,buffer,answer);
     count++;
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 
     /* TEST OF MAX OPERATOR */
 
-    if (rank==0) printf("Test %d: max\n",count);
+    if (rank==0) printf("Test %d: max A\n",count);
     buffer = rank;
     answer = (size-1);
     armci_msg_igop(&buffer, sizeof(int), max);
@@ -133,11 +133,27 @@ int main(int argc, char **argv)
     count++;
     ARMCI_Barrier();
 
+    if (rank==0) printf("Test %d: max B\n",count);
+    buffer = -rank;
+    answer = 0;
+    armci_msg_igop(&buffer, sizeof(int), min);
+    checkanswer(count,buffer,answer);
+    count++;
+    ARMCI_Barrier();
+
     /* TEST OF MIN OPERATOR */
 
-    if (rank==0) printf("Test %d: min\n",count);
+    if (rank==0) printf("Test %d: min A\n",count);
     buffer = rank;
     answer = 0;
+    armci_msg_igop(&buffer, sizeof(int), min);
+    checkanswer(count,buffer,answer);
+    count++;
+    ARMCI_Barrier();
+
+    if (rank==0) printf("Test %d: min B\n",count);
+    buffer = -rank;
+    answer = -(size-1);
     armci_msg_igop(&buffer, sizeof(int), min);
     checkanswer(count,buffer,answer);
     count++;
@@ -147,7 +163,7 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: absmax A\n",count);
     buffer = rank;
-    answer = rank;
+    answer = (size-1);
     armci_msg_igop(&buffer, sizeof(int), absmax);
     checkanswer(count,buffer,answer);
     count++;
@@ -155,7 +171,7 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: absmax B\n",count);
     buffer = -rank;
-    answer = -rank;
+    answer = -(size-1);
     armci_msg_igop(&buffer, sizeof(int), absmax);
     checkanswer(count,buffer,answer);
     count++;
