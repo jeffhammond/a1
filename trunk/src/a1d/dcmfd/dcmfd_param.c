@@ -155,6 +155,25 @@ int A1DI_Print_parameters(void)
         A1U_output_printf("=============== A1 Parameters ================\n");
         A1U_output_printf("A1 is using the DCMF (Blue Gene/P) device\n");
 
+        A1U_output_printf("num_ranks              = %u\n", a1d_settings.num_ranks);
+        A1U_output_printf("num_nodes              = %u\n", a1d_settings.num_nodes);
+
+        switch (a1d_settings.num_ranks/a1d_settings.num_nodes)
+        {
+            case 1:
+                A1U_output_printf("node mode              = %s\n","SMP");
+                break;
+            case 2:
+                A1U_output_printf("node mode              = %s\n","DUAL");
+                break;
+            case 4:
+                A1U_output_printf("node mode              = %s\n","VN");
+                break;
+            default:
+                A1U_ERR_ABORT(status, "This is not possible.\n");
+                break;
+        }
+
         if (a1d_settings.enable_cht)
         {
             A1U_output_printf("passive-target progress enabled via CHT\n");
