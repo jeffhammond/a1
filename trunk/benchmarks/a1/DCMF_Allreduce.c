@@ -136,7 +136,7 @@ int main()
                 }
              }
 
-             printf("[%d] %d message sum reduce successful at process : %d \n", rank, msgsize);
+             printf("[%d] %d message sum reduce successful \n", rank, msgsize);
              fflush(stdout);
 
              for (i = 0; i < bufsize/sizeof(int); i++)
