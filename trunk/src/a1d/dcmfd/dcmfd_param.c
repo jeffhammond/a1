@@ -23,10 +23,14 @@ int A1DI_Read_parameters()
         a1d_settings.enable_cht = atoi(value);
     }
 
-    a1d_settings.mpi_active = A1C_MPI_ACTIVE;
-    if ((value = getenv("A1D_MPI_ACTIVE")) != NULL)
+    a1d_settings.use_handoff = A1C_USE_HANDOFF;
+    if ((value = getenv("A1D_USE_HANDOFF")) != NULL)
     {
-        a1d_settings.mpi_active = atoi(value);
+        a1d_settings.use_handoff = atoi(value);
+    }
+    if (!a1d_settings.enable_cht)
+    {
+        a1d_settings.use_handoff = 0;
     }
 
     a1d_settings.cht_pause_cycles = A1C_CHT_PAUSE_CYCLES;
@@ -39,6 +43,12 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1D_ENABLE_INTERRUPTS")) != NULL)
     {
         a1d_settings.enable_interrupts = atoi(value);
+    }
+
+    a1d_settings.mpi_active = A1C_MPI_ACTIVE;
+    if ((value = getenv("A1D_MPI_ACTIVE")) != NULL)
+    {
+        a1d_settings.mpi_active = atoi(value);
     }
 
     a1d_settings.flushall_pending_limit = A1C_FLUSHALL_PENDING_LIMIT;
@@ -126,16 +136,6 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1D_REQUEST_POOL_SIZE")) != NULL)
     {
         a1d_settings.requestpool_size = atoi(value);
-    }
-
-    a1d_settings.use_handoff = A1C_USE_HANDOFF;
-    if ((value = getenv("A1D_USE_HANDOFF")) != NULL)
-    {
-        a1d_settings.use_handoff = atoi(value);
-    }
-    if (!a1d_settings.enable_cht)
-    {
-        a1d_settings.use_handoff = 0;
     }
 
     fn_exit: A1U_FUNC_EXIT();
