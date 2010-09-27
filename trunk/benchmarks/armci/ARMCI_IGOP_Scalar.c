@@ -91,16 +91,16 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: sum A\n",count);
     buffer = ( rank==1 ? 1 : 0 );
-    answer = 1;
     armci_msg_igop(&buffer, sizeof(int), sum); 
+    answer = 1;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     if (rank==0) printf("Test %d: sum B\n",count);
     buffer = 1;
-    answer = size;
     armci_msg_igop(&buffer, sizeof(int), sum);
+    answer = size;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
@@ -109,16 +109,16 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: prod A\n",count);
     buffer = ( rank==0 ? 0 : 1 );
-    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), prod);
+    answer = 0;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     if (rank==0) printf("Test %d: prod B\n",count);
     buffer = 2;
-    answer = 1 << size;
     armci_msg_igop(&buffer, sizeof(int), prod);
+    answer = 1 << size;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
@@ -127,16 +127,16 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: max A\n",count);
     buffer = rank;
-    answer = (size-1);
     armci_msg_igop(&buffer, sizeof(int), max);
+    answer = (size-1);
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     if (rank==0) printf("Test %d: max B\n",count);
     buffer = -rank;
-    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), min);
+    answer = 0;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
@@ -145,16 +145,16 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: min A\n",count);
     buffer = rank;
-    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), min);
+    answer = 0;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     if (rank==0) printf("Test %d: min B\n",count);
     buffer = -rank;
-    answer = -(size-1);
     armci_msg_igop(&buffer, sizeof(int), min);
+    answer = -(size-1);
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
@@ -163,16 +163,16 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: absmax A\n",count);
     buffer = rank;
-    answer = (size-1);
     armci_msg_igop(&buffer, sizeof(int), absmax);
+    answer = (size-1);
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     if (rank==0) printf("Test %d: absmax B\n",count);
     buffer = -rank;
-    answer = -(size-1);
     armci_msg_igop(&buffer, sizeof(int), absmax);
+    answer = -(size-1);
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
@@ -181,16 +181,16 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: absmin A\n",count);
     buffer = rank;
-    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), absmin);
+    answer = 0;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     if (rank==0) printf("Test %d: absmin B\n",count);
     buffer = -rank;
-    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), absmin);
+    answer = 0;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
@@ -199,16 +199,16 @@ int main(int argc, char **argv)
 
     if (rank==0) printf("Test %d: or A\n",count);
     buffer = ( rank==0 ? 1 : 0 );
-    answer = 1;
     armci_msg_igop(&buffer, sizeof(int), or);
+    answer = 1;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
 
     if (rank==0) printf("Test %d: or B\n",count);
     buffer = 0;
-    answer = 0;
     armci_msg_igop(&buffer, sizeof(int), or);
+    answer = 0;
     checkanswer(count,buffer,answer);
     count++;
     ARMCI_Barrier();
