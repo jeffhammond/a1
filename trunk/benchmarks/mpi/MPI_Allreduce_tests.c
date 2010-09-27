@@ -72,21 +72,21 @@ int main(int argc, char **argv)
     /* TESTING SUM OPERATOR */
 
     if (rank==0) printf("Test %d: sum 1 out-of-place\n",count++);
-    in  = ( rank==1 ? 1 : 0 );
+    in  = ( rank==0 ? 1 : 0 );
     out = 0;
     ans = 1;
     MPI_Allreduce(&in,&out,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",in,out,ans);
-    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
+    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",rank,in,out,ans);
+    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",rank,in,out,ans);
     fflush(stdout);
 
     if (rank==0) printf("Test %d: sum 1 in-place\n",count++);
-    in  = ( rank==1 ? 1 : 0 );
+    in  = ( rank==0 ? 1 : 0 );
     out = in;
     ans = 1;
     MPI_Allreduce(MPI_IN_PLACE,&out,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",in,out,ans);
-    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
+    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",rank,in,out,ans);
+    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",rank,in,out,ans);
     fflush(stdout);
 
     if (rank==0) printf("Test %d: sum 2 out-of-place\n",count++);
@@ -94,8 +94,8 @@ int main(int argc, char **argv)
     out = 0;
     ans = size;
     MPI_Allreduce(&in,&out,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",in,out,ans);
-    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
+    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",rank,in,out,ans);
+    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",rank,in,out,ans);
     fflush(stdout);
 
     if (rank==0) printf("Test %d: sum 2 in-place\n",count++);
@@ -103,28 +103,28 @@ int main(int argc, char **argv)
     out = in;
     ans = size;
     MPI_Allreduce(MPI_IN_PLACE,&out,1,MPI_INT,MPI_SUM,MPI_COMM_WORLD);
-    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",in,out,ans);
-    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
+    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",rank,in,out,ans);
+    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",rank,in,out,ans);
     fflush(stdout);
 
     /* TESTING PROD OPERATOR */
 
     if (rank==0) printf("Test %d: prod 1 out-of-place\n",count++);
-    in  = ( rank==1 ? 1 : 0 );
+    in  = ( rank==0 ? 1 : 0 );
     out = 0;
     ans = 0;
     MPI_Allreduce(&in,&out,1,MPI_INT,MPI_PROD,MPI_COMM_WORLD);
-    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",in,out,ans);
-    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
+    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",rank,in,out,ans);
+    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",rank,in,out,ans);
     fflush(stdout);
 
     if (rank==0) printf("Test %d: prod 1 in-place\n",count++);
-    in  = ( rank==1 ? 1 : 0 );
+    in  = ( rank==0 ? 1 : 0 );
     out = in;
     ans = 0;
     MPI_Allreduce(MPI_IN_PLACE,&out,1,MPI_INT,MPI_PROD,MPI_COMM_WORLD);
-    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",in,out,ans);
-    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);;
+    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",rank,in,out,ans);
+    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",rank,in,out,ans);;
     fflush(stdout);
 
     if (rank==0) printf("Test %d: prod 2 out-of-place\n",count++);
@@ -132,8 +132,8 @@ int main(int argc, char **argv)
     out = 0;
     ans = 1;
     MPI_Allreduce(&in,&out,1,MPI_INT,MPI_PROD,MPI_COMM_WORLD);
-    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",in,out,ans);
-    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
+    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",rank,in,out,ans);
+    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",rank,in,out,ans);
     fflush(stdout);
 
     if (rank==0) printf("Test %d: prod 2 in-place\n",count++);
@@ -141,8 +141,8 @@ int main(int argc, char **argv)
     out = in;
     ans = 1;
     MPI_Allreduce(MPI_IN_PLACE,&out,1,MPI_INT,MPI_PROD,MPI_COMM_WORLD);
-    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",in,out,ans);
-    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
+    if (out==ans) printf("%4d: in=%d out=%d ans=%d PASSED \n",rank,in,out,ans);
+    else          printf("%4d: in=%d out=%d ans=%d FAILED \n",rank,in,out,ans);
     fflush(stdout);
 
     /* END OF TESTS */
