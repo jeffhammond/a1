@@ -124,7 +124,7 @@ int main()
 				      0, 
 				      1);
        
-    reduce_conf.protocol = DCMF_TREE_REDUCE_PROTOCOL;
+    reduce_conf.protocol = DCMF_TORUS_BINOMIAL_REDUCE_PROTOCOL; 
     reduce_conf.cb_geometry = getGeometry;
     reduce_conf.reuse_storage = 1;
     status = DCMF_Reduce_register(&reduce_protocol,

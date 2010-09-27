@@ -77,7 +77,7 @@ int main()
     int *trg_buffer;
     unsigned *ranks;
     DCMF_CollectiveProtocol_t barrier_protocol, lbarrier_protocol;
-    DCMF_CollectiveProtocol_t reduce_protocol;
+    DCMF_CollectiveProtocol_t reduce_protocol, reduce_notree_protocol;
     DCMF_Barrier_Configuration_t barrier_conf;
     DCMF_Reduce_Configuration_t reduce_conf;
     DCMF_CollectiveRequest_t crequest, crequest1, crequest2;
@@ -128,6 +128,18 @@ int main()
     reduce_conf.cb_geometry = getGeometry;
     reduce_conf.reuse_storage = 1;
     status = DCMF_Reduce_register(&reduce_protocol,
+                                  &reduce_conf);
+    if(status != DCMF_SUCCESS)
+    { 
+       printf("DCMF_Reduce_register returned with error %d \n",
+                 status);
+       exit(-1);
+    }
+
+    reduce_conf.protocol = DCMF_TORUS_BINOMIAL_REDUCE_PROTOCOL;
+    reduce_conf.cb_geometry = getGeometry;
+    reduce_conf.reuse_storage = 1;
+    status = DCMF_Reduce_register(&reduce_notree_protocol,
                                   &reduce_conf);
     if(status != DCMF_SUCCESS)
     { 
@@ -205,7 +217,7 @@ int main()
             reduce_active += 1;
 
             /*sum reduce operation*/
-            status = DCMF_Reduce(&reduce_protocol,
+            status = DCMF_Reduce(&reduce_notree_protocol,
                                  &crequest2,
                                  done_callback,
                                  DCMF_SEQUENTIAL_CONSISTENCY,
