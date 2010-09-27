@@ -12,7 +12,12 @@ DCMF_Protocol_t A1D_GlobalBcast_protocol;
 DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_protocol;
 DCMF_CollectiveProtocol_t A1D_Barrier_protocol, A1D_Localbarrier_protocol;
 DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
+DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
 DCMF_Geometry_t geometry;
+DCMF_Barrier_Configuration_t barrier_conf;
+DCMF_Allreduce_Configuration_t allreduce_conf;
+DCMF_CollectiveRequest_t crequest;
+unsigned *allreduce_ranklist;
 
 DCMF_Geometry_t *getGeometry (int x)
 {
@@ -248,11 +253,6 @@ int A1D_NbSync_group(A1_group_t* group, A1_handle_t a1_handle)
 int A1DI_GlobalAllreduce_initialize()
 {
     int i,status = A1_SUCCESS;
-    DCMF_Barrier_Configuration_t barrier_conf;
-    DCMF_Allreduce_Configuration_t allreduce_conf;
-    DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
-    DCMF_CollectiveRequest_t crequest;
-    unsigned *allreduce_ranklist;
 
     A1U_FUNC_ENTER();
 
@@ -311,7 +311,7 @@ int A1DI_GlobalAllreduce(int count,
                          void *out)
 {
     int status = A1_SUCCESS;
-    DCMF_CollectiveRequest_t crequest;
+    DCMF_CollectiveRequest_t ar_crequest;
     DCMF_Callback_t done_callback;
     DCMF_Op reduce_op;
     DCMF_Dt datatype;
@@ -433,7 +433,7 @@ int A1DI_GlobalAllreduce(int count,
     done_callback.clientdata = (void *) &ga_active;
 
     status = DCMF_Allreduce(&A1D_GlobalAllreduce_protocol,
-                            &crequest,
+                            &ar_crequest,
                             done_callback,
                             DCMF_SEQUENTIAL_CONSISTENCY,
                             &geometry,
