@@ -51,6 +51,8 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
                 "A1DI_Get_request returned NULL in A1DI_RecvSend_packedgets_callback.\n");
 
     a1d_buffer = A1DI_Get_buffer(sndlen, 0);
+    A1U_ERR_ABORT(status = (a1d_buffer == NULL),
+                  "A1DI_Get_buffer returned NULL.\n");
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr;
@@ -124,6 +126,9 @@ int A1DI_Packed_gets_response(int target,
 
        /*Fetching buffer from the pool*/
        a1d_buffer = A1DI_Get_buffer(a1d_settings.get_packetsize, 0);
+       A1U_ERR_ABORT(status = (a1d_buffer == NULL),
+                  "A1DI_Get_buffer returned NULL.\n");
+
        packet_ptr = a1d_buffer->buffer_ptr;
 
        data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_gets_response_header_t));
@@ -257,7 +262,7 @@ int A1DI_Packed_gets(int target,
     A1U_FUNC_ENTER();
 
     status = A1DI_Malloc((void **) &header, sizeof(A1D_Packed_gets_header_t));
-    A1U_ERR_POP(status,"Malloc failed in A1DI_Packed_gets \n");
+    A1U_ERR_POP(status != 0,"A1DI_Malloc returned with an error in A1DI_Packed_gets \n");
 
     /*Copying header information*/
     header->target = A1D_Process_info.my_rank;
@@ -320,7 +325,7 @@ int A1DI_Direct_gets(int target,
     A1U_FUNC_ENTER();
 
     status = A1DI_Malloc((void **) &block_sizes_w, sizeof(int)*(stride_level+1));
-    A1U_ERR_POP(status != A1_SUCCESS,
+    A1U_ERR_POP(status != 0,
              "A1DI_Malloc returned error in A1DI_Direct_gets");
 
     A1DI_Memcpy(block_sizes_w, block_sizes, sizeof(int)*(stride_level+1));

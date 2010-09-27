@@ -10,6 +10,7 @@ A1D_Buffer_pool_t A1D_Buffer_pool;
 
 A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
 {
+    int status = A1_SUCCESS;
     A1D_Buffer_t *a1d_buffer = NULL;
     void* new_buffer;
     int index;
@@ -21,7 +22,9 @@ A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
        it */
     if(size > A1D_Buffer_pool.sizes[A1C_BUFFER_SIZES-1]) 
     {
-        A1DI_Malloc((void **) &new_buffer, sizeof(A1D_Buffer_t) + size);
+        status = A1DI_Malloc((void **) &new_buffer, sizeof(A1D_Buffer_t) + size);
+        A1U_ERR_POP(status != A1_SUCCESS,
+                    "A1DI_Malloc return with an error \n");
         a1d_buffer = (A1D_Buffer_t *) new_buffer;
         a1d_buffer->buffer_ptr = (void *) ((size_t) new_buffer + sizeof(A1D_Buffer_t));
         a1d_buffer->pool_index = -1;
@@ -52,7 +55,9 @@ A1D_Buffer_t* A1DI_Get_buffer(int size, int wait_and_advance)
          else
          {
               void* new_buffer;
-              A1DI_Malloc((void **) &new_buffer, sizeof(A1D_Buffer_t) + size);
+              status = A1DI_Malloc((void **) &new_buffer, sizeof(A1D_Buffer_t) + size);
+              A1U_ERR_POP(status != A1_SUCCESS,
+                    "A1DI_Malloc return with an error \n");
               a1d_buffer = (A1D_Buffer_t *) new_buffer;
               a1d_buffer->buffer_ptr = (void *) ((size_t) new_buffer + sizeof(A1D_Buffer_t));
               a1d_buffer->pool_index = -1;

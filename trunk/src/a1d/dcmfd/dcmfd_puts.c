@@ -46,6 +46,8 @@ DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
                   "A1DI_Get_request returned NULL in A1DI_RecvSend_packedputs_callback.\n");
 
     a1d_buffer = A1DI_Get_buffer(a1d_settings.put_packetsize, 0);
+    A1U_ERR_ABORT(status = (a1d_buffer == NULL),
+                  "A1DI_Get_buffer returned NULL.\n");
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr;
@@ -140,6 +142,9 @@ int A1DI_Packed_puts(int target,
 
         /*Fetching buffer from the pool*/
         a1d_buffer = A1DI_Get_buffer(a1d_settings.put_packetsize, 1);
+        A1U_ERR_ABORT(status = (a1d_buffer == NULL),
+                  "A1DI_Get_buffer returned NULL.\n");
+
         packet_ptr = a1d_buffer->buffer_ptr;
 
         data_ptr = (void *) ((size_t) packet_ptr
@@ -216,7 +221,7 @@ int A1DI_Direct_puts(int target,
     A1U_FUNC_ENTER();
 
     status = A1DI_Malloc((void **) &block_sizes_w, sizeof(int) * (stride_level + 1));
-    A1U_ERR_POP(status != A1_SUCCESS,
+    A1U_ERR_POP(status != 0,
                 "A1DI_Malloc returned error in A1DI_Direct_puts");
 
     A1DI_Memcpy(block_sizes_w, block_sizes, sizeof(int) * (stride_level + 1));
@@ -461,7 +466,9 @@ int A1D_NbPutS(int target,
         if (a1d_settings.use_handoff)
         {
             A1D_Op_handoff *op_handoff;
-            A1DI_Malloc((void **) &op_handoff, sizeof(A1D_Op_handoff));
+            status = A1DI_Malloc((void **) &op_handoff, sizeof(A1D_Op_handoff));
+            A1U_ERR_POP(status != 0,
+                       "A1DI_Malloc returned with error \n");
 
             op_handoff->op_type = A1D_PACKED_PUTS;
             op_handoff->op.puts_op.target = target;

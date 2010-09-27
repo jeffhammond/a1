@@ -45,6 +45,8 @@ DCMF_Request_t* A1DI_RecvSend_rmw_response_callback(void *clientdata,
                 "A1DI_Get_request returned NULL in A1DI_RecvSend_rmw_response_callback.\n");
 
     a1d_buffer = A1DI_Get_buffer(sndlen + sizeof(A1D_Rmw_response_header_t), 0);
+    A1U_ERR_ABORT(status = (a1d_buffer == NULL),
+                  "A1DI_Get_buffer returned NULL.\n");
 
     A1DI_Memcpy(a1d_buffer->buffer_ptr, msginfo, sizeof(DCQuad)*2);
 
@@ -178,6 +180,8 @@ DCMF_Request_t* A1DI_RecvSend_rmw_callback(void *clientdata,
                 "A1DI_Get_request returned NULL in A1DI_RecvSend_rmw_callback.\n");
 
     a1d_buffer = A1DI_Get_buffer(sndlen + sizeof(A1D_Rmw_header_t), 0);
+    A1U_ERR_ABORT(status = (a1d_buffer == NULL),
+                  "A1DI_Get_buffer returned NULL.\n");
 
     A1DI_Memcpy(a1d_buffer->buffer_ptr, msginfo, sizeof(DCQuad)*2);
 
