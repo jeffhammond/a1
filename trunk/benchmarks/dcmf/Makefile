@@ -1,5 +1,5 @@
 CC      = mpixlc_r 
-COPT    = -O3 -qstrict
+COPT    = -g -O0
 
 INCLUDE = -I. -I/bgsys/drivers/ppcfloor/arch/include/
 LIBS    = libbench.a

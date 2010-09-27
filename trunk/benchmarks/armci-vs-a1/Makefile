@@ -3,7 +3,7 @@
 # Environment variable GA_INSTALL should point to the install directory of GA
 
 CC      = mpixlc_r 
-COPT    = -O5
+COPT    = -g -O0
 
 INCLUDE = -I$(GA_INSTALL)/include -I$(A1_INSTALL)/include 
 LIBS    = -I$(GA_INSTALL)/lib -lglobal -ltcgmsg-mpi -lma -L$(A1_INSTALL)/lib -la1 
