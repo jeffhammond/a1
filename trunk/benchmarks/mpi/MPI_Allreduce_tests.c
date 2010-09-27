@@ -58,6 +58,8 @@ int main(int argc, char **argv)
 
     int rank, size;
 
+    int count;
+
     int in, out, ans;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
@@ -69,7 +71,7 @@ int main(int argc, char **argv)
 
     /* TESTING SUM OPERATOR */
 
-    if (rank==0) printf("Test %d: sum 1 out-of-place\n",count);
+    if (rank==0) printf("Test %d: sum 1 out-of-place\n",count++);
     in  = ( rank==1 ? 1 : 0 );
     out = 0;
     ans = 1;
@@ -78,7 +80,7 @@ int main(int argc, char **argv)
     else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
     fflush(stdout);
 
-    if (rank==0) printf("Test %d: sum 1 in-place\n",count);
+    if (rank==0) printf("Test %d: sum 1 in-place\n",count++);
     in  = ( rank==1 ? 1 : 0 );
     out = in;
     ans = 1;
@@ -87,7 +89,7 @@ int main(int argc, char **argv)
     else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
     fflush(stdout);
 
-    if (rank==0) printf("Test %d: sum 2 out-of-place\n",count);
+    if (rank==0) printf("Test %d: sum 2 out-of-place\n",count++);
     in  = 1;
     out = 0;
     ans = size;
@@ -96,7 +98,7 @@ int main(int argc, char **argv)
     else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
     fflush(stdout);
 
-    if (rank==0) printf("Test %d: sum 2 in-place\n",count);
+    if (rank==0) printf("Test %d: sum 2 in-place\n",count++);
     in  = 1;
     out = in;
     ans = size;
@@ -107,7 +109,7 @@ int main(int argc, char **argv)
 
     /* TESTING PROD OPERATOR */
 
-    if (rank==0) printf("Test %d: prod 1 out-of-place\n",count);
+    if (rank==0) printf("Test %d: prod 1 out-of-place\n",count++);
     in  = ( rank==1 ? 1 : 0 );
     out = 0;
     ans = 0;
@@ -116,7 +118,7 @@ int main(int argc, char **argv)
     else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
     fflush(stdout);
 
-    if (rank==0) printf("Test %d: prod 1 in-place\n",count);
+    if (rank==0) printf("Test %d: prod 1 in-place\n",count++);
     in  = ( rank==1 ? 1 : 0 );
     out = in;
     ans = 0;
@@ -125,7 +127,7 @@ int main(int argc, char **argv)
     else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);;
     fflush(stdout);
 
-    if (rank==0) printf("Test %d: prod 2 out-of-place\n",count);
+    if (rank==0) printf("Test %d: prod 2 out-of-place\n",count++);
     in  = 1;
     out = 0;
     ans = 1;
@@ -134,7 +136,7 @@ int main(int argc, char **argv)
     else          printf("%4d: in=%d out=%d ans=%d FAILED \n",in,out,ans);
     fflush(stdout);
 
-    if (rank==0) printf("Test %d: prod 2 in-place\n",count);
+    if (rank==0) printf("Test %d: prod 2 in-place\n",count++);
     in  = 1;
     out = in;
     ans = 1;
