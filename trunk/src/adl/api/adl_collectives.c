@@ -22,7 +22,7 @@ int A1_Barrier_group(A1_group_t* group)
 #   endif
 
     /* barrier is meaningless with 1 process */
-    if ( 1==A1_Process_size(A1_GROUP_WORLD) ) goto fn_exit;
+    if ( 1==A1D_Process_id(A1_GROUP_WORLD) ) goto fn_exit;
 
     status = A1D_Barrier_group(group);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Barrier_group returned an error\n");
@@ -49,7 +49,7 @@ int A1_NbBarrier_group(A1_group_t* group, A1_handle_t a1_handle)
 #   endif
 
     /* barrier is meaningless with 1 process */
-    if ( 1==A1_Process_size(A1_GROUP_WORLD) ) goto fn_exit;
+    if ( 1==A1D_Process_id(A1_GROUP_WORLD) ) goto fn_exit;
 
     status = A1D_NbBarrier_group(group, a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbBarrier_group returned an error\n");
@@ -137,7 +137,7 @@ int A1_Allreduce_group(A1_group_t* group,
     if (count <= 0) goto fn_exit;
 
     /* bypass any sort of network API or communication altogether */
-    if ( 1==A1_Process_size(A1_GROUP_WORLD) )
+    if ( 1==A1D_Process_id(A1_GROUP_WORLD) )
     {
         switch (a1_type)
         {
@@ -204,7 +204,7 @@ int A1_NbAllreduce_group(A1_group_t* group,
     if (count <= 0) goto fn_exit;
 
     /* bypass any sort of network API or communication altogether */
-    if ( 1==A1_Process_size(A1_GROUP_WORLD) )
+    if ( 1==A1D_Process_id(A1_GROUP_WORLD) )
     {
         switch (a1_type)
         {
@@ -269,7 +269,7 @@ int A1_Bcast_group(A1_group_t* group,
     if (count <= 0) goto fn_exit;
 
     /* bypass any sort of network API or communication altogether */
-    if ( 1==A1_Process_size(A1_GROUP_WORLD) ) goto fn_exit;
+    if ( 1==A1D_Process_id(A1_GROUP_WORLD) ) goto fn_exit;
 
     status = A1D_Bcast_group(group,
                              root,
@@ -305,7 +305,7 @@ int A1_NbBcast_group(A1_group_t* group,
     if (count <= 0) goto fn_exit;
 
     /* bypass any sort of network API or communication altogether */
-    if ( 1==A1_Process_size(A1_GROUP_WORLD) ) goto fn_exit;
+    if ( 1==A1D_Process_id(A1_GROUP_WORLD) ) goto fn_exit;
 
     status = A1D_NbBcast_group(group,
                                root,
