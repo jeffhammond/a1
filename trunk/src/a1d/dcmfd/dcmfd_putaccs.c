@@ -39,8 +39,8 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
                                                      DCMF_Callback_t *cb_done)
 {
     int status = 0;
-    A1D_Request_t *a1d_request;
-    A1D_Buffer_t *a1d_buffer;
+    A1D_Request_t *a1d_request = NULL;
+    A1D_Buffer_t *a1d_buffer = NULL;
 
     a1d_request = A1DI_Get_request(0);
     A1U_ERR_ABORT(status = (a1d_request == NULL),
@@ -48,7 +48,7 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
 
     a1d_buffer = A1DI_Get_buffer(sndlen, 0);
     A1U_ERR_ABORT(status = (a1d_buffer == NULL),
-                "A1DI_Get_buffer returned NULL in A1DI_RecvSend_packedputaccs_callback\n");    
+                "A1DI_Get_buffer returned NULL in A1DI_RecvSend_packedputaccs_callback\n");   
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr;
@@ -173,10 +173,14 @@ int A1DI_Packed_putaccs(int target,
        a1d_buffer = A1DI_Get_buffer(a1d_settings.putacc_packetsize, 1);
        A1U_ERR_ABORT(status = (a1d_buffer == NULL),
                                "A1DI_Get_buffer returned with NULL\n");
+
        packet_ptr = a1d_buffer->buffer_ptr;
 
-       data_ptr = (void *) ((size_t) packet_ptr + sizeof(A1D_Packed_putaccs_header_t));
-       data_limit = a1d_settings.putacc_packetsize - sizeof(A1D_Packed_putaccs_header_t);
+       data_ptr = (void *) ((size_t) packet_ptr 
+              + sizeof(A1D_Packed_putaccs_header_t));
+       data_limit = a1d_settings.putacc_packetsize 
+              - sizeof(A1D_Packed_putaccs_header_t);
+       data_size = 0;
 
        /*The packing function can modify the source ptr, target ptr, and block index*/
        A1DI_Pack_strided(data_ptr,
