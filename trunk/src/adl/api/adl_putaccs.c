@@ -29,11 +29,15 @@ int A1_PutAccS(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      int i, bytes = 1;
+      for (i = 0; i <= stride_levels; i++) total_bytes *= count[i];
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_PUTACCS, target, total_bytes);
+    }
 #   endif
 
     /*Check if it is a contiguous transfer, issue a contiguous op*/
@@ -113,11 +117,15 @@ int A1_NbPutAccS(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      int i, bytes = 1;
+      for (i = 0; i <= stride_levels; i++) total_bytes *= count[i];
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_NBPUTACCS, target, total_bytes);
+    }
 #   endif
 
     /*Check if it is a contiguous transfer, issue a contiguous op*/
@@ -254,11 +262,15 @@ int A1_PutAccS(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      int i, bytes = 1;
+      for (i = 0; i <= stride_levels; i++) total_bytes *= count[i];
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_PUTACCS, target, total_bytes);
+    }
 #   endif
 
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
@@ -321,11 +333,15 @@ int A1_NbPutAccS(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      int i, bytes = 1;
+      for (i = 0; i <= stride_levels; i++) total_bytes *= count[i];
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_NBPUTACCS, target, total_bytes);
+    }
 #   endif
 
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */

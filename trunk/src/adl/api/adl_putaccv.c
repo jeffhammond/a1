@@ -25,11 +25,16 @@ int A1_PutAccV(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+        int i, total_bytes = 0;
+        for (i = 0; i < ar_len; i++)
+            total_bytes += iov_ar[i].ptr_array_len * iov_ar[i].bytes;
+        TAU_TRACE_SENDMSG (A1_TAU_TAG_PUTACCV, target, total_bytes);
+    }
 #   endif
 
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
@@ -62,11 +67,16 @@ int A1_NbPutAccV(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+        int i, total_bytes = 0;
+        for (i = 0; i < ar_len; i++)
+            total_bytes += iov_ar[i].ptr_array_len * iov_ar[i].bytes;
+        TAU_TRACE_SENDMSG (A1_TAU_TAG_NBPUTACCV, target, total_bytes);
+    }
 #   endif
 
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
@@ -105,6 +115,18 @@ int A1_PutAccV(int target,
     A1_handle_t a1_handle;
 
     A1U_FUNC_ENTER();
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+        int i, total_bytes = 0;
+        for (i = 0; i < ar_len; i++)
+            total_bytes += iov_ar[i].ptr_array_len * iov_ar[i].bytes;
+        TAU_TRACE_SENDMSG (A1_TAU_TAG_PUTACCV, target, total_bytes);
+    }
+#   endif
 
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
@@ -157,6 +179,18 @@ int A1_NbPutAccV(int target,
     int my_rank = A1D_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+        int i, total_bytes = 0;
+        for (i = 0; i < ar_len; i++)
+            total_bytes += iov_ar[i].ptr_array_len * iov_ar[i].bytes;
+        TAU_TRACE_SENDMSG (A1_TAU_TAG_NBPUTACCV, target, total_bytes);
+    }
+#   endif
 
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)

@@ -27,11 +27,15 @@ int A1_GetS(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      int i, bytes = 1;
+      for (i = 0; i <= stride_levels; i++) total_bytes *= count[i];
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_GETS, target, total_bytes);
+    }
 #   endif
 
     /* Check if it is a contiguous transfer, issue a contiguous op. */
@@ -99,11 +103,15 @@ int A1_NbGetS(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      int i, bytes = 1;
+      for (i = 0; i <= stride_levels; i++) total_bytes *= count[i];
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_NBGETS, target, total_bytes);
+    }
 #   endif
 
     /*Check if it is a contiguous transfer, issue a contiguous op*/
@@ -223,11 +231,15 @@ int A1_GetS(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      int i, bytes = 1;
+      for (i = 0; i <= stride_levels; i++) total_bytes *= count[i];
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_GETS, target, total_bytes);
+    }
 #   endif
 
     /* Check if it is a contiguous transfer, issue a contiguous op. */
@@ -303,11 +315,15 @@ int A1_NbGetS(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      int i, bytes = 1;
+      for (i = 0; i <= stride_levels; i++) total_bytes *= count[i];
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_NBGETS, target, total_bytes);
+    }
 #   endif
 
     /*Check if it is a contiguous transfer, issue a contiguous op*/

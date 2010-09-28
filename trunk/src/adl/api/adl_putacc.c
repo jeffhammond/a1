@@ -20,11 +20,13 @@ int A1_PutAcc(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+        TAU_TRACE_SENDMSG (A1_TAU_TAG_PUTACC, target, bytes);
+    }
 #   endif
 
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
@@ -67,11 +69,13 @@ int A1_NbPutAcc(int target,
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+        TAU_TRACE_SENDMSG (A1_TAU_TAG_NBPUTACC, target, bytes);
+    }
 #   endif
 
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */

@@ -15,11 +15,13 @@ int A1_Put(int target, void* src, void* dst, int bytes)
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+        TAU_TRACE_SENDMSG (A1_TAU_TAG_PUT, target, bytes);
+    }
 #   endif
 
     if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit) )
@@ -48,11 +50,13 @@ int A1_NbPut(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+        TAU_TRACE_SENDMSG (A1_TAU_TAG_NBPUT, target, bytes);
+    }
 #   endif
 
     /* Not sure if what is the right strategy for bypass.  A1U_*_memcpy are blocking
