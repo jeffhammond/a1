@@ -123,11 +123,11 @@ int A1DI_Packed_putaccs(int target,
 
     int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
-    A1D_Request_t *a1d_request;
-    A1D_Buffer_t *a1d_buffer;
+    A1D_Request_t *a1d_request = NULL;
+    A1D_Buffer_t *a1d_buffer = NULL;
     A1D_Packed_putaccs_header_t header;
-    void *packet_ptr, *data_ptr;
-    int packet_size, data_size, data_limit;
+    void *packet_ptr = NULL, *data_ptr = NULL;
+    int packet_size, data_size = 0, data_limit = 0;
     int block_idx[A1C_MAX_STRIDED_DIM];
     int complete = 0;
 
