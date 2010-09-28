@@ -160,7 +160,8 @@ int A1_Allreduce_group(A1_group_t* group,
                 memcpy(in,out,count*sizeof(float));
                 break;
             default:
-                A1U_ERR_ABORT(status != A1_SUCCESS, "Unsupported A1_datatype \n");
+                A1_Abort(911, "Unsupported A1_datatype \n");
+                //A1U_ERR_ABORT(status != A1_SUCCESS, "Unsupported A1_datatype \n");
                 break;
         }
         goto fn_exit;
@@ -227,7 +228,8 @@ int A1_NbAllreduce_group(A1_group_t* group,
                 memcpy(in,out,count*sizeof(float));
                 break;
             default:
-                A1U_ERR_ABORT(status != A1_SUCCESS, "Unsupported A1_datatype \n");
+                A1_Abort(911, "Unsupported A1_datatype \n");
+                //A1U_ERR_ABORT(status != A1_SUCCESS, "Unsupported A1_datatype \n");
                 break;
         }
         goto fn_exit;
