@@ -21,6 +21,8 @@ int A1_Barrier_group(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    if ( 1==A1_Process_size(A1_GROUP_WORLD) ) goto fn_exit;
+
     status = A1D_Barrier_group(group);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Barrier_group returned an error\n");
 

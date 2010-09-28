@@ -16,7 +16,7 @@ int A1_PutAcc(int target,
               void* scaling)
 {
     int status = A1_SUCCESS;
-    int my_rank = A1_Process_id(A1_GROUP_WORLD);
+    int my_rank = A1D_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
@@ -63,7 +63,7 @@ int A1_NbPutAcc(int target,
                 A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
-    int my_rank = A1_Process_id(A1_GROUP_WORLD);
+    int my_rank = A1D_Process_id(A1_GROUP_WORLD);
 
     A1U_FUNC_ENTER();
 
