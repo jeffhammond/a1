@@ -22,11 +22,11 @@ int A1U_Put_memcpy(void* src,
 
     A1D_Global_lock_release();
 
-  fn_exit: 
+    fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
+    fn_fail:
     goto fn_exit;
 }
 
@@ -77,11 +77,11 @@ int A1U_PutS_memcpy(int stride_level,
             /*The strides done on lower dimensions should be subtracted as these are
               included in the stride along the current dimension*/
             source_ptr = (void *) ((size_t) source_ptr  
-                   + src_stride_ar[y - 1] 
-                   - (block_sizes[y-1] - 1) * src_stride_ar[y-2]);
+                    + src_stride_ar[y - 1]
+                                    - (block_sizes[y-1] - 1) * src_stride_ar[y-2]);
             target_ptr = (void *) ((size_t) target_ptr 
-                   + trg_stride_ar[y - 1] 
-                   - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
+                    + trg_stride_ar[y - 1]
+                                    - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
 
             y--;
             while (y >= 1)
@@ -95,15 +95,15 @@ int A1U_PutS_memcpy(int stride_level,
             source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[0]);
             target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[0]);
         }
-     }
+    }
 
     A1D_Global_lock_release();
 
-  fn_exit: 
+    fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
+    fn_fail:
     goto fn_exit;
 }
 
@@ -120,17 +120,15 @@ int A1U_PutV_memcpy(A1_iov_t *iov_ar,
     {
         for(j=0; j<iov_ar[i].ptr_ar_len; j++) 
         {
-
-           memcpy(iov_ar[i].target_ptr_ar[j], iov_ar[i].source_ptr_ar[j], iov_ar[i].size);
-
+            memcpy(iov_ar[i].target_ptr_ar[j], iov_ar[i].source_ptr_ar[j], iov_ar[i].size);
         }
     }
 
     A1D_Global_lock_release();
 
-  fn_exit: A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
+    fn_fail:
     goto fn_exit;
 }

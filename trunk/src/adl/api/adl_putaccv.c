@@ -32,6 +32,7 @@ int A1_PutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
@@ -68,6 +69,7 @@ int A1_NbPutAccV(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
@@ -104,6 +106,7 @@ int A1_PutAccV(int target,
 
     A1U_FUNC_ENTER();
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);
@@ -155,6 +158,7 @@ int A1_NbPutAccV(int target,
 
     A1U_FUNC_ENTER();
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccV_memcpy(iov_ar, ar_len, a1_type, scaling);

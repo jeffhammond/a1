@@ -28,6 +28,8 @@ int A1_GetV(int target, A1_iov_t *iov_ar, int ar_len)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* It isn't worth trying to optimize for the threshold here because
+     * these operations aren't used much in GA. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_GetV_memcpy(iov_ar, ar_len);
@@ -59,6 +61,8 @@ int A1_NbGetV(int target, A1_iov_t *iov_ar, int ar_len, A1_handle_t a1_handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* It isn't worth trying to optimize for the threshold here because
+     * these operations aren't used much in GA. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_GetV_memcpy(iov_ar, ar_len);
@@ -88,6 +92,8 @@ int A1_GetV(int target,
 
     A1U_FUNC_ENTER();
 
+    /* It isn't worth trying to optimize for the threshold here because
+     * these operations aren't used much in GA. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_GetV_memcpy(iov_ar, ar_len);
@@ -134,6 +140,8 @@ int A1_NbGetV(int target,
 
     A1U_FUNC_ENTER();
 
+    /* It isn't worth trying to optimize for the threshold here because
+     * these operations aren't used much in GA. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_GetV_memcpy(iov_ar, ar_len);

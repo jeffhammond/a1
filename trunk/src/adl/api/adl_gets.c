@@ -34,10 +34,10 @@ int A1_GetS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    /*Check if it is a contiguous transfer, issue a contiguous op*/
+    /* Check if it is a contiguous transfer, issue a contiguous op. */
     if(stride_level == 0)
     {
-        if(target == my_rank && a1u_settings.network_bypass)
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_upper_limit) )
         {
            status = A1U_Get_memcpy(source_ptr, target_ptr, block_sizes[0]);
            A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
@@ -49,27 +49,33 @@ int A1_GetS(int target,
         }
         goto fn_exit;
     }
+    else /* Non-contiguous */
+    {
+        int total_bytes = 1;
 
-    if(target == my_rank && a1u_settings.network_bypass)
-    {
-        status = A1U_GetS_memcpy(stride_level,
-                                 block_sizes,
-                                 source_ptr,
-                                 src_stride_ar,
-                                 target_ptr,
-                                 trg_stride_ar);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
-    }
-    else
-    {
-        status = A1D_GetS(target,
-                          stride_level,
-                          block_sizes,
-                          source_ptr,
-                          src_stride_ar,
-                          target_ptr,
-                          trg_stride_ar);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_GetS returned error\n");
+        for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
+
+        if(target == my_rank && (total_bytes < a1u_settings.network_bypass_upper_limit) )
+        {
+            status = A1U_GetS_memcpy(stride_level,
+                                     block_sizes,
+                                     source_ptr,
+                                     src_stride_ar,
+                                     target_ptr,
+                                     trg_stride_ar);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
+        }
+        else
+        {
+            status = A1D_GetS(target,
+                              stride_level,
+                              block_sizes,
+                              source_ptr,
+                              src_stride_ar,
+                              target_ptr,
+                              trg_stride_ar);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1D_GetS returned error\n");
+        }
     }
 
   fn_exit:  
@@ -104,7 +110,7 @@ int A1_NbGetS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
-        if(target == my_rank && a1u_settings.network_bypass)
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_upper_limit) )
         {
            status = A1U_Get_memcpy(source_ptr, target_ptr, block_sizes[0]);
            A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
@@ -117,28 +123,34 @@ int A1_NbGetS(int target,
         }
         goto fn_exit;
     }
+    else /* Non-contiguous */
+    {
+        int total_bytes = 1;
 
-    if(target == my_rank && a1u_settings.network_bypass)
-    {
-        status = A1U_GetS_memcpy(stride_level,
-                                 block_sizes,
-                                 source_ptr,
-                                 src_stride_ar,
-                                 target_ptr,
-                                 trg_stride_ar);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
-    }
-    else
-    {
-        status = A1D_NbGetS(target,
-                            stride_level,
-                            block_sizes,
-                            source_ptr,
-                            src_stride_ar,
-                            target_ptr,
-                            trg_stride_ar,
-                            a1_handle);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbGetS returned error\n");
+        for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
+
+        if(target == my_rank && (total_bytes < a1u_settings.network_bypass_upper_limit) )
+        {
+            status = A1U_GetS_memcpy(stride_level,
+                                     block_sizes,
+                                     source_ptr,
+                                     src_stride_ar,
+                                     target_ptr,
+                                     trg_stride_ar);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
+        }
+        else
+        {
+            status = A1D_NbGetS(target,
+                                stride_level,
+                                block_sizes,
+                                source_ptr,
+                                src_stride_ar,
+                                target_ptr,
+                                trg_stride_ar,
+                                a1_handle);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbGetS returned error\n");
+        }
     }
 
   fn_exit: 
@@ -219,33 +231,55 @@ int A1_GetS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(target == my_rank && a1u_settings.network_bypass)
+    /* Check if it is a contiguous transfer, issue a contiguous op. */
+    if(stride_level == 0)
     {
-        status = A1U_GetS_memcpy(stride_level,
-                                 block_sizes,
-                                 source_ptr,
-                                 src_stride_ar,
-                                 target_ptr,
-                                 trg_stride_ar);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_upper_limit) )
+        {
+           status = A1U_Get_memcpy(source_ptr, target_ptr, block_sizes[0]);
+           A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
+        }
+        else
+        {
+           status = A1D_Get(target, source_ptr, target_ptr, block_sizes[0]);
+           A1U_ERR_POP(status != A1_SUCCESS, "A1D_Get returned an error\n");
+        }
+        goto fn_exit;
     }
-    else
+    else /* Non-contiguous */
     {
-        status = A1D_Allocate_handle(&a1_handle);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");
+        int total_bytes = 1;
 
-        status = A1I_Recursive_Get(target,
-                                   stride_level,
-                                   block_sizes,
-                                   source_ptr,
-                                   src_stride_ar,
-                                   target_ptr,
-                                   trg_stride_ar,
-                                   a1_handle);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_Get returned error\n");
+        for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
 
-        status = A1D_Wait_handle(a1_handle);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
+        if(target == my_rank && (total_bytes < a1u_settings.network_bypass_upper_limit) )
+        {
+            status = A1U_GetS_memcpy(stride_level,
+                                     block_sizes,
+                                     source_ptr,
+                                     src_stride_ar,
+                                     target_ptr,
+                                     trg_stride_ar);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
+        }
+        else
+        {
+            status = A1D_Allocate_handle(&a1_handle);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allocate_handle returned error\n");
+
+            status = A1I_Recursive_Get(target,
+                                       stride_level,
+                                       block_sizes,
+                                       source_ptr,
+                                       src_stride_ar,
+                                       target_ptr,
+                                       trg_stride_ar,
+                                       a1_handle);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_Get returned error\n");
+
+            status = A1D_Wait_handle(a1_handle);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Wait_handle returned error\n");
+        }
     }
 
   fn_exit:
@@ -277,27 +311,50 @@ int A1_NbGetS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(target == my_rank && a1u_settings.network_bypass)
+    /*Check if it is a contiguous transfer, issue a contiguous op*/
+    if(stride_level == 0)
     {
-        status = A1U_GetS_memcpy(stride_level,
-                                 block_sizes,
-                                 source_ptr,
-                                 src_stride_ar,
-                                 target_ptr,
-                                 trg_stride_ar);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_upper_limit) )
+        {
+           status = A1U_Get_memcpy(source_ptr, target_ptr, block_sizes[0]);
+           A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
+        }
+        else
+        {
+           status = A1D_NbGet(target, source_ptr, target_ptr,
+                         block_sizes[0], a1_handle);
+           A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned an error\n");
+        }
+        goto fn_exit;
     }
-    else
+    else /* Non-contiguous */
     {
-        status = A1I_Recursive_Get(target,
-                                   stride_level,
-                                   block_sizes,
-                                   source_ptr,
-                                   src_stride_ar,
-                                   target_ptr,
-                                   trg_stride_ar,
-                                   a1_handle);
-        A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_Get returned error\n");
+        int total_bytes = 1;
+
+        for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
+
+        if(target == my_rank && (total_bytes < a1u_settings.network_bypass_upper_limit) )
+        {
+            status = A1U_GetS_memcpy(stride_level,
+                                     block_sizes,
+                                     source_ptr,
+                                     src_stride_ar,
+                                     target_ptr,
+                                     trg_stride_ar);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1U_GetS_memcpy returned error\n");
+        }
+        else
+        {
+            status = A1I_Recursive_Get(target,
+                                       stride_level,
+                                       block_sizes,
+                                       source_ptr,
+                                       src_stride_ar,
+                                       target_ptr,
+                                       trg_stride_ar,
+                                       a1_handle);
+            A1U_ERR_POP(status!=A1_SUCCESS, "A1I_Recursive_Get returned error\n");
+        }
     }
 
   fn_exit:

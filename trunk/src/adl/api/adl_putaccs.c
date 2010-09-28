@@ -39,6 +39,7 @@ int A1_PutAccS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
+        /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
         if (target == my_rank && a1u_settings.network_bypass)
         {
            status = A1U_Acc_memcpy(source_ptr,
@@ -61,6 +62,7 @@ int A1_PutAccS(int target,
         goto fn_exit;
     }
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccS_memcpy(stride_level,
@@ -121,6 +123,7 @@ int A1_NbPutAccS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
+        /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
         if (target == my_rank && a1u_settings.network_bypass)
         {
            status = A1U_Acc_memcpy(source_ptr,
@@ -144,6 +147,7 @@ int A1_NbPutAccS(int target,
         goto fn_exit;
     }
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccS_memcpy(stride_level,
@@ -257,6 +261,7 @@ int A1_PutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccS_memcpy(stride_level,
@@ -323,6 +328,7 @@ int A1_NbPutAccS(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_AccS_memcpy(stride_level,

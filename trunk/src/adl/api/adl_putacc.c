@@ -27,6 +27,7 @@ int A1_PutAcc(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_Acc_memcpy(source_ptr,
@@ -73,6 +74,7 @@ int A1_NbPutAcc(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+    /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
         status = A1U_Acc_memcpy(source_ptr,

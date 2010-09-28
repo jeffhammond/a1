@@ -8,7 +8,7 @@
 #include "a1d.h"
 #include "a1u.h"
 
-int A1_Get(int proc, void* src, void* dst, int bytes)
+int A1_Get(int target, void* src, void* dst, int bytes)
 {
     int status = A1_SUCCESS;
     int my_rank = A1D_Process_id(A1_GROUP_WORLD);
@@ -22,14 +22,14 @@ int A1_Get(int proc, void* src, void* dst, int bytes)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(proc == my_rank && a1u_settings.network_bypass)
+    if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit) )
     {
        status = A1U_Get_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
     }
     else
     {
-        status = A1D_Get(proc, src, dst, bytes);
+        status = A1D_Get(target, src, dst, bytes);
         A1U_ERR_POP(status != A1_SUCCESS, "A1D_Get returned an error\n");
     }
 
@@ -42,7 +42,7 @@ int A1_Get(int proc, void* src, void* dst, int bytes)
 }
 
 
-int A1_NbGet(int proc, void* src, void* dst, int bytes, A1_handle_t a1_handle)
+int A1_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
     int my_rank = A1D_Process_id(A1_GROUP_WORLD);
@@ -56,14 +56,14 @@ int A1_NbGet(int proc, void* src, void* dst, int bytes, A1_handle_t a1_handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    if(proc == my_rank && a1u_settings.network_bypass)
+    if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit) )
     {
        status = A1U_Get_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
     }
     else
     {
-        status = A1D_NbGet(proc, src, dst, bytes, a1_handle);
+        status = A1D_NbGet(target, src, dst, bytes, a1_handle);
         A1U_ERR_POP(status != A1_SUCCESS, "A1D_NbGet returned an error\n");
     }
 

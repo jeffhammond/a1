@@ -12,14 +12,14 @@
 #define unlikely_if(x) if(__builtin_expect(x,0))
 
 #define A1UI_ACC(datatype, source, target, scaling, count)                  \
-   do {                                                                     \
-     int w;                                                                 \
-     datatype *s = (datatype *) source;                                     \
-     datatype *t = (datatype *) target;                                     \
-     datatype c = (datatype) scaling;                                       \
-     for(w=0; w<count; w++)                                                 \
-          t[w] += s[w]*c;                                                   \
-   } while(0)                                                               \
+        do {                                                                     \
+            int w;                                                                 \
+            datatype *s = (datatype *) source;                                     \
+            datatype *t = (datatype *) target;                                     \
+            datatype c = (datatype) scaling;                                       \
+            for(w=0; w<count; w++)                                                 \
+            t[w] += s[w]*c;                                                   \
+        } while(0)                                                               \
 
 int A1U_Acc_memcpy(void* source_ptr,
                    void* target_ptr,
@@ -35,65 +35,65 @@ int A1U_Acc_memcpy(void* source_ptr,
 
     likely_if(a1_type == A1_DOUBLE) 
     {
-       A1UI_ACC(double,
-               source_ptr,
-               target_ptr,
-               *((double *) scaling),
-               bytes/sizeof(double));
+        A1UI_ACC(double,
+                 source_ptr,
+                 target_ptr,
+                 *((double *) scaling),
+                 bytes/sizeof(double));
     } 
     else
     {
-       switch (a1_type)
-       {
-          case A1_INT32:
-              A1UI_ACC(int32_t,
-                      source_ptr,
-                      target_ptr,
-                      *((int32_t *) scaling),
-                      bytes/sizeof(int32_t));
-              break;
-          case A1_INT64:
-              A1UI_ACC(int64_t,
-                      source_ptr,
-                      target_ptr,
-                      *((int64_t *) scaling),
-                      bytes/sizeof(int64_t));
-              break;
-          case A1_UINT32:
-              A1UI_ACC(uint32_t,
-                      source_ptr,
-                      target_ptr,
-                      *((uint32_t *) scaling),
-                      bytes/sizeof(uint32_t));
-              break;
-          case A1_UINT64:
-              A1UI_ACC(uint64_t,
-                      source_ptr,
-                      target_ptr,
-                      *((uint64_t *) scaling),
-                      bytes/sizeof(uint64_t));
-              break;
-          case A1_FLOAT:
-              A1UI_ACC(float,
-                      source_ptr,
-                      target_ptr,
-                      *((float *) scaling),
-                      bytes/sizeof(float));
-              break;
-          default:
-              status = A1_ERROR;
-              A1U_ERR_POP((status != A1_SUCCESS), "Invalid data type in putacc \n");
-              break;
-       }
+        switch (a1_type)
+        {
+            case A1_INT32:
+                A1UI_ACC(int32_t,
+                         source_ptr,
+                         target_ptr,
+                         *((int32_t *) scaling),
+                         bytes/sizeof(int32_t));
+                break;
+            case A1_INT64:
+                A1UI_ACC(int64_t,
+                         source_ptr,
+                         target_ptr,
+                         *((int64_t *) scaling),
+                         bytes/sizeof(int64_t));
+                break;
+            case A1_UINT32:
+                A1UI_ACC(uint32_t,
+                         source_ptr,
+                         target_ptr,
+                         *((uint32_t *) scaling),
+                         bytes/sizeof(uint32_t));
+                break;
+            case A1_UINT64:
+                A1UI_ACC(uint64_t,
+                         source_ptr,
+                         target_ptr,
+                         *((uint64_t *) scaling),
+                         bytes/sizeof(uint64_t));
+                break;
+            case A1_FLOAT:
+                A1UI_ACC(float,
+                         source_ptr,
+                         target_ptr,
+                         *((float *) scaling),
+                         bytes/sizeof(float));
+                break;
+            default:
+                status = A1_ERROR;
+                A1U_ERR_POP((status != A1_SUCCESS), "Invalid data type in putacc \n");
+                break;
+        }
     }
 
     A1D_Global_lock_release();
 
-  fn_exit: 
+    fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
+    fn_fail:
     goto fn_exit;
 }
 
@@ -126,58 +126,54 @@ int A1U_AccS_memcpy(int stride_level,
 
     for (i = 0; i < chunk_count; i++)
     {
-        likely_if(a1_type == A1_DOUBLE) 
+        switch (a1_type)
         {
-           A1UI_ACC(double,
-                   source_ptr,
-                   target_ptr,
-                   *((double *) scaling),
-                   block_sizes[0]/sizeof(double));
-        } 
-        else
-        {
-           switch (a1_type)
-           {
-              case A1_INT32:
-                  A1UI_ACC(int32_t,
-                          source_ptr,
-                          target_ptr,
-                          *((int32_t *) scaling),
-                          block_sizes[0]/sizeof(int32_t));
-                  break;
-              case A1_INT64:
-                  A1UI_ACC(int64_t,
-                          source_ptr,
-                          target_ptr,
-                          *((int64_t *) scaling),
-                          block_sizes[0]/sizeof(int64_t));
-                  break;
-              case A1_UINT32:
-                  A1UI_ACC(uint32_t,
-                          source_ptr,
-                          target_ptr,
-                          *((uint32_t *) scaling),
-                          block_sizes[0]/sizeof(uint32_t));
-                  break;
-              case A1_UINT64:
-                  A1UI_ACC(uint64_t,
-                          source_ptr,
-                          target_ptr,
-                          *((uint64_t *) scaling),
-                          block_sizes[0]/sizeof(uint64_t));
-                  break;
-              case A1_FLOAT:
-                  A1UI_ACC(float,
-                          source_ptr,
-                          target_ptr,
-                          *((float *) scaling),
-                          block_sizes[0]/sizeof(float));
-                  break;
-              default:
-                  status = A1_ERROR;
-                  A1U_ERR_POP((status != A1_SUCCESS), "Invalid data type in putacc \n");
-                  break;
-           }
+            case A1_DOUBLE:
+                A1UI_ACC(double,
+                         source_ptr,
+                         target_ptr,
+                         *((double *) scaling),
+                         block_sizes[0]/sizeof(double));
+                break;
+            case A1_INT32:
+                A1UI_ACC(int32_t,
+                         source_ptr,
+                         target_ptr,
+                         *((int32_t *) scaling),
+                         block_sizes[0]/sizeof(int32_t));
+                break;
+            case A1_INT64:
+                A1UI_ACC(int64_t,
+                         source_ptr,
+                         target_ptr,
+                         *((int64_t *) scaling),
+                         block_sizes[0]/sizeof(int64_t));
+                break;
+            case A1_UINT32:
+                A1UI_ACC(uint32_t,
+                         source_ptr,
+                         target_ptr,
+                         *((uint32_t *) scaling),
+                         block_sizes[0]/sizeof(uint32_t));
+                break;
+            case A1_UINT64:
+                A1UI_ACC(uint64_t,
+                         source_ptr,
+                         target_ptr,
+                         *((uint64_t *) scaling),
+                         block_sizes[0]/sizeof(uint64_t));
+                break;
+            case A1_FLOAT:
+                A1UI_ACC(float,
+                         source_ptr,
+                         target_ptr,
+                         *((float *) scaling),
+                         block_sizes[0]/sizeof(float));
+                break;
+            default:
+                status = A1_ERROR;
+                A1U_ERR_POP((status != A1_SUCCESS), "Invalid data type in putacc \n");
+                break;
         }
 
         block_sizes_w[1]--;
@@ -198,11 +194,11 @@ int A1U_AccS_memcpy(int stride_level,
             /*The strides done on lower dimensions should be subtracted as these are
               included in the stride along the current dimension*/
             source_ptr = (void *) ((size_t) source_ptr  
-                   + src_stride_ar[y - 1] 
-                   - (block_sizes[y-1] - 1) * src_stride_ar[y-2]);
+                    + src_stride_ar[y - 1]
+                                    - (block_sizes[y-1] - 1) * src_stride_ar[y-2]);
             target_ptr = (void *) ((size_t) target_ptr 
-                   + trg_stride_ar[y - 1] 
-                   - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
+                    + trg_stride_ar[y - 1]
+                                    - (block_sizes[y-1] - 1) * trg_stride_ar[y-2]);
 
             y--;
             while (y >= 1)
@@ -216,15 +212,15 @@ int A1U_AccS_memcpy(int stride_level,
             source_ptr = (void *) ((size_t) source_ptr + src_stride_ar[0]);
             target_ptr = (void *) ((size_t) target_ptr + trg_stride_ar[0]);
         }
-     }
+    }
 
-     A1D_Global_lock_release();
+    A1D_Global_lock_release();
 
-  fn_exit: 
+    fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
+    fn_fail:
     goto fn_exit;
 }
 
@@ -243,68 +239,63 @@ int A1U_AccV_memcpy(A1_iov_t *iov_ar,
     {
         for(j=0; j<iov_ar[i].ptr_ar_len; j++) 
         {
-
-           likely_if(a1_type == A1_DOUBLE) 
-           {
-              A1UI_ACC(double,
-                      iov_ar[i].source_ptr_ar[j],
-                      iov_ar[i].target_ptr_ar[j],
-                      *((double *) scaling),
-                      (iov_ar[i].size)/sizeof(double));
-           } 
-           else
-           {
-              switch (a1_type)
-              {
-                 case A1_INT32:
-                     A1UI_ACC(int32_t,
+            switch (a1_type)
+            {
+                case A1_DOUBLE:
+                    A1UI_ACC(double,
+                             iov_ar[i].source_ptr_ar[j],
+                             iov_ar[i].target_ptr_ar[j],
+                             *((double *) scaling),
+                             (iov_ar[i].size)/sizeof(double));
+                    break;
+                case A1_INT32:
+                    A1UI_ACC(int32_t,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((int32_t *) scaling),
                              (iov_ar[i].size)/sizeof(int32_t));
-                     break;
-                 case A1_INT64:
-                     A1UI_ACC(int64_t,
+                    break;
+                case A1_INT64:
+                    A1UI_ACC(int64_t,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((int64_t *) scaling),
                              (iov_ar[i].size)/sizeof(int64_t));
-                     break;
-                 case A1_UINT32:
-                     A1UI_ACC(uint32_t,
+                    break;
+                case A1_UINT32:
+                    A1UI_ACC(uint32_t,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((uint32_t *) scaling),
                              (iov_ar[i].size)/sizeof(uint32_t));
-                     break;
-                 case A1_UINT64:
-                     A1UI_ACC(uint64_t,
+                    break;
+                case A1_UINT64:
+                    A1UI_ACC(uint64_t,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((uint64_t *) scaling),
                              (iov_ar[i].size)/sizeof(uint64_t));
-                     break;
-                 case A1_FLOAT:
-                     A1UI_ACC(float,
+                    break;
+                case A1_FLOAT:
+                    A1UI_ACC(float,
                              iov_ar[i].source_ptr_ar[j],
                              iov_ar[i].target_ptr_ar[j],
                              *((float *) scaling),
                              (iov_ar[i].size)/sizeof(float));
-                     break;
-                 default:
-                     status = A1_ERROR;
-                     A1U_ERR_POP((status != A1_SUCCESS), "Invalid data type in putacc \n");
-                     break;
-              }
-           }
+                    break;
+                default:
+                    status = A1_ERROR;
+                    A1U_ERR_POP((status != A1_SUCCESS), "Invalid data type in putacc \n");
+                    break;
+            }
         }
     }
 
     A1D_Global_lock_release();
 
-  fn_exit: A1U_FUNC_EXIT();
+    fn_exit: A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
+    fn_fail:
     goto fn_exit;
 }
