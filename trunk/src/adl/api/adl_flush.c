@@ -14,11 +14,13 @@ int A1_Flush(int proc)
 
     A1U_FUNC_ENTER();
 
-    /* FIXME: The profiling interface needs to go here */
-
-    /* FIXME: Locking functionality needs to go here */
-
 #   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_FLUSH, proc, 8);
+    }
 #   endif
 
     status = A1D_Flush(proc); 

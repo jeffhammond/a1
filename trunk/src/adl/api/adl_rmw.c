@@ -23,6 +23,12 @@ int A1_Rmw(int target,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#   ifdef A1_TAU_PROFILING
+    {
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_RMW, target, bytes);
+    }
+#   endif
+
     status = A1D_Rmw(target,
                      source_ptr_in,
                      source_ptr_out,
