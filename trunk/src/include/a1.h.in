@@ -151,6 +151,8 @@ typedef enum
 typedef struct A1_memregion
 {
     void* base_address;
+    unsigned size;           /* Size in elements of type not bytes (unless bytes is type). */
+    A1_datatype_t type;      /* Not sure if this is the right idea but one can always use bytes. */
     void* memregion_options; /* This is a pointer to the device-specific memregion options that
                                  are the motivation for creating this struct in the first place. */
 } A1_memregion_t;
