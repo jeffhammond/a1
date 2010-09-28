@@ -99,7 +99,7 @@ int A1DI_Buffer_pool_initialize()
 {
     int status = A1_SUCCESS;
     int i, j;
-    A1D_Buffer_t *a1d_buffer;
+    A1D_Buffer_t *a1d_buffer = NULL;
 
     A1U_FUNC_ENTER();
 
@@ -108,9 +108,9 @@ int A1DI_Buffer_pool_initialize()
     A1D_Buffer_pool.sizes[1] = a1d_settings.get_packetsize;
     A1D_Buffer_pool.sizes[2] = a1d_settings.putacc_packetsize;
 
-    A1D_Buffer_pool.limits[0] = A1C_PUT_BUFFERPOOL_LIMIT;
-    A1D_Buffer_pool.limits[1] = A1C_GET_BUFFERPOOL_LIMIT;
-    A1D_Buffer_pool.limits[2] = A1C_PUTACC_BUFFERPOOL_LIMIT;    
+    A1D_Buffer_pool.limits[0] = a1d_settings.put_bufferpool_size;
+    A1D_Buffer_pool.limits[1] = a1d_settings.get_bufferpool_size;
+    A1D_Buffer_pool.limits[2] = a1d_settings.putacc_bufferpool_size;    
 
     for(i=0; i<A1C_BUFFER_SIZES; i++)
     {

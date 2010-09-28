@@ -55,9 +55,9 @@
  * Acc packets. */
 #define A1C_BUFFER_SIZES 3
 
-#define A1C_PUT_BUFFERPOOL_LIMIT 64;
-#define A1C_GET_BUFFERPOOL_LIMIT 64;
-#define A1C_PUTACC_BUFFERPOOL_LIMIT 64;
+#define A1C_PUT_BUFFERPOOL_SIZE 200;
+#define A1C_GET_BUFFERPOOL_SIZE 200;
+#define A1C_PUTACC_BUFFERPOOL_SIZE 200;
 
 /*************************************************
 *                  BGP Atomics                   *
@@ -108,7 +108,7 @@ extern LockBox_Mutex_t global_lbmutex;
 
 #define A1DI_GLOBAL_LOCK_ACQUIRE()     \
  do {                                  \
-    if(!a1d_settings.mpi_active)        \
+    if(!a1d_settings.mpi_active)       \
     {                                  \
          A1DI_GLOBAL_LBMUTEX_ACQUIRE();\
     }                                  \
@@ -120,7 +120,7 @@ extern LockBox_Mutex_t global_lbmutex;
 
 #define A1DI_GLOBAL_LOCK_RELEASE()     \
  do {                                  \
-    if(!a1d_settings.mpi_active)        \
+    if(!a1d_settings.mpi_active)       \
     {                                  \
         A1DI_GLOBAL_LBMUTEX_RELEASE(); \
     }                                  \
@@ -310,6 +310,9 @@ typedef struct
     volatile uint32_t alignment;
     volatile uint32_t handlepool_size;
     volatile uint32_t requestpool_size;
+    volatile uint32_t put_bufferpool_size;
+    volatile uint32_t get_bufferpool_size;
+    volatile uint32_t putacc_bufferpool_size;
     volatile uint32_t use_handoff;
 } A1D_Settings_t;
 

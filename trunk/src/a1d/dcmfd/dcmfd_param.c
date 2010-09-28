@@ -138,6 +138,34 @@ int A1DI_Read_parameters()
         a1d_settings.requestpool_size = atoi(value);
     }
 
+    a1d_settings.put_bufferpool_size = A1C_PUT_BUFFERPOOL_SIZE;
+    if ((value = getenv("A1D_PUT_BUFFERPOOL_SIZE")) != NULL)
+    {
+        a1d_settings.put_bufferpool_size = atoi(value);
+    }   
+
+    a1d_settings.get_bufferpool_size = A1C_GET_BUFFERPOOL_SIZE;
+    if ((value = getenv("A1D_GET_BUFFERPOOL_SIZE")) != NULL)
+    {
+        a1d_settings.get_bufferpool_size = atoi(value);
+    } 
+
+    a1d_settings.putacc_bufferpool_size = A1C_PUTACC_BUFFERPOOL_SIZE;
+    if ((value = getenv("A1D_PUTACC_BUFFERPOOL_SIZE")) != NULL)
+    {
+        a1d_settings.putacc_bufferpool_size = atoi(value);
+    }
+
+    a1d_settings.use_handoff = A1C_USE_HANDOFF;
+    if ((value = getenv("A1D_USE_HANDOFF")) != NULL)
+    {
+        a1d_settings.use_handoff = atoi(value);
+    }
+    if (!a1d_settings.enable_cht)
+    {
+        a1d_settings.use_handoff = 0;
+    }
+
     fn_exit: A1U_FUNC_EXIT();
     return result;
 
