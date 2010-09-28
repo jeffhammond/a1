@@ -11,10 +11,10 @@
 /* FIXME: move this to a more appropriate place once all
  *         this A1U/A1D settings crap is sorted out */
 
-#define A1D_NETWORK_BYPASS 1
+#define A1C_NETWORK_BYPASS 1
 /* units of bytes.  Very hardware specific but need to reorganize
  * code before moving into device layer. */
-#define A1D_NETWORK_BYPASS_UPPER_LIMIT 32768
+#define A1C_NETWORK_BYPASS_UPPER_LIMIT 32768
 
 A1U_Settings_t a1u_settings;
 
@@ -42,7 +42,6 @@ int A1U_Read_parameters()
     }
     /* If bypass is off, just set upper limit to zero so we always
      * use the NIC.  We do not query network_bypass in contiguous ops. */
-     */
     if (a1u_settings.network_bypass == 0)
     {
         a1u_settings.network_bypass_upper_limit = 0;

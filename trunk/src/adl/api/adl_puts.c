@@ -51,7 +51,7 @@ int A1_PutS(int target,
     }
     else /* Non-contiguous */
     {
-        int total_bytes = 1;
+        int i, total_bytes = 1;
 
         for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
 
@@ -124,7 +124,7 @@ int A1_NbPutS(int target,
     }
     else /* Non-contiguous */
     {
-        int total_bytes = 1;
+        int i, total_bytes = 1;
 
         for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
 
@@ -246,7 +246,7 @@ int A1_PutS(int target,
     }
     else /* Non-contiguous */
     {
-        int total_bytes = 1;
+        int i, total_bytes = 1;
 
         for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
 
@@ -328,7 +328,7 @@ int A1_NbPutS(int target,
     }
     else /* Non-contiguous */
     {
-        int total_bytes = 1;
+        int i, total_bytes = 1;
 
         for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
 

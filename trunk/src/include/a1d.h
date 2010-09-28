@@ -33,7 +33,7 @@
 typedef struct
 {
     volatile uint32_t network_bypass;
-    volatile uint32_t network_bypass_threshold;
+    volatile uint32_t network_bypass_upper_limit;
 } A1U_Settings_t;
 
 extern A1U_Settings_t a1u_settings;
