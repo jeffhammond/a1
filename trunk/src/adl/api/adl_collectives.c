@@ -456,36 +456,37 @@ int A1_Bcast_group(A1_group_t* group,
 
 #ifdef A1_USES_MPI_COLLECTIVES
 
-    MPI_Datatype mpi_type;
+    int root = 0;
+    MPI_Datatype mpi_type = MPI_BYTE;
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        switch (a1_type)
-        {
-            case A1_DOUBLE:
-                mpi_type = MPI_DOUBLE;
-                break;
-            case A1_INT32:
-                mpi_type = MPI_LONG;
-                break;
-            case A1_INT64:
-                mpi_type = MPI_LONG_LONG;
-                break;
-            case A1_UINT32:
-                mpi_type = MPI_UNSIGNED_LONG;
-                break;
-            case A1_UINT64:
-                mpi_type = MPI_UNSIGNED_LONG_LONG;
-                break;
-            case A1_FLOAT:
-                mpi_type = MPI_FLOAT;
-                break;
-            default:
-                A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");
-                break;
-        }
+//        switch (a1_type)
+//        {
+//            case A1_DOUBLE:
+//                mpi_type = MPI_DOUBLE;
+//                break;
+//            case A1_INT32:
+//                mpi_type = MPI_LONG;
+//                break;
+//            case A1_INT64:
+//                mpi_type = MPI_LONG_LONG;
+//                break;
+//            case A1_UINT32:
+//                mpi_type = MPI_UNSIGNED_LONG;
+//                break;
+//            case A1_UINT64:
+//                mpi_type = MPI_UNSIGNED_LONG_LONG;
+//                break;
+//            case A1_FLOAT:
+//                mpi_type = MPI_FLOAT;
+//                break;
+//            default:
+//                A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");
+//                break;
+//        }
 
-        status = MPI_Bcast(buffer,count,mpi_type,0,MPI_COMM_WORLD);
+        status = MPI_Bcast(buffer,count,mpi_type,root,MPI_COMM_WORLD);
         switch (status)
         {
             case MPI_SUCCESS:
