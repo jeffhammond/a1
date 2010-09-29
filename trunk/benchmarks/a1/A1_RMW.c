@@ -102,9 +102,9 @@ int main()
     {  
         A1_Rmw(target,
                (void *) &increment,
-               (void *) counter_fetch,
+               (void *) &counter_fetch,
                (void *) counter[target],
-               1,
+               sizeof(int),
                A1_FETCH_AND_ADD,
                A1_INT32);
 
