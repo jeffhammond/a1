@@ -24,7 +24,7 @@ int A1_Put(int target, void* src, void* dst, int bytes)
     }
 #   endif
 
-    if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit) )
+    if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit_1d) )
     {
        status = A1U_Put_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
@@ -65,7 +65,7 @@ int A1_NbPut(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle)
      * since we have determined that DMA vs. memcpy turns over when the NIC is getting
      * hammered.
      */
-    if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit) )
+    if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit_1d) )
     {
        status = A1U_Put_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
