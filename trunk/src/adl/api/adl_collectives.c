@@ -22,7 +22,7 @@ int A1_Barrier_group(A1_group_t* group)
 #   endif
 
     /* barrier is meaningless with 1 process */
-    if ( 1==A1D_Process_id(A1_GROUP_WORLD) ) goto fn_exit;
+    if (1==A1D_Process_total(A1_GROUP_WORLD)) goto fn_exit;
 
     status = A1D_Barrier_group(group);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Barrier_group returned an error\n");
@@ -49,7 +49,7 @@ int A1_NbBarrier_group(A1_group_t* group, A1_handle_t a1_handle)
 #   endif
 
     /* barrier is meaningless with 1 process */
-    if ( 1==A1D_Process_id(A1_GROUP_WORLD) ) goto fn_exit;
+    if (1==A1D_Process_total(A1_GROUP_WORLD) ) goto fn_exit;
 
     status = A1D_NbBarrier_group(group, a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbBarrier_group returned an error\n");
