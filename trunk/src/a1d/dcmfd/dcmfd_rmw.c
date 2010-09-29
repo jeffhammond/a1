@@ -17,7 +17,7 @@ void A1DI_RecvDone_rmw_response_callback(void *clientdata,
     A1D_Buffer_t *a1d_buffer = a1d_request->a1d_buffer_ptr;
     A1D_Rmw_response_header_t *header = (A1D_Rmw_response_header_t *) a1d_buffer->buffer_ptr;
     A1D_Handle_t *a1d_handle = (A1D_Handle_t *) header->handle_ptr;
-    void *reponse_data = (void *) (a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_header_t));
+    void *reponse_data = (void *) (a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_response_header_t));
     void *source_ptr_out = header->source_ptr_out;
 
     A1DI_Memcpy(source_ptr_out, reponse_data, header->bytes); 
@@ -48,7 +48,7 @@ DCMF_Request_t* A1DI_RecvSend_rmw_response_callback(void *clientdata,
     A1U_ERR_ABORT(status = (a1d_buffer == NULL),
                   "A1DI_Get_buffer returned NULL.\n");
 
-    A1DI_Memcpy(a1d_buffer->buffer_ptr, msginfo, sizeof(DCQuad)*2);
+    A1DI_Memcpy(a1d_buffer->buffer_ptr, msginfo, sizeof(DCQuad)*count);
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_response_header_t);
@@ -94,7 +94,7 @@ void A1DI_RecvDone_rmw_callback(void *clientdata,
     void *target = header->target_ptr;
     void *original = NULL;
 
-    status = A1DI_Malloc(&original, header->bytes + sizeof(A1D_Rmw_header_t));
+    status = A1DI_Malloc(&original, header->bytes);
     A1U_ERR_ABORT(status,
                 "A1DI_Malloc returned error in A1DI_RecvDone_rmw_callback\n"); 
  
@@ -183,7 +183,7 @@ DCMF_Request_t* A1DI_RecvSend_rmw_callback(void *clientdata,
     A1U_ERR_ABORT(status = (a1d_buffer == NULL),
                   "A1DI_Get_buffer returned NULL.\n");
 
-    A1DI_Memcpy(a1d_buffer->buffer_ptr, msginfo, sizeof(DCQuad)*2);
+    A1DI_Memcpy(a1d_buffer->buffer_ptr, msginfo, sizeof(DCQuad)*count);
 
     *rcvlen = sndlen;
     *rcvbuf = a1d_buffer->buffer_ptr + sizeof(A1D_Rmw_header_t);
@@ -212,7 +212,7 @@ void A1DI_RecvSendShort_rmw_callback(void *clientdata,
     A1D_Request_t *response_request = NULL;
     A1D_Rmw_response_header_t response_header;
 
-    status = A1DI_Malloc(&original, bytes = sizeof(A1D_Rmw_header_t));
+    status = A1DI_Malloc(&original, bytes);
     A1U_ERR_ABORT(status,
                 "A1DI_Malloc returned error in A1DI_RecvSendShort_rmw_callback\n"); 
  
@@ -324,17 +324,13 @@ int A1D_Rmw(int target,
 {
     int status = A1_SUCCESS;
     DCMF_Callback_t done_callback;
+    DCMF_Request_t request;
     A1D_Rmw_header_t header;
     A1D_Handle_t *a1d_handle;
-    A1D_Request_t *a1d_request; 
 
     A1U_FUNC_ENTER();
 
     A1DI_CRITICAL_ENTER();
-
-    a1d_request = A1DI_Get_request(1);
-    A1U_ERR_POP(status = (a1d_request == NULL),
-                "A1DI_Get_request returned NULL in A1D_Rmw\n");
 
     a1d_handle = A1DI_Get_handle();
     A1U_ERR_POP(status = (a1d_handle == NULL),
@@ -350,12 +346,9 @@ int A1D_Rmw(int target,
  
     a1d_handle->active++;
 
-    done_callback.function = A1DI_Request_done;
-    done_callback.clientdata = (void *) a1d_request;    
-
     status = DCMF_Send(&A1D_Rmw_protocol,
-                       &(a1d_request->request),
-                       done_callback,
+                       &request,
+                       A1D_Nocallback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,
                        bytes,
