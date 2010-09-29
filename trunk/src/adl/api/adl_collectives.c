@@ -35,7 +35,18 @@ int A1_Barrier_group(A1_group_t* group)
     if (group == A1_GROUP_WORLD || group == NULL)
     {
         status = MPI_Barrier(MPI_COMM_WORLD);
-        A1U_ERR_POP(status!=MPI_SUCCESS, "MPI_Barrier returned an error\n");
+        switch (status)
+        {
+            case MPI_SUCCESS:
+                goto fn_exit;
+                break;
+            case MPI_ERR_COMM:
+                A1U_ERR_POP(1,"MPI_Barrier returned MPI_ERR_COMM.");
+                break;
+            default:
+                A1U_ERR_POP(1,"This makes no sense.\n");
+                break;
+        }
     }
     else
     {
@@ -116,7 +127,18 @@ int A1_Sync_group(A1_group_t* group)
     if (group == A1_GROUP_WORLD || group == NULL)
     {
         status = MPI_Barrier(MPI_COMM_WORLD);
-        A1U_ERR_POP(status!=MPI_SUCCESS, "MPI_Barrier returned an error\n");
+        switch (status)
+        {
+            case MPI_SUCCESS:
+                goto fn_exit;
+                break;
+            case MPI_ERR_COMM:
+                A1U_ERR_POP(1,"MPI_Barrier returned MPI_ERR_COMM.");
+                break;
+            default:
+                A1U_ERR_POP(1,"This makes no sense.\n");
+                break;
+        }
     }
     else
     {
@@ -253,8 +275,35 @@ int A1_Allreduce_group(A1_group_t* group,
                 A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_op\n");
                 break;
         }
+
         status = MPI_Allreduce(in,out,count,mpi_type,mpi_oper,MPI_COMM_WORLD);
-        A1U_ERR_POP(status!=MPI_SUCCESS,"MPI_Allreduce returned an error.");
+
+        switch (status)
+        {
+            case MPI_SUCCESS:
+                goto fn_exit;
+                break;
+            case MPI_ERR_BUFFER:
+                A1U_ERR_POP(1,"MPI_Allreduce returned MPI_ERR_BUFFER.");
+                break;
+            case MPI_ERR_COUNT:
+                A1U_error_printf("count = %d\n",count);
+                A1U_ERR_POP(1,"MPI_Allreduce returned MPI_ERR_COUNT.");
+                break;
+            case MPI_ERR_TYPE:
+                A1U_ERR_POP(1,"MPI_Allreduce returned MPI_ERR_TYPE.");
+                break;
+            case MPI_ERR_OP:
+                A1U_ERR_POP(1,"MPI_Allreduce returned MPI_ERR_OP.");
+                break;
+            case MPI_ERR_COMM:
+                A1U_ERR_POP(1,"MPI_Allreduce returned MPI_ERR_COMM.");
+                break;
+            default:
+                A1U_ERR_POP(1,"This makes no sense.\n");
+                break;
+        }
+
     }
     else
     {
@@ -332,6 +381,12 @@ int A1_NbAllreduce_group(A1_group_t* group,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#ifdef A1_USES_MPI_COLLECTIVES
+
+    A1U_ERR_POP(1,"A1_NbAllreduce_group not implemented for when A1_USES_MPI_COLLECTIVES is defined.");
+
+#else
+
     if (count <= 0) goto fn_exit;
 
     /* bypass any sort of network API or communication altogether */
@@ -373,6 +428,8 @@ int A1_NbAllreduce_group(A1_group_t* group,
                                    a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbAllreduce_group returned an error\n");
 
+#endif
+
   fn_exit:
     A1U_FUNC_EXIT();
     return status;
@@ -397,6 +454,71 @@ int A1_Bcast_group(A1_group_t* group,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#ifdef A1_USES_MPI_COLLECTIVES
+
+    MPI_Datatype mpi_type;
+
+    if (group == A1_GROUP_WORLD || group == NULL)
+    {
+        switch (a1_type)
+        {
+            case A1_DOUBLE:
+                mpi_type = MPI_DOUBLE;
+                break;
+            case A1_INT32:
+                mpi_type = MPI_LONG;
+                break;
+            case A1_INT64:
+                mpi_type = MPI_LONG_LONG;
+                break;
+            case A1_UINT32:
+                mpi_type = MPI_UNSIGNED_LONG;
+                break;
+            case A1_UINT64:
+                mpi_type = MPI_UNSIGNED_LONG_LONG;
+                break;
+            case A1_FLOAT:
+                mpi_type = MPI_FLOAT;
+                break;
+            default:
+                A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");
+                break;
+        }
+
+        status = MPI_Bcast(buffer,count,mpi_type,0,MPI_COMM_WORLD);
+        switch (status)
+        {
+            case MPI_SUCCESS:
+                goto fn_exit;
+                break;
+            case MPI_ERR_BUFFER:
+                A1U_ERR_POP(1,"MPI_Bcast returned MPI_ERR_BUFFER.");
+                break;
+            case MPI_ERR_COUNT:
+                A1U_error_printf("count = %d\n",count);
+                A1U_ERR_POP(1,"MPI_Bcast returned MPI_ERR_COUNT.");
+                break;
+            case MPI_ERR_TYPE:
+                A1U_ERR_POP(1,"MPI_Bcast returned MPI_ERR_TYPE.");
+                break;
+            case MPI_ERR_ROOT:
+                A1U_ERR_POP(1,"MPI_Bcast returned MPI_ERR_ROOT.");
+                break;
+            case MPI_ERR_COMM:
+                A1U_ERR_POP(1,"MPI_Bcast returned MPI_ERR_COMM.");
+                break;
+            default:
+                A1U_ERR_POP(1,"This makes no sense.\n");
+                break;
+        }
+    }
+    else
+    {
+        A1U_ERR_POP(1,"A1_Barrier_group not implemented for non-world groups!");
+    }
+
+#else
+
     if (count <= 0) goto fn_exit;
 
     /* bypass any sort of network API or communication altogether */
@@ -407,6 +529,8 @@ int A1_Bcast_group(A1_group_t* group,
                              count,
                              buffer);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Bcast_group returned an error\n");
+
+#endif
 
   fn_exit:
     A1U_FUNC_EXIT();
