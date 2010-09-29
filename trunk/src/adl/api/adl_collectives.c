@@ -8,6 +8,15 @@
 #include "a1d.h"
 #include "a1u.h"
 
+/* This is here because the build system does not yet have the necessary
+ * logic to set these options for each device. */
+
+#define A1_USES_MPI_COLLECTIVES
+
+#ifdef A1_USES_MPI_COLLECTIVES
+#include "mpi.h"
+#endif
+
 int A1_Barrier_group(A1_group_t* group)
 {
     int status = A1_SUCCESS;
@@ -21,11 +30,27 @@ int A1_Barrier_group(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#ifdef A1_USES_MPI_COLLECTIVES
+
+    if (group == A1_GROUP_WORLD || group == NULL)
+    {
+        status = MPI_Barrier(MPI_COMM_WORLD);
+        A1U_ERR_POP(status!=MPI_SUCCESS, "MPI_Barrier returned an error\n");
+    }
+    else
+    {
+        A1U_ERR_POP(1,"A1_Barrier_group not implemented for non-world groups!");
+    }
+
+#else
+
     /* barrier is meaningless with 1 process */
     if (1==A1D_Process_total(A1_GROUP_WORLD)) goto fn_exit;
 
     status = A1D_Barrier_group(group);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Barrier_group returned an error\n");
+
+#endif
 
   fn_exit: 
     A1U_FUNC_EXIT();
@@ -48,11 +73,19 @@ int A1_NbBarrier_group(A1_group_t* group, A1_handle_t a1_handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#ifdef A1_USES_MPI_COLLECTIVES
+
+    A1U_ERR_POP(1,"A1_NbBarrier_group not implemented for when A1_USES_MPI_COLLECTIVES is defined.");
+
+#else
+
     /* barrier is meaningless with 1 process */
-    if (1==A1D_Process_total(A1_GROUP_WORLD) ) goto fn_exit;
+    if ( 1==A1D_Process_total(A1_GROUP_WORLD) ) goto fn_exit;
 
     status = A1D_NbBarrier_group(group, a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbBarrier_group returned an error\n");
+
+#endif
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -75,17 +108,37 @@ int A1_Sync_group(A1_group_t* group)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#ifdef A1_USES_MPI_COLLECTIVES
+
+    status = A1D_Flush_group(group);
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Flush_group returned an error\n");
+
+    if (group == A1_GROUP_WORLD || group == NULL)
+    {
+        status = MPI_Barrier(MPI_COMM_WORLD);
+        A1U_ERR_POP(status!=MPI_SUCCESS, "MPI_Barrier returned an error\n");
+    }
+    else
+    {
+        A1U_ERR_POP(1,"A1_Sync_group not implemented for non-world groups!");
+    }
+
+#else
+
     /* no collective bypass for 1 proc here because we will use DCMF for some operations
      * which need to be completed by flush */
 
     status = A1D_Sync_group(group);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Sync_group returned an error\n");
 
-  fn_exit: 
+#endif
+
+
+  fn_exit:
     A1U_FUNC_EXIT();
     return status;
 
-  fn_fail: 
+  fn_fail:
     goto fn_exit;
 }
 
@@ -102,11 +155,19 @@ int A1_NbSync_group(A1_group_t* group, A1_handle_t a1_handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#ifdef A1_USES_MPI_COLLECTIVES
+
+    A1U_ERR_POP(1,"A1_NbSync_group not implemented for when A1_USES_MPI_COLLECTIVES is defined.");
+
+#else
+
     /* no collective bypass for 1 proc here because we will use DCMF for some operations
      * which need to be completed by flush */
 
     status = A1D_NbSync_group(group, a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbSync_group returned an error\n");
+
+#endif
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -134,6 +195,74 @@ int A1_Allreduce_group(A1_group_t* group,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#ifdef A1_USES_MPI_COLLECTIVES
+
+    MPI_Datatype mpi_type;
+    MPI_Op mpi_oper;
+
+    if (group == A1_GROUP_WORLD || group == NULL)
+    {
+        switch (a1_type)
+        {
+            case A1_DOUBLE:
+                mpi_type = MPI_DOUBLE;
+                break;
+            case A1_INT32:
+                mpi_type = MPI_LONG;
+                break;
+            case A1_INT64:
+                mpi_type = MPI_LONG_LONG;
+                break;
+            case A1_UINT32:
+                mpi_type = MPI_UNSIGNED_LONG;
+                break;
+            case A1_UINT64:
+                mpi_type = MPI_UNSIGNED_LONG_LONG;
+                break;
+            case A1_FLOAT:
+                mpi_type = MPI_FLOAT;
+                break;
+            default:
+                A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");
+                break;
+        }
+
+        switch (a1_op)
+        {
+            case A1_SUM:
+                mpi_oper = MPI_SUM;
+                break;
+            case A1_PROD:
+                mpi_oper = MPI_PROD;
+                break;
+            case A1_MAX:
+                mpi_oper = MPI_MAX;
+                break;
+            case A1_MIN:
+                mpi_oper = MPI_MIN;
+                break;
+            case A1_OR:
+                mpi_oper = MPI_LOR;
+                break;
+            case A1_MAXABS:
+            case A1_MINABS:
+            case A1_SAME:
+                A1U_ERR_POP(1, "A1_MAXABS, A1_MINABS and A1_SAME are unsupported when A1_USES_MPI_COLLECTIVES is defined.\n");
+                break;
+            default:
+                A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_op\n");
+                break;
+        }
+        status = MPI_Allreduce(in,out,count,mpi_type,mpi_op,MPI_COMM_WORLD);
+        A1U_ERR_POP(status!=MPI_SUCCESS,"MPI_Allreduce returned an error.");
+    }
+    else
+    {
+        A1U_ERR_POP(1,"A1_Allreduce_group not implemented for non-world groups!");
+    }
+
+#else
+
     if (count <= 0) goto fn_exit;
 
     /* bypass any sort of network API or communication altogether */
@@ -160,8 +289,7 @@ int A1_Allreduce_group(A1_group_t* group,
                 memcpy(in,out,count*sizeof(float));
                 break;
             default:
-                A1_Abort(911, "Unsupported A1_datatype \n");
-                //A1U_ERR_ABORT(status != A1_SUCCESS, "Unsupported A1_datatype \n");
+                A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");
                 break;
         }
         goto fn_exit;
@@ -174,6 +302,8 @@ int A1_Allreduce_group(A1_group_t* group,
                                  in,
                                  out);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Allreduce_group returned an error\n");
+
+#endif
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -228,8 +358,7 @@ int A1_NbAllreduce_group(A1_group_t* group,
                 memcpy(in,out,count*sizeof(float));
                 break;
             default:
-                A1_Abort(911, "Unsupported A1_datatype \n");
-                //A1U_ERR_ABORT(status != A1_SUCCESS, "Unsupported A1_datatype \n");
+                A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");
                 break;
         }
         goto fn_exit;
@@ -304,6 +433,12 @@ int A1_NbBcast_group(A1_group_t* group,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
+#ifdef A1_USES_MPI_COLLECTIVES
+
+    A1U_ERR_POP(1,"A1_NbBcast_group not implemented for when A1_USES_MPI_COLLECTIVES is defined.");
+
+#else
+
     if (count <= 0) goto fn_exit;
 
     /* bypass any sort of network API or communication altogether */
@@ -315,6 +450,8 @@ int A1_NbBcast_group(A1_group_t* group,
                                buffer,
                                a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_NbBcast_group returned an error\n");
+
+#endif
 
   fn_exit:
     A1U_FUNC_EXIT();
