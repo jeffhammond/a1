@@ -253,7 +253,7 @@ int A1_Allreduce_group(A1_group_t* group,
                 A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_op\n");
                 break;
         }
-        status = MPI_Allreduce(in,out,count,mpi_type,mpi_op,MPI_COMM_WORLD);
+        status = MPI_Allreduce(in,out,count,mpi_type,mpi_oper,MPI_COMM_WORLD);
         A1U_ERR_POP(status!=MPI_SUCCESS,"MPI_Allreduce returned an error.");
     }
     else
