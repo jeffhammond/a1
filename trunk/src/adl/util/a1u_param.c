@@ -15,7 +15,7 @@
 /* units of bytes.  Very hardware specific but need to reorganize
  * code before moving into device layer. */
 #define A1C_NETWORK_BYPASS_UPPER_LIMIT_1D 32768
-#define A1C_NETWORK_BYPASS_UPPER_LIMIT_ND 200000
+#define A1C_NETWORK_BYPASS_UPPER_LIMIT_ND 32768
 
 A1U_Settings_t a1u_settings;
 
