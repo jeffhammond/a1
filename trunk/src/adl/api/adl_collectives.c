@@ -300,7 +300,7 @@ int A1_Allreduce_group(A1_group_t* group,
                 A1U_ERR_POP(1,"MPI_Allreduce returned MPI_ERR_COMM.");
                 break;
             default:
-                A1U_ERR_POP(1,"This makes no sense.\n");
+                A1U_error_printf("MPI_Allreduce returned %d\n",status);
                 break;
         }
 
