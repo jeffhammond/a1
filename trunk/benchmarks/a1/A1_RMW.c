@@ -126,6 +126,7 @@ int main()
        {
            printf("[%d] The RMW update failed at index: %d \n", rank, i);
            fflush(stdout);
+           exit(-1);
        }   
     }
 
