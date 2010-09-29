@@ -456,7 +456,6 @@ int A1_Bcast_group(A1_group_t* group,
 
 #ifdef A1_USES_MPI_COLLECTIVES
 
-    int root = 0;
     MPI_Datatype mpi_type = MPI_BYTE;
 
     if (group == A1_GROUP_WORLD || group == NULL)
