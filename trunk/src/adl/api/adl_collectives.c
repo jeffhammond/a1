@@ -461,35 +461,11 @@ int A1_Bcast_group(A1_group_t* group,
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-//        switch (a1_type)
-//        {
-//            case A1_DOUBLE:
-//                mpi_type = MPI_DOUBLE;
-//                break;
-//            case A1_INT32:
-//                mpi_type = MPI_LONG;
-//                break;
-//            case A1_INT64:
-//                mpi_type = MPI_LONG_LONG;
-//                break;
-//            case A1_UINT32:
-//                mpi_type = MPI_UNSIGNED_LONG;
-//                break;
-//            case A1_UINT64:
-//                mpi_type = MPI_UNSIGNED_LONG_LONG;
-//                break;
-//            case A1_FLOAT:
-//                mpi_type = MPI_FLOAT;
-//                break;
-//            default:
-//                A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");
-//                break;
-//        }
-
         status = MPI_Bcast(buffer,count,mpi_type,root,MPI_COMM_WORLD);
         switch (status)
         {
             case MPI_SUCCESS:
+                status = A1_SUCCESS;
                 goto fn_exit;
                 break;
             case MPI_ERR_BUFFER:
@@ -509,7 +485,8 @@ int A1_Bcast_group(A1_group_t* group,
                 A1U_ERR_POP(1,"MPI_Bcast returned MPI_ERR_COMM.");
                 break;
             default:
-                A1U_ERR_POP(1,"This makes no sense.\n");
+                status = A1_SUCCESS;
+                A1U_error_printf("MPI_Allreduce returned %d\n",status);
                 break;
         }
     }
