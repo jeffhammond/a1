@@ -53,15 +53,16 @@
 #include <a1.h>
 #include <armci.h>
 
-#define MAX_MSG_SIZE 1024*1024
+#define COUNT 1024*1024
 
 int main()
 {
 
     int i, rank, nranks, msgsize, target;
     long bufsize;
-    int **buffer;
-    int *buffer_out;
+    int **counter;
+    int *complete;
+    int increment, counter_fetch;
     int t_start, t_stop, t_latency;
     int expected;
 
@@ -70,12 +71,11 @@ int main()
     rank = A1_Process_id(A1_GROUP_WORLD);
     nranks = A1_Process_total(A1_GROUP_WORLD);
 
-    buffer = (int **) malloc(sizeof(int *) * nranks); 
-    buffer_out = (int *) malloc(MAX_MSG_SIZE); 
- 
-    bufsize = MAX_MSG_SIZE;
-    A1_Alloc_segment((void **) &(buffer[rank]), bufsize); 
-    A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
+    complete = (int *) malloc(sizeof(int) * COUNT);
+
+    counter = (int **) malloc(sizeof(int *) * nranks); 
+    A1_Alloc_segment((void **) &(counter[rank]), sizeof(int)); 
+    A1_Exchange_segments(A1_GROUP_WORLD, (void **) counter);
 
     if (rank == 0)
     {
@@ -83,51 +83,57 @@ int main()
         fflush(stdout);
     }
 
-    target = (rank + 1) % nranks;
+    target = 0; 
 
-    A1_Barrier_group(A1_GROUP_WORLD);
-
-    for (msgsize = sizeof(int); msgsize < MAX_MSG_SIZE; msgsize *= 2)
+    for(i=0; i<COUNT; i++)
     {
+       complete[i] = 0;
+    } 
+    if(rank == target) 
+    { 
+       *(counter[rank]) = 0.0;
+    }
+    increment = 1;
+    counter_fetch = 0;
 
-            for (i = 0; i < bufsize/sizeof(int); i++)
-            {
-                 *(buffer[rank] + i) = rank;
-                 buffer_out[i] = 9999;
-            }
+    A1_Barrier_group(A1_GROUP_WORLD);    
+ 
+    while(counter_fetch < 1024*1024) 
+    {  
+        A1_Rmw(0,
+               (void *) &increment,
+               (void *) counter_fetch,
+               (void *) counter[target],
+               msgsize,
+               A1_FETCH_AND_ADD,
+               A1_INT32);
 
-            A1_Barrier_group(A1_GROUP_WORLD);
-
-            A1_Rmw(target,
-                   (void *) buffer[rank],
-                   (void *) buffer_out,
-                   (void *) buffer[target],
-                   msgsize,
-                   A1_FETCH_AND_ADD,
-                   A1_INT32);
-
-            expected = target;
-            for (i = 0; i < msgsize/sizeof(int); i++)
-            {
-               if(buffer_out[i] - expected != 0)
-               {
-                   printf("[%d] Validation has failed Expected: %d, Actual: %d, i: %d \n",
-                               rank, expected, buffer_out[i], i);
-                   fflush(stdout);
-                   exit(-1);
-               }
-            }
-
-            printf("[%d] FETCH_AND_ADD for %d byte message successful\n", rank, msgsize);
-            fflush(stdout);
+        if(counter_fetch < COUNT)
+             complete[counter_fetch] = 1; 
 
     }
 
-    
-    A1_Release_segments(A1_GROUP_WORLD, buffer[rank]);
-    A1_Free_segment(buffer[rank]);
+    A1_Allreduce_group(A1_GROUP_WORLD, 
+                       COUNT,                   
+                       A1_SUM,
+                       A1_INT32,
+                       (void *) complete,
+                       (void *) complete);
 
-    free(buffer_out);
+    for(i=0; i<COUNT; i++)
+    {
+       if (complete[i] == 0)
+       {
+           printf("[%d] The RMW update failed at index: %d \n", rank, i);
+           fflush(stdout);
+       }   
+    }
+
+    printf("[%d] The RMW update completed successfully \n", rank);
+    fflush(stdout);
+
+    A1_Release_segments(A1_GROUP_WORLD, counter[rank]);
+    A1_Free_segment(counter[rank]);
 
     A1_Finalize();
 
