@@ -100,11 +100,11 @@ int main()
  
     while(counter_fetch < 1024*1024) 
     {  
-        A1_Rmw(0,
+        A1_Rmw(target,
                (void *) &increment,
                (void *) counter_fetch,
                (void *) counter[target],
-               msgsize,
+               1,
                A1_FETCH_AND_ADD,
                A1_INT32);
 
