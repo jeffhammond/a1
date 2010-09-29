@@ -41,7 +41,7 @@ int A1_PutS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
-        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_upper_limit_1d) )
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_limit) )
         {
            status = A1U_Put_memcpy(source_ptr, target_ptr, block_sizes[0]);
            A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
@@ -55,9 +55,7 @@ int A1_PutS(int target,
     }
     else /* Non-contiguous */
     {
-        int i, total_bytes = 1;
-        for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
-        if(target == my_rank && (total_bytes < a1u_settings.network_bypass_upper_limit_Nd) )
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_limit) )
         {
             status = A1U_PutS_memcpy(stride_level,
                                      block_sizes,
@@ -116,7 +114,7 @@ int A1_NbPutS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
-        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_upper_limit_1d) )
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_limit) )
         {
            status = A1U_Put_memcpy(source_ptr, target_ptr, block_sizes[0]);
            A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
@@ -130,9 +128,7 @@ int A1_NbPutS(int target,
     }
     else /* Non-contiguous */
     {
-        int i, total_bytes = 1;
-        for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
-        if(target == my_rank && (total_bytes < a1u_settings.network_bypass_upper_limit_Nd) )
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_limit))
         {
             status = A1U_PutS_memcpy(stride_level,
                                      block_sizes,
@@ -240,7 +236,7 @@ int A1_PutS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
-        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_upper_limit_1d) )
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_limit) )
         {
            status = A1U_Put_memcpy(source_ptr, target_ptr, block_sizes[0]);
            A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
@@ -254,9 +250,7 @@ int A1_PutS(int target,
     }
     else /* Non-contiguous */
     {
-        int i, total_bytes = 1;
-        for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
-        if(target == my_rank && (total_bytes < a1u_settings.network_bypass_upper_limit_Nd) )
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_limit) )
         {
             status = A1U_PutS_memcpy(stride_level,
                                      block_sizes,
@@ -324,7 +318,7 @@ int A1_NbPutS(int target,
     /*Check if it is a contiguous transfer, issue a contiguous op*/
     if(stride_level == 0)
     {
-        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_upper_limit_1d) )
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_limit) )
         {
            status = A1U_Put_memcpy(source_ptr, target_ptr, block_sizes[0]);
            A1U_ERR_POP(status != A1_SUCCESS, "A1U_Put_memcpy returned an error\n");
@@ -338,9 +332,7 @@ int A1_NbPutS(int target,
     }
     else /* Non-contiguous */
     {
-        int i, total_bytes = 1;
-        for (i = 1; i <= stride_level; i++) total_bytes *= block_sizes[i];
-        if(target == my_rank && (total_bytes < a1u_settings.network_bypass_upper_limit_Nd) )
+        if(target == my_rank && (block_sizes[0] < a1u_settings.network_bypass_limit) )
         {
             status = A1U_PutS_memcpy(stride_level,
                                      block_sizes,

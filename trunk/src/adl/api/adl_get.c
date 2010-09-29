@@ -22,7 +22,7 @@ int A1_Get(int target, void* src, void* dst, int bytes)
     }
 #   endif
 
-    if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit_1d) )
+    if(target == my_rank && (bytes < a1u_settings.network_bypass_limit) )
     {
        status = A1U_Get_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");
@@ -58,7 +58,7 @@ int A1_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle)
     }
 #   endif
 
-    if(target == my_rank && (bytes < a1u_settings.network_bypass_upper_limit_1d) )
+    if(target == my_rank && (bytes < a1u_settings.network_bypass_limit) )
     {
        status = A1U_Get_memcpy(src, dst, bytes);
        A1U_ERR_POP(status != A1_SUCCESS, "A1U_Get_memcpy returned an error\n");

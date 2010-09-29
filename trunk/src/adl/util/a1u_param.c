@@ -35,24 +35,31 @@ int A1U_Read_parameters()
     /* The threshold BELOW which we do NIC-bypass.  We do this because
      * some architectures (BG/P) have a DMA that beats CPU-based
      * intranode transfers for large buffers.
-     */
     a1u_settings.network_bypass = A1C_NETWORK_BYPASS_UPPER_LIMIT_1D;
     if ((value = getenv("A1_NETWORK_BYPASS_UPPER_LIMIT_1D")) != NULL)
     {
         a1u_settings.network_bypass_upper_limit_1d = atoi(value);
-    }
-    /* For strided, the threshold is much higher. */
+    }*/
+
+    /* For strided, the threshold is much higher. 
     a1u_settings.network_bypass = A1C_NETWORK_BYPASS_UPPER_LIMIT_ND;
     if ((value = getenv("A1_NETWORK_BYPASS_UPPER_LIMIT_ND")) != NULL)
     {
         a1u_settings.network_bypass_upper_limit_Nd = atoi(value);
+    }*/
+
+    /* Using one threshold for now */
+   
+    if ((value = getenv("A1_NETWORK_BYPASS_LIMIT")) != NULL)
+    {
+        a1u_settings.network_bypass_limit = atoi(value);
     }
+
     /* If bypass is off, just set upper limit to zero so we always
      * use the NIC.  We do not query network_bypass in contiguous ops. */
     if (a1u_settings.network_bypass == 0)
     {
-        a1u_settings.network_bypass_upper_limit_1d = 0;
-        a1u_settings.network_bypass_upper_limit_Nd = 0;
+        a1u_settings.network_bypass_limit = 0;
     }
 
     fn_exit: A1U_FUNC_EXIT();
