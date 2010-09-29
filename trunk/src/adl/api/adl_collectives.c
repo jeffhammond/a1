@@ -280,7 +280,7 @@ int A1_Allreduce_group(A1_group_t* group,
         switch (status)
         {
             case MPI_SUCCESS:
-                status = A1_SUCCESS
+                status = A1_SUCCESS;
                 goto fn_exit;
                 break;
             case MPI_ERR_BUFFER:
@@ -300,7 +300,7 @@ int A1_Allreduce_group(A1_group_t* group,
                 A1U_ERR_POP(1,"MPI_Allreduce returned MPI_ERR_COMM.");
                 break;
             default:
-                status = A1_SUCCESS
+                status = A1_SUCCESS;
                 A1U_error_printf("MPI_Allreduce returned %d\n",status);
                 break;
         }
