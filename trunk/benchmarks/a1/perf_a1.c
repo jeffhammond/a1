@@ -155,6 +155,65 @@ double time_put(double *src_buf, double *dst_buf, int chunk, int loop,
     return(total_time/loop);
 }
 
+double time_put_remote(double *src_buf, double *dst_buf, int chunk, int loop,
+                       int proc, int levels)
+{
+    int i, bal = 0;
+
+    int stride[2];
+    int count[2];
+    int stride_levels = levels;
+    double *tmp_buf;
+
+    double start_time, stop_time, total_time = 0;
+
+    stride[0] = SIZE * sizeof(double);
+    count[0] = chunk * sizeof(double); count[1] = chunk;
+
+    if(CHECK_RESULT) {
+        tmp_buf = (double *)malloc(SIZE * SIZE * sizeof(double));
+        assert(tmp_buf != NULL);
+    }
+    
+    start_time = TIMER();
+    for(i=0; i<loop; i++) {
+        if(levels)
+           A1_PutS(proc, stride_levels, count, src_buf, stride, dst_buf, stride);
+        else
+           A1_Put(proc, src_buf, dst_buf, count[0]);
+
+        A1_Flush_group(A1_GROUP_WORLD);
+
+        if(CHECK_RESULT) {
+            A1_GetS(proc, stride_levels, count, dst_buf, stride, tmp_buf, stride);
+
+            sprintf(check_type, "A1_PutS:");
+            check_result(tmp_buf, src_buf, stride, count, stride_levels);
+        }
+        
+        /* prepare next src and dst ptrs: avoid cache locality */
+        if(bal == 0) {
+            src_buf += 128;
+            dst_buf += 128;
+            bal = 1;
+        } else {
+            src_buf -= 128;
+            dst_buf -= 128;
+            bal = 0;
+        }
+    }
+    stop_time = TIMER();
+    total_time = (stop_time - start_time);
+
+    if(CHECK_RESULT) free(tmp_buf);
+    
+    if(total_time == 0.0){ 
+       total_time=0.000001; /* workaround for inaccurate timers */
+       warn_accuracy++;
+    }
+    return(total_time/loop);
+}
+
 double time_acc(double *src_buf, double *dst_buf, int chunk, int loop,
                 int proc, int levels)
 {
@@ -192,6 +251,73 @@ double time_acc(double *src_buf, double *dst_buf, int chunk, int loop,
 
         if(CHECK_RESULT) {
             A1_Flush_group(A1_GROUP_WORLD);
+            A1_GetS(proc, stride_levels, count, dst_buf, stride, after_buf, stride);
+            
+            sprintf(check_type, "A1_AccS:");
+            check_result(after_buf, before_buf, stride, count, stride_levels);
+        }
+        
+        /* prepare next src and dst ptrs: avoid cache locality */
+        if(bal == 0) {
+            src_buf += 128;
+            dst_buf += 128;
+            bal = 1;
+        } else {
+            src_buf -= 128;
+            dst_buf -= 128;
+            bal = 0;
+        }
+    }
+    stop_time = TIMER();
+    total_time = (stop_time - start_time);
+
+    if(CHECK_RESULT) { free(before_buf); free(after_buf); }
+    
+    if(total_time == 0.0){ 
+       total_time=0.000001; /* workaround for inaccurate timers */
+       warn_accuracy++;
+    }
+    return(total_time/loop);
+}
+
+double time_acc_remote(double *src_buf, double *dst_buf, int chunk, int loop,
+                       int proc, int levels)
+{
+    int i, bal = 0;
+
+    int stride[2];
+    int count[2];
+    int stride_levels = levels;
+    double *before_buf, *after_buf;
+    
+    double start_time, stop_time, total_time = 0;
+
+    stride[0] = SIZE * sizeof(double);
+    count[0] = chunk * sizeof(double); count[1] = chunk;
+
+    if(CHECK_RESULT) {
+        before_buf = (double *)malloc(SIZE * SIZE * sizeof(double));
+        assert(before_buf != NULL);
+        after_buf = (double *)malloc(SIZE * SIZE * sizeof(double));
+        assert(after_buf != NULL);
+    }
+    
+    start_time = TIMER();
+    for(i=0; i<loop; i++) {
+        double scale = (double)i;
+
+        if(CHECK_RESULT) {
+            A1_GetS(proc, stride_levels, count, dst_buf, stride, before_buf, stride);
+
+            acc_array(scale, before_buf, src_buf, stride, count,stride_levels);
+        }
+
+        A1_PutAccS(proc, stride_levels, count, src_buf, stride, dst_buf, stride,
+                   A1_DOUBLE, &scale);
+
+        A1_Flush_group(A1_GROUP_WORLD);
+
+        if(CHECK_RESULT) {
             A1_GetS(proc, stride_levels, count, dst_buf, stride, after_buf, stride);
             
             sprintf(check_type, "A1_AccS:");
@@ -291,6 +417,107 @@ void test_1D()
                 fill_array(buf, SIZE*SIZE, me*10);
                 t_acc += time_acc((double *)buf, (double *)(ptr[dst]),
                                   chunk[i]*chunk[i], loop, dst, 0);
+            }
+            
+            latency_get = t_get/(nproc - 1);
+            latency_put = t_put/(nproc - 1);
+            latency_acc = t_acc/(nproc - 1);
+            
+            bandwidth_get = (bytes * (nproc - 1) * 1e-6)/t_get;
+            bandwidth_put = (bytes * (nproc - 1) * 1e-6)/t_put;
+            bandwidth_acc = (bytes * (nproc - 1) * 1e-6)/t_acc;
+
+            /* print */
+            if(!CHECK_RESULT)
+                   printf("%d\t%d\t %7.2lf %9.2lf %9.2lf %9.2lf %9.2lf  %9.2lf\n",
+                   bytes, loop, latency_get*1000000, bandwidth_get,
+                   latency_put*1000000, bandwidth_put, latency_acc*1000000, bandwidth_acc);
+        }
+    }
+    else sleep(60);
+    
+    A1_Flush_group(A1_GROUP_WORLD);
+    A1_Barrier_group(A1_GROUP_WORLD);
+    
+    /* cleanup */
+    A1_Release_segments(A1_GROUP_WORLD, get_ptr[me]);
+    A1_Free_segment(get_ptr[me]);
+    A1_Release_segments(A1_GROUP_WORLD, ptr[me]);
+    A1_Free_segment(ptr[me]);
+    
+    if(me == 0) free(buf);
+}
+
+void test_1D_remote()
+{
+    int i;
+    int src, dst;
+    int ierr;
+    double *buf;
+    void *ptr[MAXPROC], *get_ptr[MAXPROC];
+
+    /* find who I am and the dst process */
+    src = me;
+    
+    /* memory allocation */
+    if(me == 0) {
+        buf = (double *)malloc(SIZE * SIZE * sizeof(double));
+        assert(buf != NULL);
+    }
+   
+    ierr = A1_Alloc_segment(&ptr[me], (SIZE * SIZE * sizeof(double))); 
+    assert(ierr == 0); 
+    ierr = A1_Exchange_segments(A1_GROUP_WORLD, ptr);    
+    assert(ierr == 0); 
+    ierr = A1_Alloc_segment(&get_ptr[me], (SIZE * SIZE * sizeof(double)));      
+    assert(ierr == 0); 
+    ierr = A1_Exchange_segments(A1_GROUP_WORLD, get_ptr);
+    assert(ierr == 0); 
+
+    /* A1 - initialize the data window */
+    fill_array(ptr[me], SIZE*SIZE, me);
+    fill_array(get_ptr[me], SIZE*SIZE, me);
+    A1_Barrier_group(A1_GROUP_WORLD);
+    
+    /* only the proc 0 does the work */
+    if(me == 0) {
+        if(!CHECK_RESULT){
+          printf("  section               get                 put");
+          printf("                 acc\n");
+          printf("bytes   loop       usec      MB/s       usec      MB/s");
+          printf("       usec      MB/s\n");
+          printf("------- ------  --------  --------  --------  --------");
+          printf("  --------  --------\n");
+          fflush(stdout);
+        }
+        
+        for(i=0; i<CHUNK_NUM; i++) {
+            int loop;
+            int bytes = chunk[i] * chunk[i] * sizeof(double);
+            
+            double t_get = 0, t_put = 0, t_acc = 0;
+            double latency_get, latency_put, latency_acc;
+            double bandwidth_get, bandwidth_put, bandwidth_acc;
+            
+            loop = (SIZE * SIZE) / (chunk[i] * chunk[i]);
+            loop = (int)sqrt((double)loop);
+            if(loop<2)loop=2;
+            
+            for(dst=1; dst<nproc; dst++) {
+                /* strided get */
+                fill_array(buf, SIZE*SIZE, me*10);
+                t_get += time_get((double *)(get_ptr[dst]), (double *)buf,
+                                  chunk[i]*chunk[i], loop, dst, 0);
+                
+                /* strided put */
+                fill_array(buf, SIZE*SIZE, me*10);
+                t_put += time_put_remote((double *)buf, (double *)(ptr[dst]),
+                                          chunk[i]*chunk[i], loop, dst, 0);
+                
+                /* strided acc */
+                fill_array(buf, SIZE*SIZE, me*10);
+                t_acc += time_acc_remote((double *)buf, (double *)(ptr[dst]),
+                                        chunk[i]*chunk[i], loop, dst, 0);
             }
             
             latency_get = t_get/(nproc - 1);
@@ -424,6 +651,107 @@ void test_2D()
 
 }
 
+void test_2D_remote()
+{
+    int i;
+    int src, dst;
+    int ierr;
+    double *buf;
+    void *ptr[MAXPROC], *get_ptr[MAXPROC];
+
+    /* find who I am and the dst process */
+    src = me;
+    
+    if(me == 0) {
+        buf = (double *)malloc(SIZE * SIZE * sizeof(double));
+        assert(buf != NULL);
+    }
+
+    ierr = A1_Alloc_segment(&ptr[me], (SIZE * SIZE * sizeof(double)));
+    assert(ierr == 0);
+    ierr = A1_Exchange_segments(A1_GROUP_WORLD, ptr);
+    assert(ierr == 0);
+    ierr = A1_Alloc_segment(&get_ptr[me], (SIZE * SIZE * sizeof(double)));
+    assert(ierr == 0);
+    ierr = A1_Exchange_segments(A1_GROUP_WORLD, get_ptr);
+    assert(ierr == 0);
+    
+    /* A1 - initialize the data window */
+    fill_array(ptr[me], SIZE*SIZE, me);
+    fill_array(get_ptr[me], SIZE*SIZE, me);
+
+    A1_Barrier_group(A1_GROUP_WORLD);
+    
+    /* only the proc 0 doest the work */
+    /* print the title */
+    if(me == 0) {
+        if(!CHECK_RESULT){
+           printf("  section               get                 put");
+           printf("                 acc\n");
+           printf("bytes   loop       usec      MB/s       usec      MB/s");
+           printf("       usec      MB/s\n");
+           printf("------- ------  --------  --------  --------  --------");
+           printf("  --------  --------\n");
+           fflush(stdout);
+        }
+        
+        for(i=0; i<CHUNK_NUM; i++) {
+            int loop;
+            int bytes = chunk[i] * chunk[i] * sizeof(double);
+
+            double t_get = 0, t_put = 0, t_acc = 0;
+            double latency_get, latency_put, latency_acc;
+            double bandwidth_get, bandwidth_put, bandwidth_acc;
+            
+            loop = SIZE / chunk[i];
+            if(loop<2)loop=2;
+
+            for(dst=1; dst<nproc; dst++) {
+                /* strided get */
+                fill_array(buf, SIZE*SIZE, me*10);
+                t_get += time_get((double *)(get_ptr[dst]), (double *)buf,
+                                 chunk[i], loop, dst, 1);
+ 
+                /* strided put */
+                fill_array(buf, SIZE*SIZE, me*10);
+                t_put += time_put_remote((double *)buf, (double *)(ptr[dst]),
+                                         chunk[i], loop, dst, 1);
+                
+                /* strided acc */
+                fill_array(buf, SIZE*SIZE, me*10);
+                t_acc += time_acc_remote((double *)buf, (double *)(ptr[dst]),
+                                         chunk[i], loop, dst, 1);
+            }
+            
+            latency_get = t_get/(nproc - 1);
+            latency_put = t_put/(nproc - 1);
+            latency_acc = t_acc/(nproc - 1);
+            
+            bandwidth_get = (bytes * (nproc - 1) * 1e-6)/t_get;
+            bandwidth_put = (bytes * (nproc - 1) * 1e-6)/t_put;
+            bandwidth_acc = (bytes * (nproc - 1) * 1e-6)/t_acc;
+
+            /* print */
+            if(!CHECK_RESULT)
+                   printf("%d\t%d\t %7.2lf %9.2lf %9.2lf %9.2lf %9.2lf  %9.2lf\n",
+                   bytes, loop, latency_get*1000000, bandwidth_get,
+                   latency_put*1000000, bandwidth_put, latency_acc*1000000, bandwidth_acc);
+        }
+    }
+    else sleep(60);
+    
+    A1_Flush_group(A1_GROUP_WORLD);
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    /* cleanup */
+    A1_Release_segments(A1_GROUP_WORLD, get_ptr[me]);
+    A1_Free_segment(get_ptr[me]);
+    A1_Release_segments(A1_GROUP_WORLD, ptr[me]);
+    A1_Free_segment(ptr[me]);
+
+    if(me == 0) free(buf);
+
+}
     
 int main(int argc, char **argv)
 {
@@ -450,10 +778,18 @@ int main(int argc, char **argv)
     /* test 1 dimension array */
     if(!me)printf("\n\t\t\tContiguous Data Transfer\n");
     test_1D();
+
+    /* test 1 dimension array */
+    if(!me)printf("\n\t\t\tContiguous Data Transfer - Remote completion\n");
+    test_1D_remote();
     
     /* test 2 dimension array */
     if(!me)printf("\n\t\t\tStrided Data Transfer\n");
     test_2D();
+
+    /* test 2 dimension array */
+    if(!me)printf("\n\t\t\tStrided Data Transfer - Remote completion\n");
+    test_2D_remote();
 
     A1_Barrier_group(A1_GROUP_WORLD);
     if(me == 0){
