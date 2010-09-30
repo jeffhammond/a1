@@ -71,13 +71,13 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1D_PUT_PACKETSIZE")) != NULL)
     {
         a1d_settings.put_packetsize = atoi(value);
-
-        /* Having packet size less than the packing limit will not make sense */
-        if (a1d_settings.put_packetsize < (a1d_settings.put_packing_limit  
-                       +  sizeof(A1D_Packed_puts_header_t)))
-        {
-            a1d_settings.put_packetsize = a1d_settings.put_packing_limit;
-        }
+    }
+    /* Having packet size less than the twice of packing limit will not make sense */
+    if (a1d_settings.put_packetsize < (2*a1d_settings.put_packing_limit
+                   +  sizeof(A1D_Packed_puts_header_t)))
+    {
+        a1d_settings.put_packetsize = 2*a1d_settings.put_packing_limit
+                   +  sizeof(A1D_Packed_puts_header_t);
     }
 
     a1d_settings.get_packing_limit = A1C_GET_PACKING_LIMIT;
@@ -94,14 +94,13 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1D_GET_PACKETSIZE")) != NULL)
     {
         a1d_settings.get_packetsize = atoi(value);
-
-        /* Having packet size less than the packing limit will not make sense and 
-         can lead to deadlocks in the packing code*/
-        if (a1d_settings.get_packetsize < (a1d_settings.get_packing_limit  
-                         +  sizeof(A1D_Packed_gets_header_t)))
-        {
-            a1d_settings.get_packetsize = a1d_settings.get_packing_limit;
-        }
+    }
+    /* Having packet size less than the twice of packing limit will not make sense */
+    if (a1d_settings.get_packetsize < (2*a1d_settings.get_packing_limit
+                     +  sizeof(A1D_Packed_gets_header_t)))
+    {
+        a1d_settings.get_packetsize = 2*a1d_settings.get_packing_limit
+                     +  sizeof(A1D_Packed_gets_header_t);
     }
 
     a1d_settings.putacc_packing_limit = A1C_PUTACC_PACKING_LIMIT;
@@ -118,14 +117,13 @@ int A1DI_Read_parameters()
     if ((value = getenv("A1D_PUTACC_PACKETSIZE")) != NULL)
     {
         a1d_settings.putacc_packetsize = atoi(value);
-
-        /* Having packet size less than the packing limit will not make sense and
-         can lead to deadlocks in the packing code*/
-        if (a1d_settings.putacc_packetsize < (a1d_settings.putacc_packing_limit  
-                             + sizeof(A1D_Packed_putaccs_header_t)))
-        {
-            a1d_settings.putacc_packetsize = a1d_settings.putacc_packing_limit;
-        }
+    }
+    /* Having packet size less than the twice of packing limit will not make sense */
+    if (a1d_settings.putacc_packetsize < (2*a1d_settings.putacc_packing_limit
+                         + sizeof(A1D_Packed_putaccs_header_t)))
+    {
+        a1d_settings.putacc_packetsize = 2*a1d_settings.putacc_packing_limit
+                         + sizeof(A1D_Packed_putaccs_header_t);
     }
 
     a1d_settings.handlepool_size = A1C_HANDLE_POOL_SIZE;
