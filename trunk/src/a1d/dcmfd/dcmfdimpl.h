@@ -110,7 +110,7 @@ extern LockBox_Mutex_t global_lbmutex;
  do {                                  \
     if(!a1d_settings.mpi_active)       \
     {                                  \
-         A1DI_GLOBAL_LBMUTEX_ACQUIRE();\
+         A1DI_GLOBAL_ATOMIC_ACQUIRE(); \
     }                                  \
     else                               \
     {                                  \
@@ -122,7 +122,7 @@ extern LockBox_Mutex_t global_lbmutex;
  do {                                  \
     if(!a1d_settings.mpi_active)       \
     {                                  \
-        A1DI_GLOBAL_LBMUTEX_RELEASE(); \
+        A1DI_GLOBAL_ATOMIC_RELEASE();  \
     }                                  \
     else                               \
     {                                  \
@@ -187,27 +187,19 @@ do {                                      \
  */
 void A1DI_Handoff_progress();
 
-#define A1DI_CRITICAL_ENTER()                                    \
+#define A1DI_CRITICAL_ENTER()                                     \
     do {                                                          \
-      if(a1d_settings.enable_cht && !a1d_settings.mpi_active)       \
+      if(a1d_settings.enable_cht || a1d_settings.mpi_active)      \
       {                                                           \
         A1DI_GLOBAL_LOCK_ACQUIRE();                               \
       }     							  \
-      else 							  \
-      {                                                           \
-        DCMF_CriticalSection_enter(0);                            \
-      }                                                           \
     } while (0)                                                   \
 
 #define A1DI_CRITICAL_EXIT()                                      \
     do {                                                          \
-      if(a1d_settings.enable_cht && !a1d_settings.mpi_active)       \
+      if(a1d_settings.enable_cht || a1d_settings.mpi_active)      \
       {                                                           \
         A1DI_GLOBAL_LOCK_RELEASE();                               \
-      }                                                           \
-      else                                                        \
-      {                                                           \
-        DCMF_CriticalSection_exit(0);                             \
       }                                                           \
     } while (0)                                                   \
 
