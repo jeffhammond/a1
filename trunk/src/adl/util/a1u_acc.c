@@ -8,9 +8,6 @@
 #include "a1u.h"
 #include "a1d.h"
 
-#define likely_if(x) if(__builtin_expect(x,1))
-#define unlikely_if(x) if(__builtin_expect(x,0))
-
 #define A1UI_ACC(datatype, source, target, scaling, count)                  \
         do {                                                                     \
             int w;                                                                 \
@@ -33,58 +30,53 @@ int A1U_Acc_memcpy(void* source_ptr,
 
     A1D_Global_lock_acquire();
 
-    likely_if(a1_type == A1_DOUBLE) 
+    switch (a1_type)
     {
-        A1UI_ACC(double,
-                 source_ptr,
-                 target_ptr,
-                 *((double *) scaling),
-                 bytes/sizeof(double));
-    } 
-    else
-    {
-        switch (a1_type)
-        {
-            case A1_INT32:
-                A1UI_ACC(int32_t,
-                         source_ptr,
-                         target_ptr,
-                         *((int32_t *) scaling),
-                         bytes/sizeof(int32_t));
-                break;
-            case A1_INT64:
-                A1UI_ACC(int64_t,
-                         source_ptr,
-                         target_ptr,
-                         *((int64_t *) scaling),
-                         bytes/sizeof(int64_t));
-                break;
-            case A1_UINT32:
-                A1UI_ACC(uint32_t,
-                         source_ptr,
-                         target_ptr,
-                         *((uint32_t *) scaling),
-                         bytes/sizeof(uint32_t));
-                break;
-            case A1_UINT64:
-                A1UI_ACC(uint64_t,
-                         source_ptr,
-                         target_ptr,
-                         *((uint64_t *) scaling),
-                         bytes/sizeof(uint64_t));
-                break;
-            case A1_FLOAT:
-                A1UI_ACC(float,
-                         source_ptr,
-                         target_ptr,
-                         *((float *) scaling),
-                         bytes/sizeof(float));
-                break;
-            default:
-                status = A1_ERROR;
-                A1U_ERR_POP((status != A1_SUCCESS), "Invalid data type in putacc \n");
-                break;
-        }
+        case A1_DOUBLE:
+            A1UI_ACC(double,
+                     source_ptr,
+                     target_ptr,
+                     *((double *) scaling),
+                     bytes/sizeof(double));
+        case A1_INT32:
+            A1UI_ACC(int32_t,
+                     source_ptr,
+                     target_ptr,
+                     *((int32_t *) scaling),
+                     bytes/sizeof(int32_t));
+            break;
+        case A1_INT64:
+            A1UI_ACC(int64_t,
+                     source_ptr,
+                     target_ptr,
+                     *((int64_t *) scaling),
+                     bytes/sizeof(int64_t));
+            break;
+        case A1_UINT32:
+            A1UI_ACC(uint32_t,
+                     source_ptr,
+                     target_ptr,
+                     *((uint32_t *) scaling),
+                     bytes/sizeof(uint32_t));
+            break;
+        case A1_UINT64:
+            A1UI_ACC(uint64_t,
+                     source_ptr,
+                     target_ptr,
+                     *((uint64_t *) scaling),
+                     bytes/sizeof(uint64_t));
+            break;
+        case A1_FLOAT:
+            A1UI_ACC(float,
+                     source_ptr,
+                     target_ptr,
+                     *((float *) scaling),
+                     bytes/sizeof(float));
+            break;
+        default:
+            status = A1_ERROR;
+            A1U_ERR_POP((status != A1_SUCCESS), "Invalid datatype in A1U_Acc_memcpy \n");
+            break;
     }
 
     A1D_Global_lock_release();

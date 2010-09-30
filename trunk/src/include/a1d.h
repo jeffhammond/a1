@@ -698,6 +698,30 @@ int A1D_NbPutAccV(int target,
                   A1_handle_t a1_handle);
 
 /**
+ * \brief Device level implementation of A1_PutModV
+ *
+ * \brief Blocking remote modify of non-contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of
+ *                             chunks of same size.
+ * \param[in]  ar_len          Number of elements in the array.
+ * \param[in]  a1_op           Reduce operation
+ * \param[in]  a1_type         Type of data and scaling factor
+ *
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1D_PutModV(int target,
+                A1_iov_t *iov_ar,
+                int ar_len,
+                A1_reduce_op_t a1_op,
+                A1_datatype_t a1_type);
+
+/**
  * \brief Collective operation to allocate a counter.
  *
  * \param[out] rc            The error code.

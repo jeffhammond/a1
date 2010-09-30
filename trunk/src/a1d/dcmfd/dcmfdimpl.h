@@ -235,6 +235,15 @@ void A1DI_Handoff_progress();
           t[i] += s[i]*c;                                                   \
    } while(0)                                                               \
 
+#define A1DI_MOD_BXOR(datatype, source, target, count)                      \
+   do {                                                                     \
+     int i;                                                                 \
+     datatype *s = (datatype *) source;                                     \
+     datatype *t = (datatype *) target;                                     \
+     for(i=0; i<count; i++)                                                 \
+          t[i] ^= s[i];                                                     \
+   } while(0)                                                               \
+
  /* TODO probably need to optimize these functions for double-hummer */
 #define A1DI_ACC_DOUBLE(source, target, scaling, count)                  \
    do {                                                                     \
@@ -412,6 +421,17 @@ typedef union
     };
 } A1D_Putacc_header_t;
 
+typedef union
+{
+    DCQuad info[2];
+    struct
+    {
+        void* target_ptr;
+        A1_reduce_t op;
+        A1_datatype_t datatype;
+    };
+} A1D_Putmod_header_t;
+
 typedef struct
 {
     int stride_level;
@@ -525,6 +545,7 @@ extern DCMF_Protocol_t A1D_GlobalBcast_protocol;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
 extern DCMF_Protocol_t A1D_Generic_putacc_protocol;
+extern DCMF_Protocol_t A1D_Generic_putmod_protocol;
 extern DCMF_Protocol_t A1D_Rmw_protocol;
 extern DCMF_Protocol_t A1D_Rmw_response_protocol;
 extern DCMF_Protocol_t A1D_Packed_puts_protocol;
@@ -602,6 +623,8 @@ void A1DI_Release_handle(A1D_Handle_t *);
 int A1DI_Packed_gets_initialize();
 
 int A1DI_Putacc_initialize();
+
+int A1DI_Putmod_initialize();
 
 int A1DI_Packed_putaccs_initialize();
 

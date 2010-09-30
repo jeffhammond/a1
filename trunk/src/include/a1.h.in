@@ -114,7 +114,8 @@ typedef enum
     A1_MIN,
     A1_MAXABS, /* Returns MAX(ABS(buffer)) */
     A1_MINABS, /* Returns MIN(ABS(buffer)) */
-    A1_OR,
+    A1_OR,     /* should be only for integer types but I don't know if we check */
+    A1_BXOR,   /* bit-wise XOR - only for integer types */
     A1_SAME,   /* Sets the return value if the buffer (element) is the same across all nodes.
                   This operation is equivalent to doing MAX(buffer) and MIN(-buffer) simultaneously
                   and testing for equality element-wise. */
@@ -1383,7 +1384,7 @@ int A1_PutAccV(int target,
  *                             chunks of same size.
  * \param[in]  ar_len          Number of elements in the array.
  * \param[in]  a1_type         Type of data and scaling factor
- * \param[in]  *scaling        Scaling factor in the accumulate operation. 
+ * \param[in]  *scaling        Scaling factor in the accumulate operation.
  * \param[out] handle          Opaque A1 handle
  *
  * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
@@ -1397,6 +1398,28 @@ int A1_NbPutAccV(int target,
                  A1_datatype_t a1_type,
                  void* scaling,
                  A1_handle_t handle);
+
+/**
+ * \brief Blocking remote modify of non-contiguous data from local memory to remote memory.
+ *
+ * \param[out] rc              The error code.
+ * \param[in]  target          Rank of the remote process.
+ * \param[in]  iov_ar          Array of io vectors. Each vector represents a set of
+ *                             chunks of same size.
+ * \param[in]  ar_len          Number of elements in the array.
+ * \param[in]  a1_op           Reduce operation
+ * \param[in]  a1_type         Type of data and scaling factor
+ *
+ * \see A1_NbPut, A1_NbPutV, A1_NbMultiPut, A1_NbMultiPutS, A1_NbMultiPutV
+ *
+ * \ingroup DATA_TRANSFER
+ */
+
+int A1_PutModV(int target,
+               A1_iov_t *iov_ar,
+               int ar_len,
+               A1_reduce_op_t a1_op,
+               A1_datatype_t a1_type);
 
 /**
  * \brief Blocking copy of contiguous data from remote memory to local memory.
