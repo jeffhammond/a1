@@ -11,6 +11,7 @@
 int A1_Initialize(int thread_level)
 {
     int status = A1_SUCCESS;
+    static int a1_active = 0;
 
     A1U_FUNC_ENTER();
 
@@ -20,6 +21,13 @@ int A1_Initialize(int thread_level)
 
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
+
+    /* we only want this function to run once */
+    if(a1_active == 1)
+    {
+        return status;
+    }
+    a1_active = 1;
 
     status = A1D_Initialize(thread_level);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Initialize returned error\n");

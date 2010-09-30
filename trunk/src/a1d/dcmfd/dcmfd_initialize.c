@@ -16,18 +16,11 @@ int A1D_Initialize(int thread_level)
 
     int status = A1_SUCCESS;
     int count = 0;
-    static int a1_active = 0;
 
     A1U_FUNC_ENTER();
 
     /* TODO: need a non-DCMF lock here to make this function thread-safe */
     /* TODO: need to set "A1 is alive" global variable */
-
-    if(a1_active == 1) 
-    {
-        return status; 
-    }
-    a1_active = 1;
 
     count = DCMF_Messager_initialize();
     /* Do not issue this warning if using MPI since in that case we know DCMF
