@@ -125,6 +125,12 @@ int ARMCI_Put(void* src,
               int bytes, 
               int proc);
 
+int ARMCI_NbPut(void* src,
+              void* dst,
+              int bytes,
+              int proc,
+              armci_hdl_t* handle);
+
 int ARMCI_PutS(void* src_ptr, 
                int src_stride_ar[], 
                void* dst_ptr, 
@@ -146,10 +152,21 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr,
                int arr_len, 
                int proc);
 
+int ARMCI_NbPutV(armci_giov_t *dsrc_arr,
+               int arr_len,
+               int proc,
+               armci_hdl_t* handle);
+
 int ARMCI_Get(void *src, 
               void *dst, 
               int bytes,
               int proc);
+
+int ARMCI_NbGet(void *src,
+              void *dst,
+              int bytes,
+              int proc,
+              armci_hdl_t* handle);
 
 int ARMCI_GetS(void *src_ptr, 
                int src_stride_ar[], 
@@ -172,12 +189,25 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr,
                int arr_len,
                int proc);
 
+int ARMCI_NbGetV(armci_giov_t *dsrc_arr,
+               int arr_len,
+               int proc,
+               armci_hdl_t* handle);
+
 int ARMCI_Acc(int datatype, 
               void *scale, 
               void* src, 
               void* dst, 
               int bytes, 
               int proc);
+
+int ARMCI_NbAcc(int datatype,
+              void *scale,
+              void* src,
+              void* dst,
+              int bytes,
+              int proc,
+              armci_hdl_t* handle);
 
 int ARMCI_AccS(int datatype, 
                void *scale, 
@@ -205,6 +235,13 @@ int ARMCI_AccV(int datatype,
                armci_giov_t *dsrc_arr, 
                int arr_len, 
                int proc);
+
+int ARMCI_AccV(int datatype,
+               void *scale,
+               armci_giov_t *dsrc_arr,
+               int arr_len,
+               int proc,
+               armci_hdl_t* handle);
 
 int ARMCI_Rmw(int op, 
               void *ploc, 
