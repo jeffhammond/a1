@@ -728,8 +728,10 @@ int ARMCI_Acc(int datatype,
 
     AAP_ARGS("iam %d: A1_PutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
     AAP_START("A1_PutAcc             ");
+    /* accumulate flushes puts before and holds the lock throughout
     status = A1_Flush(proc);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    */
     status = A1_PutAcc(proc, src, dst, bytes, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAcc returned an error\n");
     AAP_STOP();
