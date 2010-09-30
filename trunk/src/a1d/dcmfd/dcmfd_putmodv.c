@@ -53,7 +53,7 @@ void A1DI_RecvDone_putmod_callback(void *clientdata, DCMF_Error_t *error)
             break;
         default:
             status = A1_ERROR;
-            A1U_ERR_POP((status != A1_SUCCESS), "Invalid op type in PutdodV\n");
+            A1U_ERR_ABORT((status != A1_SUCCESS), "Invalid op type in PutdodV\n");
             break;
     }
 
@@ -143,7 +143,7 @@ void A1DI_RecvSendShort_putmod_callback(void *clientdata,
             break;
         default:
             status = A1_ERROR;
-            A1U_ERR_POP((status != A1_SUCCESS), "Invalid op type in PutdodV\n");
+            A1U_ERR_ABORT((status != A1_SUCCESS), "Invalid op type in PutdodV\n");
             break;
     }
 }
