@@ -35,6 +35,7 @@ typedef struct
     uint32_t network_bypass;
     uint32_t network_bypass_upper_limit_1d;
     uint32_t network_bypass_upper_limit_Nd;
+    uint32_t armci_strict_ordering;
 } A1U_Settings_t;
 
 extern A1U_Settings_t a1u_settings;
@@ -54,6 +55,16 @@ extern A1U_Settings_t a1u_settings;
  */
 
 int A1U_Read_parameters(void);
+
+/**
+ * \brief Prints the device-indpendent parameter information
+ *
+ * \param[out] rc               The error code
+ *
+ * \ingroup MANAGEMENT
+ */
+
+int A1U_Print_parameters(void);
 
 /* ********************************************************************* */
 /*                                                                       */

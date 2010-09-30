@@ -17,6 +17,8 @@
 #define A1C_NETWORK_BYPASS_UPPER_LIMIT_1D 32768
 #define A1C_NETWORK_BYPASS_UPPER_LIMIT_ND 32768
 
+#define ARMCI_STRICT_ORDERING 0
+
 A1U_Settings_t a1u_settings;
 
 int A1U_Read_parameters(void)
@@ -55,8 +57,63 @@ int A1U_Read_parameters(void)
         a1u_settings.network_bypass_upper_limit_Nd = 0;
     }
 
+    a1u_settings.armci_strict_ordering = A1C_ARMCI_STRICT_ORDERING;
+    if ((value = getenv("A1_ARMCI_STRICT_ORDERING")) != NULL)
+    {
+        a1u_settings.armci_strict_ordering = atoi(value);
+    }
     fn_exit: A1U_FUNC_EXIT();
     return result;
 
     fn_fail: goto fn_exit;
+}
+
+int A1U_Print_parameters(void)
+{
+    int result = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    if (A1D_Process_info.my_rank == 0)
+    {
+        A1U_output_printf("=============== A1U Parameters ================\n");
+        A1U_output_printf("These are device-independent settings.");
+
+        if ( 1==a1u_settings.armci_strict_ordering )
+        {
+            A1U_output_printf("ARMCI strict ordering        = %s\n","ON");
+        }
+        else if ( 0==a1u_settings.armci_strict_ordering)
+        {
+            A1U_output_printf("ARMCI strict ordering        = %s\n","OFF");
+        }
+        else
+        {
+            A1U_output_printf("ARMCI strict ordering        = %s\n","WTF");
+        }
+
+        if ( 1==a1u_settings.network_bypass )
+        {
+            A1U_output_printf("NIC bypass                   = %s\n","ON");
+            A1U_output_printf("NIC bypass upper limit (1D)  = %u\n",a1u_settings.network_bypass_upper_limit_1d);
+            A1U_output_printf("NIC bypass upper limit (ND)  = %u\n",a1u_settings.network_bypass_upper_limit_Nd);
+
+        }
+        else if ( 0==a1u_settings.network_bypass)
+        {
+            A1U_output_printf("Network bypass               = %s\n","OFF");
+        }
+        else
+        {
+            A1U_output_printf("Network bypass               = %s\n","WTF");
+        }
+        fflush(stdout);
+    }
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return result;
+
+  fn_fail:
+    goto fn_exit;
 }

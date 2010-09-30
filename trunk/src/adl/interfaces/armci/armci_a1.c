@@ -50,8 +50,6 @@ double __a1_prof_dt;
 /* TODO We really should have ARMCI-to-A1 type/op conversion functions/macros
  *      instead of repeating that code so many times */
 
-#define STRICT_ORDERING 
-
 int ARMCI_Init_args(int *argc, char ***argv)
 {
     int status = A1_SUCCESS;
@@ -273,10 +271,11 @@ int ARMCI_Put(void* src, void* dst, int bytes, int proc)
 
     AAP_ARGS("iam %d: A1_Put proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);AAP_START("A1_Put          ");
 
-#   ifdef STRICT_ORDERING    
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
 
     status = A1_Put(proc, src, dst, bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Put returned an error\n");
@@ -338,10 +337,11 @@ int ARMCI_PutS(void* src_ptr,
     AAP_ARGS("iam %d: A1_PutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_PutS          ");
 
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif 
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
 
     status = A1_PutS(proc,
                      stride_levels,
@@ -422,10 +422,11 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
 
     status = A1_PutV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutV returned an error\n");
@@ -496,10 +497,11 @@ int ARMCI_Get(void* src, void* dst, int bytes, int proc)
     AAP_ARGS("iam %d: A1_Get proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
     AAP_START("A1_Get         ");
 
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif 
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
 
     status = A1_Get(proc, src, dst, bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned an error\n");
@@ -561,10 +563,11 @@ int ARMCI_GetS(void* src_ptr,
     AAP_ARGS("iam %d: A1_GetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_GetS           ");
 
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif 
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
 
     status = A1_GetS(proc,
                      stride_levels,
@@ -648,10 +651,11 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
 
     status = A1_GetV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_GetV returned an error\n");
@@ -754,10 +758,11 @@ int ARMCI_Acc(int datatype,
     AAP_START("A1_PutAcc             ");
 
     /* accumulate flushes puts before and holds the lock throughout
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
     */
 
     status = A1_PutAcc(proc, src, dst, bytes, a1_type, scale);
@@ -884,10 +889,11 @@ int ARMCI_AccS(int datatype,
     AAP_START("A1_PutAccS             ");
 
     /* accumulate flushes puts before and holds the lock throughout
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
     */
 
     status = A1_PutAccS(proc,
@@ -1047,10 +1053,11 @@ int ARMCI_AccV(int datatype,
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
     /* accumulate flushes puts before and holds the lock throughout
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
     */
 
     status = A1_PutAccV(proc, a1_iov_ar, arr_len, a1_type, scale);
@@ -1157,10 +1164,11 @@ int ARMCI_Rmw(int op, void *ploc, void *prem, int value, int proc)
     }
 
     /* accumulate flushes puts before and holds the lock throughout
-#   ifdef STRICT_ORDERING
-    status = A1_Flush(proc);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
-#   endif
+    if ( 1==a1u_settings.armci_strict_ordering )
+    {
+        status = A1_Flush(proc);
+        A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    }
     */
 
     /*Assuming int and long as 32bit signed integers*/

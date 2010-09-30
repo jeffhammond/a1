@@ -27,8 +27,8 @@ int A1_Initialize(int thread_level)
     status = A1U_Read_parameters();
     A1U_ERR_POP(status!=A1_SUCCESS, "A1U_Read_parameters returned error\n");
 
-/*     status = A1D_Print_parameters(); */
-/*     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Print_parameters returned error\n"); */
+    status = A1U_Print_parameters();
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1U_Print_parameters returned error\n");
 
   fn_exit: 
     A1U_FUNC_EXIT();
