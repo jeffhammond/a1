@@ -39,7 +39,7 @@
 #define ARMCI_FETCH_AND_ADD_LONG 13
 
 /* this is 8 in ARMCI but I think A1 only supports up to 4 */
-#define ARMCI_MAX_STRIDE_LEVEL 4
+#define ARMCI_MAX_STRIDE_LEVEL 8
 
 /*************************
       Data Structures
@@ -369,6 +369,7 @@ void armci_msg_dgop(double *x, int n, char* op);
 void armci_msg_fgop(float *x, int n, char* op);
 void armci_msg_igop(int *x, int n, char* op);
 void armci_msg_lgop(long *x, int n, char* op);
+void armci_msg_reduce(void *x, int n, char* op, int type);
 void armci_msg_bintree(int scope, int* Root, int *Up, int *Left, int *Right);
 void armci_exchange_address(void *ptr_ar[], int n);
 

@@ -47,7 +47,7 @@
 
 #define A1C_HANDLE_POOL_SIZE 20
 
-#define A1C_MAX_STRIDED_DIM 4
+#define A1C_MAX_STRIDED_DIM 8
 
 #define A1C_USE_HANDOFF 1 
 
