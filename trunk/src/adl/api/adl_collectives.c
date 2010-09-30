@@ -274,11 +274,9 @@ int A1_Allreduce_group(A1_group_t* group,
                 break;
             case A1_MAXABS:
                 mpi_oper = MPI_MAX;
-                A1U_ERR_POP(1, "A1_MAXABS is not supported when A1_USES_MPI_COLLECTIVES is defined.\n");
                 break;
             case A1_MINABS:
                 mpi_oper = MPI_MIN;
-                A1U_ERR_POP(1, "A1_MINABS is not supported when A1_USES_MPI_COLLECTIVES is defined.\n");
                 break;
             case A1_SAME:
                 A1U_ERR_POP(1, "A1_SAME is not supported when A1_USES_MPI_COLLECTIVES is defined.\n");
@@ -358,7 +356,6 @@ int A1_Allreduce_group(A1_group_t* group,
                 goto fn_exit;
                 break;
         }
-
     }
     else
     {
