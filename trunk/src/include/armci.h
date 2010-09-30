@@ -49,33 +49,33 @@ typedef int armci_gop_datatype_t;
 typedef int armci_datatype_t;
 typedef int armci_rmw_op_t;
 
-//typedef enum
-//{
-//   ARMCI_INT = -99,
-//   ARMCI_LONG = -101,
-//   ARMCI_LONG_LONG = -102,
-//   ARMCI_FLOAT = -306,
-//   ARMCI_DOUBLE = -307
-//} armci_gop_datatype_t;
+/* typedef enum */
+/* { */
+/*   ARMCI_INT = -99, */
+/*   ARMCI_LONG = -101, */
+/*   ARMCI_LONG_LONG = -102, */
+/*   ARMCI_FLOAT = -306, */
+/*   ARMCI_DOUBLE = -307 */
+/* } armci_gop_datatype_t; */
 
-//typedef enum
-//{
-//   ARMCI_ACC_INT = 20,
-//   ARMCI_ACC_LNG,
-//   ARMCI_ACC_FLT,
-//   ARMCI_ACC_DBL,
-//   ARMCI_ACC_CPL,
-//   ARMCI_ACC_DCP,
-//   ARMCI_ACC_DCPL
-//} armci_datatype_t;
+/* typedef enum */
+/* { */
+/*   ARMCI_ACC_INT = 20, */
+/*   ARMCI_ACC_LNG, */
+/*   ARMCI_ACC_FLT, */
+/*   ARMCI_ACC_DBL, */
+/*   ARMCI_ACC_CPL, */
+/*   ARMCI_ACC_DCP, */
+/*   ARMCI_ACC_DCPL */
+/* } armci_datatype_t; */
 
-//typedef enum
-//{
-//   ARMCI_FETCH_AND_ADD,
-//   ARMCI_FETCH_AND_ADD_LONG,
-//   ARMCI_SWAP,
-//   ARMCI_SWAP_LONG
-//} armci_rmw_op_t;
+/* typedef enum */
+/* { */
+/*   ARMCI_FETCH_AND_ADD, */
+/*   ARMCI_FETCH_AND_ADD_LONG, */
+/*   ARMCI_SWAP, */
+/*   ARMCI_SWAP_LONG */
+/* } armci_rmw_op_t; */
 
 typedef struct {
    void **src_ptr_array; 
@@ -104,9 +104,9 @@ void ARMCI_INIT_HANDLE(armci_hdl_t* handle);
 
 int ARMCI_Init_args(int *argc, char ***argv);
 
-int ARMCI_Init();
+int ARMCI_Init(void);
 
-int ARMCI_Finalize();
+int ARMCI_Finalize(void);
 
 void ARMCI_Error(char *message, 
                  int code);
@@ -251,15 +251,15 @@ int ARMCI_Rmw(int op,
 
 int ARMCI_Wait(armci_hdl_t* handle);
 
-int ARMCI_WaitAll();
+int ARMCI_WaitAll(void);
 
 int ARMCI_Test(armci_hdl_t* handle);
 
 void ARMCI_Fence(int proc);
 
-void ARMCI_AllFence();
+void ARMCI_AllFence(void);
 
-int ARMCI_Barrier();
+int ARMCI_Barrier(void);
 
 int ARMCI_Create_mutexes(int num);
 
@@ -344,7 +344,7 @@ void ARMCI_Group_size(ARMCI_Group *group, int *size);
 void ARMCI_Group_set_default(ARMCI_Group *group);
 void ARMCI_Group_get_default(ARMCI_Group *group_out);
 void ARMCI_Group_get_world(ARMCI_Group *group_out);
-ARMCI_Group * ARMCI_Get_ft_group();
+ARMCI_Group * ARMCI_Get_ft_group(void);
 
 int ARMCI_Malloc_group(void *ptr_arr[], armci_size_t bytes,ARMCI_Group *group);
 int ARMCI_Free_group(void *ptr, ARMCI_Group *group);
@@ -353,9 +353,9 @@ armci_grp_attr_t *ARMCI_Group_getattr(ARMCI_Group *grp);
 
 /*********** Group Functions based on MPI ****************************/
 
-void armci_msg_gop_init();
-int  armci_msg_nproc();
-int  armci_msg_me();
+void armci_msg_gop_init(void);
+int  armci_msg_nproc(void);
+int  armci_msg_me(void);
 
 #define armci_msg_sel(x,n,op,type,contribute)\
         armci_msg_sel_scope(SCOPE_ALL,(x),(n),(op),(type),(contribute))
@@ -364,7 +364,7 @@ void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type);
 void armci_msg_sel_scope(int scope, void *x, int n, char* op, int type, int contribute);
 void armci_msg_llgop(long long *x, int n, char* op);
 void armci_msg_bcast(void* buffer, int len, int root);
-void armci_msg_barrier();
+void armci_msg_barrier(void);
 void armci_msg_dgop(double *x, int n, char* op);
 void armci_msg_fgop(float *x, int n, char* op);
 void armci_msg_igop(int *x, int n, char* op);
@@ -407,7 +407,7 @@ void ARMCI_Ckpt_finalize(int rid);
 /************* Memory *******************************************/
 int ARMCI_Same_node(int proc);
 
-int ARMCI_Uses_shm();
+int ARMCI_Uses_shm(void);
 void ARMCI_Set_shm_limit(unsigned long shmemlimit);
 
 int ARMCI_Uses_shm_grp(ARMCI_Group *group);

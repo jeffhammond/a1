@@ -87,7 +87,7 @@ int A1_Trylock_mutex(A1_group_t* group,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1D_TryLock_mutex(group, mutex, proc, acquired);
+    status = A1D_Trylock_mutex(group, mutex, proc, acquired);
     A1U_ERR_POP(status, "A1D_Lock_mutex returned an error\n");
 
   fn_exit:

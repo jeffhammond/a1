@@ -84,7 +84,7 @@ int A1_Node_total(A1_group_t* group)
     goto fn_exit;
 }
 
-double A1_Time_seconds()
+double A1_Time_seconds(void)
 {
     A1U_FUNC_ENTER();
 
@@ -103,7 +103,7 @@ double A1_Time_seconds()
     goto fn_exit;
 }
 
-unsigned long long A1_Time_cycles()
+unsigned long long A1_Time_cycles(void)
 {
     A1U_FUNC_ENTER();
 

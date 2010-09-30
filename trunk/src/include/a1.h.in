@@ -277,7 +277,7 @@ typedef struct A1_iov_t
  * \ingroup INFORMATION
  */
 
-unsigned long long A1_Time_cycles();
+unsigned long long A1_Time_cycles(void);
 
 /**
  * \brief Timer in units of seconds.
@@ -290,7 +290,7 @@ unsigned long long A1_Time_cycles();
  * \ingroup INFORMATION
  */
 
-double A1_Time_seconds();
+double A1_Time_seconds(void);
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -549,9 +549,9 @@ int A1_Allocate_handle(A1_handle_t *handle);
 
 int A1_Release_handle(A1_handle_t handle);
 
-////////////////////////////////////////////////////////////////////////////////////////
-//    WARNING: THIS PART OF THE API IS DEPRECATED AND WILL BE REMOVED EVENTUALLY      //
-////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************/
+/*    WARNING: THIS PART OF THE API IS DEPRECATED AND WILL BE REMOVED EVENTUALLY      */
+/**************************************************************************************/
 
 /**
  * \brief A local operation to allocate memory to be used in context of A1 copy operations.
@@ -855,9 +855,9 @@ int A1_Unlock_mutexes(A1_group_t* group, unsigned count, int *mutexes, int *proc
 /*                                                                        */
 /* ********************************************************************** */
 
-////////////////////////////////////////////////////////////////////////////////////////
-//    WARNING: THIS IS THE NEW API AND IS NOT YET IMPLEMENTED                         //
-////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************/
+/*    WARNING: THIS IS THE NEW API AND IS NOT YET IMPLEMENTED                         */
+/**************************************************************************************/
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
  *
@@ -874,16 +874,16 @@ int A1_Unlock_mutexes(A1_group_t* group, unsigned count, int *mutexes, int *proc
  * \ingroup DATA_TRANSFER
  */
 
-//int A1_PutMR(A1_endpoint_t target,
-//             A1_memregion_t* source_mr,
-//             A1_offset_t source_offset,
-//             A1_memregion_t* target_mr,
-//             A1_offset_t target_offset,
-//             A1_size_t bytes);
+/* int A1_PutMR(A1_endpoint_t target, */
+/*             A1_memregion_t* source_mr, */
+/*             A1_offset_t source_offset, */
+/*             A1_memregion_t* target_mr, */
+/*             A1_offset_t target_offset, */
+/*             A1_size_t bytes); */
 
-////////////////////////////////////////////////////////////////////////////////////////
-//    WARNING: THIS PART OF THE API IS DEPRECATED AND WILL BE REMOVED EVENTUALLY      //
-////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************/
+/*    WARNING: THIS PART OF THE API IS DEPRECATED AND WILL BE REMOVED EVENTUALLY      */
+/**************************************************************************************/
 
 /**
  * \brief Blocking copy of contiguous data from local memory to remote memory.
@@ -1906,7 +1906,7 @@ int A1_NbFlush_group(A1_group_t* group, A1_handle_t handle);
  * \ingroup SYNCHRONIZATION
  */
 
-int A1_Wait_handle_all();
+int A1_Wait_handle_all(void);
 
 /**
  * \brief Blocks on completion of a non-blocking handle.

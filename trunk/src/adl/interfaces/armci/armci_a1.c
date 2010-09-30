@@ -10,7 +10,7 @@
 #include "a1u.h"
 #include "assert.h"
 
-//#define A1_ARMCI_PROFILING
+/* #define A1_ARMCI_PROFILING */
 
 #ifdef A1_ARMCI_PROFILING
 int __a1_prof_me = -1;
@@ -75,7 +75,7 @@ int ARMCI_Init_args(int *argc, char ***argv)
 
 }
 
-int ARMCI_Init()
+int ARMCI_Init(void)
 {
     int status = A1_SUCCESS;
 
@@ -100,7 +100,7 @@ int ARMCI_Init()
 
 }
 
-int ARMCI_Finalize()
+int ARMCI_Finalize(void)
 {
     int status = A1_SUCCESS;
 
@@ -388,7 +388,6 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 {
     int status = A1_SUCCESS;
     A1_iov_t *a1_iov_ar;
-    int i;
 
     A1U_FUNC_ENTER();
 
@@ -1147,7 +1146,7 @@ int ARMCI_Test(armci_hdl_t* handle)
     fn_fail: goto fn_exit;
 }
 
-int ARMCI_WaitAll()
+int ARMCI_WaitAll(void)
 {
     int status = A1_SUCCESS;
 
@@ -1191,7 +1190,7 @@ void ARMCI_Fence(int proc)
     fn_fail: goto fn_exit;
 }
 
-void ARMCI_AllFence()
+void ARMCI_AllFence(void)
 {
     int status = A1_SUCCESS;
 
@@ -1213,7 +1212,7 @@ void ARMCI_AllFence()
     fn_fail: goto fn_exit;
 }
 
-int ARMCI_Barrier()
+int ARMCI_Barrier(void)
 {
     int status = A1_SUCCESS;
 
@@ -1235,7 +1234,7 @@ int ARMCI_Barrier()
     fn_fail: goto fn_exit;
 }
 
-int armci_msg_nproc()
+int armci_msg_nproc(void)
 {
     int nproc;
 
@@ -1256,7 +1255,7 @@ int armci_msg_nproc()
     fn_fail: goto fn_exit;
 }
 
-int armci_msg_me()
+int armci_msg_me(void)
 {
     int me;
 
@@ -1396,7 +1395,7 @@ void ARMCI_Error(char *message, int code)
     fn_fail: goto fn_exit;
 }
 
-int ARMCI_Uses_shm()
+int ARMCI_Uses_shm(void)
 {
     A1U_FUNC_ENTER();
 
@@ -1796,7 +1795,7 @@ void armci_msg_bcast(void* buffer, int len, int root)
     fn_fail: goto fn_exit;
 }
 
-void armci_msg_barrier()
+void armci_msg_barrier(void)
 {
     int status = A1_SUCCESS;
 

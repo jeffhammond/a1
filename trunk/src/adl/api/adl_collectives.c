@@ -202,6 +202,10 @@ int A1_Allreduce_group(A1_group_t* group,
                        void* in,
                        void* out)
 {
+#ifdef A1_USES_MPI_COLLECTIVES
+    MPI_Datatype mpi_type;
+    MPI_Op mpi_oper;
+#endif /* A1_USES_MPI_COLLECTIVES */
     int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
@@ -214,10 +218,6 @@ int A1_Allreduce_group(A1_group_t* group,
 #   endif
 
 #ifdef A1_USES_MPI_COLLECTIVES
-
-    MPI_Datatype mpi_type;
-    MPI_Op mpi_oper;
-
     if (group == A1_GROUP_WORLD || group == NULL)
     {
         switch (a1_type)
@@ -437,6 +437,9 @@ int A1_Bcast_group(A1_group_t* group,
                    int count,
                    void* buffer)
 {
+#ifdef A1_USES_MPI_COLLECTIVES
+    MPI_Datatype mpi_type = MPI_BYTE;
+#endif /* A1_USES_MPI_COLLECTIVES */
     int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
@@ -449,9 +452,6 @@ int A1_Bcast_group(A1_group_t* group,
 #   endif
 
 #ifdef A1_USES_MPI_COLLECTIVES
-
-    MPI_Datatype mpi_type = MPI_BYTE;
-
     if (group == A1_GROUP_WORLD || group == NULL)
     {
         status = MPI_Bcast(buffer,count,mpi_type,root,MPI_COMM_WORLD);
