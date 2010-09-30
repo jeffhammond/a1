@@ -109,14 +109,14 @@ int A1U_AccS_memcpy(int stride_level,
     int status = A1_SUCCESS;
     int chunk_count = 1;
     int *block_sizes_w;
-    int i, j, y;
+    int i, y;
 
     A1U_FUNC_ENTER();
 
     A1D_Global_lock_acquire();
 
     block_sizes_w = malloc(sizeof(int) * (stride_level + 1));
-    A1U_ERR_POP(status = (NULL == block_sizes_w),
+    A1U_ERR_POP((status = (NULL == block_sizes_w)),
                 "malloc failed in A1U_PutS_memcpy");
 
     memcpy(block_sizes_w, block_sizes, sizeof(int) * (stride_level + 1));

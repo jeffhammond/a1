@@ -56,7 +56,7 @@ int A1_Wait_handle_list(int count, A1_handle_t *handle)
     goto fn_exit;
 }
 
-int A1_Wait_handle_all()
+int A1_Wait_handle_all(void)
 {
     int status = A1_SUCCESS;
 

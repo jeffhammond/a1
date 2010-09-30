@@ -53,7 +53,7 @@ extern A1U_Settings_t a1u_settings;
  * \ingroup MANAGEMENT
  */
 
-int A1U_Read_parameters();
+int A1U_Read_parameters(void);
 
 /* ********************************************************************* */
 /*                                                                       */
@@ -193,7 +193,7 @@ int A1D_Release_handle(A1_handle_t handle);
  * \ingroup MEMORY
  */
 
-int A1D_Wait_handle_all();
+int A1D_Wait_handle_all(void);
 
 /**
  * \brief Device level implementation of A1_Wait_handle.
@@ -210,6 +210,21 @@ int A1D_Wait_handle_all();
 int A1D_Wait_handle(A1_handle_t handle);
 
 /**
+ * \brief Device level implementation of A1_Wait_handle_list.
+ *
+ * Waits for operations on a list of handles to complete.
+ *
+ * \param[in] count          Number of handles
+ * \param[in] a1_handle      Non-blocking handles upon which to be waited.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+
+int A1D_Wait_handle_list(int count, A1_handle_t *a1_handle);
+
+/**
  * \brief Device level implementation of A1_Test_handle.
  *
  * Test for completion of operations on a handle.
@@ -222,6 +237,22 @@ int A1D_Wait_handle(A1_handle_t handle);
  */
 
 int A1D_Test_handle(A1_handle_t handle, A1_bool_t* completed);
+
+/**
+ * \brief Device level implementation of A1_Test_handle_list.
+ *
+ * Test for completion of operations on a list of handles.
+ *
+ * \param[in] count          Number of handles
+ * \param[in] a1_handle      Non-blocking handles upon which to be tested.
+ *
+ * \see A1_handle_t, A1_Wait_handle_list, A1_Test_handle
+ *
+ * \ingroup MEMORY
+ */
+int A1D_Test_handle_list(int count,
+                         A1_handle_t *a1_handle,
+                         A1_bool_t* *completed);
 
 /**
  * \brief Device level implementation of A1_Barrier_group.
@@ -956,7 +987,7 @@ int A1D_Node_total(A1_group_t* group);
  *
  * \ingroup INFORMATION
  */
-double A1D_Time_seconds();
+double A1D_Time_seconds(void);
 
 /**
  * \brief Device level implementation of A1_Time_cycles 
@@ -967,10 +998,10 @@ double A1D_Time_seconds();
  *
  * \ingroup INFORMATION
  */
-unsigned long long A1D_Time_cycles();
+unsigned long long A1D_Time_cycles(void);
 
-void A1D_Global_lock_acquire();
+void A1D_Global_lock_acquire(void);
 
-void A1D_Global_lock_release();
+void A1D_Global_lock_release(void);
 
 #endif /* A1D_H_INCLUDED */

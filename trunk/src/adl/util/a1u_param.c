@@ -19,7 +19,7 @@
 
 A1U_Settings_t a1u_settings;
 
-int A1U_Read_parameters()
+int A1U_Read_parameters(void)
 {
     int result = A1_SUCCESS;
     char* value = NULL;

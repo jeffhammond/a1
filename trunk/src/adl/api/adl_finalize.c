@@ -31,8 +31,6 @@ int A1_Finalize(void)
 
 void A1_Abort(int error_code, char error_message[])
 {
-    int status = A1_SUCCESS;
-
     A1U_FUNC_ENTER();
 
     /* FIXME: The profiling interface needs to go here */
