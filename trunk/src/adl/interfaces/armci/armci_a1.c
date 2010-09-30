@@ -270,8 +270,11 @@ int ARMCI_Put(void* src, void* dst, int bytes, int proc)
 #   endif
 
     AAP_ARGS("iam %d: A1_Put proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);AAP_START("A1_Put          ");
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_Put(proc, src, dst, bytes);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Put returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Put returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -328,6 +331,8 @@ int ARMCI_PutS(void* src_ptr,
 
     AAP_ARGS("iam %d: A1_PutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_PutS          ");
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_PutS(proc,
                      stride_levels,
                      count,
@@ -407,6 +412,8 @@ int ARMCI_PutV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_PutV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutV returned an error\n");
 
@@ -475,8 +482,11 @@ int ARMCI_Get(void* src, void* dst, int bytes, int proc)
 
     AAP_ARGS("iam %d: A1_Get proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
     AAP_START("A1_Get         ");
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_Get(proc, src, dst, bytes);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -533,6 +543,8 @@ int ARMCI_GetS(void* src_ptr,
 
     AAP_ARGS("iam %d: A1_GetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_GetS           ");
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_GetS(proc,
                      stride_levels,
                      count,
@@ -615,6 +627,8 @@ int ARMCI_GetV(armci_giov_t *dsrc_arr, int arr_len, int proc)
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_GetV(proc, a1_iov_ar, arr_len);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_GetV returned an error\n");
 
@@ -714,6 +728,8 @@ int ARMCI_Acc(int datatype,
 
     AAP_ARGS("iam %d: A1_PutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
     AAP_START("A1_PutAcc             ");
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_PutAcc(proc, src, dst, bytes, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAcc returned an error\n");
     AAP_STOP();
@@ -836,6 +852,8 @@ int ARMCI_AccS(int datatype,
 
     AAP_ARGS("iam %d: A1_PutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_PutAccS             ");
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_PutAccS(proc,
                         stride_levels,
                         count,
@@ -980,6 +998,8 @@ int ARMCI_AccV(int datatype,
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     status = A1_PutAccV(proc, a1_iov_ar, arr_len, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccV returned an error\n");
 
@@ -1083,6 +1103,8 @@ int ARMCI_Rmw(int op, void *ploc, void *prem, int value, int proc)
         A1U_ERR_POP(status != A1_ERROR, "Unsupported rmw operation : %d \n", op);
     }
 
+    status = A1_Flush(proc);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
     /*Assuming int and long as 32bit signed integers*/
     status = A1_Rmw(proc, &value, ploc, prem, sizeof(int), a1_op, A1_INT32);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Rmw returned an error\n");
