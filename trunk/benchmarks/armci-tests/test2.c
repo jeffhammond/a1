@@ -413,7 +413,7 @@ void test_gop2_or_reduce(const int datatype, char * op, const int reduce_test)
                          printf("ERROR %s %s %s a[%d][%d] = %d != %d\n", test_type, (datatype == ARMCI_INT ? "ARMCI_INT" : "ARMCI_LONG"), op, i, j, ((int *) a[i])[j], compare);
                          ARMCI_Error("test_gop2_or_reduce failed\n",0);
                       }
-                   }
+                   }/*
                    else if(strncmp(op, "absmax", 6) == 0)
                    {
                       int compare = j + nproc - 1;
@@ -431,7 +431,7 @@ void test_gop2_or_reduce(const int datatype, char * op, const int reduce_test)
                          printf("ERROR %s %s %s a[%d][%d] = %d != %d\n", test_type, (datatype == ARMCI_INT ? "ARMCI_INT" : "ARMCI_LONG"), op, i, j, ((int *) a[i])[j], compare);
                          ARMCI_Error("test_gop2_or_reduce failed\n",0);
                       }
-                   }
+                   }*/
                    else if(strncmp(op, "or", 2) == 0)
                    {
                    }
@@ -520,7 +520,7 @@ void test_gop2_or_reduce(const int datatype, char * op, const int reduce_test)
                          printf("ERROR %s %s %s a[%d][%d] = %f != %f\n", test_type, "ARMCI_FLOAT", op, i, j, ((float *) a[i])[j], compare);
                          ARMCI_Error("test_gop2_or_reduce failed\n",0);
                       }
-                   }
+                   }/*
                    else if(strncmp(op, "absmax", 6) == 0)
                    {
                       float compare = ((float) j + nproc - 1) / nproc;
@@ -538,7 +538,7 @@ void test_gop2_or_reduce(const int datatype, char * op, const int reduce_test)
                          printf("ERROR %s %s %s a[%d][%d] = %f != %f\n", test_type, "ARMCI_FLOAT", op, i, j, ((float *) a[i])[j], compare);
                          ARMCI_Error("test_gop2_or_reduce failed\n",0);
                       }
-                   }
+                   }*/
              }
           break;
        case ARMCI_DOUBLE:
@@ -623,7 +623,7 @@ void test_gop2_or_reduce(const int datatype, char * op, const int reduce_test)
                          printf("ERROR %s %s %s a[%d][%d] = %f != %f\n", test_type, "ARMCI_DOUBLE", op, i, j, ((double *) a[i])[j], compare);
                          ARMCI_Error("test_gop2_or_reduce failed\n",0);
                       }
-                   }
+                   }/*
                    else if(strncmp(op, "absmax", 6) == 0)
                    {
                       double compare = ((double) j + nproc - 1) / nproc;
@@ -641,7 +641,7 @@ void test_gop2_or_reduce(const int datatype, char * op, const int reduce_test)
                          printf("ERROR %s %s %s a[%d][%d] = %f != %f\n", test_type, "ARMCI_DOUBLE", op, i, j, ((double *) a[i])[j], compare);
                          ARMCI_Error("test_gop2_or_reduce failed\n",0);
                       }
-                   }
+                   }*/
              }
           break;
        default:
@@ -653,11 +653,15 @@ void test_gop2_or_reduce(const int datatype, char * op, const int reduce_test)
 
 void test_collective(const int datatype)
 {
-    char * op[7] = {"+", "*", "min", "max", "absmax", "absmin", "or"};
     int i = 0;
-    int num_tests = 7;
-    if(datatype == ARMCI_DOUBLE || datatype == ARMCI_FLOAT)
-       num_tests = 6;
+
+    //int num_tests = 7;
+    //char * op[7] = {"+", "*", "min", "max", "absmax", "absmin", "or"};
+    //if(datatype == ARMCI_DOUBLE || datatype == ARMCI_FLOAT) num_tests = 6;
+
+    int num_tests = 5;
+    char * op[5] = {"+", "*", "min", "max", "or"};
+    if(datatype == ARMCI_DOUBLE || datatype == ARMCI_FLOAT) num_tests = 4;
     
     /* test armci_msg_brdcst */
     test_brdcst(datatype);

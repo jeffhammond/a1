@@ -14,6 +14,13 @@ TESTS := $(patsubst %.c,%.x,$(wildcard *.c))
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 
 all: $(TESTS)
+	mv perf.x perf/.
+	mv msgcheck.x msgcheck/.
+	mv test-ibm.x test-ibm/.
+	mv test2.x test2/.
+	mv test.x test/.
+	mv perf_nb.x perf_nb/.
+	mv perf_aggr.x perf_aggr/.
 
 %.x: %.o
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
