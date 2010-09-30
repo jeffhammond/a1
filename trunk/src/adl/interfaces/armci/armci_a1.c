@@ -2141,23 +2141,23 @@ void armci_msg_group_fgop(float *x, int n, char* op, ARMCI_Group *group)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_FLOAT,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_FLOAT,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_group_dgop(double *x, int n, char* op, ARMCI_Group *group)
 {
@@ -2175,23 +2175,23 @@ void armci_msg_group_dgop(double *x, int n, char* op, ARMCI_Group *group)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else  A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_DOUBLE,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_DOUBLE,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_group_bcast_scope(int scope,
                                  void *buf,
@@ -2247,31 +2247,29 @@ void armci_msg_group_gop_scope(int scope,
 
     if (scope != SCOPE_ALL)
     {
-        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported in\
-                          armci_msg_gop_scope");
+        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported in armci_msg_gop_scope");
     }
 
     /*We need a check if it is a world group, we assume it for now*/
 
     switch (type)
     {
-    case ARMCI_INT:
-    case ARMCI_LONG:
-        a1_type = A1_INT32;
-        break;
-    case ARMCI_LONG_LONG:
-        a1_type = A1_INT64;
-        break;
-    case ARMCI_FLOAT:
-        a1_type = A1_FLOAT;
-        break;
-    case ARMCI_DOUBLE:
-        a1_type = A1_DOUBLE;
-        break;
-    default:
-        A1U_ERR_ABORT(A1_ERROR, "Invalid datatype received in armci_msg_group_gop_scope")
-        ;
-        break;
+        case ARMCI_INT:
+        case ARMCI_LONG:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+            a1_type = A1_DOUBLE;
+            break;
+        default:
+            A1U_ERR_ABORT(A1_ERROR, "Invalid datatype received in armci_msg_group_gop_scope");
+            break;
     }
 
     if (strncmp(op, "+", 1) == 0) a1_op = A1_SUM;
@@ -2281,24 +2279,23 @@ void armci_msg_group_gop_scope(int scope,
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_ABORT(A1_ERROR, "Invalid op received in\
-                        armci_msg_group_gop_scope");
+    else A1U_ERR_ABORT(A1_ERROR, "Invalid op received in armci_msg_group_gop_scope");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                a1_type,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                a1_type,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_grp_clus_brdcst(void *buf,
                            int len,
@@ -2344,7 +2341,8 @@ void armci_msg_brdcst(void* buffer, int len, int root)
 {
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    status = A1_Bcast_group(A1_GROUP_WORLD, root, len, buffer);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Bcast_group returned error\n");
 
     fn_exit: A1U_FUNC_EXIT();
     return;
