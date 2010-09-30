@@ -295,9 +295,11 @@ int ARMCI_NbPut(void* src, void* dst, int bytes, int proc, armci_hdl_t* handle)
 
     a1_handle = (A1_handle_t) *handle;
 
-    AAP_ARGS("iam %d: A1_NbPut proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);AAP_START("A1_NbPutS          ");
+    AAP_ARGS("iam %d: A1_NbPut proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_START("A1_NbPutS          ");
     status = A1_NbPut(proc, src, dst, bytes, a1_handle);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPut returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPut returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -324,7 +326,8 @@ int ARMCI_PutS(void* src_ptr,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    AAP_ARGS("iam %d: A1_PutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);AAP_START("A1_PutS          ");
+    AAP_ARGS("iam %d: A1_PutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_START("A1_PutS          ");
     status = A1_PutS(proc,
                      stride_levels,
                      count,
@@ -363,7 +366,8 @@ int ARMCI_NbPutS(void* src_ptr,
 
     a1_handle = (A1_handle_t) *handle;
 
-    AAP_ARGS("iam %d: A1_NbPutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);AAP_START("A1_NbPutS          ");
+    AAP_ARGS("iam %d: A1_NbPutS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_START("A1_NbPutS          ");
     status = A1_NbPutS(proc,
                        stride_levels,
                        count,
@@ -470,7 +474,8 @@ int ARMCI_Get(void* src, void* dst, int bytes, int proc)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    AAP_ARGS("iam %d: A1_Get proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);AAP_START("A1_Get         ");
+    AAP_ARGS("iam %d: A1_Get proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
+    AAP_START("A1_Get         ");
     status = A1_Get(proc, src, dst, bytes);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Get returned an error\n");AAP_STOP();
 
@@ -496,9 +501,11 @@ int ARMCI_NbGet(void* src, void* dst, int bytes, int proc, armci_hdl_t* handle)
 
     a1_handle = (A1_handle_t) *handle;
 
-    AAP_ARGS("iam %d: A1_NbGet proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);AAP_START("A1_NbGetS           ");
+    AAP_ARGS("iam %d: A1_NbGet proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_START("A1_NbGet           ");
     status = A1_NbGet(proc, src, dst, bytes, a1_handle);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPut returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbGet returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -525,7 +532,8 @@ int ARMCI_GetS(void* src_ptr,
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    AAP_ARGS("iam %d: A1_GetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);AAP_START("A1_GetS           ");
+    AAP_ARGS("iam %d: A1_GetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_START("A1_GetS           ");
     status = A1_GetS(proc,
                      stride_levels,
                      count,
@@ -533,7 +541,8 @@ int ARMCI_GetS(void* src_ptr,
                      src_stride_ar,
                      dst_ptr,
                      dst_stride_ar);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_GetS returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_GetS returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -564,7 +573,8 @@ int ARMCI_NbGetS(void* src_ptr,
 
     a1_handle = (A1_handle_t) *handle;
 
-    AAP_ARGS("iam %d: A1_NbGetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);AAP_START("A1_NbGetS           ");
+    AAP_ARGS("iam %d: A1_NbGetS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_START("A1_NbGetS           ");
     status = A1_NbGetS(proc,
                        stride_levels,
                        count,
@@ -573,7 +583,8 @@ int ARMCI_NbGetS(void* src_ptr,
                        dst_ptr,
                        dst_stride_ar,
                        a1_handle);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutS returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutS returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -705,9 +716,11 @@ int ARMCI_Acc(int datatype,
         ;
     }
 
-    AAP_ARGS("iam %d: A1_PutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);AAP_START("A1_PutAcc             ");
+    AAP_ARGS("iam %d: A1_PutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
+    AAP_START("A1_PutAcc             ");
     status = A1_PutAcc(proc, src, dst, bytes, a1_type, scale);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAcc returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAcc returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -767,9 +780,11 @@ int ARMCI_NbAcc(int datatype,
         ;
     }
 
-    AAP_ARGS("iam %d: A1_NbPutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes); AAP_START("A1_NbPutAcc             ");
+    AAP_ARGS("iam %d: A1_NbPutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
+    AAP_START("A1_NbPutAcc             ");
     status = A1_NbPutAcc(proc, src, dst, bytes, a1_type, scale, a1_handle);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutAcc returned an error\n"); AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutAcc returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -819,17 +834,15 @@ int ARMCI_AccS(int datatype,
         a1_type = A1_DOUBLE;
         break;
     case ARMCI_ACC_CPL:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n")
-        ;
+        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
     case ARMCI_ACC_DCP:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n")
-        ;
+        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
     default:
-        A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype %d \n", datatype)
-        ;
+        A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype %d \n", datatype);
     }
 
-    AAP_ARGS("iam %d: A1_PutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);AAP_START("A1_PutAccS             ");
+    AAP_ARGS("iam %d: A1_PutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_START("A1_PutAccS             ");
     status = A1_PutAccS(proc,
                         stride_levels,
                         count,
@@ -839,7 +852,8 @@ int ARMCI_AccS(int datatype,
                         dst_stride_ar,
                         a1_type,
                         scale);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccS returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccS returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -902,7 +916,8 @@ int ARMCI_NbAccS(int datatype,
         ;
     }
 
-    AAP_ARGS("iam %d: A1_NbPutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);AAP_START("A1_NbPutAccS             ");
+    AAP_ARGS("iam %d: A1_NbPutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
+    AAP_START("A1_NbPutAccS             ");
     status = A1_NbPutAccS(proc,
                           stride_levels,
                           count,
@@ -913,7 +928,8 @@ int ARMCI_NbAccS(int datatype,
                           a1_type,
                           scale,
                           a1_handle);
-    A1U_ERR_POP(status != A1_SUCCESS, "NbA1_PutAccS returned an error\n");AAP_STOP();
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutAccS returned an error\n");
+    AAP_STOP();
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -942,31 +958,28 @@ int ARMCI_AccV(int datatype,
 
     switch (datatype)
     {
-    case ARMCI_INT:
-    case ARMCI_LONG:
-    case ARMCI_ACC_INT:
-        a1_type = A1_INT32;
-        break;
-    case ARMCI_LONG_LONG:
-        a1_type = A1_INT64;
-        break;
-    case ARMCI_FLOAT:
-    case ARMCI_ACC_FLT:
-        a1_type = A1_FLOAT;
-        break;
-    case ARMCI_DOUBLE:
-    case ARMCI_ACC_DBL:
-        a1_type = A1_DOUBLE;
-        break;
-    case ARMCI_ACC_CPL:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n")
-        ;
-    case ARMCI_ACC_DCP:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n")
-        ;
-    default:
-        A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n")
-        ;
+        case ARMCI_INT:
+        case ARMCI_LONG:
+        case ARMCI_ACC_INT:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+        case ARMCI_ACC_FLT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+        case ARMCI_ACC_DBL:
+            a1_type = A1_DOUBLE;
+            break;
+        case ARMCI_ACC_CPL:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+        case ARMCI_ACC_DCP:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
+        default:
+            A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
     /* ARMCI iov and A1 iov are similar structures but follow
@@ -1013,31 +1026,28 @@ int ARMCI_NbAccV(int datatype,
 
     switch (datatype)
     {
-    case ARMCI_INT:
-    case ARMCI_LONG:
-    case ARMCI_ACC_INT:
-        a1_type = A1_INT32;
-        break;
-    case ARMCI_LONG_LONG:
-        a1_type = A1_INT64;
-        break;
-    case ARMCI_FLOAT:
-    case ARMCI_ACC_FLT:
-        a1_type = A1_FLOAT;
-        break;
-    case ARMCI_DOUBLE:
-    case ARMCI_ACC_DBL:
-        a1_type = A1_DOUBLE;
-        break;
-    case ARMCI_ACC_CPL:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n")
-        ;
-    case ARMCI_ACC_DCP:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n")
-        ;
-    default:
-        A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n")
-        ;
+        case ARMCI_INT:
+        case ARMCI_LONG:
+        case ARMCI_ACC_INT:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+        case ARMCI_ACC_FLT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+        case ARMCI_ACC_DBL:
+            a1_type = A1_DOUBLE;
+            break;
+        case ARMCI_ACC_CPL:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+        case ARMCI_ACC_DCP:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
+        default:
+            A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
     /* ARMCI iov and A1 iov are similar structures but follow
