@@ -989,6 +989,7 @@ int ARMCI_AccV(int datatype,
 {
     int status = A1_SUCCESS;
     A1_iov_t *a1_iov_ar;
+    A1_reduce_op_t a1_op; /* only used by PutModV */
     A1_datatype_t a1_type;
 
     A1U_FUNC_ENTER();
@@ -1017,6 +1018,17 @@ int ARMCI_AccV(int datatype,
         case ARMCI_DOUBLE:
         case ARMCI_ACC_DBL:
             a1_type = A1_DOUBLE;
+            break;
+        case ARMCI_ACC_RA:
+            a1_type = A1_INT32;
+            a1_op = A1_BXOR;
+            status = posix_memalign((void **) &a1_iov_ar, 16, sizeof(A1_iov_t) * arr_len);
+            A1U_ERR_POP(status != 0, "posix_memalign returned an error\n");
+            memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
+            status = A1_PutModV(proc, a1_iov_ar, arr_len, a1_op, a1_type);
+            A1U_ERR_POP(status != A1_SUCCESS, "A1_PutModV returned an error\n");
+            free(a1_iov_ar);
+            goto fn_exit;
             break;
         case ARMCI_ACC_CPL:
             A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
