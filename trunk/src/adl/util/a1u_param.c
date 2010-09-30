@@ -36,13 +36,13 @@ int A1U_Read_parameters(void)
      * some architectures (BG/P) have a DMA that beats CPU-based
      * intranode transfers for large buffers.
      */
-    a1u_settings.network_bypass = A1C_NETWORK_BYPASS_UPPER_LIMIT_1D;
+    a1u_settings.network_bypass_upper_limit_1d = A1C_NETWORK_BYPASS_UPPER_LIMIT_1D;
     if ((value = getenv("A1_NETWORK_BYPASS_UPPER_LIMIT_1D")) != NULL)
     {
         a1u_settings.network_bypass_upper_limit_1d = atoi(value);
     }
     /* For strided, the threshold is much higher. */
-    a1u_settings.network_bypass = A1C_NETWORK_BYPASS_UPPER_LIMIT_ND;
+    a1u_settings.network_bypass_upper_limit_Nd = A1C_NETWORK_BYPASS_UPPER_LIMIT_ND;
     if ((value = getenv("A1_NETWORK_BYPASS_UPPER_LIMIT_ND")) != NULL)
     {
         a1u_settings.network_bypass_upper_limit_Nd = atoi(value);
