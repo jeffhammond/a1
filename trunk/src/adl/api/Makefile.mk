@@ -18,6 +18,7 @@ liba1_la_SOURCES += $(top_srcdir)/src/adl/api/adl_initialize.c \
                     $(top_srcdir)/src/adl/api/adl_putacc.c \
                     $(top_srcdir)/src/adl/api/adl_putaccs.c \
                     $(top_srcdir)/src/adl/api/adl_putaccv.c \
+                    $(top_srcdir)/src/adl/api/adl_putmodv.c \
                     $(top_srcdir)/src/adl/api/adl_rmw.c \
                     $(top_srcdir)/src/adl/api/adl_wait.c \
                     $(top_srcdir)/src/adl/api/adl_collectives.c \
