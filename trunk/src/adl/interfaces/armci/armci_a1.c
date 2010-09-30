@@ -852,8 +852,10 @@ int ARMCI_AccS(int datatype,
 
     AAP_ARGS("iam %d: A1_PutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
     AAP_START("A1_PutAccS             ");
+    /* accumulate flushes puts before and holds the lock throughout
     status = A1_Flush(proc);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    */
     status = A1_PutAccS(proc,
                         stride_levels,
                         count,
@@ -998,8 +1000,10 @@ int ARMCI_AccV(int datatype,
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
+    /* accumulate flushes puts before and holds the lock throughout
     status = A1_Flush(proc);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    */
     status = A1_PutAccV(proc, a1_iov_ar, arr_len, a1_type, scale);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_PutAccV returned an error\n");
 
@@ -1103,8 +1107,10 @@ int ARMCI_Rmw(int op, void *ploc, void *prem, int value, int proc)
         A1U_ERR_POP(status != A1_ERROR, "Unsupported rmw operation : %d \n", op);
     }
 
+    /* accumulate flushes puts before and holds the lock throughout
     status = A1_Flush(proc);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Flush returned an error\n");
+    */
     /*Assuming int and long as 32bit signed integers*/
     status = A1_Rmw(proc, &value, ploc, prem, sizeof(int), a1_op, A1_INT32);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_Rmw returned an error\n");
