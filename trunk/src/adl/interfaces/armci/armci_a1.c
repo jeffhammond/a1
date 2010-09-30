@@ -1850,14 +1850,34 @@ int armci_domain_glob_proc_id(armci_domain_t domain, int id, int loc_proc_id)
 
 void armci_msg_llgop(long long *x, int n, char* op)
 {
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+
     A1U_FUNC_ENTER();
 
-    A1U_ERR_ABORT(A1_ERROR, "This function is not supported in ARMCI-A1\n");
+    if (strncmp(op, "+", 1) == 0) a1_op = A1_SUM;
+    else if (strncmp(op, "*", 1) == 0) a1_op = A1_PROD;
+    else if (strncmp(op, "max", 3) == 0) a1_op = A1_MAX;
+    else if (strncmp(op, "min", 3) == 0) a1_op = A1_MIN;
+    else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
+    else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
+    else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-    fn_exit: A1U_FUNC_EXIT();
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT64,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+
+    fn_exit:
+    A1U_FUNC_EXIT();
     return;
 
-    fn_fail: goto fn_exit;
+    fn_fail:
+    goto fn_exit;
 }
 
 void armci_msg_bcast(void* buffer, int len, int root)
