@@ -150,6 +150,10 @@ int A1D_Initialize(int thread_level)
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Putacc_initialize returned with error \n");
 
+    status = A1DI_Putmod_initialize();
+    A1U_ERR_POP(status != A1_SUCCESS,
+                "A1DI_Putmod_initialize returned with error \n");
+
     status = A1DI_Packed_puts_initialize();
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Packed_puts_initialize returned with error \n");
