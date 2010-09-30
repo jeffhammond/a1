@@ -17,6 +17,14 @@
 #include "mpi.h"
 #endif
 
+#define ABS(datatype, source, target, count)                                \
+   do {                                                                     \
+     int i;                                                                 \
+     datatype *s = (datatype *) source;                                     \
+     datatype *t = (datatype *) target;                                     \
+     for(i=0; i<count; i++) t[i] = ( s[i] > 0 ? s[i] : -s[i]);              \
+   } while(0)                                                               \
+
 int A1_Barrier_group(A1_group_t* group)
 {
     int status = A1_SUCCESS;
@@ -205,6 +213,8 @@ int A1_Allreduce_group(A1_group_t* group,
 #ifdef A1_USES_MPI_COLLECTIVES
     MPI_Datatype mpi_type;
     MPI_Op mpi_oper;
+    int bytes;
+    void *in_absolute = NULL;
 #endif /* A1_USES_MPI_COLLECTIVES */
     int status = A1_SUCCESS;
 
@@ -263,9 +273,11 @@ int A1_Allreduce_group(A1_group_t* group,
                 mpi_oper = MPI_LOR;
                 break;
             case A1_MAXABS:
+                mpi_oper = MPI_MAX;
                 A1U_ERR_POP(1, "A1_MAXABS is not supported when A1_USES_MPI_COLLECTIVES is defined.\n");
                 break;
             case A1_MINABS:
+                mpi_oper = MPI_MIN;
                 A1U_ERR_POP(1, "A1_MINABS is not supported when A1_USES_MPI_COLLECTIVES is defined.\n");
                 break;
             case A1_SAME:
@@ -273,6 +285,51 @@ int A1_Allreduce_group(A1_group_t* group,
                 break;
             default:
                 A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_op\n");
+                break;
+        }
+ 
+        if(a1_op == A1_MAXABS || a1_op == A1_MINABS)
+        switch (a1_type)
+        {
+            case A1_DOUBLE:
+                bytes = count * sizeof(double);
+                in_absolute = malloc(bytes);
+                A1U_ERR_POP(in_absolute == NULL,
+                            "malloc returned error in A1_Allreduce_group \n");
+                ABS(double, in, in_absolute, count);
+                in = in_absolute;
+                break;
+            case A1_INT32:
+                bytes = count * sizeof(int32_t);
+                in_absolute = malloc(bytes);
+                A1U_ERR_POP(in_absolute == NULL,
+                            "malloc returned error in A1_Allreduce_group \n");
+                ABS(int32_t, in, in_absolute, count);
+                in = in_absolute;
+                break;
+            case A1_INT64:
+                bytes = count * sizeof(int64_t);
+                in_absolute = malloc(bytes);
+                A1U_ERR_POP(in_absolute == NULL,
+                            "malloc returned error in A1_Allreduce_group \n");
+                ABS(int64_t, in, in_absolute, count);
+                in = in_absolute;
+                break;
+            case A1_UINT32:
+                break;
+            case A1_UINT64:
+                break;
+            case A1_FLOAT:
+                bytes = count * sizeof(float);
+                in_absolute = malloc(bytes);
+                A1U_ERR_POP(in_absolute == NULL,
+                            "malloc returned error in A1_Allreduce_group \n");
+                ABS(float, in, in_absolute, count);
+                in = in_absolute;
+                break;
+            default:
+                status = A1_ERROR;
+                A1U_ERR_POP(status != A1_SUCCESS, "Unsupported A1_datatype \n");
                 break;
         }
 
