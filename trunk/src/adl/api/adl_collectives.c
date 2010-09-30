@@ -37,14 +37,12 @@ int A1_Barrier_group(A1_group_t* group)
         status = MPI_Barrier(MPI_COMM_WORLD);
         switch (status)
         {
-            case MPI_SUCCESS:
-                goto fn_exit;
-                break;
             case MPI_ERR_COMM:
                 A1U_ERR_POP(1,"MPI_Barrier returned MPI_ERR_COMM.");
                 break;
             default:
-                A1U_ERR_POP(1,"This makes no sense.\n");
+                status = A1_SUCCESS;
+                goto fn_exit;
                 break;
         }
     }
@@ -129,14 +127,12 @@ int A1_Sync_group(A1_group_t* group)
         status = MPI_Barrier(MPI_COMM_WORLD);
         switch (status)
         {
-            case MPI_SUCCESS:
-                goto fn_exit;
-                break;
             case MPI_ERR_COMM:
                 A1U_ERR_POP(1,"MPI_Barrier returned MPI_ERR_COMM.");
                 break;
             default:
-                A1U_ERR_POP(1,"This makes no sense.\n");
+                status = A1_SUCCESS;
+                goto fn_exit;
                 break;
         }
     }
@@ -279,12 +275,6 @@ int A1_Allreduce_group(A1_group_t* group,
         status = MPI_Allreduce(in,out,count,mpi_type,mpi_oper,MPI_COMM_WORLD);
         switch (status)
         {
-            /* because MPI_SUCCESS doesn't get interpreted as zero here :-( */
-            case 0:
-            case MPI_SUCCESS:
-                status = A1_SUCCESS;
-                goto fn_exit;
-                break;
             case MPI_ERR_BUFFER:
                 A1U_ERR_POP(1,"MPI_Allreduce returned MPI_ERR_BUFFER.");
                 break;
@@ -303,7 +293,7 @@ int A1_Allreduce_group(A1_group_t* group,
                 break;
             default:
                 status = A1_SUCCESS;
-                A1U_error_printf("MPI_Allreduce returned %d\n",status);
+                goto fn_exit;
                 break;
         }
 
@@ -466,12 +456,6 @@ int A1_Bcast_group(A1_group_t* group,
         status = MPI_Bcast(buffer,count,mpi_type,root,MPI_COMM_WORLD);
         switch (status)
         {
-            /* because MPI_SUCCESS doesn't get interpreted as zero here :-( */
-            case 0:
-            case MPI_SUCCESS:
-                status = A1_SUCCESS;
-                goto fn_exit;
-                break;
             case MPI_ERR_BUFFER:
                 A1U_ERR_POP(1,"MPI_Bcast returned MPI_ERR_BUFFER.");
                 break;
@@ -490,7 +474,7 @@ int A1_Bcast_group(A1_group_t* group,
                 break;
             default:
                 status = A1_SUCCESS;
-                A1U_error_printf("MPI_Allreduce returned %d\n",status);
+                goto fn_exit;
                 break;
         }
     }
