@@ -236,7 +236,7 @@ int ARMCI_AccV(int datatype,
                int arr_len, 
                int proc);
 
-int ARMCI_AccV(int datatype,
+int ARMCI_NbAccV(int datatype,
                void *scale,
                armci_giov_t *dsrc_arr,
                int arr_len,
