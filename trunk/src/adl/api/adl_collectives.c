@@ -272,6 +272,7 @@ int A1_Allreduce_group(A1_group_t* group,
                 break;
         }
 
+        if (in==out) in = MPI_IN_PLACE;
         status = MPI_Allreduce(in,out,count,mpi_type,mpi_oper,MPI_COMM_WORLD);
         switch (status)
         {
