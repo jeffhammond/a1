@@ -689,31 +689,28 @@ int ARMCI_Acc(int datatype,
 
     switch (datatype)
     {
-    case ARMCI_INT:
-    case ARMCI_LONG:
-    case ARMCI_ACC_INT:
-        a1_type = A1_INT32;
-        break;
-    case ARMCI_LONG_LONG:
-        a1_type = A1_INT64;
-        break;
-    case ARMCI_FLOAT:
-    case ARMCI_ACC_FLT:
-        a1_type = A1_FLOAT;
-        break;
-    case ARMCI_DOUBLE:
-    case ARMCI_ACC_DBL:
-        a1_type = A1_DOUBLE;
-        break;
-    case ARMCI_ACC_CPL:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n")
-        ;
-    case ARMCI_ACC_DCP:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n")
-        ;
-    default:
-        A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n")
-        ;
+        case ARMCI_INT:
+        case ARMCI_LONG:
+        case ARMCI_ACC_INT:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+        case ARMCI_ACC_FLT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+        case ARMCI_ACC_DBL:
+            a1_type = A1_DOUBLE;
+            break;
+        case ARMCI_ACC_CPL:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+        case ARMCI_ACC_DCP:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
+        default:
+            A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
     AAP_ARGS("iam %d: A1_PutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
@@ -753,31 +750,28 @@ int ARMCI_NbAcc(int datatype,
 
     switch (datatype)
     {
-    case ARMCI_INT:
-    case ARMCI_LONG:
-    case ARMCI_ACC_INT:
-        a1_type = A1_INT32;
-        break;
-    case ARMCI_LONG_LONG:
-        a1_type = A1_INT64;
-        break;
-    case ARMCI_FLOAT:
-    case ARMCI_ACC_FLT:
-        a1_type = A1_FLOAT;
-        break;
-    case ARMCI_DOUBLE:
-    case ARMCI_ACC_DBL:
-        a1_type = A1_DOUBLE;
-        break;
-    case ARMCI_ACC_CPL:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n")
-        ;
-    case ARMCI_ACC_DCP:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n")
-        ;
-    default:
-        A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n")
-        ;
+        case ARMCI_INT:
+        case ARMCI_LONG:
+        case ARMCI_ACC_INT:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+        case ARMCI_ACC_FLT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+        case ARMCI_ACC_DBL:
+            a1_type = A1_DOUBLE;
+            break;
+        case ARMCI_ACC_CPL:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+        case ARMCI_ACC_DCP:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
+        default:
+            A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
     AAP_ARGS("iam %d: A1_NbPutAcc proc = %d, bytes = %d\n",__a1_prof_me,proc,bytes);
@@ -816,29 +810,29 @@ int ARMCI_AccS(int datatype,
 
     switch (datatype)
     {
-    case ARMCI_INT:
-    case ARMCI_LONG:
-    case ARMCI_ACC_INT:
-    case ARMCI_ACC_LNG:
-        a1_type = A1_INT32;
-        break;
-    case ARMCI_LONG_LONG:
-        a1_type = A1_INT64;
-        break;
-    case ARMCI_FLOAT:
-    case ARMCI_ACC_FLT:
-        a1_type = A1_FLOAT;
-        break;
-    case ARMCI_DOUBLE:
-    case ARMCI_ACC_DBL:
-        a1_type = A1_DOUBLE;
-        break;
-    case ARMCI_ACC_CPL:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
-    case ARMCI_ACC_DCP:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
-    default:
-        A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype %d \n", datatype);
+        case ARMCI_INT:
+        case ARMCI_LONG:
+        case ARMCI_ACC_INT:
+        case ARMCI_ACC_LNG:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+        case ARMCI_ACC_FLT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+        case ARMCI_ACC_DBL:
+            a1_type = A1_DOUBLE;
+            break;
+        case ARMCI_ACC_CPL:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+        case ARMCI_ACC_DCP:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
+        default:
+            A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype %d \n", datatype);
     }
 
     AAP_ARGS("iam %d: A1_PutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
@@ -889,31 +883,28 @@ int ARMCI_NbAccS(int datatype,
 
     switch (datatype)
     {
-    case ARMCI_INT:
-    case ARMCI_LONG:
-    case ARMCI_ACC_INT:
-        a1_type = A1_INT32;
-        break;
-    case ARMCI_LONG_LONG:
-        a1_type = A1_INT64;
-        break;
-    case ARMCI_FLOAT:
-    case ARMCI_ACC_FLT:
-        a1_type = A1_FLOAT;
-        break;
-    case ARMCI_DOUBLE:
-    case ARMCI_ACC_DBL:
-        a1_type = A1_DOUBLE;
-        break;
-    case ARMCI_ACC_CPL:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n")
-        ;
-    case ARMCI_ACC_DCP:
-        A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n")
-        ;
-    default:
-        A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n")
-        ;
+        case ARMCI_INT:
+        case ARMCI_LONG:
+        case ARMCI_ACC_INT:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+        case ARMCI_ACC_FLT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+        case ARMCI_ACC_DBL:
+            a1_type = A1_DOUBLE;
+            break;
+        case ARMCI_ACC_CPL:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+        case ARMCI_ACC_DCP:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
+        default:
+            A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
 
     AAP_ARGS("iam %d: A1_NbPutAccS proc = %d, levels = %d, count[0] = %d, count[1] = %d\n",__a1_prof_me,proc,stride_levels,count[0],count[stride_levels-1]);
@@ -1527,30 +1518,27 @@ void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type)
 
     if (scope != SCOPE_ALL)
     {
-        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported in\
-                          armci_msg_gop_scope");
+        A1U_ERR_ABORT(A1_ERROR, "Only SCOPE_ALL is supported in armci_msg_gop_scope");
     }
 
     switch (type)
     {
-    case ARMCI_INT:
-    case ARMCI_LONG:
-        a1_type = A1_INT32;
-        break;
-    case ARMCI_LONG_LONG:
-        a1_type = A1_INT64;
-        break;
-    case ARMCI_FLOAT:
-        a1_type = A1_FLOAT;
-        break;
-    case ARMCI_DOUBLE:
-        a1_type = A1_DOUBLE;
-        break;
-    default:
-        A1U_ERR_ABORT(A1_ERROR, "Invalid datatype received in\
-                        armci_msg_group_gop_scope")
-        ;
-        break;
+        case ARMCI_INT:
+        case ARMCI_LONG:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+            a1_type = A1_DOUBLE;
+            break;
+        default:
+            A1U_ERR_ABORT(A1_ERROR, "Invalid datatype received in armci_msg_group_gop_scope");
+            break;
     }
 
     if (strncmp(op, "+", 1) == 0) a1_op = A1_SUM;
@@ -1560,24 +1548,23 @@ void armci_msg_gop_scope(int scope, void *x, int n, char* op, int type)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_ABORT(A1_ERROR, "Invalid op received in\
-                        armci_msg_group_gop_scope");
+    else A1U_ERR_ABORT(A1_ERROR, "Invalid op received in armci_msg_group_gop_scope");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                a1_type,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                a1_type,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_snd(int tag, void* buffer, int len, int to)
 {
@@ -1839,23 +1826,23 @@ void armci_msg_dgop(double *x, int n, char* op)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_DOUBLE,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_DOUBLE,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_fgop(float *x, int n, char* op)
 {
@@ -1871,23 +1858,23 @@ void armci_msg_fgop(float *x, int n, char* op)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_FLOAT,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_FLOAT,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_igop(int *x, int n, char* op)
 {
@@ -1903,23 +1890,23 @@ void armci_msg_igop(int *x, int n, char* op)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_INT32,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT32,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_lgop(long *x, int n, char* op)
 {
@@ -1935,23 +1922,82 @@ void armci_msg_lgop(long *x, int n, char* op)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_INT32,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT32,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
+    fn_fail:
+    goto fn_exit;
+}
+
+void armci_msg_reduce(void *x, int n, char* op, int datatype)
+{
+    int status = A1_SUCCESS;
+    A1_reduce_op_t a1_op;
+    A1_datatype_t a1_type;
+
+    A1U_FUNC_ENTER();
+
+    if (strncmp(op, "+", 1) == 0) a1_op = A1_SUM;
+    else if (strncmp(op, "*", 1) == 0) a1_op = A1_PROD;
+    else if (strncmp(op, "max", 3) == 0) a1_op = A1_MAX;
+    else if (strncmp(op, "min", 3) == 0) a1_op = A1_MIN;
+    else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
+    else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
+    else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+
+    switch (datatype)
+    {
+        case ARMCI_INT:
+        case ARMCI_LONG:
+        case ARMCI_ACC_INT:
+            a1_type = A1_INT32;
+            break;
+        case ARMCI_LONG_LONG:
+            a1_type = A1_INT64;
+            break;
+        case ARMCI_FLOAT:
+        case ARMCI_ACC_FLT:
+            a1_type = A1_FLOAT;
+            break;
+        case ARMCI_DOUBLE:
+        case ARMCI_ACC_DBL:
+            a1_type = A1_DOUBLE;
+            break;
+        case ARMCI_ACC_CPL:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_CPL datatype not supported\n");
+        case ARMCI_ACC_DCP:
+            A1U_ERR_ABORT(status != A1_ERROR, "ARMCI_ACC_DCP datatype not supported\n");
+        default:
+            A1U_ERR_ABORT(status != A1_ERROR, "invalid datatype\n");
     }
+
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                a1_type,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
+
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_bintree(int scope, int* Root, int *Up, int *Left, int *Right)
 {
@@ -1993,23 +2039,23 @@ void armci_msg_group_igop(int *x, int n, char* op, ARMCI_Group *group)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_INT32,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT32,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_group_lgop(long *x, int n, char* op, ARMCI_Group *group)
 {
@@ -2027,23 +2073,23 @@ void armci_msg_group_lgop(long *x, int n, char* op, ARMCI_Group *group)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_INT32,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT32,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_group_llgop(long long *x, int n, char* op, ARMCI_Group *group)
 {
@@ -2061,23 +2107,23 @@ void armci_msg_group_llgop(long long *x, int n, char* op, ARMCI_Group *group)
     else if (strncmp(op, "absmax", 6) == 0) a1_op = A1_MAXABS;
     else if (strncmp(op, "absmin", 6) == 0) a1_op = A1_MINABS;
     else if (strncmp(op, "or", 2) == 0) a1_op = A1_OR;
-else        A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
+    else A1U_ERR_POP(A1_ERROR, "Invalid op received\n");
 
-        status = A1_Allreduce_group(A1_GROUP_WORLD,
-                n,
-                a1_op,
-                A1_INT64,
-                x,
-                x);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
+    status = A1_Allreduce_group(A1_GROUP_WORLD,
+                                n,
+                                a1_op,
+                                A1_INT64,
+                                x,
+                                x);
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1_Allreduce_group returned error\n");
 
-        fn_exit:
-        A1U_FUNC_EXIT();
-        return;
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return;
 
-        fn_fail:
-        goto fn_exit;
-    }
+    fn_fail:
+    goto fn_exit;
+}
 
 void armci_msg_group_fgop(float *x, int n, char* op, ARMCI_Group *group)
 {
