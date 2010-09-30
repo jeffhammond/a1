@@ -72,9 +72,9 @@ int A1DI_Read_parameters()
     {
         a1d_settings.put_packetsize = atoi(value);
 
-        /* Having packet size less than the packing limit will not make sense and
-         can lead to deadlocks in the packing code*/
-        if (a1d_settings.put_packetsize < a1d_settings.put_packing_limit)
+        /* Having packet size less than the packing limit will not make sense */
+        if (a1d_settings.put_packetsize < (a1d_settings.put_packing_limit  
+                       +  sizeof(A1D_Packed_puts_header_t)))
         {
             a1d_settings.put_packetsize = a1d_settings.put_packing_limit;
         }
@@ -97,7 +97,8 @@ int A1DI_Read_parameters()
 
         /* Having packet size less than the packing limit will not make sense and 
          can lead to deadlocks in the packing code*/
-        if (a1d_settings.get_packetsize < a1d_settings.get_packing_limit)
+        if (a1d_settings.get_packetsize < (a1d_settings.get_packing_limit  
+                         +  sizeof(A1D_Packed_gets_header_t)))
         {
             a1d_settings.get_packetsize = a1d_settings.get_packing_limit;
         }
@@ -120,7 +121,8 @@ int A1DI_Read_parameters()
 
         /* Having packet size less than the packing limit will not make sense and
          can lead to deadlocks in the packing code*/
-        if (a1d_settings.putacc_packetsize < a1d_settings.putacc_packing_limit)
+        if (a1d_settings.putacc_packetsize < (a1d_settings.putacc_packing_limit  
+                             + sizeof(A1D_Packed_putaccs_header_t)))
         {
             a1d_settings.putacc_packetsize = a1d_settings.putacc_packing_limit;
         }
