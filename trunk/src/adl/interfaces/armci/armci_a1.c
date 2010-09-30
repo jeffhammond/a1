@@ -2339,6 +2339,8 @@ void armci_msg_bcast_scope(int scope, void* buffer, int len, int root)
 
 void armci_msg_brdcst(void* buffer, int len, int root)
 {
+    int status = A1_SUCCESS;
+
     A1U_FUNC_ENTER();
 
     status = A1_Bcast_group(A1_GROUP_WORLD, root, len, buffer);
