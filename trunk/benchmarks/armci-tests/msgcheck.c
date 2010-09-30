@@ -101,7 +101,7 @@ void TestGlobals()
     
     /* Test broadcast */
     armci_msg_brdcst(itest, ilen, ifrom);
-    //armci_msg_brdcst(ltest, llen, lfrom);
+    armci_msg_brdcst(ltest, llen, lfrom);
     armci_msg_brdcst(dtest, dlen, dfrom);
    
     for (i=0; i<len; i++){
