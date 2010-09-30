@@ -279,6 +279,8 @@ int A1_Allreduce_group(A1_group_t* group,
         status = MPI_Allreduce(in,out,count,mpi_type,mpi_oper,MPI_COMM_WORLD);
         switch (status)
         {
+            /* because MPI_SUCCESS doesn't get interpreted as zero here :-( */
+            case 0:
             case MPI_SUCCESS:
                 status = A1_SUCCESS;
                 goto fn_exit;
@@ -464,6 +466,8 @@ int A1_Bcast_group(A1_group_t* group,
         status = MPI_Bcast(buffer,count,mpi_type,root,MPI_COMM_WORLD);
         switch (status)
         {
+            /* because MPI_SUCCESS doesn't get interpreted as zero here :-( */
+            case 0:
             case MPI_SUCCESS:
                 status = A1_SUCCESS;
                 goto fn_exit;
