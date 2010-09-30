@@ -107,6 +107,7 @@ int A1U_Print_parameters(void)
         {
             A1U_output_printf("Network bypass               = %s\n","WTF");
         }
+        A1U_output_printf("===============================================\n\n\n");
         fflush(stdout);
     }
 
