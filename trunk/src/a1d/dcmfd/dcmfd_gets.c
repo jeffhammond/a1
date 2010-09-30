@@ -509,7 +509,7 @@ int A1D_GetS(int target,
     A1U_ERR_POP(status = (a1d_handle == NULL),
                 "A1DI_Get_handle returned NULL in A1D_GetS. \n");
 
-    if (block_sizes[0] + sizeof(A1D_Packed_gets_response_header_t) >= a1d_settings.get_packing_limit)
+    if (block_sizes[0] > a1d_settings.get_packing_limit)
     {
 
         status = A1DI_Direct_gets(target,
@@ -572,7 +572,7 @@ int A1D_NbGetS(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    if (block_sizes[0] + sizeof(A1D_Packed_gets_response_header_t) >= a1d_settings.get_packing_limit)
+    if (block_sizes[0] > a1d_settings.get_packing_limit)
     {
 
         status = A1DI_Direct_gets(target,

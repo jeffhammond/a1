@@ -485,7 +485,7 @@ int A1D_PutAccS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    if (block_sizes[0] + sizeof(A1D_Packed_putaccs_header_t) >= a1d_settings.putacc_packing_limit)
+    if (block_sizes[0] > a1d_settings.putacc_packing_limit)
     {
 
         a1d_handle = A1DI_Get_handle();
@@ -554,7 +554,7 @@ int A1D_NbPutAccS(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    if (block_sizes[0] + sizeof(A1D_Packed_putaccs_header_t) >= a1d_settings.putacc_packing_limit)
+    if (block_sizes[0] > a1d_settings.putacc_packing_limit)
     {
 
         status = A1DI_Direct_putaccs(target,

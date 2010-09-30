@@ -390,7 +390,7 @@ int A1D_PutS(int target,
 
     A1DI_CRITICAL_ENTER();
 
-    if (block_sizes[0] + sizeof(A1D_Packed_puts_header_t) >= a1d_settings.put_packing_limit)
+    if (block_sizes[0] > a1d_settings.put_packing_limit)
     {
         a1d_handle = A1DI_Get_handle();
         A1U_ERR_POP(status = (a1d_handle == NULL),
@@ -447,7 +447,7 @@ int A1D_NbPutS(int target,
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    if (block_sizes[0] + sizeof(A1D_Packed_puts_header_t) >= a1d_settings.put_packing_limit)
+    if (block_sizes[0] > a1d_settings.put_packing_limit)
     {
 
         status = A1DI_Direct_puts(target,

@@ -27,6 +27,7 @@ int A1D_Initialize(int thread_level)
     {
         return status; 
     }
+    a1_active = 1;
 
     count = DCMF_Messager_initialize();
     /* Do not issue this warning if using MPI since in that case we know DCMF
@@ -39,8 +40,6 @@ int A1D_Initialize(int thread_level)
     //}
 
     if ( DCMF_Messager_size() > 1 ) DCMF_Collective_initialize();
-
-    a1_active = 1;
 
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
@@ -191,6 +190,8 @@ int A1D_Initialize(int thread_level)
 
     /* TODO: Do we need to barrier before this call?
      *       Won't this call fail internally if one process is late? */
+    /* Resolution: This function has a barrier inside, before the exchange
+     *       happens. So a barrier is not required here */
     status = A1DI_Memregion_Global_initialize();
     A1U_ERR_POP(status != A1_SUCCESS,
                 "A1DI_Memregion_Global_initialize returned with error \n");
