@@ -74,7 +74,7 @@ int A1U_Print_parameters(void)
 
     A1U_FUNC_ENTER();
 
-    if (A1D_Process_info.my_rank == 0)
+    if ( 0 == A1D_Process_id(A1_GROUP_WORLD) )
     {
         A1U_output_printf("=============== A1U Parameters ================\n");
         A1U_output_printf("These are device-independent settings.");
