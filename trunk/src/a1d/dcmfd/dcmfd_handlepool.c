@@ -21,7 +21,7 @@ int A1D_Allocate_handle(A1_handle_t *a1_handle)
     a1d_handle = A1DI_Get_handle();
     A1U_ERR_POP(status = (a1d_handle == NULL),
                 "A1DI_Get_handle returned NULL in A1D_Allocate_handle.\n");
-    *a1_handle = (A1_handle_t *) a1d_handle;
+    *a1_handle = (A1_handle_t) a1d_handle;
 
     fn_exit: A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();

@@ -233,7 +233,7 @@ int ARMCI_Free_local(void *ptr)
 void ARMCI_INIT_HANDLE(armci_hdl_t* handle)
 {
     int status = A1_SUCCESS;
-    A1_handle_t *a1_handle;
+    A1_handle_t a1_handle;
 
     A1U_FUNC_ENTER();
 
@@ -244,11 +244,11 @@ void ARMCI_INIT_HANDLE(armci_hdl_t* handle)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1_Allocate_handle(a1_handle);
+    status = A1_Allocate_handle(&a1_handle);
     A1U_ERR_ABORT(status != A1_SUCCESS,
             "A1_Allocate_handle returned an error\n");
 
-    *handle = *a1_handle;
+    *handle = a1_handle;
 
     fn_exit: A1U_FUNC_EXIT();
     return;
