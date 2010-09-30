@@ -17,7 +17,7 @@
             t[w] ^= s[w];                                                          \
         } while(0)                                                                 \
 
-int A1U_AccV_memcpy(A1_iov_t *iov_ar,
+int A1U_ModV_memcpy(A1_iov_t *iov_ar,
                     int ar_len,
                     A1_reduce_op_t a1_op,
                     A1_datatype_t a1_type,

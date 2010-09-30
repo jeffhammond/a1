@@ -427,7 +427,7 @@ typedef union
     struct
     {
         void* target_ptr;
-        A1_reduce_t op;
+        A1_reduce_op_t op;
         A1_datatype_t datatype;
     };
 } A1D_Putmod_header_t;

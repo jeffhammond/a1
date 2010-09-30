@@ -40,12 +40,12 @@ int A1_PutModV(int target,
     /* Bypass is ALWAYS better for accumulate; we do not test against threshold. */
     if (target == my_rank && a1u_settings.network_bypass)
     {
-        status = A1U_ModV_memcpy(iov_ar, ar_len, A1_reduce_op_t a1_op, a1_type);
+        status = A1U_ModV_memcpy(iov_ar, ar_len, a1_op, a1_type);
         A1U_ERR_POP(status != A1_SUCCESS, "A1U_ModV_memcpy returned an error\n");
     }
     else
     {
-        status = A1D_PutModV(target, iov_ar, ar_len, A1_reduce_op_t a1_op, a1_type);
+        status = A1D_PutModV(target, iov_ar, ar_len, a1_op, a1_type);
         A1U_ERR_POP(status, "A1D_PutModV returned error\n");
     }
 
