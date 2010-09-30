@@ -38,6 +38,9 @@
 #define ARMCI_FETCH_AND_ADD 12
 #define ARMCI_FETCH_AND_ADD_LONG 13
 
+/* this is 8 in ARMCI but I think A1 only supports up to 4 */
+#define ARMCI_MAX_STRIDE_LEVEL 4
+
 /*************************
       Data Structures
 *************************/
