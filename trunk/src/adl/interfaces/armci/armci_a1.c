@@ -1225,8 +1225,8 @@ int ARMCI_Barrier(void)
 #   ifdef HAVE_ERROR_CHECKING
 #   endif
 
-    status = A1_Barrier_group(A1_GROUP_WORLD);
-    A1U_ERR_POP(status != A1_SUCCESS, "A1_Barrier_group returned an error\n");
+    status = A1_Sync_group(A1_GROUP_WORLD);
+    A1U_ERR_POP(status != A1_SUCCESS, "A1_Sync_group returned an error\n");
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
