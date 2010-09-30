@@ -1048,7 +1048,7 @@ int ARMCI_NbAccV(int datatype,
 
     memcpy((void *) a1_iov_ar, (void *) dsrc_arr, sizeof(A1_iov_t) * arr_len);
 
-    status = A1_NbPutAccV(proc, a1_iov_ar, arr_len, a1_type, scale);
+    status = A1_NbPutAccV(proc, a1_iov_ar, arr_len, a1_type, scale, a1_handle);
     A1U_ERR_POP(status != A1_SUCCESS, "A1_NbPutAccV returned an error\n");
 
     free(a1_iov_ar);
