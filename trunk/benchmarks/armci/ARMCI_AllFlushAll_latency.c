@@ -84,7 +84,7 @@ int main(int argc, char **argv)
     {
         *(buffer[rank] + i) = 1.0 + rank;
     }
-    ARMCI_Barrier();
+    MPI_Barrier(MPI_COMM_WORLD);
 
     if (rank == 0)
     {
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 
     for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
-        ARMCI_Barrier();
+        MPI_Barrier(MPI_COMM_WORLD);
         for (i = 0; i < ITERATIONS + SKIP; i++)
         {
             for (j = 0; j < nranks; j++)
@@ -107,13 +107,14 @@ int main(int argc, char **argv)
                           j);
             }
             t_start = MPI_Wtime();
-            ARMCI_Barrier();
+            ARMCI_AllFence();
+            MPI_Barrier(MPI_COMM_WORLD);
             t_stop = MPI_Wtime();
             if (i >= SKIP) t_latency = t_latency + (t_stop - t_start);
         }
         printf("%20d %20.2f \n", msgsize, ((t_latency) * 1000000) / ITERATIONS);
         fflush(stdout);
-        ARMCI_Barrier();
+        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     if (0 == rank)
@@ -127,11 +128,11 @@ int main(int argc, char **argv)
     stride_level = 0;
     for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
-        src_stride[0] = msgsize * sizeof(double);
-        trg_stride[0] = msgsize * sizeof(double);
+        src_stride = msgsize * sizeof(double);
+        trg_stride = msgsize * sizeof(double);
         count[0] = msgsize * sizeof(double);
         count[1] = msgsize;
-        ARMCI_Barrier();
+        MPI_Barrier(MPI_COMM_WORLD);
         for (i = 0; i < ITERATIONS + SKIP; i++)
         {
             for (j = 0; j < nranks; j++)
@@ -147,13 +148,14 @@ int main(int argc, char **argv)
                            j);
             }
             t_start = MPI_Wtime();
-            ARMCI_Barrier();
+            ARMCI_AllFence();
+            MPI_Barrier(MPI_COMM_WORLD);
             t_stop = MPI_Wtime();
             if (i >= SKIP) t_latency = t_latency + (t_stop - t_start);
         }
         printf("%20d %20.2f \n", msgsize, ((t_latency) * 1000000) / ITERATIONS);
         fflush(stdout);
-        ARMCI_Barrier();
+        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     ARMCI_Free(buffer[rank]);
