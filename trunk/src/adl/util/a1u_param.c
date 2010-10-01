@@ -77,7 +77,7 @@ int A1U_Print_parameters(void)
     if ( 0 == A1D_Process_id(A1_GROUP_WORLD) )
     {
         A1U_output_printf("=============== A1U Parameters ================\n");
-        A1U_output_printf("These are device-independent settings.");
+        A1U_output_printf("These are device-independent settings.\n");
 
         if ( 1==a1u_settings.armci_strict_ordering )
         {
