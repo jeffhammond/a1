@@ -62,7 +62,9 @@ int main()
     long bufsize;
     int **counter;
     int *complete;
-    int increment, counter_fetch;
+    int increment;
+    int counter_fetch;
+    int counters_received;
     int t_start, t_stop, t_latency;
     int expected;
 
@@ -91,14 +93,15 @@ int main()
     } 
     if(rank == target) 
     { 
-       *(counter[rank]) = 0.0;
+       *(counter[rank]) = 0;
     }
     increment = 1;
     counter_fetch = 0;
+    counters_received = 0;
 
     A1_Barrier_group(A1_GROUP_WORLD);    
  
-    while(counter_fetch < 1024*1024) 
+    while(counter_fetch < COUNT)
     {  
         A1_Rmw(target,
                (void *) &increment,
@@ -108,9 +111,9 @@ int main()
                A1_FETCH_AND_ADD,
                A1_INT32);
 
-        if(counter_fetch < COUNT)
-             complete[counter_fetch] = 1; 
-
+        /* s/1/rank/ means we will know who got the counter */
+        if (counter_fetch < COUNT) complete[counter_fetch] = rank;
+        counters_received++;
     }
 
     A1_Allreduce_group(A1_GROUP_WORLD, 
@@ -129,8 +132,23 @@ int main()
            exit(-1);
        }   
     }
-
     printf("[%d] The RMW update completed successfully \n", rank);
+    fflush(stdout);
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    if (0==rank)
+    {
+        printf("Checking for fairness...\n", rank);
+        fflush(stdout);
+        for(i=0; i<COUNT; i++)
+        {
+           printf("counter value %d was received by process %d\n", i, complete[i]);
+        }
+        fflush(stdout);
+    }
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    printf("process %d received %d counters\n", rank, counters_received);
     fflush(stdout);
 
     A1_Release_segments(A1_GROUP_WORLD, counter[rank]);
