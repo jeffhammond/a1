@@ -136,24 +136,15 @@ int main(int argc, char **argv)
         {
             for (j = 0; j < nranks; j++)
             {
-                ARMCI_Acc(ARMCI_ACC_DBL,
-                          (void *) &scaling,
-                          (void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
-
-                          (void *) ((size_t) buffer[j] + (size_t)(i * msgsize)),
-
-                          msgsize,
-                          j);
-                ARMCI_NbAccS(ARMCI_ACC_DBL,
-                             (void *) &scaling,
-                             (void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
-                             &src_stride,
-                             (void *) ((size_t) buffer[j] + (size_t)(i * msgsize)),
-                             &trg_stride,
-                             count,
-                             stride_level,
-                             j);
-
+                ARMCI_AccS(ARMCI_ACC_DBL,
+                           (void *) &scaling,
+                           (void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
+                           &src_stride,
+                           (void *) ((size_t) buffer[j] + (size_t)(i * msgsize)),
+                           &trg_stride,
+                           count,
+                           stride_level,
+                           j);
             }
             t_start = MPI_Wtime();
             ARMCI_Barrier();
