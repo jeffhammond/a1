@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
     for(i=0; i<COUNT; i++)
     {
-       complete[i] = 0;
+       complete[i] = -1;
     } 
     if(rank == target) 
     { 
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 
     for(i=0; i<COUNT; i++)
     {
-       if (complete[i] == 0)
+       if (complete[i] == -1)
        {
            printf("[%d] The RMW update failed at index: %d \n", rank, i);
            fflush(stdout);
