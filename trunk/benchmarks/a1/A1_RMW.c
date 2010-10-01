@@ -50,8 +50,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <mpi.h>
 #include <a1.h>
-#include <armci.h>
 
 #define COUNT 1024*1024
 
