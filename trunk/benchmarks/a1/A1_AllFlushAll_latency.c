@@ -93,10 +93,9 @@ int main(int argc, char **argv)
         fflush(stdout);
     }
 
-    A1_Barrier_group(A1_GROUP_WORLD);
-
     for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
+        A1_Sync_group(A1_GROUP_WORLD);
         for (i = 0; i < ITERATIONS + SKIP; i++)
         {
             for (j = 0; j < nranks; j++)
@@ -113,8 +112,8 @@ int main(int argc, char **argv)
         }
         printf("%20d %20.2f \n", msgsize, ((t_latency) * 1000000) / ITERATIONS);
         fflush(stdout);
+        A1_Sync_group(A1_GROUP_WORLD);
     }
-    A1_Barrier_group(A1_GROUP_WORLD);
 
     if (0 == rank)
     {
@@ -123,10 +122,10 @@ int main(int argc, char **argv)
         printf("%20s %22s\n", "Message Size", "Latency");
         fflush(stdout);
     }
-    A1_Barrier_group(A1_GROUP_WORLD);
 
     for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
+        A1_Sync_group(A1_GROUP_WORLD);
         for (i = 0; i < ITERATIONS + SKIP; i++)
         {
             for (j = 0; j < nranks; j++)
@@ -145,9 +144,9 @@ int main(int argc, char **argv)
         }
         printf("%20d %20.2f \n", msgsize, ((t_latency) * 1000000) / ITERATIONS);
         fflush(stdout);
+        A1_Sync_group(A1_GROUP_WORLD);
     }
 
-    A1_Barrier_group(A1_GROUP_WORLD);
     A1_Release_segments(A1_GROUP_WORLD, buffer[rank]);
     A1_Finalize();
     MPI_Finalize();
