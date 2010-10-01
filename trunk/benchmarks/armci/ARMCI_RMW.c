@@ -55,9 +55,9 @@
 
 #define COUNT 1024*1024
 
-int main()
+int main(int argc, char* argv[])
 {
-
+    int provided;
     int i, rank, nranks, msgsize, target;
     long bufsize;
     int **counter;
@@ -77,7 +77,7 @@ int main()
 
     complete = (int *) malloc(sizeof(int) * COUNT);
 
-    ARMCI_Malloc_local((void **) counter, sizeof(int*) * nranks);
+    counter = (int**) ARMCI_Malloc_local( nranks * sizeof(int*) );
     ARMCI_Malloc((void **) counter[rank], sizeof(int));
 
     if (rank == 0)
