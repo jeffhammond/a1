@@ -57,7 +57,7 @@
 
 int main()
 {
-
+    int provided;
     int i, rank, nranks, msgsize, target;
     long bufsize;
     int **counter;
@@ -67,6 +67,8 @@ int main()
     int counters_received;
     int t_start, t_stop, t_latency;
     int expected;
+
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 
     A1_Initialize(A1_THREAD_SINGLE);
 
