@@ -55,7 +55,7 @@
 
 #define COUNT 1024*1024
 
-int main()
+int main(int argc, char* argv[])
 {
     int provided;
     int i, rank, nranks, msgsize, target;
