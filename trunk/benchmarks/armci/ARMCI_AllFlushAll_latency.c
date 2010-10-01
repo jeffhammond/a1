@@ -65,6 +65,7 @@ int main(int argc, char **argv)
     double scaling;
     double **buffer;
     double t_start, t_stop, t_latency = 0;
+    int count[2], src_stride, trg_stride, stride_level;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
 
@@ -83,7 +84,6 @@ int main(int argc, char **argv)
     {
         *(buffer[rank] + i) = 1.0 + rank;
     }
-
     ARMCI_Barrier();
 
     if (rank == 0)
@@ -96,6 +96,7 @@ int main(int argc, char **argv)
 
     for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
+        ARMCI_Barrier();
         for (i = 0; i < ITERATIONS + SKIP; i++)
         {
             for (j = 0; j < nranks; j++)
@@ -112,8 +113,8 @@ int main(int argc, char **argv)
         }
         printf("%20d %20.2f \n", msgsize, ((t_latency) * 1000000) / ITERATIONS);
         fflush(stdout);
+        ARMCI_Barrier();
     }
-    ARMCI_Barrier();
 
     if (0 == rank)
     {
@@ -122,10 +123,15 @@ int main(int argc, char **argv)
         printf("%20s %22s\n", "Message Size", "Latency");
         fflush(stdout);
     }
-    ARMCI_Barrier();
 
+    stride_level = 0;
     for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
+        src_stride[0] = msgsize * sizeof(double);
+        trg_stride[0] = msgsize * sizeof(double);
+        count[0] = msgsize * sizeof(double);
+        count[1] = msgsize;
+        ARMCI_Barrier();
         for (i = 0; i < ITERATIONS + SKIP; i++)
         {
             for (j = 0; j < nranks; j++)
@@ -133,9 +139,21 @@ int main(int argc, char **argv)
                 ARMCI_Acc(ARMCI_ACC_DBL,
                           (void *) &scaling,
                           (void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
+
                           (void *) ((size_t) buffer[j] + (size_t)(i * msgsize)),
+
                           msgsize,
                           j);
+                ARMCI_NbAccS(ARMCI_ACC_DBL,
+                             (void *) &scaling,
+                             (void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
+                             &src_stride,
+                             (void *) ((size_t) buffer[j] + (size_t)(i * msgsize)),
+                             &trg_stride,
+                             count,
+                             stride_level,
+                             j);
+
             }
             t_start = MPI_Wtime();
             ARMCI_Barrier();
@@ -144,9 +162,9 @@ int main(int argc, char **argv)
         }
         printf("%20d %20.2f \n", msgsize, ((t_latency) * 1000000) / ITERATIONS);
         fflush(stdout);
+        ARMCI_Barrier();
     }
 
-    ARMCI_Barrier();
     ARMCI_Free(buffer[rank]);
     ARMCI_Finalize();
     MPI_Finalize();
