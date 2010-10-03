@@ -50,11 +50,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <assert.h>
-#include <string.h>
-#include <math.h>
-#include <tirank.h>
 #include <mpi.h>
 
 int main(int argc, char **argv)
@@ -62,20 +58,22 @@ int main(int argc, char **argv)
     int provided;
     int rank;
     int size;
-    MPI_Status status;
+    int status;
 
     double t0, t1, t2, t3, t4, t5;
 
+    int i, j;
+
     int bufPow, bufSize;
-    int msgPow;
-    msgSize;
+    int msgPow, msgSize;
 
     double* m1;
     double* m2;
-    MPI_Win w1;
-    MPI_Win w2;
     double* b1;
     double* b2;
+    MPI_Win w1;
+    MPI_Win w2;
+
     int target;
     double dt, bw;
 

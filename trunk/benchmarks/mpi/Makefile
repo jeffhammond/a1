@@ -1,5 +1,5 @@
-CC      = mpixlc_r 
-COPT    = -g -O0
+CC      = cc
+COPT    = 
 
 LD      = $(CC)
 CFLAGS  = $(COPT) $(INCLUDE)
