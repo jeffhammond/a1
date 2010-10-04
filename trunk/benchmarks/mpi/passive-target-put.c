@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 
     for (i = 0; i < bufSize; i++)
     {
-        m1[i] = -1.0*rank;
+        m1[i] = (double)0;
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -115,6 +115,11 @@ int main(int argc, char **argv)
     status = MPI_Alloc_mem(bufSize * sizeof(double), MPI_INFO_NULL, &b2);
     assert(status==MPI_SUCCESS);
 
+    for (k = 0; k < msgSize; k++)
+    {
+        b2[k] = (double)rank;
+    }
+
     MPI_Barrier(MPI_COMM_WORLD);
 
     /* begin test */
@@ -136,10 +141,7 @@ int main(int argc, char **argv)
             {
                 target = j;
 
-                for (k = 0; k < msgSize; k++)
-                {
-                    b1[k] = (double)rank;
-                }
+                /* this is the real communication to time */
 
                 t0 = MPI_Wtime();
 
@@ -151,7 +153,7 @@ int main(int argc, char **argv)
 
                 t1 = MPI_Wtime();
 
-                status = MPI_Put(b1,
+                status = MPI_Put(b2,
                                  msgSize,
                                  MPI_DOUBLE,
                                  target,
@@ -176,7 +178,7 @@ int main(int argc, char **argv)
                                       w1);
                 assert(status==MPI_SUCCESS);
 
-                status = MPI_Put(b1,
+                status = MPI_Get(b1,
                                  msgSize,
                                  MPI_DOUBLE,
                                  target,
@@ -191,7 +193,7 @@ int main(int argc, char **argv)
 
                 for (k = 0; k < msgSize; k++)
                 {
-                    assert( b2[k]==(double)target );
+                    assert( b1[k]==(double)rank );
                 }
 
                 dt = t3 - t0;
