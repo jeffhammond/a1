@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
     int i, j, k, s;
     int stride;
-    int chunksz;
+    int chunk;
 
     int bufPow, bufSize;
     int msgPow, msgSize;
@@ -82,8 +82,8 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    bufPow = (argc > 1 ? atoi(argv[1]) : 25);
-    bufSize = pow(2,bufPow);
+    bufPow = (argc > 1 ? atoi(argv[1]) : 20);
+    bufSize = pow(2, bufPow);
     if (rank == 0) printf("%d: bufSize = %d doubles\n", rank, bufSize);
 
     /* allocate RMA buffers for windows */
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 
     for (i = 0; i < bufSize; i++)
     {
-        m1[i] = (double)0;
+        m1[i] = (double) 0;
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -121,6 +121,9 @@ int main(int argc, char **argv)
 
     /* begin test */
 
+    stride = 16;
+    chunk = 8;
+
     if (rank == 0)
     {
         printf("MPI_Get performance test for buffer size = %d doubles\n",
@@ -132,7 +135,7 @@ int main(int argc, char **argv)
         for (i = 1; i < bufPow; i++)
         {
             msgPow = i;
-            msgSize = pow(2,msgPow);
+            msgSize = pow(2, msgPow);
 
             for (j = 1; j < size; j++)
             {
@@ -140,12 +143,20 @@ int main(int argc, char **argv)
 
                 for (k = 0; k < msgSize; k++)
                 {
-                    b1[k] = (double)rank;
+                    b1[k] = (double) rank;
+                }
+
+                for (k = 0; k < msgSize; k++)
+                {
+                    b2[k] = (double) 0;
                 }
 
                 /* this is the real communication to time */
 
                 t0 = MPI_Wtime();
+
+                for (s = 0; s < msgSize; s += stride)
+                {
 
                 status = MPI_Win_lock(MPI_LOCK_EXCLUSIVE,
                                       target,
@@ -153,25 +164,27 @@ int main(int argc, char **argv)
                                       w1);
                 assert(status==MPI_SUCCESS);
 
-                t1 = MPI_Wtime();
+//                t1 = MPI_Wtime();
 
-                for (s=0; s<msgSize; s+=stride)
-                {
-                    status = MPI_Put(b1[s],
+//                for (s = 0; s < msgSize; s += stride)
+//                {
+                    status = MPI_Put(&b1[s],
                                      chunk,
                                      MPI_DOUBLE,
                                      target,
                                      s,
-                                     msgSize,
+                                     chunk,
                                      MPI_DOUBLE,
                                      w1);
                     assert(status==MPI_SUCCESS);
-                }
+//                }
 
-                t2 = MPI_Wtime();
+//                t2 = MPI_Wtime();
 
                 status = MPI_Win_unlock(target, w1);
                 assert(status==MPI_SUCCESS);
+
+                }
 
                 t3 = MPI_Wtime();
 
@@ -183,14 +196,14 @@ int main(int argc, char **argv)
                                       w1);
                 assert(status==MPI_SUCCESS);
 
-                for (s=0; s<msgSize; s+=stride)
+                for (s = 0; s < msgSize; s += stride)
                 {
-                    status = MPI_Get(b2[s],
+                    status = MPI_Get(&b2[s],
                                      chunk,
                                      MPI_DOUBLE,
                                      target,
                                      s,
-                                     msgSize,
+                                     chunk,
                                      MPI_DOUBLE,
                                      w1);
                     assert(status==MPI_SUCCESS);
@@ -200,16 +213,21 @@ int main(int argc, char **argv)
                 assert(status==MPI_SUCCESS);
 
                 /*
-                for (k = 0; k < msgSize; k++)
-                {
-                    assert( b2[k]==(double)rank );
-                }
-                */
+                 for (k = 0; k < msgSize; k++)
+                 {
+                 assert( b2[k]==(double)rank );
+                 }
+                 */
 
                 dt = t3 - t0;
                 bw = (double) msgSize * sizeof(double) * (1e-6) / dt;
 
-                printf("%4d     %4d     %4d       %9.6f     %9.3f\n", rank, target, msgSize, dt, bw);
+                printf("%4d     %4d     %4d       %9.6f     %9.3f\n",
+                       rank,
+                       target,
+                       msgSize,
+                       dt,
+                       bw);
                 fflush(stdout);
 
             }
