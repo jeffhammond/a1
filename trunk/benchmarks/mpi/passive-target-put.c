@@ -69,7 +69,8 @@ int main(int argc, char **argv)
     int msgPow, msgSize;
 
     double* m1;
-    double* b1, b2;
+    double* b1;
+    double* b2;
     MPI_Win w1;
 
     int target;
@@ -111,7 +112,7 @@ int main(int argc, char **argv)
     status = MPI_Alloc_mem(bufSize * sizeof(double), MPI_INFO_NULL, &b1);
     assert(status==MPI_SUCCESS);
 
-    status = MPI_Alloc_mem(bufSize * sizeof(double), MPI_INFO_NULL, &b1);
+    status = MPI_Alloc_mem(bufSize * sizeof(double), MPI_INFO_NULL, &b2);
     assert(status==MPI_SUCCESS);
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -207,6 +208,9 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
 
     status = MPI_Win_free(&w1);
+    assert(status==MPI_SUCCESS);
+
+    status = MPI_Free_mem(b2);
     assert(status==MPI_SUCCESS);
 
     status = MPI_Free_mem(b1);

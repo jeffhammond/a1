@@ -1,9 +1,9 @@
-CC      = cc
-COPT    = 
+CC      = mpicc
+COPT    = -O2
 
 LD      = $(CC)
 CFLAGS  = $(COPT) $(INCLUDE)
-LDFLAGS = $(COPT)
+LDFLAGS = $(COPT) -lm
 
 TESTS := $(patsubst %.c,%.x,$(wildcard *.c))
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
