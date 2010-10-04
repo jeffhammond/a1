@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -N passive-target
+#PBS -l mppwidth=48
+#PBS -l walltime=0:30:00
+#PBS -joe
+#PBS -V
+
+set -ex
+
+cd ${SLURM_SUBMIT_DIR}
+
+aprun -n 48 passive-target-get.x > passive-target-get.log.${SLURM_JOB_ID} 
