@@ -57,197 +57,58 @@
 int main(int argc, char **argv)
 {
     int provided;
+
     int rank;
     int size;
+
     int status;
 
     double t0, t1, t2, t3, t4, t5;
 
-    int i, j, k, s;
-    int stride;
-    int chunk;
+    int rows, cols;
+    int r, c;
 
-    int bufPow, bufSize;
-    int msgPow, msgSize;
+    double* wmem;
+    double* buf;
+    MPI_Win win;
 
-    double* m1;
-    double* b1;
-    double* b2;
-    MPI_Win w1;
-
-    int target;
     double dt, bw;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
+
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    bufPow = (argc > 1 ? atoi(argv[1]) : 20);
-    bufSize = pow(2, bufPow);
-    if (rank == 0) printf("%d: bufSize = %d doubles\n", rank, bufSize);
+    if (rank == 0) printf("%d: MPI_Init_thread\n", rank);
+
+    /************************************************************/
 
     /* allocate RMA buffers for windows */
 
-    status = MPI_Alloc_mem(bufSize * sizeof(double), MPI_INFO_NULL, &m1);
+    status = MPI_Alloc_mem(bufSize * sizeof(double), MPI_INFO_NULL, &wmem);
     assert(status==MPI_SUCCESS);
 
-    for (i = 0; i < bufSize; i++)
+    for (r = 0; r < rows; r++)
     {
-        m1[i] = (double) 0;
+        for (c = 0; c < cols; c++)
+        {
+            m1[cols*r+c] = (double)(100*cols*r+c);
+        }
     }
-
-    MPI_Barrier(MPI_COMM_WORLD);
 
     /* register remote pointers */
 
-    status = MPI_Win_create(m1,
-                            bufSize * sizeof(double),
+    status = MPI_Win_create(wmem,
+                            rows * cols * sizeof(double),
                             sizeof(double),
                             MPI_INFO_NULL,
                             MPI_COMM_WORLD,
-                            &w1);
+                            &win);
     assert(status==MPI_SUCCESS);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    /* allocate RMA buffers */
-    status = MPI_Alloc_mem(bufSize * sizeof(double), MPI_INFO_NULL, &b1);
-    assert(status==MPI_SUCCESS);
-
-    status = MPI_Alloc_mem(bufSize * sizeof(double), MPI_INFO_NULL, &b2);
-    assert(status==MPI_SUCCESS);
-
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    /* begin test */
-
-    stride = 16;
-    chunk = 8;
-
-    if (rank == 0)
-    {
-        printf("MPI_Get performance test for buffer size = %d doubles\n",
-               bufSize);
-        printf("host      target       msg. size (doubles)     get (sec)     BW (MB/s)\n");
-        printf("======================================================================\n");
-        fflush(stdout);
-
-        for (i = 1; i < bufPow; i++)
-        {
-            msgPow = i;
-            msgSize = pow(2, msgPow);
-
-            for (j = 1; j < size; j++)
-            {
-                target = j;
-
-                for (k = 0; k < msgSize; k++)
-                {
-                    b1[k] = (double) rank;
-                }
-
-                for (k = 0; k < msgSize; k++)
-                {
-                    b2[k] = (double) 0;
-                }
-
-                /* this is the real communication to time */
-
-                t0 = MPI_Wtime();
-
-                for (s = 0; s < msgSize; s += stride)
-                {
-
-                status = MPI_Win_lock(MPI_LOCK_EXCLUSIVE,
-                                      target,
-                                      MPI_MODE_NOCHECK,
-                                      w1);
-                assert(status==MPI_SUCCESS);
-
-//                t1 = MPI_Wtime();
-
-//                for (s = 0; s < msgSize; s += stride)
-//                {
-                    status = MPI_Put(&b1[s],
-                                     chunk,
-                                     MPI_DOUBLE,
-                                     target,
-                                     s,
-                                     chunk,
-                                     MPI_DOUBLE,
-                                     w1);
-                    assert(status==MPI_SUCCESS);
-//                }
-
-//                t2 = MPI_Wtime();
-
-                status = MPI_Win_unlock(target, w1);
-                assert(status==MPI_SUCCESS);
-
-                }
-
-                t3 = MPI_Wtime();
-
-                /* this communication is just to verify the remote buffer */
-
-                status = MPI_Win_lock(MPI_LOCK_EXCLUSIVE,
-                                      target,
-                                      MPI_MODE_NOCHECK,
-                                      w1);
-                assert(status==MPI_SUCCESS);
-
-                for (s = 0; s < msgSize; s += stride)
-                {
-                    status = MPI_Get(&b2[s],
-                                     chunk,
-                                     MPI_DOUBLE,
-                                     target,
-                                     s,
-                                     chunk,
-                                     MPI_DOUBLE,
-                                     w1);
-                    assert(status==MPI_SUCCESS);
-                }
-
-                status = MPI_Win_unlock(target, w1);
-                assert(status==MPI_SUCCESS);
-
-                /*
-                 for (k = 0; k < msgSize; k++)
-                 {
-                 assert( b2[k]==(double)rank );
-                 }
-                 */
-
-                dt = t3 - t0;
-                bw = (double) msgSize * sizeof(double) * (1e-6) / dt;
-
-                printf("%4d     %4d     %4d       %9.6f     %9.3f\n",
-                       rank,
-                       target,
-                       msgSize,
-                       dt,
-                       bw);
-                fflush(stdout);
-
-            }
-            printf("======================================================================\n");
-            fflush(stdout);
-        }
-    }
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    status = MPI_Win_free(&w1);
-    assert(status==MPI_SUCCESS);
-
-    status = MPI_Free_mem(b2);
-    assert(status==MPI_SUCCESS);
-
-    status = MPI_Free_mem(b1);
-    assert(status==MPI_SUCCESS);
-
-    status = MPI_Free_mem(m1);
-    assert(status==MPI_SUCCESS);
+    /************************************************************/
 
     MPI_Barrier(MPI_COMM_WORLD);
 
