@@ -11,7 +11,7 @@
 /* This is here because the build system does not yet have the necessary
  * logic to set these options for each device. */
 
-#define A1_USES_MPI_COLLECTIVES
+#undef A1_USES_MPI_COLLECTIVES
 
 #ifdef A1_USES_MPI_COLLECTIVES
 #include "mpi.h"

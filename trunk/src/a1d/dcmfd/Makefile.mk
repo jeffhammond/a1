@@ -24,7 +24,6 @@ liba1_la_SOURCES += $(top_srcdir)/src/a1d/dcmfd/dcmfd_param.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_allreduce.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_barrier.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_bcast.c \
-	$(top_srcdir)/src/a1d/dcmfd/dcmfd_collectives.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_misc.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_util.c \
 	$(top_srcdir)/src/a1d/dcmfd/dcmfd_requestpool.c \
