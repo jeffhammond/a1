@@ -31,11 +31,11 @@ int A1D_Finalize(void)
     /* Freeing buffer pool */
     A1DI_Buffer_pool_finalize();
 
-    /* Freeing memory region pointers and local memroy region*/
+    /* Freeing memory region pointers and local memory region*/
     A1DI_Free(A1D_Membase_global);
     A1DI_Free(A1D_Memregion_global);
 
-    /* Freeing conenction active counters */
+    /* Freeing connection active counters */
     A1DI_Free((void *) A1D_Connection_send_active);
     A1DI_Free((void *) A1D_Connection_put_active);
 
@@ -46,7 +46,12 @@ int A1D_Finalize(void)
     if (a1d_settings.enable_cht)
     {
         status = pthread_cancel(A1DI_CHT_pthread);
+        A1U_ERR_POP(status != 0,
+                        "pthread_cancel returned with error %d \n", status);
     }
+
+    /* freeing memory allocated during initializationg of collectives */
+    A1DI_GlobalAllreduce_finalize();
 
     A1DI_CRITICAL_EXIT();
 
