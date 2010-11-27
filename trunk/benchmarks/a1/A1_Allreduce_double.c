@@ -51,7 +51,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <a1.h>
-#include <armci.h>
 
 #define MAX_MSG_SIZE 4*1024*1024
 

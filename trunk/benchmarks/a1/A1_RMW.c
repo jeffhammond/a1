@@ -53,12 +53,10 @@
 #include <mpi.h>
 #include <a1.h>
 
-#define COUNT 1024*1024
-
 int main(int argc, char* argv[])
 {
     int provided;
-    int i, rank, nranks, msgsize, target;
+    int i, rank, size, msgsize, target;
     long bufsize;
     int **counter;
     int *complete;
@@ -67,19 +65,23 @@ int main(int argc, char* argv[])
     int counters_received;
     int t_start, t_stop, t_latency;
     int expected;
+    int count;
+    double t0,t1,tt,dt;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+
+    count = ( argc > 1 ? atoi(argv[1]) : 1000000 ); 
 
     A1_Initialize(A1_THREAD_SINGLE);
 
     rank = A1_Process_id(A1_GROUP_WORLD);
-    nranks = A1_Process_total(A1_GROUP_WORLD);
+    size = A1_Process_total(A1_GROUP_WORLD);
 
-    complete = (int *) malloc(sizeof(int) * COUNT);
-
-    counter = (int **) malloc(sizeof(int *) * nranks); 
+    counter = (int **) malloc(sizeof(int*) * size); 
     A1_Alloc_segment((void **) &(counter[rank]), sizeof(int)); 
     A1_Exchange_segments(A1_GROUP_WORLD, (void **) counter);
+
+    complete = (int *) malloc(sizeof(int) * count);
 
     if (rank == 0)
     {
@@ -89,9 +91,9 @@ int main(int argc, char* argv[])
 
     target = 0; 
 
-    for(i=0; i<COUNT; i++)
+    for(i=0; i<count; i++)
     {
-       complete[i] = -1;
+       complete[i] = 0;
     } 
     if(rank == target) 
     { 
@@ -101,57 +103,53 @@ int main(int argc, char* argv[])
     counter_fetch = 0;
     counters_received = 0;
 
-    A1_Barrier_group(A1_GROUP_WORLD);    
+    MPI_Barrier(MPI_COMM_WORLD);
  
-    while(counter_fetch < COUNT)
-    {  
-        A1_Rmw(target,
-               (void *) &increment,
-               (void *) &counter_fetch,
-               (void *) counter[target],
-               sizeof(int),
-               A1_FETCH_AND_ADD,
-               A1_INT32);
-
-        /* s/1/rank/ means we will know who got the counter */
-        if (counter_fetch < COUNT) complete[counter_fetch] = rank;
-        counters_received++;
-    }
-
-    A1_Allreduce_group(A1_GROUP_WORLD, 
-                       COUNT,                   
-                       A1_SUM,
-                       A1_INT32,
-                       (void *) complete,
-                       (void *) complete);
-
-    for(i=0; i<COUNT; i++)
+    if (rank>0)
     {
-       if (complete[i] == -1)
-       {
-           printf("[%d] The RMW update failed at index: %d \n", rank, i);
-           fflush(stdout);
-           exit(-1);
-       }   
+        while(counter_fetch < count)
+        {  
+            t0 = MPI_Wtime();
+            A1_Rmw(target,
+                   (void *) &increment,
+                   (void *) &counter_fetch,
+                   (void *) counter[target],
+                   sizeof(int),
+                   A1_FETCH_AND_ADD,
+                   A1_INT32);
+            t1 = MPI_Wtime();
+            if (counter_fetch < count) 
+            {
+                complete[counter_fetch] = rank;
+                counters_received++;
+                tt += (t1-t0);
+            }
+        }
     }
-    printf("[%d] The RMW update completed successfully \n", rank);
+    MPI_Allreduce(MPI_IN_PLACE,
+                  complete,
+                  count,
+                  MPI_INT,
+                  MPI_SUM,
+                  MPI_COMM_WORLD);
+
+    dt = (double)tt/counters_received;
+    printf("process %d received %d counters in %f seconds (%f per call)\n", 
+           rank, counters_received, tt, dt);
     fflush(stdout);
-    A1_Barrier_group(A1_GROUP_WORLD);
 
     if (0==rank)
     {
         printf("Checking for fairness...\n", rank);
         fflush(stdout);
-        for(i=0; i<COUNT; i++)
+        for(i=0; i<count; i++)
         {
-           printf("counter value %d was received by process %d\n", i, complete[i]);
+            if (0==complete[i]) printf("counter value %d was not received by anyone!!! %d\n", i);
+            else                printf("counter value %d was received by process %d\n", i, complete[i]);
         }
         fflush(stdout);
     }
-    A1_Barrier_group(A1_GROUP_WORLD);
-
-    printf("process %d received %d counters\n", rank, counters_received);
-    fflush(stdout);
+    MPI_Barrier(MPI_COMM_WORLD);
 
     A1_Release_segments(A1_GROUP_WORLD, counter[rank]);
     A1_Free_segment(counter[rank]);

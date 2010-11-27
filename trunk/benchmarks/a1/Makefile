@@ -1,7 +1,7 @@
 # Environment variable A1_INSTALL should point to the install directory of A1 
 
 CC       = mpixlc_r 
-COPT     = -g -O0
+COPT     = -g -O3 -qstrict
 
 INCLUDE  = -I$(A1_INSTALL)/include 
 LIBS     = -L$(A1_INSTALL)/lib -la1 
