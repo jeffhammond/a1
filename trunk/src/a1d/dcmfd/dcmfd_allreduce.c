@@ -11,6 +11,8 @@ DCMF_CollectiveProtocol_t A1D_Barrier_protocol, A1D_Localbarrier_protocol;
 DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
 DCMF_Barrier_Configuration_t barrier_conf;
 
+DCMF_CollectiveRequest_t crequest;
+
 DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_tree_protocol;
 DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_torus_protocol;
 DCMF_Allreduce_Configuration_t allreduce_tree_conf;
@@ -196,6 +198,8 @@ int A1D_Allreduce_group(A1_group_t* group,
     int status = A1_SUCCESS;
     DCMF_Op reduce_op;
     DCMF_Dt datatype;
+    int bytes;
+    void* in_abs;
     int use_tree = 0;
     int outofplc = 0;
 
@@ -458,5 +462,6 @@ int A1D_NbAllreduce_group(A1_group_t* group,
     return status;
 
     fn_fail: goto fn_exit;
-
 }
+
+
