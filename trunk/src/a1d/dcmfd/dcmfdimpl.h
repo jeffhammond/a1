@@ -632,6 +632,8 @@ int A1DI_GlobalBarrier_initialize();
 
 int A1DI_GlobalAllreduce_initialize();
 
+int A1DI_GlobalAllreduce_finalize();
+
 int A1DI_GlobalBcast_initialize();
 
 int A1DI_Send_flush_initialize();
