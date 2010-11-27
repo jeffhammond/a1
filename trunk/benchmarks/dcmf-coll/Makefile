@@ -3,8 +3,8 @@
 CC       = mpixlc_r 
 COPT     = -g -O3 -qstrict
 
-INCLUDE  = -I$(A1_INSTALL)/include 
-LIBS     = -L$(A1_INSTALL)/lib -la1 
+INCLUDE  =
+LIBS     = 
 
 LD       = $(CC)
 CFLAGS   = $(COPT) $(INCLUDE)
