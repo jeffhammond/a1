@@ -81,26 +81,29 @@ int test_sum_int32()
 {
     int i, rank, size, msgsize, bufsize;
     int expected, validation;
-    int32_t* buffer;
+    int32_t* in;
+    int32_t* out;
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     size = A1_Process_total(A1_GROUP_WORLD);
 
     bufsize = 1024;
-    buffer = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    in  = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    out = (int32_t *) malloc(bufsize*sizeof(int32_t));
 
     A1_Barrier_group(A1_GROUP_WORLD);
 
     for (msgsize = 1; msgsize <= 1024 ; msgsize *= 2)
     {
-        for (i = 0; i < bufsize; i++) buffer[i] = rank;
+        for (i = 0; i < bufsize; i++) in[i]  = rank;
+        for (i = 0; i < bufsize; i++) out[i] = 0;
 
         A1_Allreduce_group(A1_GROUP_WORLD,
                            msgsize,
                            A1_SUM,
                            A1_INT32,
-                           (void *) buffer,
-                           (void *) buffer);
+                           (void *) in,
+                           (void *) out);
 
         expected = ((size-1)*(size))/2;
 
@@ -108,7 +111,7 @@ int test_sum_int32()
 
         for (i = 0; i < msgsize; i++)
         {
-            validation += (buffer[i] != expected);
+            validation += (out[i] != expected);
         }
 
         if (validation==0)
@@ -120,16 +123,18 @@ int test_sum_int32()
             for (i = 0; i < msgsize; i++)
             {
                 printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                       rank, i, expected, buffer[i]);
+                       rank, i, expected, out[i]);
             }
-            free(buffer);
+            free(in);
+            free(out);
             return(1);
         }
         fflush(stdout);
 
         A1_Barrier_group(A1_GROUP_WORLD);
     }
-    free(buffer);
+    free(in);
+    free(out);
     return(0);
 }
 
@@ -137,26 +142,29 @@ int test_prod_int32()
 {
     int i, rank, size, msgsize, bufsize;
     int expected, validation;
-    int32_t* buffer;
+    int32_t* in;
+    int32_t* out;
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     size = A1_Process_total(A1_GROUP_WORLD);
 
     bufsize = 1024;
-    buffer = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    in  = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    out = (int32_t *) malloc(bufsize*sizeof(int32_t));
 
     A1_Barrier_group(A1_GROUP_WORLD);
 
     for (msgsize = 1; msgsize <= 1024 ; msgsize *= 2)
     {
-        for (i = 0; i < bufsize; i++) buffer[i] = 2;
+        for (i = 0; i < bufsize; i++) in[i]  = 2;
+        for (i = 0; i < bufsize; i++) out[i] = 0;
 
         A1_Allreduce_group(A1_GROUP_WORLD,
                            msgsize,
                            A1_PROD,
                            A1_INT32,
-                           (void *) buffer,
-                           (void *) buffer);
+                           (void *) in,
+                           (void *) out);
 
         expected = pow(2,size);
 
@@ -164,7 +172,7 @@ int test_prod_int32()
 
         for (i = 0; i < msgsize; i++)
         {
-            validation += (buffer[i] != expected);
+            validation += (out[i] != expected);
         }
 
         if (validation==0)
@@ -176,16 +184,18 @@ int test_prod_int32()
             for (i = 0; i < msgsize; i++)
             {
                 printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                       rank, i, expected, buffer[i]);
+                       rank, i, expected, out[i]);
             }
-            free(buffer);
+            free(in);
+            free(out);
             return(1);
         }
         fflush(stdout);
 
         A1_Barrier_group(A1_GROUP_WORLD);
     }
-    free(buffer);
+    free(in);
+    free(out);
     return(0);
 }
 
@@ -193,26 +203,29 @@ int test_max_int32()
 {
     int i, rank, size, msgsize, bufsize;
     int expected, validation;
-    int32_t* buffer;
+    int32_t* in;
+    int32_t* out;
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     size = A1_Process_total(A1_GROUP_WORLD);
 
     bufsize = 1024;
-    buffer = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    in  = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    out = (int32_t *) malloc(bufsize*sizeof(int32_t));
 
     A1_Barrier_group(A1_GROUP_WORLD);
 
     for (msgsize = 1; msgsize <= 1024 ; msgsize *= 2)
     {
-        for (i = 0; i < bufsize; i++) buffer[i] = rank;
+        for (i = 0; i < bufsize; i++) in[i]  = rank;
+        for (i = 0; i < bufsize; i++) out[i] = 0;
 
         A1_Allreduce_group(A1_GROUP_WORLD,
                            msgsize,
                            A1_MAX,
                            A1_INT32,
-                           (void *) buffer,
-                           (void *) buffer);
+                           (void *) in,
+                           (void *) out);
 
         expected = size-1;
 
@@ -220,7 +233,7 @@ int test_max_int32()
 
         for (i = 0; i < msgsize; i++)
         {
-            validation += (buffer[i] != expected);
+            validation += (out[i] != expected);
         }
 
         if (validation==0)
@@ -232,16 +245,18 @@ int test_max_int32()
             for (i = 0; i < msgsize; i++)
             {
                 printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                       rank, i, expected, buffer[i]);
+                       rank, i, expected, out[i]);
             }
-            free(buffer);
+            free(in);
+            free(out);
             return(1);
         }
         fflush(stdout);
 
         A1_Barrier_group(A1_GROUP_WORLD);
     }
-    free(buffer);
+    free(in);
+    free(out);
     return(0);
 }
 
@@ -249,26 +264,29 @@ int test_min_int32()
 {
     int i, rank, size, msgsize, bufsize;
     int expected, validation;
-    int32_t* buffer;
+    int32_t* in;
+    int32_t* out;
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     size = A1_Process_total(A1_GROUP_WORLD);
 
     bufsize = 1024;
-    buffer = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    in  = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    out = (int32_t *) malloc(bufsize*sizeof(int32_t));
 
     A1_Barrier_group(A1_GROUP_WORLD);
 
     for (msgsize = 1; msgsize <= 1024 ; msgsize *= 2)
     {
-        for (i = 0; i < bufsize; i++) buffer[i] = -rank;
+        for (i = 0; i < bufsize; i++) in[i]  = -rank;
+        for (i = 0; i < bufsize; i++) out[i] = 0;
 
         A1_Allreduce_group(A1_GROUP_WORLD,
                            msgsize,
                            A1_MIN,
                            A1_INT32,
-                           (void *) buffer,
-                           (void *) buffer);
+                           (void *) in,
+                           (void *) out);
 
         expected = 1-size;
 
@@ -276,7 +294,7 @@ int test_min_int32()
 
         for (i = 0; i < msgsize; i++)
         {
-            validation += (buffer[i] != expected);
+            validation += (out[i] != expected);
         }
 
         if (validation==0)
@@ -288,15 +306,17 @@ int test_min_int32()
             for (i = 0; i < msgsize; i++)
             {
                 printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                       rank, i, expected, buffer[i]);
+                       rank, i, expected, out[i]);
             }
-            free(buffer);
+            free(in);
+            free(out);
             return(1);
         }
         fflush(stdout);
 
         A1_Barrier_group(A1_GROUP_WORLD);
     }
-    free(buffer);
+    free(in);
+    free(out);
     return(0);
 }
