@@ -29,6 +29,7 @@ static DCMF_Geometry_t *getGeometry(int x)
  *
  * DCMF_Allreduce cannot do DCMF_PROD using the tree.
  * DCMF_Allreduce cannot do in-place for DCMF_PROD using either the tree or the torus.
+ * DCMF_Allreduce cannot use tree for DCMF_SUM with DCMF_FLOAT.
  *
  */
 
@@ -47,12 +48,11 @@ int A1DI_GlobalAllreduce_initialize()
     status = DCMF_Barrier_register(&A1D_Localbarrier_protocol, &barrier_conf);
 
     status
-            = A1DI_Malloc((void **) &allreduce_ranklist, A1D_Process_info.num_ranks * sizeof(unsigned));
+    = A1DI_Malloc((void **) &allreduce_ranklist, A1D_Process_info.num_ranks * sizeof(unsigned));
     A1U_ERR_POP(status != 0,
-            "A1DI_Malloc returned with error %d \n", status);
+                "A1DI_Malloc returned with error %d \n", status);
 
-    for (i = 0; i < A1D_Process_info.num_ranks; i++)
-        allreduce_ranklist[i] = i;
+    for (i = 0; i < A1D_Process_info.num_ranks; i++) allreduce_ranklist[i] = i;
 
     barrier_ptr = &A1D_Barrier_protocol;
     localbarrier_ptr = &A1D_Localbarrier_protocol;
@@ -75,7 +75,7 @@ int A1DI_GlobalAllreduce_initialize()
     status = DCMF_Allreduce_register(&A1D_GlobalAllreduce_tree_protocol,
                                      &allreduce_tree_conf);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-            "DCMF_Allreduce_register (tree) returned with error %d \n", status);
+                "DCMF_Allreduce_register (tree) returned with error %d \n", status);
 
     /* register torus allreduce for operations/types not supported by the tree */
     allreduce_torus_conf.protocol = DCMF_TORUS_BINOMIAL_ALLREDUCE_PROTOCOL;
@@ -84,13 +84,13 @@ int A1DI_GlobalAllreduce_initialize()
     status = DCMF_Allreduce_register(&A1D_GlobalAllreduce_torus_protocol,
                                      &allreduce_torus_conf);
     A1U_ERR_POP(status != DCMF_SUCCESS,
-            "DCMF_Allreduce_register (torus) returned with error %d \n", status);
+                "DCMF_Allreduce_register (torus) returned with error %d \n", status);
 
     /* check if geometry is valid for protocols */
     A1U_ERR_POP(DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol),
-            "DCMF_Geometry_analyze (tree) returned with error %d \n", status);
+                "DCMF_Geometry_analyze (tree) returned with error %d \n", status);
     A1U_ERR_POP(DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol),
-            "DCMF_Geometry_analyze (torus) returned with error %d \n", status);
+                "DCMF_Geometry_analyze (torus) returned with error %d \n", status);
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -151,10 +151,10 @@ int A1DI_GlobalAllreduce_tree(int count,
 }
 
 int A1DI_GlobalAllreduce_torus(int count,
-                              DCMF_Op dcmf_op,
-                              DCMF_Dt dcmf_type,
-                              void *in,
-                              void *out)
+                               DCMF_Op dcmf_op,
+                               DCMF_Dt dcmf_type,
+                               void *in,
+                               void *out)
 {
     int status = A1_SUCCESS;
     DCMF_CollectiveRequest_t request;
@@ -374,11 +374,11 @@ int A1D_Allreduce_group(A1_group_t* group,
         case A1_MINABS:
             use_tree = 1;
             break;
-        /* FLOAT on tree only for MIN/MAX */
+            /* FLOAT on tree only for MIN/MAX */
         case A1_SUM:
             use_tree = (a1_type != A1_FLOAT);
             break;
-        /* these two can't be done on the tree network */
+            /* these two can't be done on the tree network */
         case A1_PROD:
         case A1_OR:
             use_tree = 0;
@@ -424,6 +424,7 @@ int A1D_Allreduce_group(A1_group_t* group,
                 goto fn_exit;
             }
         }
+    }
     else
     {
         A1U_ERR_POP(1,"A1D_Allreduce_group not implemented for non-world groups!");
