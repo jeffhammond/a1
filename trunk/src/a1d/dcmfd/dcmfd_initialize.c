@@ -32,7 +32,9 @@ int A1D_Initialize(int thread_level)
     //                "DCMF_Messager_initialize has been called more than once.");
     //}
 
-    if ( DCMF_Messager_size() > 1 ) DCMF_Collective_initialize();
+    status = DCMF_Collective_initialize();
+    A1U_ERR_POP(status != 0,
+                "DCMF_Collective_initialize returned with error %d\n",status);
 
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
