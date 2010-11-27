@@ -272,6 +272,14 @@ void A1DI_Handoff_progress();
       for(i=0; i<count; i++) t[i] = fabs(s[i]);                            \
     } while(0)                                                             \
 
+#define A1DI_COPY(datatype, source, target, count)                           \
+   do {                                                                     \
+     int i;                                                                 \
+     datatype *s = (datatype *) source;                                     \
+     datatype *t = (datatype *) target;                                     \
+     for(i=0; i<count; i++) t[i] = s[i];              \
+   } while(0)
+
 #define A1DI_FETCHANDADD_EXECUTE(datatype, source, target, original, count) \
    do {                                                                     \
      int i;                                                                 \
@@ -540,7 +548,8 @@ extern DCMF_Configure_t A1D_Messager_info;
 extern DCMF_Protocol_t A1D_Control_flushack_protocol;
 extern DCMF_Protocol_t A1D_Send_flush_protocol;
 extern DCMF_Protocol_t A1D_GlobalBarrier_protocol;
-extern DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_protocol;
+extern DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_tree_protocol;
+extern DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_torus_protocol;
 extern DCMF_Protocol_t A1D_GlobalBcast_protocol;
 extern DCMF_Protocol_t A1D_Generic_put_protocol;
 extern DCMF_Protocol_t A1D_Generic_get_protocol;
