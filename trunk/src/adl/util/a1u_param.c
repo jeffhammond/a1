@@ -97,7 +97,6 @@ int A1U_Print_parameters(void)
             A1U_output_printf("NIC bypass                   = %s\n","ON");
             A1U_output_printf("NIC bypass upper limit (1D)  = %u\n",a1u_settings.network_bypass_upper_limit_1d);
             A1U_output_printf("NIC bypass upper limit (ND)  = %u\n",a1u_settings.network_bypass_upper_limit_Nd);
-
         }
         else if ( 0==a1u_settings.network_bypass)
         {

@@ -12,7 +12,6 @@ DCMF_Protocol_t A1D_GlobalBcast_protocol;
 DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_protocol;
 DCMF_CollectiveProtocol_t A1D_Barrier_protocol, A1D_Localbarrier_protocol;
 DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
-DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
 DCMF_Geometry_t geometry;
 DCMF_Barrier_Configuration_t barrier_conf;
 DCMF_Allreduce_Configuration_t allreduce_conf;

@@ -15,7 +15,7 @@ DCMF_Geometry_t geometry;
 DCMF_Barrier_Configuration_t barrier_conf;
 DCMF_CollectiveRequest_t crequest;
 
-DCMF_Geometry_t *getGeometry (int x)
+static DCMF_Geometry_t *getGeometry (int x)
 {
     return &geometry;
 }

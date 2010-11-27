@@ -8,11 +8,14 @@
 
 DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_protocol;
 DCMF_Geometry_t geometry;
+DCMF_CollectiveProtocol_t A1D_Barrier_protocol, A1D_Localbarrier_protocol;
 DCMF_Allreduce_Configuration_t allreduce_conf;
+DCMF_Barrier_Configuration_t barrier_conf;
+DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
 DCMF_CollectiveRequest_t crequest;
 unsigned *allreduce_ranklist;
 
-DCMF_Geometry_t *getGeometry (int x)
+static DCMF_Geometry_t *getGeometry (int x)
 {
     return &geometry;
 }
