@@ -140,6 +140,9 @@ int test_prod_int32()
     int expected, validation;
     int32_t* buffer;
 
+    rank = A1_Process_id(A1_GROUP_WORLD);
+    size = A1_Process_total(A1_GROUP_WORLD);
+
     bufsize = 1024;
     buffer = (int32_t *) malloc(bufsize*sizeof(int32_t));
 
@@ -193,6 +196,9 @@ int test_max_int32()
     int expected, validation;
     int32_t* buffer;
 
+    rank = A1_Process_id(A1_GROUP_WORLD);
+    size = A1_Process_total(A1_GROUP_WORLD);
+
     bufsize = 1024;
     buffer = (int32_t *) malloc(bufsize*sizeof(int32_t));
 
@@ -245,6 +251,9 @@ int test_min_int32()
     int i, rank, size, msgsize, bufsize;
     int expected, validation;
     int32_t* buffer;
+
+    rank = A1_Process_id(A1_GROUP_WORLD);
+    size = A1_Process_total(A1_GROUP_WORLD);
 
     bufsize = 1024;
     buffer = (int32_t *) malloc(bufsize*sizeof(int32_t));
