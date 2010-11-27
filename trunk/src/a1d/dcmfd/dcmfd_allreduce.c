@@ -36,7 +36,6 @@ int A1DI_GlobalAllreduce_initialize()
     status = DCMF_Barrier_register(&A1D_Localbarrier_protocol,
                                    &barrier_conf);
 
-    /*This has to eventually freed, not being done now*/
     status = A1DI_Malloc((void **) &allreduce_ranklist, A1D_Process_info.num_ranks * sizeof(unsigned));
     A1U_ERR_POP(status != 0,
                 "A1DI_Malloc returned with error %d \n", status);
@@ -74,6 +73,24 @@ int A1DI_GlobalAllreduce_initialize()
     goto fn_exit;
 }
 
+int A1DI_GlobalAllreduce_finalize()
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    status = A1DI_Free(allreduce_ranklist);
+    A1U_ERR_POP(status != 0,
+                "A1DI_Free returned with error %d \n", status);
+
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail:
+    goto fn_exit;
+}
+
 int A1DI_GlobalAllreduce(int count,
                          A1_reduce_op_t a1_op,
                          A1_datatype_t a1_type,
@@ -93,26 +110,26 @@ int A1DI_GlobalAllreduce(int count,
 
     switch (a1_op)
     {
-        case A1_SUM:
-            reduce_op = DCMF_SUM;
-            break;
-        case A1_PROD:
-            reduce_op = DCMF_PROD;
-            break;
-        case A1_MAX:
-        case A1_MAXABS:
-            reduce_op = DCMF_MAX;
-            break;
-        case A1_MIN:
-        case A1_MINABS:
-            reduce_op = DCMF_MIN;
-            break;
-        case A1_OR:
-            reduce_op = DCMF_LOR;
-            break;
-        default:
-            A1U_ERR_POP(status != DCMF_SUCCESS, "Unsupported A1_reduce_op \n");
-            break;
+    case A1_SUM:
+        reduce_op = DCMF_SUM;
+        break;
+    case A1_PROD:
+        reduce_op = DCMF_PROD;
+        break;
+    case A1_MAX:
+    case A1_MAXABS:
+        reduce_op = DCMF_MAX;
+        break;
+    case A1_MIN:
+    case A1_MINABS:
+        reduce_op = DCMF_MIN;
+        break;
+    case A1_OR:
+        reduce_op = DCMF_LOR;
+        break;
+    default:
+        A1U_ERR_POP(status != DCMF_SUCCESS, "Unsupported A1_reduce_op \n");
+        break;
     }
 
     if (a1_op == A1_MAXABS || a1_op == A1_MINABS)
