@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     complete = (int *) malloc(sizeof(int) * COUNT);
 
     counter = (int**) ARMCI_Malloc_local( nranks * sizeof(int*) );
-    ARMCI_Malloc((void **) counter[rank], sizeof(int));
+    ARMCI_Malloc((void *) counter[rank], sizeof(int));
 
     if (rank == 0)
     {
