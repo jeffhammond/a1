@@ -79,9 +79,7 @@ int A1DI_GlobalAllreduce_finalize()
 
     A1U_FUNC_ENTER();
 
-    status = A1DI_Free(allreduce_ranklist);
-    A1U_ERR_POP(status != 0,
-                "A1DI_Free returned with error %d \n", status);
+    A1DI_Free(allreduce_ranklist);
 
     fn_exit:
     A1U_FUNC_EXIT();
