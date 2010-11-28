@@ -388,7 +388,6 @@ typedef struct A1D_Handle_pool_t
 
 typedef struct A1D_Request_t
 {
-    DCMF_Request_t request;
     /* TODO Need to carefully propagate this change throughout code */
     union
     {
