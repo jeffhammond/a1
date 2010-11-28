@@ -87,9 +87,9 @@ int A1DI_GlobalAllreduce_initialize()
     A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Allreduce_register (torus) failed ");
 
     /* check if geometry is valid for protocols */
-    status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol)
+    status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol);
     A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Geometry_analyze (tree) failed ");
-    status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol)
+    status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol);
     A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Geometry_analyze (torus) failed ");
 
     fn_exit: A1U_FUNC_EXIT();
@@ -151,7 +151,7 @@ void A1DI_ConvertType_A1toDCMF(A1_datatype_t a1_type,
 }
 
 void A1DI_ConvertOp_A1toDCMF(A1_reduce_op_t a1_op,
-                             DCMF_Op dcmf_op)
+                             DCMF_Op* dcmf_op)
 {
     A1U_FUNC_ENTER();
 
@@ -193,44 +193,44 @@ void A1DI_ConvertOp_A1toDCMF(A1_reduce_op_t a1_op,
 
 int A1DI_MakeABSbuffer(A1_datatype_t a1_type, int count, void** in, void** tmp)
 {
-    int bytes;
+    int bytes, status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
     switch (a1_type)
     {
         case A1_DOUBLE:
             bytes = count * sizeof(double);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_ABS(double, in, tmp, count);
             break;
         case A1_FLOAT:
             bytes = count * sizeof(float);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_ABS(float, in, tmp, count);
             break;
         case A1_INT32:
             bytes = count * sizeof(int32_t);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Malloc failed ");
             A1DI_ABS(int32_t, in, tmp, count);
             break;
         case A1_INT64:
             bytes = count * sizeof(int64_t);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_ABS(int64_t, in, tmp, count);
             break;
         case A1_UINT32: /* no need to do ABS in this case */
             bytes = count * sizeof(uint32_t);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_COPY(uint32_t, in, tmp, count);
             break;
         case A1_UINT64: /* no need to do ABS in this case */
             bytes = count * sizeof(uint64_t);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_COPY(uint64_t, in, tmp, count);
             break;
@@ -256,37 +256,37 @@ int A1DI_MakeCOPYbuffer(A1_datatype_t a1_type, int count, void** in, void** tmp)
     {
         case A1_DOUBLE:
             bytes = count * sizeof(double);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_COPY(double, in, tmp, count);
             break;
         case A1_FLOAT:
             bytes = count * sizeof(float);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_COPY(float, in, tmp, count);
             break;
         case A1_INT32:
             bytes = count * sizeof(int32_t);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Malloc failed ");
             A1DI_COPY(int32_t, in, tmp, count);
             break;
         case A1_INT64:
             bytes = count * sizeof(int64_t);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_COPY(int64_t, in, tmp, count);
             break;
         case A1_UINT32:
             bytes = count * sizeof(uint32_t);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Malloc failed ");
             A1DI_COPY(uint32_t, in, tmp, count);
             break;
         case A1_UINT64:
             bytes = count * sizeof(uint64_t);
-            status = A1DI_Malloc(&tmp, bytes);
+            status = A1DI_Malloc(tmp, bytes);
             A1U_ERR_POP(status != A1_SUCCESS,"A1DI_Malloc failed ");
             A1DI_COPY(uint64_t, in, tmp, count);
             break;
