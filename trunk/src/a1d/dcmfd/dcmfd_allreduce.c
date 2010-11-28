@@ -87,10 +87,10 @@ int A1DI_GlobalAllreduce_initialize()
                 "DCMF_Allreduce_register (torus) returned with error %d \n", status);
 
     /* check if geometry is valid for protocols */
-    A1U_ERR_POP(DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol),
-                "DCMF_Geometry_analyze (tree) returned with error %d \n", status);
-    A1U_ERR_POP(DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol),
-                "DCMF_Geometry_analyze (torus) returned with error %d \n", status);
+//    A1U_ERR_POP(DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol),
+//                "DCMF_Geometry_analyze (tree) returned with error %d \n", status);
+//    A1U_ERR_POP(DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol),
+//                "DCMF_Geometry_analyze (torus) returned with error %d \n", status);
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
