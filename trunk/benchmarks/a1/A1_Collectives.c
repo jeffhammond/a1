@@ -125,7 +125,7 @@ int main()
             in[i] = rank;
         for (i = 0; i < n; i++)
             out[i] = 0;
-        expected = size;
+        expected = size-1;
         test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_MAX/A1_INT32 B\n");
