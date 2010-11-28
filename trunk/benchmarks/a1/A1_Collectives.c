@@ -53,23 +53,25 @@
 #include <assert.h>
 #include <a1.h>
 
+int test_allreduce(A1_reduce_op_t op, A1_datatype_t type, void* expected, int n, void* in, void* out);
 int main()
 {
     A1_Initialize(A1_THREAD_SINGLE);
 
     int rank, size;
-    int i,j,n;
-    a1_op op;
-    a1_type type;
+    int i,n;
+    int expected;
+    A1_reduce_op_t op;
+    A1_datatype_t type;
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     size = A1_Process_total(A1_GROUP_WORLD);
 
     if (rank == 0) printf("A1 Collectives Correctness Testing - INT32\n");
 
-    for (j = 1; j < 1024; j *= 2)
+    for (n = 1; n < 1024; n *= 2)
     {
-        if (rank == 0) printf("%d elements\n",j);
+        if (rank == 0) printf("%d elements\n",n);
 
         int* in  = malloc(n*sizeof(int32_t)); assert(in  != NULL);
         int* out = malloc(n*sizeof(int32_t)); assert(out != NULL);
@@ -80,7 +82,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = rank;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = ((size-1)*(size))/2;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_SUM/A1_INT32 B\n");
         op = A1_SUM;
@@ -88,7 +90,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = 1;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = size;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_MIN/A1_INT32 A\n");
         op = A1_MIN;
@@ -96,7 +98,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = rank;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = 0;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_MIN/A1_INT32 B\n");
         op = A1_MIN;
@@ -104,7 +106,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = -rank;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = 1-size;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_MAX/A1_INT32 A\n");
         op = A1_MAX;
@@ -112,7 +114,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = rank;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = size;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_MAX/A1_INT32 B\n");
         op = A1_MAX;
@@ -120,7 +122,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = -rank;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = 0;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_PROD/A1_INT32 A\n");
         op = A1_PROD;
@@ -129,7 +131,7 @@ int main()
         for (i = 0; i < n; i++) out[i] = 0;
         expected = 1;
         for (i = 0; i < size; i++) expected *= 2;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_PROD/A1_INT32 B\n");
         op = A1_PROD;
@@ -137,7 +139,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = rank;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = 0;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_OR/A1_INT32 A\n");
         op = A1_OR;
@@ -145,7 +147,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = 1;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = 1;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_OR/A1_INT32 B\n");
         op = A1_OR;
@@ -153,7 +155,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = (rank==0);
         for (i = 0; i < n; i++) out[i] = 0;
         expected = 1;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_OR/A1_INT32 C\n");
         op = A1_OR;
@@ -161,7 +163,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = 0;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = 0;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         free(in);
         free(out);
@@ -169,9 +171,9 @@ int main()
 
     if (rank == 0) printf("A1 Collectives Correctness Testing - DOUBLE\n");
 
-    for (j = 1; j < 1024; j *= 2)
+    for (n = 1; n < 1024; n *= 2)
     {
-        if (rank == 0) printf("%d elements\n",j);
+        if (rank == 0) printf("%d elements\n",n);
 
         double* in  = malloc(n*sizeof(double)); assert(in  != NULL);
         double* out = malloc(n*sizeof(double)); assert(out != NULL);
@@ -182,7 +184,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = rank;
         for (i = 0; i < n; i++) out[i] = 0;
         expected = ((size-1)*(size))/2;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_SUM/A1_DOUBLE B\n");
         op = A1_SUM;
@@ -190,7 +192,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = 1.0;
         for (i = 0; i < n; i++) out[i] = 0.0;
         expected = 1.0*size;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_MIN/A1_DOUBLE A\n");
         op = A1_MIN;
@@ -198,7 +200,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = 1.0*rank;
         for (i = 0; i < n; i++) out[i] = 0.0;
         expected = 0.0;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_MIN/A1_DOUBLE B\n");
         op = A1_MIN;
@@ -206,7 +208,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = -1.0*rank;
         for (i = 0; i < n; i++) out[i] =  0.0;
         expected = 1.0-size;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_MAX/A1_DOUBLE A\n");
         op = A1_MAX;
@@ -214,7 +216,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = 1.0*rank;
         for (i = 0; i < n; i++) out[i] = 0.0;
         expected = 1.0*size;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_MAX/A1_DOUBLE B\n");
         op = A1_MAX;
@@ -222,7 +224,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = -1.0*rank;
         for (i = 0; i < n; i++) out[i] =  0.0;
         expected = 0.0;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_PROD/A1_DOUBLE A\n");
         op = A1_PROD;
@@ -231,7 +233,7 @@ int main()
         for (i = 0; i < n; i++) out[i] = 0.0;
         expected = 1.0;
         for (i = 0; i < size; i++) expected *= 2.0;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         if (rank == 0) printf("A1_PROD/A1_DOUBLE B\n");
         op = A1_PROD;
@@ -239,7 +241,7 @@ int main()
         for (i = 0; i < n; i++) in[i]  = 1.0*rank;
         for (i = 0; i < n; i++) out[i] = 0.0;
         expected = 0.0;
-        test_allreduce(op,type,sz, &expected, n, in, out);
+        test_allreduce(op,type, &expected, n, in, out);
 
         free(in);
         free(out);
@@ -250,11 +252,11 @@ int main()
     return 0;
 }
 
-int test_allreduce(a1_op op, a1_type type,
+int test_allreduce(A1_reduce_op_t op, A1_datatype_t type,
                    void* expected, int n,
                    void* in, void* out)
 {
-    int i, n, rank, size;
+    int i, rank, size;
     int validation;
 
     rank = A1_Process_id(A1_GROUP_WORLD);
@@ -264,34 +266,29 @@ int test_allreduce(a1_op op, a1_type type,
 
     A1_Allreduce_group(A1_GROUP_WORLD,
                        n,
-                       a1_op,
-                       a1_type,
+                       op,
+                       type,
                        in,
                        out);
+
+    A1_Barrier_group(A1_GROUP_WORLD);
 
     validation = 0;
     for (i = 0; i < n; i++)
     {
-        validation += (out[i] != *expected);
+        if (out != expected ) validation++;
+        out++;
     }
     if (validation==0)
     {
-        printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, msgsize);
+        printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, n);
+        fflush(stdout);
+        return(0);
     }
     else
     {
-        for (i = 0; i < n; i++)
-        {
-            printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                   rank, i, *expected, out[i]);
-        }
-        free(in);
-        free(out);
+        printf("[%d] A1_Allreduce_group failed for %d elements\n", rank, n);
+        fflush(stdout);
         return(1);
     }
-    fflush(stdout);
-
-    A1_Barrier_group(A1_GROUP_WORLD);
-
-    return(0);
 }
