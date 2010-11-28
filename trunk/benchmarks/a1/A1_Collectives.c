@@ -90,7 +90,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = ((size - 1) * (size)) / 2;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_SUM/A1_INT32 B\n");
         op = A1_SUM;
@@ -99,7 +99,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = size;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_MIN/A1_INT32 A\n");
         op = A1_MIN;
@@ -108,7 +108,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = 0;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_MIN/A1_INT32 B\n");
         op = A1_MIN;
@@ -117,7 +117,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = 1 - size;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_MAX/A1_INT32 A\n");
         op = A1_MAX;
@@ -126,7 +126,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = size;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_MAX/A1_INT32 B\n");
         op = A1_MAX;
@@ -135,7 +135,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = 0;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_PROD/A1_INT32 A\n");
         op = A1_PROD;
@@ -146,7 +146,7 @@ int main()
         expected = 1;
         for (i = 0; i < size; i++)
             expected *= 2;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_PROD/A1_INT32 B\n");
         op = A1_PROD;
@@ -155,7 +155,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = 0;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_OR/A1_INT32 A\n");
         op = A1_OR;
@@ -164,7 +164,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = 1;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_OR/A1_INT32 B\n");
         op = A1_OR;
@@ -173,7 +173,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = 1;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_OR/A1_INT32 C\n");
         op = A1_OR;
@@ -182,7 +182,7 @@ int main()
         for (i = 0; i < n; i++)
             out[i] = 0;
         expected = 0;
-        test_allreduce_int32(op, type, expected, n, in, out);
+        test_allreduce_int32(op, expected, n, in, out);
 
         free(in);
         free(out);
