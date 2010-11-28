@@ -69,6 +69,7 @@ int A1DI_GlobalAllreduce_initialize()
                                       &crequest,
                                       0,
                                       1);
+    A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Geometry_initialize failed ");
 
     /* register tree allreduce for operations/types which support it */
     allreduce_tree_conf.protocol = DCMF_TREE_ALLREDUCE_PROTOCOL;
@@ -103,6 +104,9 @@ int A1DI_GlobalAllreduce_finalize()
     int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
+
+    status DCMF_Geometry_free(&geometry);
+    A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Geometry_free failed ");
 
     A1DI_Free(allreduce_ranklist);
 
