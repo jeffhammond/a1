@@ -7,18 +7,10 @@
 #include "dcmfdimpl.h"
 
 DCMF_Protocol_t A1D_GlobalBarrier_protocol;
-
 DCMF_CollectiveProtocol_t A1D_Barrier_protocol, A1D_Localbarrier_protocol;
 DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
 DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
-DCMF_Geometry_t geometry;
 DCMF_Barrier_Configuration_t barrier_conf;
-DCMF_CollectiveRequest_t crequest;
-
-static DCMF_Geometry_t *getGeometry (int x)
-{
-    return &geometry;
-}
 
 int A1DI_GlobalBarrier_initialize()
 {
