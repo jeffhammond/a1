@@ -153,10 +153,11 @@ extern LockBox_Mutex_t global_lbmutex;
       while((DCMF_Timer() - start) < seconds);   \
    } while(0)                                    \
 
-#define A1DI_Set_handle(request, handle)  \
-do {                                      \
-    request->handle_ptr = handle;         \
-   } while(0)                             \
+/* made this a function in dcmf_handlepool.c */
+//#define A1DI_Set_handle(request, handle)  \
+//do {                                      \
+//    request->handle_ptr = handle;         \
+//   } while(0)                             \
 
 /*************************************************
  *          Memory Allocation Macros             *
@@ -388,6 +389,12 @@ typedef struct A1D_Handle_pool_t
 typedef struct A1D_Request_t
 {
     DCMF_Request_t request;
+    /* TODO Need to carefully propagate this change throughout code */
+    union
+    {
+            DCMF_Request_t message_request;
+            DCMF_CollectiveRequest_t collective_request;
+    } request;
     int in_pool;
     void* buffer_ptr;
     A1D_Buffer_t *a1d_buffer_ptr;

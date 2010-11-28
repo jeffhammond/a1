@@ -18,9 +18,7 @@ int A1DI_Put_initialize()
     conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
     status = DCMF_Put_register(&A1D_Generic_put_protocol, &conf);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-                "DCMF_Put_register returned with error %d \n",
-                status);
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put_register failed ");
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -62,7 +60,7 @@ int A1D_Put(int target,
                       src_disp,
                       dst_disp,
                       A1D_Nocallback);
-    A1U_ERR_POP(status, "DCMF_Put returned with an error \n");
+    A1U_ERR_POP(status, "DCMF_Put failed ");
 
     A1DI_Conditional_advance(done_active > 0);
 
@@ -117,7 +115,7 @@ int A1D_NbPut(int target,
                       src_disp,
                       dst_disp,
                       A1D_Nocallback);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put failed ");
 
     A1D_Connection_put_active[target]++;
 
