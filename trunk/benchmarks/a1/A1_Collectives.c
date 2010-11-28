@@ -59,6 +59,24 @@ int test_allreduce_int32(A1_reduce_op_t op,
                          int32_t* in,
                          int32_t* out);
 
+int test_allreduce_int64(A1_reduce_op_t op,
+                         int64_t expected,
+                         int n,
+                         int64_t* in,
+                         int64_t* out);
+
+int test_allreduce_float(A1_reduce_op_t op,
+                         float expected,
+                         int n,
+                         float* in,
+                         float* out);
+
+int test_allreduce_double(A1_reduce_op_t op,
+                          double expected,
+                         int n,
+                         double* in,
+                         double* out);
+
 int main()
 {
     A1_Initialize(A1_THREAD_SINGLE);
@@ -125,7 +143,7 @@ int main()
             in[i] = rank;
         for (i = 0; i < n; i++)
             out[i] = 0;
-        expected = size-1;
+        expected = size - 1;
         test_allreduce_int32(op, expected, n, in, out);
 
         if (rank == 0) printf("A1_MAX/A1_INT32 B\n");
@@ -188,6 +206,301 @@ int main()
         free(out);
     }
 
+    if (rank == 0) printf("A1 Collectives Correctness Testing - INT64\n");
+
+    for (n = 1; n < 1024; n *= 2)
+    {
+        if (rank == 0) printf("%d elements\n", n);
+
+        int64_t* in = malloc(n * sizeof(int64_t));
+        assert(in != NULL);
+        int64_t* out = malloc(n * sizeof(int64_t));
+        assert(out != NULL);
+
+        if (rank == 0) printf("A1_SUM/A1_INT64 A\n");
+        op = A1_SUM;
+        for (i = 0; i < n; i++)
+            in[i] = rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = ((size - 1) * (size)) / 2;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_SUM/A1_INT64 B\n");
+        op = A1_SUM;
+        for (i = 0; i < n; i++)
+            in[i] = 1;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = size;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_INT64 A\n");
+        op = A1_MIN;
+        for (i = 0; i < n; i++)
+            in[i] = rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = 0;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_INT64 B\n");
+        op = A1_MIN;
+        for (i = 0; i < n; i++)
+            in[i] = -rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = 1 - size;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_INT64 A\n");
+        op = A1_MAX;
+        for (i = 0; i < n; i++)
+            in[i] = rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = size - 1;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_INT64 B\n");
+        op = A1_MAX;
+        for (i = 0; i < n; i++)
+            in[i] = -rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = 0;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_INT64 A\n");
+        op = A1_PROD;
+        for (i = 0; i < n; i++)
+            in[i] = 2;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = 1;
+        for (i = 0; i < size; i++)
+            expected *= 2;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_INT64 B\n");
+        op = A1_PROD;
+        for (i = 0; i < n; i++)
+            in[i] = rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = 0;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_OR/A1_INT64 A\n");
+        op = A1_OR;
+        for (i = 0; i < n; i++)
+            in[i] = 1;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = 1;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_OR/A1_INT64 B\n");
+        op = A1_OR;
+        for (i = 0; i < n; i++)
+            in[i] = (rank == 0);
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = 1;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_OR/A1_INT64 C\n");
+        op = A1_OR;
+        for (i = 0; i < n; i++)
+            in[i] = 0;
+        for (i = 0; i < n; i++)
+            out[i] = 0;
+        expected = 0;
+        test_allreduce_int64(op, expected, n, in, out);
+
+        free(in);
+        free(out);
+    }
+
+    if (rank == 0) printf("A1 Collectives Correctness Testing - FLOAT\n");
+
+    for (n = 1; n < 1024; n *= 2)
+    {
+        if (rank == 0) printf("%d elements\n", n);
+
+        float* in = malloc(n * sizeof(float));
+        assert(in != NULL);
+        float* out = malloc(n * sizeof(float));
+        assert(out != NULL);
+
+        if (rank == 0) printf("A1_SUM/A1_FLOAT A\n");
+        op = A1_SUM;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0f*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0f;
+        expected = 1.0f*((size - 1) * (size)) / 2;
+        test_allreduce_float(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_SUM/A1_FLOAT B\n");
+        op = A1_SUM;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0f;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0f;
+        expected = 1.0f*size;
+        test_allreduce_float(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_FLOAT A\n");
+        op = A1_MIN;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0f*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0f;
+        expected = 0.0f;
+        test_allreduce_float(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_FLOAT B\n");
+        op = A1_MIN;
+        for (i = 0; i < n; i++)
+            in[i] = -1.0f*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0f;
+        expected = 1.0f - size;
+        test_allreduce_float(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_FLOAT A\n");
+        op = A1_MAX;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0f*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0f;
+        expected = size - 1.0f;
+        test_allreduce_float(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_FLOAT B\n");
+        op = A1_MAX;
+        for (i = 0; i < n; i++)
+            in[i] = -1.0f*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0f;
+        expected = 0.0f;
+        test_allreduce_float(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_FLOAT A\n");
+        op = A1_PROD;
+        for (i = 0; i < n; i++)
+            in[i] = 2.0f;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0f;
+        expected = 1.0f;
+        for (i = 0; i < size; i++)
+            expected *= 2;
+        test_allreduce_float(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_FLOAT B\n");
+        op = A1_PROD;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0f*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0f;
+        expected = 0.0f;
+        test_allreduce_float(op, expected, n, in, out);
+
+        free(in);
+        free(out);
+    }
+
+    if (rank == 0) printf("A1 Collectives Correctness Testing - DOUBLE\n");
+
+    for (n = 1; n < 1024; n *= 2)
+    {
+        if (rank == 0) printf("%d elements\n", n);
+
+        double* in = malloc(n * sizeof(double));
+        assert(in != NULL);
+        double* out = malloc(n * sizeof(double));
+        assert(out != NULL);
+
+        if (rank == 0) printf("A1_SUM/A1_DOUBLE A\n");
+        op = A1_SUM;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0;
+        expected = 1.0*((size - 1) * (size)) / 2;
+        test_allreduce_double(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_SUM/A1_DOUBLE B\n");
+        op = A1_SUM;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0;
+        expected = 1.0*size;
+        test_allreduce_double(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_DOUBLE A\n");
+        op = A1_MIN;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0;
+        expected = 0.0;
+        test_allreduce_double(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_DOUBLE B\n");
+        op = A1_MIN;
+        for (i = 0; i < n; i++)
+            in[i] = -1.0*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0;
+        expected = 1.0 - size;
+        test_allreduce_double(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_DOUBLE A\n");
+        op = A1_MAX;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0;
+        expected = size - 1.0;
+        test_allreduce_double(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_DOUBLE B\n");
+        op = A1_MAX;
+        for (i = 0; i < n; i++)
+            in[i] = -1.0*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0;
+        expected = 0.0;
+        test_allreduce_double(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_DOUBLE A\n");
+        op = A1_PROD;
+        for (i = 0; i < n; i++)
+            in[i] = 2.0;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0;
+        expected = 1.0;
+        for (i = 0; i < size; i++)
+            expected *= 2;
+        test_allreduce_double(op, expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_DOUBLE B\n");
+        op = A1_PROD;
+        for (i = 0; i < n; i++)
+            in[i] = 1.0*rank;
+        for (i = 0; i < n; i++)
+            out[i] = 0.0;
+        expected = 0.0;
+        test_allreduce_double(op, expected, n, in, out);
+
+        free(in);
+        free(out);
+    }
+
+
     A1_Finalize();
 
     return 0;
@@ -218,16 +531,139 @@ int test_allreduce_int32(A1_reduce_op_t op,
     }
     if (validation == 0)
     {
-        printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, n);
+        if (rank == 0) printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, n);
         fflush(stdout);
         return (0);
     }
     else
     {
-        printf("[%d] A1_Allreduce_group failed for %d elements\n", rank, n);
+        if (rank == 0) printf("[%d] A1_Allreduce_group failed for %d elements\n", rank, n);
         for (i = 0; i < n; i++)
         {
-            printf("out[%d] = %d expected = %d\n",i,out[i],expected);
+            printf("out[%d] = %d expected = %d\n", i, out[i], expected);
+        }
+        fflush(stdout);
+        return (1);
+    }
+}
+
+int test_allreduce_int64(A1_reduce_op_t op,
+                         int64_t expected,
+                         int n,
+                         int64_t* in,
+                         int64_t* out)
+{
+    int i, rank, size;
+    int validation;
+
+    rank = A1_Process_id(A1_GROUP_WORLD);
+    size = A1_Process_total(A1_GROUP_WORLD);
+
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    A1_Allreduce_group(A1_GROUP_WORLD, n, op, A1_INT64, in, out);
+
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    validation = 0;
+    for (i = 0; i < n; i++)
+    {
+        validation += (out[i] != expected);
+    }
+    if (validation == 0)
+    {
+        if (rank == 0) printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, n);
+        fflush(stdout);
+        return (0);
+    }
+    else
+    {
+        if (rank == 0) printf("[%d] A1_Allreduce_group failed for %d elements\n", rank, n);
+        for (i = 0; i < n; i++)
+        {
+            printf("out[%d] = %d expected = %d\n", i, out[i], expected);
+        }
+        fflush(stdout);
+        return (1);
+    }
+}
+
+int test_allreduce_float(A1_reduce_op_t op,
+                         float expected,
+                         int n,
+                         float* in,
+                         float* out)
+{
+    int i, rank, size;
+    int validation;
+
+    rank = A1_Process_id(A1_GROUP_WORLD);
+    size = A1_Process_total(A1_GROUP_WORLD);
+
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    A1_Allreduce_group(A1_GROUP_WORLD, n, op, A1_FLOAT, in, out);
+
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    validation = 0;
+    for (i = 0; i < n; i++)
+    {
+        validation += (out[i] != expected);
+    }
+    if (validation == 0)
+    {
+        if (rank == 0) printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, n);
+        fflush(stdout);
+        return (0);
+    }
+    else
+    {
+        if (rank == 0) printf("[%d] A1_Allreduce_group failed for %d elements\n", rank, n);
+        for (i = 0; i < n; i++)
+        {
+            printf("out[%d] = %lf expected = %lf\n", i, out[i], expected);
+        }
+        fflush(stdout);
+        return (1);
+    }
+}
+
+int test_allreduce_double(A1_reduce_op_t op,
+                         double expected,
+                         int n,
+                         double* in,
+                         double* out)
+{
+    int i, rank, size;
+    int validation;
+
+    rank = A1_Process_id(A1_GROUP_WORLD);
+    size = A1_Process_total(A1_GROUP_WORLD);
+
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    A1_Allreduce_group(A1_GROUP_WORLD, n, op, A1_DOUBLE, in, out);
+
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    validation = 0;
+    for (i = 0; i < n; i++)
+    {
+        validation += (out[i] != expected);
+    }
+    if (validation == 0)
+    {
+        if (rank == 0) printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, n);
+        fflush(stdout);
+        return (0);
+    }
+    else
+    {
+        if (rank == 0) printf("[%d] A1_Allreduce_group failed for %d elements\n", rank, n);
+        for (i = 0; i < n; i++)
+        {
+            printf("out[%d] = %lf expected = %lf\n", i, out[i], expected);
         }
         fflush(stdout);
         return (1);
