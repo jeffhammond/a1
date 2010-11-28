@@ -79,6 +79,7 @@
         {                                                                   \
             fprintf(stderr, "%s (%s:%d): ", A1U_FUNC, __FILE__, __LINE__);  \
             fprintf(stderr, __VA_ARGS__);                                   \
+            fprintf(stderr, "\n");                                          \
             fflush(stderr);                                                 \
         }
 #elif defined __FILE__
@@ -86,12 +87,14 @@
         {                                                        \
             fprintf(stderr, "%s (%d): ", __FILE__, __LINE__);    \
             fprintf(stderr, __VA_ARGS__);                        \
+            fprintf(stderr, "\n");                               \
             fflush(stderr);                                      \
         }
 #else
     #define A1U_error_printf(...)                                          \
         {                                                                   \
             fprintf(stderr, __VA_ARGS__);                                   \
+            fprintf(stderr, "\n");                                          \
             fflush(stderr);                                                 \
         }
 #endif
@@ -99,10 +102,11 @@
 #define A1U_output_printf(...)                                         \
     {                                                                   \
         fprintf(stdout, __VA_ARGS__);                                   \
+        fprintf(stderr, "\n");                                          \
         fflush(stdout);                                                 \
     }
 
-#define A1U_ASSERT_ABORT(x, ...)                                        \
+#define A1U_ASSERT_ABORT(x, ...)                                       \
     {                                                                   \
         if (!(x)) {                                                     \
             A1U_error_printf(__VA_ARGS__);                              \
@@ -110,22 +114,22 @@
         }                                                               \
     }
 
-#define A1U_ASSERT(x, status)                                           \
+#define A1U_ASSERT(x, status)                                          \
     {                                                                   \
         if (!(x)) {                                                     \
             A1U_ERR_SETANDJUMP(status, A1_ERROR,                        \
-                               "assert (%s) failed\n", #x);             \
+                               "assert (%s) failed \n", #x);            \
         }                                                               \
     }
 
-#define A1U_WARNING(status, ...)                                      \
+#define A1U_WARNING(status, ...)                                       \
     {                                                                   \
         if (status) {                                                   \
             A1U_error_printf(__VA_ARGS__);                              \
         }                                                               \
     }
 
-#define A1U_ERR_ABORT(status, ...)                                      \
+#define A1U_ERR_ABORT(status, ...)                                     \
     {                                                                   \
         if (status) {                                                   \
             A1U_error_printf(__VA_ARGS__);                              \
@@ -133,7 +137,7 @@
         }                                                               \
     }
 
-#define A1U_ERR_POP(status, ...)                                        \
+#define A1U_ERR_POP(status, ...)                                       \
     {                                                                   \
         if (status) {                                                   \
             A1U_error_printf(__VA_ARGS__);                              \
