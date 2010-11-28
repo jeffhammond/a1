@@ -50,6 +50,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <a1.h>
 
 int main()
@@ -57,266 +58,240 @@ int main()
     A1_Initialize(A1_THREAD_SINGLE);
 
     int rank, size;
+    int i,j,n;
+    a1_op op;
+    a1_type type;
 
     rank = A1_Process_id(A1_GROUP_WORLD);
+    size = A1_Process_total(A1_GROUP_WORLD);
 
-    if (rank == 0) printf("A1 Collectives Correctness Testing - A1_SUM/A1_INT32 \n");
-    test_sum_int32();
+    if (rank == 0) printf("A1 Collectives Correctness Testing - INT32\n");
 
-    if (rank == 0) printf("A1 Collectives Correctness Testing - A1_PROD/A1_INT32 \n");
-    test_prod_int32();
+    for (j = 1; j < 1024; j *= 2)
+    {
+        if (rank == 0) printf("%d elements\n",j);
 
-    if (rank == 0) printf("A1 Collectives Correctness Testing - A1_MAX/A1_INT32 \n");
-    test_max_int32();
+        int* in  = malloc(n*sizeof(int32_t)); assert(in  != NULL);
+        int* out = malloc(n*sizeof(int32_t)); assert(out != NULL);
 
-    if (rank == 0) printf("A1 Collectives Correctness Testing - A1_MIN/A1_INT32 \n");
-    test_min_int32();
+        if (rank == 0) printf("A1_SUM/A1_INT32 A\n");
+        op = A1_SUM;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = rank;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = ((size-1)*(size))/2;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_SUM/A1_INT32 B\n");
+        op = A1_SUM;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = 1;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = size;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_INT32 A\n");
+        op = A1_MIN;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = rank;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = 0;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_INT32 B\n");
+        op = A1_MIN;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = -rank;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = 1-size;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_INT32 A\n");
+        op = A1_MAX;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = rank;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = size;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_INT32 B\n");
+        op = A1_MAX;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = -rank;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = 0;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_INT32 A\n");
+        op = A1_PROD;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = 2;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = 1;
+        for (i = 0; i < size; i++) expected *= 2;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_INT32 B\n");
+        op = A1_PROD;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = rank;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = 0;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_OR/A1_INT32 A\n");
+        op = A1_OR;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = 1;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = 1;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_OR/A1_INT32 B\n");
+        op = A1_OR;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = (rank==0);
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = 1;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_OR/A1_INT32 C\n");
+        op = A1_OR;
+        type = A1_INT32;
+        for (i = 0; i < n; i++) in[i]  = 0;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = 0;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        free(in);
+        free(out);
+    }
+
+    if (rank == 0) printf("A1 Collectives Correctness Testing - DOUBLE\n");
+
+    for (j = 1; j < 1024; j *= 2)
+    {
+        if (rank == 0) printf("%d elements\n",j);
+
+        double* in  = malloc(n*sizeof(double)); assert(in  != NULL);
+        double* out = malloc(n*sizeof(double)); assert(out != NULL);
+
+        if (rank == 0) printf("A1_SUM/A1_DOUBLE A\n");
+        op = A1_SUM;
+        type = A1_DOUBLE;
+        for (i = 0; i < n; i++) in[i]  = rank;
+        for (i = 0; i < n; i++) out[i] = 0;
+        expected = ((size-1)*(size))/2;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_SUM/A1_DOUBLE B\n");
+        op = A1_SUM;
+        type = A1_DOUBLE;
+        for (i = 0; i < n; i++) in[i]  = 1.0;
+        for (i = 0; i < n; i++) out[i] = 0.0;
+        expected = 1.0*size;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_DOUBLE A\n");
+        op = A1_MIN;
+        type = A1_DOUBLE;
+        for (i = 0; i < n; i++) in[i]  = 1.0*rank;
+        for (i = 0; i < n; i++) out[i] = 0.0;
+        expected = 0.0;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_MIN/A1_DOUBLE B\n");
+        op = A1_MIN;
+        type = A1_DOUBLE;
+        for (i = 0; i < n; i++) in[i]  = -1.0*rank;
+        for (i = 0; i < n; i++) out[i] =  0.0;
+        expected = 1.0-size;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_DOUBLE A\n");
+        op = A1_MAX;
+        type = A1_DOUBLE;
+        for (i = 0; i < n; i++) in[i]  = 1.0*rank;
+        for (i = 0; i < n; i++) out[i] = 0.0;
+        expected = 1.0*size;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_MAX/A1_DOUBLE B\n");
+        op = A1_MAX;
+        type = A1_DOUBLE;
+        for (i = 0; i < n; i++) in[i]  = -1.0*rank;
+        for (i = 0; i < n; i++) out[i] =  0.0;
+        expected = 0.0;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_DOUBLE A\n");
+        op = A1_PROD;
+        type = A1_DOUBLE;
+        for (i = 0; i < n; i++) in[i]  = 2.0;
+        for (i = 0; i < n; i++) out[i] = 0.0;
+        expected = 1.0;
+        for (i = 0; i < size; i++) expected *= 2.0;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        if (rank == 0) printf("A1_PROD/A1_DOUBLE B\n");
+        op = A1_PROD;
+        type = A1_DOUBLE;
+        for (i = 0; i < n; i++) in[i]  = 1.0*rank;
+        for (i = 0; i < n; i++) out[i] = 0.0;
+        expected = 0.0;
+        test_allreduce(op,type,sz, &expected, n, in, out);
+
+        free(in);
+        free(out);
+    }
 
     A1_Finalize();
 
     return 0;
 }
 
-int test_sum_int32()
+int test_allreduce(a1_op op, a1_type type,
+                   void* expected, int n,
+                   void* in, void* out)
 {
-    int i, rank, size, msgsize, bufsize;
-    int expected, validation;
-    int32_t* in;
-    int32_t* out;
+    int i, n, rank, size;
+    int validation;
 
     rank = A1_Process_id(A1_GROUP_WORLD);
     size = A1_Process_total(A1_GROUP_WORLD);
 
-    bufsize = 1024;
-    in  = (int32_t *) malloc(bufsize*sizeof(int32_t));
-    out = (int32_t *) malloc(bufsize*sizeof(int32_t));
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    A1_Allreduce_group(A1_GROUP_WORLD,
+                       n,
+                       a1_op,
+                       a1_type,
+                       in,
+                       out);
+
+    validation = 0;
+    for (i = 0; i < n; i++)
+    {
+        validation += (out[i] != *expected);
+    }
+    if (validation==0)
+    {
+        printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, msgsize);
+    }
+    else
+    {
+        for (i = 0; i < n; i++)
+        {
+            printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
+                   rank, i, *expected, out[i]);
+        }
+        free(in);
+        free(out);
+        return(1);
+    }
+    fflush(stdout);
 
     A1_Barrier_group(A1_GROUP_WORLD);
 
-    for (msgsize = 1; msgsize <= 1024 ; msgsize *= 2)
-    {
-        for (i = 0; i < bufsize; i++) in[i]  = rank;
-        for (i = 0; i < bufsize; i++) out[i] = 0;
-
-        A1_Allreduce_group(A1_GROUP_WORLD,
-                           msgsize,
-                           A1_SUM,
-                           A1_INT32,
-                           (void *) in,
-                           (void *) out);
-
-        expected = ((size-1)*(size))/2;
-
-        validation = 0;
-
-        for (i = 0; i < msgsize; i++)
-        {
-            validation += (out[i] != expected);
-        }
-
-        if (validation==0)
-        {
-            printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, msgsize);
-        }
-        else
-        {
-            for (i = 0; i < msgsize; i++)
-            {
-                printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                       rank, i, expected, out[i]);
-            }
-            free(in);
-            free(out);
-            return(1);
-        }
-        fflush(stdout);
-
-        A1_Barrier_group(A1_GROUP_WORLD);
-    }
-    free(in);
-    free(out);
-    return(0);
-}
-
-int test_prod_int32()
-{
-    int i, rank, size, msgsize, bufsize;
-    int expected, validation;
-    int32_t* in;
-    int32_t* out;
-
-    rank = A1_Process_id(A1_GROUP_WORLD);
-    size = A1_Process_total(A1_GROUP_WORLD);
-
-    bufsize = 1024;
-    in  = (int32_t *) malloc(bufsize*sizeof(int32_t));
-    out = (int32_t *) malloc(bufsize*sizeof(int32_t));
-
-    A1_Barrier_group(A1_GROUP_WORLD);
-
-    for (msgsize = 1; msgsize <= 1024 ; msgsize *= 2)
-    {
-        for (i = 0; i < bufsize; i++) in[i]  = 2;
-        for (i = 0; i < bufsize; i++) out[i] = 0;
-
-        A1_Allreduce_group(A1_GROUP_WORLD,
-                           msgsize,
-                           A1_PROD,
-                           A1_INT32,
-                           (void *) in,
-                           (void *) out);
-
-        expected = pow(2,size);
-
-        validation = 0;
-
-        for (i = 0; i < msgsize; i++)
-        {
-            validation += (out[i] != expected);
-        }
-
-        if (validation==0)
-        {
-            printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, msgsize);
-        }
-        else
-        {
-            for (i = 0; i < msgsize; i++)
-            {
-                printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                       rank, i, expected, out[i]);
-            }
-            free(in);
-            free(out);
-            return(1);
-        }
-        fflush(stdout);
-
-        A1_Barrier_group(A1_GROUP_WORLD);
-    }
-    free(in);
-    free(out);
-    return(0);
-}
-
-int test_max_int32()
-{
-    int i, rank, size, msgsize, bufsize;
-    int expected, validation;
-    int32_t* in;
-    int32_t* out;
-
-    rank = A1_Process_id(A1_GROUP_WORLD);
-    size = A1_Process_total(A1_GROUP_WORLD);
-
-    bufsize = 1024;
-    in  = (int32_t *) malloc(bufsize*sizeof(int32_t));
-    out = (int32_t *) malloc(bufsize*sizeof(int32_t));
-
-    A1_Barrier_group(A1_GROUP_WORLD);
-
-    for (msgsize = 1; msgsize <= 1024 ; msgsize *= 2)
-    {
-        for (i = 0; i < bufsize; i++) in[i]  = rank;
-        for (i = 0; i < bufsize; i++) out[i] = 0;
-
-        A1_Allreduce_group(A1_GROUP_WORLD,
-                           msgsize,
-                           A1_MAX,
-                           A1_INT32,
-                           (void *) in,
-                           (void *) out);
-
-        expected = size-1;
-
-        validation = 0;
-
-        for (i = 0; i < msgsize; i++)
-        {
-            validation += (out[i] != expected);
-        }
-
-        if (validation==0)
-        {
-            printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, msgsize);
-        }
-        else
-        {
-            for (i = 0; i < msgsize; i++)
-            {
-                printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                       rank, i, expected, out[i]);
-            }
-            free(in);
-            free(out);
-            return(1);
-        }
-        fflush(stdout);
-
-        A1_Barrier_group(A1_GROUP_WORLD);
-    }
-    free(in);
-    free(out);
-    return(0);
-}
-
-int test_min_int32()
-{
-    int i, rank, size, msgsize, bufsize;
-    int expected, validation;
-    int32_t* in;
-    int32_t* out;
-
-    rank = A1_Process_id(A1_GROUP_WORLD);
-    size = A1_Process_total(A1_GROUP_WORLD);
-
-    bufsize = 1024;
-    in  = (int32_t *) malloc(bufsize*sizeof(int32_t));
-    out = (int32_t *) malloc(bufsize*sizeof(int32_t));
-
-    A1_Barrier_group(A1_GROUP_WORLD);
-
-    for (msgsize = 1; msgsize <= 1024 ; msgsize *= 2)
-    {
-        for (i = 0; i < bufsize; i++) in[i]  = -rank;
-        for (i = 0; i < bufsize; i++) out[i] = 0;
-
-        A1_Allreduce_group(A1_GROUP_WORLD,
-                           msgsize,
-                           A1_MIN,
-                           A1_INT32,
-                           (void *) in,
-                           (void *) out);
-
-        expected = 1-size;
-
-        validation = 0;
-
-        for (i = 0; i < msgsize; i++)
-        {
-            validation += (out[i] != expected);
-        }
-
-        if (validation==0)
-        {
-            printf("[%d] A1_Allreduce_group successful for %d elements\n", rank, msgsize);
-        }
-        else
-        {
-            for (i = 0; i < msgsize; i++)
-            {
-                printf("[%d] A1_Allreduce_group failed at element %d: Expected = %d, Actual = %d\n",
-                       rank, i, expected, out[i]);
-            }
-            free(in);
-            free(out);
-            return(1);
-        }
-        fflush(stdout);
-
-        A1_Barrier_group(A1_GROUP_WORLD);
-    }
-    free(in);
-    free(out);
     return(0);
 }
