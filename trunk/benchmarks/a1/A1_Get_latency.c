@@ -58,7 +58,6 @@
 
 int main()
 {
-
     size_t i, rank, nranks, msgsize, dest;
     long bufsize;
     double **buffer;
@@ -75,15 +74,12 @@ int main()
     A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
     for (i = 0; i < bufsize / sizeof(double); i++)
-    {
         *(buffer[rank] + i) = 1.0 + rank;
-    }
 
     A1_Barrier_group(A1_GROUP_WORLD);
 
     if (rank == 0)
     {
-
         printf("A1_Get Latency in usec \n");
         printf("%20s %22s \n", "Message Size", "Latency");
         fflush(stdout);
@@ -92,20 +88,15 @@ int main()
 
         for (msgsize = sizeof(double); msgsize <= MAX_MSG_SIZE; msgsize *= 2)
         {
-
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
-
                 if (i == SKIP) t_start = A1_Time_seconds();
-
                 A1_Get(1, (void *) ((size_t) buffer[dest] + (size_t)(i
                         * msgsize)), (void *) ((size_t) buffer[rank]
                         + (size_t)(i * msgsize)), msgsize);
-
             }
             t_stop = A1_Time_seconds();
-            printf("%20d %20.2f \n", msgsize, ((t_stop - t_start) * 1000000)
-                    / ITERATIONS);
+            printf("%20d %20.2f \n", msgsize, ((t_stop - t_start) * 1000000) / ITERATIONS);
             fflush(stdout);
 
             for (i = 0; i < (((ITERATIONS + SKIP) * msgsize) / sizeof(double)); i++)
@@ -120,15 +111,10 @@ int main()
                     return -1;
                 }
             }
-
             for (i = 0; i < bufsize / sizeof(double); i++)
-            {
                 *(buffer[rank] + i) = 1.0 + rank;
-            }
         }
-
     }
-
     A1_Barrier_group(A1_GROUP_WORLD);
 
     A1_Release_segments(A1_GROUP_WORLD, buffer[rank]);
