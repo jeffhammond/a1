@@ -99,7 +99,7 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
     cb_done->function = A1DI_RecvDone_putacc_callback;
     cb_done->clientdata = (void *) a1d_request;
 
-    return &(a1d_request->request);
+    return &(a1d_request->request).message_request; /* TODO verify */
 }
 
 void A1DI_RecvSendShort_putacc_callback(void *clientdata,
@@ -321,7 +321,7 @@ int A1D_NbPutAcc(int target,
     }
 
     status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                       &(a1d_request->request),
+                       &(a1d_request->request).message_request, /* TODO verify */
                        done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        target,

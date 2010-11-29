@@ -82,7 +82,7 @@ int A1DI_NbGlobalBarrier(A1D_Handle_t *a1d_handle)
     done_callback.clientdata = (void *) a1d_request;
 
     status = DCMF_GlobalBarrier(&A1D_GlobalBarrier_protocol,
-                                &(a1d_request->request),
+                                &(a1d_request->request).message_request, /* TODO verify */
                                 done_callback);
     A1U_ERR_ABORT(status != DCMF_SUCCESS,
                   "DCMF_GlobalBarrier returned with an error");

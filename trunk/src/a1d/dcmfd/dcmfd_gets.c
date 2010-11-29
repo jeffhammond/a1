@@ -61,7 +61,7 @@ DCMF_Request_t* A1DI_RecvSend_packedgets_response_callback(void *clientdata,
     cb_done->function = A1DI_RecvDone_packedgets_response_callback;
     cb_done->clientdata = (void *) a1d_request;
 
-    return &(a1d_request->request);
+    return &(a1d_request->request).message_request; /* TODO verify */
 }
 
 void A1DI_RecvSendShort_packedgets_response_callback(void *clientdata,
@@ -166,7 +166,7 @@ int A1DI_Packed_gets_response(int target,
        done_callback.clientdata = (void *) a1d_request;
 
        status = DCMF_Send(&A1D_Packed_gets_response_protocol,
-                          &(a1d_request->request),
+                          &(a1d_request->request).message_request, /* TODO verify */
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
@@ -287,7 +287,7 @@ int A1DI_Packed_gets(int target,
     done_callback.clientdata = (void *) a1d_request;
 
     status = DCMF_Send(&A1D_Packed_gets_protocol,
-                       &(a1d_request->request),
+                       &(a1d_request->request).message_request, /* TODO verify */
                        done_callback,
                        DCMF_RELAXED_CONSISTENCY,
                        target,
@@ -355,7 +355,7 @@ int A1DI_Direct_gets(int target,
         a1d_handle->active++;
 
         status = DCMF_Get(&A1D_Generic_get_protocol,
-                          &(a1d_request->request),
+                          &(a1d_request->request).message_request, /* TODO verify */
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
@@ -469,7 +469,7 @@ int A1DI_Recursive_gets(int target,
         a1d_handle->active++;
 
         status = DCMF_Get(&A1D_Generic_get_protocol,
-                          &(a1d_request->request),
+                          &(a1d_request->request).message_request, /* TODO verify */
                           done_callback,
                           DCMF_RELAXED_CONSISTENCY,
                           target,

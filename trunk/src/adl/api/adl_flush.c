@@ -24,7 +24,7 @@ int A1_Flush(int proc)
 #   endif
 
     status = A1D_Flush(proc); 
-    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Flush returned an error\n");
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Flush failed");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -33,3 +33,30 @@ int A1_Flush(int proc)
   fn_fail:
     goto fn_exit;
 }
+
+int A1_NbFlush(int proc, A1_handle_t a1_handle)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+#   ifdef HAVE_ERROR_CHECKING
+#   endif
+
+#   ifdef A1_TAU_PROFILING
+    {
+      TAU_TRACE_SENDMSG (A1_TAU_TAG_FLUSH, proc, 8);
+    }
+#   endif
+
+    status = A1D_Flush(proc, a1_handle);
+    A1U_ERR_POP(status!=A1_SUCCESS, "A1_NbFlush failed");
+
+  fn_exit:
+    A1U_FUNC_EXIT();
+    return status;
+
+  fn_fail:
+    goto fn_exit;
+}
+

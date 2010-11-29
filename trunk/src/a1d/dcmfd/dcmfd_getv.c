@@ -40,7 +40,7 @@ int A1DI_Direct_getv(int target,
               a1d_handle->active++;
 
               status = DCMF_Get(&A1D_Generic_get_protocol,
-                                &(a1d_request->request),
+                                &(a1d_request->request).message_request, /* TODO verify */
                                 done_callback,
                                 DCMF_RELAXED_CONSISTENCY,
                                 target,

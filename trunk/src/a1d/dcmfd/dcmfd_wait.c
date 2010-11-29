@@ -17,9 +17,7 @@ int A1D_Wait_handle(A1_handle_t a1_handle)
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
 
-    // A1DI_Conditional_advance(a1d_handle->active > 0);
-    /* this call includes A1DI_Conditional_advance */
-    A1DI_Release_handle(a1d_handle);
+    A1DI_Conditional_advance(a1d_handle->active > 0);
 
     fn_exit:
     A1DI_CRITICAL_EXIT();
@@ -42,9 +40,7 @@ int A1D_Wait_handle_list(int count, A1_handle_t *a1_handle)
     for (index = 0; index < count; index++)
     {
         a1d_handle = (A1D_Handle_t *) a1_handle[index];
-        //A1DI_Conditional_advance(a1d_handle->active > 0);
-        /* this call includes A1DI_Conditional_advance */
-        A1DI_Release_handle(a1d_handle);
+        A1DI_Conditional_advance(a1d_handle->active > 0);
     }
 
     fn_exit:
@@ -68,9 +64,7 @@ int A1D_Wait_handle_all()
     {
         if (A1D_Active_handle_list[index] != NULL)
         {
-            // A1DI_Conditional_advance((A1D_Active_handle_list[index])->active > 0);
-            /* this call includes A1DI_Conditional_advance */
-            A1DI_Release_handle(a1d_handle);
+            A1DI_Conditional_advance((A1D_Active_handle_list[index])->active > 0);
         }
     }
 
@@ -94,16 +88,7 @@ int A1D_Test_handle(A1_handle_t a1_handle, A1_bool_t* completed)
     A1DI_Advance();
 
     a1d_handle = (A1D_Handle_t *) a1_handle;
-    //*completed[i] = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
-    if (a1d_handle->active > 0)
-    {
-        *completed = A1_FALSE;
-    }
-    else
-    {
-        *completed = A1_TRUE;
-        A1DI_Release_handle(a1d_handle);
-    }
+    *completed = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
 
     fn_exit:
     A1DI_CRITICAL_EXIT();
@@ -132,16 +117,7 @@ int A1D_Test_handle_list(int count,
     for (i = 0; i < count; i++)
     {
         a1d_handle = (A1D_Handle_t *) a1_handle[i];
-        //*completed[i] = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
-        if (a1d_handle->active > 0)
-        {
-            *completed = A1_FALSE;
-        }
-        else
-        {
-            *completed = A1_TRUE;
-            A1DI_Release_handle(a1d_handle);
-        }
+        *completed[i] = (a1d_handle->active > 0) ? A1_FALSE : A1_TRUE;
     }
 
     fn_exit:

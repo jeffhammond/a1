@@ -104,7 +104,7 @@ int A1D_NbPut(int target,
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[target];
 
     status = DCMF_Put(&A1D_Generic_put_protocol,
-                      &(a1d_request->request),
+                      &(a1d_request->request).message_request, /* TODO verify */
                       done_callback,
                       DCMF_SEQUENTIAL_CONSISTENCY,
                       target,

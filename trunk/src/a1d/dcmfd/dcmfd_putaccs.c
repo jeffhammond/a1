@@ -57,7 +57,7 @@ DCMF_Request_t* A1DI_RecvSend_packedputaccs_callback(void *clientdata,
     cb_done->function = A1DI_RecvDone_packedputaccs_callback;
     cb_done->clientdata = (void *) a1d_request;
 
-    return &(a1d_request->request);
+    return &(a1d_request->request).message_request; /* TODO verify */
 }
 
 void A1DI_RecvSendShort_packedputaccs_callback(void *clientdata,
@@ -210,7 +210,7 @@ int A1DI_Packed_putaccs(int target,
        done_callback.clientdata = (void *) a1d_request;
 
        status = DCMF_Send(&A1D_Packed_putaccs_protocol,
-                          &(a1d_request->request),
+                          &(a1d_request->request).message_request, /* TODO verify */
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
@@ -306,7 +306,7 @@ int A1DI_Direct_putaccs(int target,
         header.target_ptr = target_ptr;
 
         status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                           &(a1d_request->request),
+                           &(a1d_request->request).message_request, /* TODO verify */
                            done_callback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,
@@ -446,7 +446,7 @@ int A1DI_Recursive_putaccs(int target,
         }
 
         status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                           &(a1d_request->request),
+                           &(a1d_request->request).message_request, /* TODO verify */
                            done_callback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,

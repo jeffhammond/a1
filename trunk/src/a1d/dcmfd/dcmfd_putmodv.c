@@ -93,7 +93,7 @@ DCMF_Request_t* A1DI_RecvSend_putmod_callback(void *clientdata,
     cb_done->function = A1DI_RecvDone_putmod_callback;
     cb_done->clientdata = (void *) a1d_request;
 
-    return &(a1d_request->request);
+    return &(a1d_request->request).message_request; /* TODO verify */
 }
 
 void A1DI_RecvSendShort_putmod_callback(void *clientdata,
@@ -208,7 +208,7 @@ int A1DI_Direct_putmodv(int target,
            header.target_ptr = iov_ar[i].target_ptr_ar[j];
  
            status = DCMF_Send(&A1D_Generic_putmod_protocol,
-                              &(a1d_request->request),
+                              &(a1d_request->request).message_request, /* TODO verify */
                               done_callback,
                               DCMF_SEQUENTIAL_CONSISTENCY,
                               target,

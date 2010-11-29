@@ -57,7 +57,7 @@ DCMF_Request_t* A1DI_RecvSend_rmw_response_callback(void *clientdata,
     cb_done->function = A1DI_RecvDone_rmw_response_callback;
     cb_done->clientdata = (void *) a1d_request;
 
-    return &(a1d_request->request);
+    return &(a1d_request->request).message_request; /* TODO verify */
 }
 
 void A1DI_RecvSendShort_rmw_response_callback(void *clientdata,
@@ -149,7 +149,7 @@ void A1DI_RecvDone_rmw_callback(void *clientdata,
     done_callback.clientdata = (void *) response_request;
 
     status = DCMF_Send(&A1D_Rmw_response_protocol,
-                       &(response_request->request),
+                       &(response_request->request).message_request, /* TODO verify */
                        done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        header->source,
@@ -192,7 +192,7 @@ DCMF_Request_t* A1DI_RecvSend_rmw_callback(void *clientdata,
     cb_done->function = A1DI_RecvDone_rmw_callback;
     cb_done->clientdata = (void *) a1d_request;
 
-    return &(a1d_request->request);
+    return &(a1d_request->request).message_request; /* TODO verify */
 }
 
 void A1DI_RecvSendShort_rmw_callback(void *clientdata,
@@ -267,7 +267,7 @@ void A1DI_RecvSendShort_rmw_callback(void *clientdata,
     done_callback.clientdata = (void *) response_request;
 
     status = DCMF_Send(&A1D_Rmw_response_protocol,
-                       &(response_request->request),
+                       &(response_request->request).message_request, /* TODO verify */
                        done_callback,
                        DCMF_SEQUENTIAL_CONSISTENCY,
                        header->source,

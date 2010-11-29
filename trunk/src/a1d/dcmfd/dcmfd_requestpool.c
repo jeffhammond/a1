@@ -88,7 +88,7 @@ void A1DI_Release_request(A1D_Request_t *a1d_request)
     if (a1d_request->a1d_buffer_ptr != NULL)
         A1DI_Release_buffer(a1d_request->a1d_buffer_ptr);
 
-    if ((a1d_request->buffer_ptr) != NULL)
+    if (a1d_request->buffer_ptr != NULL)
         A1DI_Free((void *) (a1d_request->buffer_ptr));
 
     if (a1d_request->handle_ptr != NULL)

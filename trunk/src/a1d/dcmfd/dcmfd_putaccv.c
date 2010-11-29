@@ -65,7 +65,7 @@ int A1DI_Direct_putaccv(int target,
            header.target_ptr = iov_ar[i].target_ptr_ar[j];
  
            status = DCMF_Send(&A1D_Generic_putacc_protocol,
-                              &(a1d_request->request),
+                              &(a1d_request->request).message_request, /* TODO verify */
                               done_callback,
                               DCMF_SEQUENTIAL_CONSISTENCY,
                               target,

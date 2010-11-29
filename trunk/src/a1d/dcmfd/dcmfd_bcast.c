@@ -88,7 +88,7 @@ int A1DI_NbGlobalBcast(int root,
     done_callback.clientdata = (void *) a1d_request;
 
     status = DCMF_GlobalBcast(&A1D_GlobalBcast_protocol,
-                              &(a1d_request->request),
+                              &(a1d_request->request).message_request, /* TODO verify */
                               done_callback,
                               DCMF_SEQUENTIAL_CONSISTENCY,
                               root,

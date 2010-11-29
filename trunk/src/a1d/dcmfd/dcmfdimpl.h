@@ -391,8 +391,8 @@ typedef struct A1D_Request_t
     /* TODO Need to carefully propagate this change throughout code */
     union
     {
-            DCMF_Request_t message_request;
-            DCMF_CollectiveRequest_t collective_request;
+        DCMF_Request_t message_request;
+        DCMF_CollectiveRequest_t collective_request;
     } request;
     int in_pool;
     void* buffer_ptr;

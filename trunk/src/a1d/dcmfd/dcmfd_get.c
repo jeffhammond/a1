@@ -18,9 +18,7 @@ int A1DI_Get_initialize()
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
     status = DCMF_Get_register(&A1D_Generic_get_protocol, &conf);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-                "get registartion returned with error %d \n",
-                status);
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Get_register failed");
 
   fn_exit:
     A1U_FUNC_EXIT();
@@ -60,7 +58,7 @@ int A1D_Get(int target, void* src, void* dst, int bytes)
                       &A1D_Memregion_global[A1D_Process_info.my_rank],
                       src_disp,
                       dst_disp);
-    A1U_ERR_POP(status, "DCMF_Get returned with an error \n");
+    A1U_ERR_POP(status, "DCMF_Get failed ");
 
     A1DI_Conditional_advance(active > 0);
 
@@ -91,8 +89,7 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle
     a1d_handle->active++;
 
     a1d_request = A1DI_Get_request(1);
-    A1U_ERR_POP(status = (a1d_request == NULL),
-                "A1DI_Get_request returned error.\n");
+    A1U_ERR_POP(status = (a1d_request == NULL), "A1DI_Get_request failed ");
     A1DI_Set_handle(a1d_request, a1d_handle); 
 
     callback.function = A1DI_Request_done;
@@ -102,7 +99,7 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle
     dst_disp = (size_t) dst - (size_t) A1D_Membase_global[A1D_Process_info.my_rank];
 
     status = DCMF_Get(&A1D_Generic_get_protocol,
-                      &(a1d_request->request),
+                      &(a1d_request->request).message_request, /* TODO verify */
                       callback,
                       DCMF_RELAXED_CONSISTENCY,
                       target,
@@ -111,7 +108,7 @@ int A1D_NbGet(int target, void* src, void* dst, int bytes, A1_handle_t a1_handle
                       &A1D_Memregion_global[A1D_Process_info.my_rank],
                       src_disp,
                       dst_disp);
-    A1U_ERR_POP(status, "DCMF_Get returned with an error \n");
+    A1U_ERR_POP(status, "DCMF_Get failed ");
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();

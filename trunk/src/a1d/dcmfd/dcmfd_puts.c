@@ -56,7 +56,7 @@ DCMF_Request_t* A1DI_RecvSend_packedputs_callback(void *clientdata,
     cb_done->function = A1DI_RecvDone_packedputs_callback;
     cb_done->clientdata = (void *) a1d_request;
 
-    return &(a1d_request->request);
+    return &(a1d_request->request).message_request; /* TODO verify */
 }
 
 void A1DI_RecvSendShort_packedputs_callback(void *clientdata,
@@ -182,7 +182,7 @@ int A1DI_Packed_puts(int target,
         done_callback.clientdata = (void *) a1d_request;
 
         status = DCMF_Send(&A1D_Packed_puts_protocol,
-                           &(a1d_request->request),
+                           &(a1d_request->request).message_request, /* TODO verify */
                            done_callback,
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,
@@ -246,7 +246,7 @@ int A1DI_Direct_puts(int target,
         a1d_handle->active++;
 
         status = DCMF_Put(&A1D_Generic_put_protocol,
-                          &(a1d_request->request),
+                          &(a1d_request->request).message_request, /* TODO verify */
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
@@ -353,7 +353,7 @@ int A1DI_Recursive_puts(int target,
         a1d_handle->active++;
 
         status = DCMF_Put(&A1D_Generic_put_protocol,
-                          &(a1d_request->request),
+                          &(a1d_request->request).message_request, /* TODO verify */
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,

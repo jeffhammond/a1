@@ -372,22 +372,22 @@ int A1_Allreduce_group(A1_group_t* group,
         switch (a1_type)
         {
             case A1_DOUBLE:
-                memcpy(in,out,count*sizeof(double));
+                A1DI_Memcpy(in,out,count*sizeof(double));
                 break;
             case A1_INT32:
-                memcpy(in,out,count*sizeof(int32_t));
+                A1DI_Memcpy(in,out,count*sizeof(int32_t));
                 break;
             case A1_INT64:
-                memcpy(in,out,count*sizeof(int64_t));
+                A1DI_Memcpy(in,out,count*sizeof(int64_t));
                 break;
             case A1_UINT32:
-                memcpy(in,out,count*sizeof(uint32_t));
+                A1DI_Memcpy(in,out,count*sizeof(uint32_t));
                 break;
             case A1_UINT64:
-                memcpy(in,out,count*sizeof(uint64_t));
+                A1DI_Memcpy(in,out,count*sizeof(uint64_t));
                 break;
             case A1_FLOAT:
-                memcpy(in,out,count*sizeof(float));
+                A1DI_Memcpy(in,out,count*sizeof(float));
                 break;
             default:
                 A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");
@@ -447,22 +447,22 @@ int A1_NbAllreduce_group(A1_group_t* group,
         switch (a1_type)
         {
             case A1_DOUBLE:
-                memcpy(in,out,count*sizeof(double));
+                A1DI_Memcpy(in,out,count*sizeof(double));
                 break;
             case A1_INT32:
-                memcpy(in,out,count*sizeof(int32_t));
+                A1DI_Memcpy(in,out,count*sizeof(int32_t));
                 break;
             case A1_INT64:
-                memcpy(in,out,count*sizeof(int64_t));
+                A1DI_Memcpy(in,out,count*sizeof(int64_t));
                 break;
             case A1_UINT32:
-                memcpy(in,out,count*sizeof(uint32_t));
+                A1DI_Memcpy(in,out,count*sizeof(uint32_t));
                 break;
             case A1_UINT64:
-                memcpy(in,out,count*sizeof(uint64_t));
+                A1DI_Memcpy(in,out,count*sizeof(uint64_t));
                 break;
             case A1_FLOAT:
-                memcpy(in,out,count*sizeof(float));
+                A1DI_Memcpy(in,out,count*sizeof(float));
                 break;
             default:
                 A1U_ERR_POP(status!=A1_SUCCESS, "Unsupported A1_datatype\n");

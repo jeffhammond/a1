@@ -40,7 +40,7 @@ int A1DI_Direct_putv(int target,
            a1d_handle->active++;
 
            status = DCMF_Put(&A1D_Generic_put_protocol,
-                          &(a1d_request->request),
+                          &(a1d_request->request).message_request, /* TODO verify */
                           done_callback,
                           DCMF_SEQUENTIAL_CONSISTENCY,
                           target,
