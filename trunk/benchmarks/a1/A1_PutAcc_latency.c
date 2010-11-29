@@ -58,7 +58,6 @@
 
 int main()
 {
-
     size_t i, rank, nranks, msgsize, peer;
     long bufsize;
     double **buffer;
@@ -86,79 +85,61 @@ int main()
     }
 
     for (i = 0; i < (((ITERATIONS + SKIP) * MAX_MSG_SIZE) / sizeof(double)); i++)
-    {
         *(buffer[rank] + i) = 1.0 + rank;
-    }
     scaling = 2.0;
 
     A1_Barrier_group(A1_GROUP_WORLD);
 
     for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
-
         if (rank == 0)
         {
-
             peer = 1;
 
             /** Local Completion **/
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
-
                 if (i == SKIP) t_start = A1_Time_seconds();
-
                 A1_PutAcc(peer,
-                          (void *) ((size_t) buffer[rank] + (size_t)(i
-                                  * msgsize)),
-                          (void *) ((size_t) buffer[peer] + (size_t)(i
-                                  * msgsize)),
+                          (void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
+                          (void *) ((size_t) buffer[peer] + (size_t)(i * msgsize)),
                           msgsize,
                           A1_DOUBLE,
                           (void *) &scaling);
-
             }
             t_stop = A1_Time_seconds();
             A1_Flush(1);
-            printf("%20d %20.2f ", msgsize, ((t_stop - t_start) * 1000000)
-                    / ITERATIONS);
+            printf("%20d %20.2f ", msgsize, ((t_stop - t_start) * 1000000) / ITERATIONS);
             fflush(stdout);
-
-            A1_Barrier_group(A1_GROUP_WORLD);
 
             A1_Barrier_group(A1_GROUP_WORLD);
 
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
-
                 if (i == SKIP) t_start = A1_Time_seconds();
-
-                A1_PutAcc(1, (void *) ((size_t) buffer[0] + (size_t)(i
-                        * msgsize)), (void *) ((size_t) buffer[1] + (size_t)(i
-                        * msgsize)), msgsize, A1_DOUBLE, (void *) &scaling);
+                A1_PutAcc(1, 
+                          (void *) ((size_t) buffer[0] + (size_t)(i * msgsize)), 
+                          (void *) ((size_t) buffer[1] + (size_t)(i * msgsize)), 
+                          msgsize, 
+                          A1_DOUBLE, 
+                          (void *) &scaling);
                 A1_Flush(1);
-
             }
             t_stop = A1_Time_seconds();
             printf("%20.2f \n", ((t_stop - t_start) * 1000000) / ITERATIONS);
             fflush(stdout);
 
             A1_Barrier_group(A1_GROUP_WORLD);
-
-            A1_Barrier_group(A1_GROUP_WORLD);
-
         }
-        else
+        else if (rank == 1)
         {
-
             peer = 0;
 
             A1_Barrier_group(A1_GROUP_WORLD);
-
             /** Data Validation **/
             for (i = 0; i < (((ITERATIONS + SKIP) * msgsize) / sizeof(double)); i++)
             {
-                if (*(buffer[rank] + i) != ((1.0 + rank) + scaling * (1.0
-                        + peer)))
+                if (*(buffer[rank] + i) != ((1.0 + rank) + scaling * (1.0 + peer)))
                 {
                     printf("Data validation failed At displacement : %d Expected : %f Actual : %f \n",
                            i,
@@ -169,21 +150,14 @@ int main()
                 }
             }
 
-            for (i = 0; i < (((ITERATIONS + SKIP) * MAX_MSG_SIZE)
-                    / sizeof(double)); i++)
-            {
+            for (i = 0; i < (((ITERATIONS + SKIP) * MAX_MSG_SIZE) / sizeof(double)); i++)
                 *(buffer[rank] + i) = 1.0 + rank;
-            }
 
             A1_Barrier_group(A1_GROUP_WORLD);
-
-            A1_Barrier_group(A1_GROUP_WORLD);
-
             /** Data Validation **/
             for (i = 0; i < (((ITERATIONS + SKIP) * msgsize) / sizeof(double)); i++)
             {
-                if (*(buffer[rank] + i) != ((1.0 + rank) + scaling * (1.0
-                        + peer)))
+                if (*(buffer[rank] + i) != ((1.0 + rank) + scaling * (1.0 + peer)))
                 {
                     printf("Data validation failed At displacement : %d Expected : %f Actual : %f \n",
                            i,
@@ -194,17 +168,13 @@ int main()
                 }
             }
 
-            for (i = 0; i < (((ITERATIONS + SKIP) * MAX_MSG_SIZE)
-                    / sizeof(double)); i++)
-            {
+            for (i = 0; i < (((ITERATIONS + SKIP) * MAX_MSG_SIZE) / sizeof(double)); i++)
                 *(buffer[rank] + i) = 1.0 + rank;
-            }
 
             A1_Barrier_group(A1_GROUP_WORLD);
-
         }
-
     }
+    A1_Barrier_group(A1_GROUP_WORLD);
 
     A1_Release_segments(A1_GROUP_WORLD, buffer[rank]);
 
