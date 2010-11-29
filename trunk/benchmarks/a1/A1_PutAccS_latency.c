@@ -90,9 +90,7 @@ int main()
     }
 
     for (i = 0; i < bufsize / sizeof(double); i++)
-    {
         *(buffer[rank] + i) = 1.0 + rank;
-    }
     scaling = 2.0;
 
     src_stride = MAX_YDIM * sizeof(double);
@@ -103,24 +101,17 @@ int main()
 
     for (xdim = 1; xdim <= MAX_XDIM; xdim *= 2)
     {
-
         count[1] = xdim;
-
         for (ydim = 1; ydim <= MAX_YDIM; ydim *= 2)
         {
-
             count[0] = ydim * sizeof(double);
-
             if (rank == 0)
             {
-
                 peer = 1;
 
                 for (i = 0; i < ITERATIONS + SKIP; i++)
                 {
-
                     if (i == SKIP) t_start = A1_Time_seconds();
-
                     A1_PutAccS(1,
                                stride_level,
                                count,
@@ -130,26 +121,20 @@ int main()
                                &trg_stride,
                                A1_DOUBLE,
                                (void *) &scaling);
-
                 }
                 t_stop = A1_Time_seconds();
                 A1_Flush(1);
 
                 char temp[10];
                 sprintf(temp, "%dX%d", xdim, ydim);
-                printf("%30s %20.2f ", temp, ((t_stop - t_start) * 1000000)
-                        / ITERATIONS);
+                printf("%30s %20.2f ", temp, ((t_stop - t_start) * 1000000) / ITERATIONS);
                 fflush(stdout);
-
-                A1_Barrier_group(A1_GROUP_WORLD);
 
                 A1_Barrier_group(A1_GROUP_WORLD);
 
                 for (i = 0; i < ITERATIONS + SKIP; i++)
                 {
-
                     if (i == SKIP) t_start = A1_Time_seconds();
-
                     A1_PutAccS(1,
                                stride_level,
                                count,
@@ -160,30 +145,23 @@ int main()
                                A1_DOUBLE,
                                (void *) &scaling);
                     A1_Flush(1);
-
                 }
                 t_stop = A1_Time_seconds();
                 printf("%20.2f \n", ((t_stop - t_start) * 1000000) / ITERATIONS);
                 fflush(stdout);
 
                 A1_Barrier_group(A1_GROUP_WORLD);
-
-                A1_Barrier_group(A1_GROUP_WORLD);
-
             }
-            else
+            else if (rank == 1)
             {
-
                 peer = 0;
 
                 A1_Barrier_group(A1_GROUP_WORLD);
-
                 for (i = 0; i < xdim; i++)
                 {
                     for (j = 0; j < ydim; j++)
                     {
-                        if (*(buffer[rank] + i * MAX_XDIM + j) != ((1.0 + rank)
-                                + scaling * (1.0 + peer) * (ITERATIONS + SKIP)))
+                        if (*(buffer[rank] + i * MAX_XDIM + j) != ((1.0 + rank) + scaling * (1.0 + peer) * (ITERATIONS + SKIP)))
                         {
                             printf("Data validation failed at X: %d Y: %d Expected : %f Actual : %f \n",
                                    i,
@@ -197,11 +175,7 @@ int main()
                 }
 
                 for (i = 0; i < bufsize / sizeof(double); i++)
-                {
                     *(buffer[rank] + i) = 1.0 + rank;
-                }
-
-                A1_Barrier_group(A1_GROUP_WORLD);
 
                 A1_Barrier_group(A1_GROUP_WORLD);
 
@@ -209,8 +183,7 @@ int main()
                 {
                     for (j = 0; j < ydim; j++)
                     {
-                        if (*(buffer[rank] + i * MAX_XDIM + j) != ((1.0 + rank)
-                                + scaling * (1.0 + peer) * (ITERATIONS + SKIP)))
+                        if (*(buffer[rank] + i * MAX_XDIM + j) != ((1.0 + rank) + scaling * (1.0 + peer) * (ITERATIONS + SKIP)))
                         {
                             printf("Data validation failed at X: %d Y: %d Expected : %f Actual : %f \n",
                                    i,
@@ -224,18 +197,12 @@ int main()
                 }
 
                 for (i = 0; i < bufsize / sizeof(double); i++)
-                {
                     *(buffer[rank] + i) = 1.0 + rank;
-                }
 
                 A1_Barrier_group(A1_GROUP_WORLD);
-
             }
-
         }
-
     }
-
     A1_Barrier_group(A1_GROUP_WORLD);
 
     A1_Release_segments(A1_GROUP_WORLD, (void *) buffer[rank]);
