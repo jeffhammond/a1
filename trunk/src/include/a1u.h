@@ -75,34 +75,30 @@
 #endif
 
 #if defined __FILE__ && defined A1U_FUNC
-    #define A1U_error_printf(...)                                          \
-        {                                                                   \
-            fprintf(stderr, "%s (%s:%d): ", A1U_FUNC, __FILE__, __LINE__);  \
-            fprintf(stderr, __VA_ARGS__);                                   \
-            fprintf(stderr, "\n");                                          \
-            fflush(stderr);                                                 \
+    #define A1U_error_printf(...)                                            \
+        {                                                                     \
+            fprintf(stderr, "%s (%s:%d): \n", A1U_FUNC, __FILE__, __LINE__);  \
+            fprintf(stderr, __VA_ARGS__, "\n");                               \
+            fflush(stderr);                                                   \
         }
 #elif defined __FILE__
-    #define A1U_error_printf(...)                               \
-        {                                                        \
-            fprintf(stderr, "%s (%d): ", __FILE__, __LINE__);    \
-            fprintf(stderr, __VA_ARGS__);                        \
-            fprintf(stderr, "\n");                               \
-            fflush(stderr);                                      \
+    #define A1U_error_printf(...)                                 \
+        {                                                          \
+            fprintf(stderr, "%s (%d): \n", __FILE__, __LINE__);    \
+            fprintf(stderr, __VA_ARGS__, "\n");                    \
+            fflush(stderr);                                        \
         }
 #else
     #define A1U_error_printf(...)                                          \
         {                                                                   \
-            fprintf(stderr, __VA_ARGS__);                                   \
-            fprintf(stderr, "\n");                                          \
+            fprintf(stderr, __VA_ARGS__, "\n");                             \
             fflush(stderr);                                                 \
         }
 #endif
 
 #define A1U_output_printf(...)                                         \
     {                                                                   \
-        fprintf(stdout, __VA_ARGS__);                                   \
-        fprintf(stderr, "\n");                                          \
+        fprintf(stdout, __VA_ARGS__, "\n");                             \
         fflush(stdout);                                                 \
     }
 
