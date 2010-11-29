@@ -6,7 +6,7 @@
 
 #include "dcmfdimpl.h"
 
-void A1DI_GlobalFlush()
+int A1DI_GlobalFlush()
 {
     int status = A1_SUCCESS;
     int dst,request_count;
@@ -89,13 +89,13 @@ void A1DI_GlobalFlush()
   fn_exit: 
     A1DI_Free(request); 
     A1U_FUNC_EXIT();
-    return;
+    return status;
 
   fn_fail: 
     goto fn_exit;
 }
 
-void A1DI_NbGlobalFlush()
+int A1DI_NbGlobalFlush(A1D_Handle_t *a1d_handle)
 {
     int status = A1_SUCCESS;
     int dst,request_count;
@@ -178,7 +178,7 @@ void A1DI_NbGlobalFlush()
   fn_exit:
     A1DI_Free(request);
     A1U_FUNC_EXIT();
-    return;
+    return status;
 
   fn_fail:
     goto fn_exit;
@@ -194,7 +194,8 @@ int A1D_Flush_group(A1_group_t* group)
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        A1DI_GlobalFlush();
+        status = A1DI_GlobalFlush();
+        A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_GlobalFlush failed ");
         goto fn_exit;
     }
     else
@@ -215,6 +216,7 @@ int A1D_Flush_group(A1_group_t* group)
 int A1D_NbFlush_group(A1_group_t* group, A1_handle_t a1_handle)
 {
     int status = A1_SUCCESS;
+    A1D_Handle_t *a1d_handle;
 
     A1U_FUNC_ENTER();
 
@@ -222,7 +224,10 @@ int A1D_NbFlush_group(A1_group_t* group, A1_handle_t a1_handle)
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        A1DI_NbGlobalFlush(a1_handle);
+        a1d_handle = (A1D_Handle_t *) a1_handle;
+
+        status = A1DI_NbGlobalFlush(a1d_handle);
+        A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_NbGlobalFlush failed ");
         goto fn_exit;
     }
     else

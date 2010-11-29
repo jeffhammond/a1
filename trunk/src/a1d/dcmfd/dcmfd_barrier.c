@@ -50,7 +50,7 @@ int A1DI_GlobalBarrier()
                                 &request,
                                 done_callback);
     A1U_ERR_ABORT(status != DCMF_SUCCESS,
-                  "DCMF_GlobalBarrier returned with an error");
+                  "DCMF_GlobalBarrier failed ");
 
     A1DI_Conditional_advance(active > 0);
 
@@ -85,7 +85,7 @@ int A1DI_NbGlobalBarrier(A1D_Handle_t *a1d_handle)
                                 &(a1d_request->request).message_request, /* TODO verify */
                                 done_callback);
     A1U_ERR_ABORT(status != DCMF_SUCCESS,
-                  "DCMF_GlobalBarrier returned with an error");
+                  "DCMF_GlobalBarrier failed ");
 
     fn_exit:
     A1U_FUNC_EXIT();
@@ -111,7 +111,7 @@ int A1D_Barrier_group(A1_group_t* group)
 
         status = A1DI_GlobalBarrier();
         A1U_ERR_ABORT(status != A1_SUCCESS,
-                      "DCMF_GlobalBarrier returned with an error");
+                      "DCMF_GlobalBarrier failed ");
         goto fn_exit;
     }
     else
@@ -144,7 +144,7 @@ int A1D_NbBarrier_group(A1_group_t* group, A1_handle_t a1_handle)
 
         status = A1DI_NbGlobalBarrier(a1d_handle);
         A1U_ERR_ABORT(status != A1_SUCCESS,
-                      "DCMF_NbGlobalBarrier returned with an error");
+                      "DCMF_NbGlobalBarrier failed ");
 
         goto fn_exit;
     }
@@ -178,12 +178,10 @@ int A1D_Sync_group(A1_group_t* group)
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        status = A1DI_Flush_all();
-        A1U_ERR_ABORT(status != A1_SUCCESS,
-                      "A1DI_Flush_all returned with an error");
+        status = A1DI_GlobalFlush();
+        A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_GlobalFlush failed ");
         status = A1DI_GlobalBarrier();
-        A1U_ERR_ABORT(status != A1_SUCCESS,
-                      "A1DI_GlobalBarrier returned with an error");
+        A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_GlobalBarrier failed ");
         goto fn_exit;
     }
     else
@@ -216,13 +214,11 @@ int A1D_NbSync_group(A1_group_t* group, A1_handle_t a1_handle)
         a1d_handle = (A1D_Handle_t *) a1_handle;
 
         /*This has to be replace with a non-blocking flushall to make it truly non blocking*/
-        status = A1DI_Flush_all();
-        A1U_ERR_ABORT(status != A1_SUCCESS,
-                      "A1DI_Flush_all returned with an error");
+        status = A1DI_NbGlobalFlush(a1d_handle);
+        A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_NbGlobalFlush failed ");
 
         status = A1DI_NbGlobalBarrier(a1d_handle);
-        A1U_ERR_ABORT(status != A1_SUCCESS,
-                      "A1DI_NbGlobalBarrier returned with an error");
+        A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_NbGlobalBarrier failed ");
 
         goto fn_exit;
     }
