@@ -78,21 +78,18 @@ DCMF_Request_t* A1DI_RecvSend_putacc_callback(void *clientdata,
                                               char **rcvbuf,
                                               DCMF_Callback_t *cb_done)
 {
-    int status = 0;
+    int status = A1_SUCCESS;
     A1D_Request_t *a1d_request;
 
     a1d_request = A1DI_Get_request(0);
-    A1U_ERR_ABORT(status = (a1d_request == NULL),
-            "A1DI_Get_request returned NULL in A1DI_RecvSend_putacc_callback\n");
+    A1U_ERR_ABORT(status = (a1d_request == NULL),"A1DI_Get_request returned NULL ");
 
-    A1U_ASSERT_ABORT(sizeof(A1D_Putacc_header_t) == count*sizeof(DCQuad),
-            "Header of invalid size received in A1DI_RecvSend_putacc_callback\n")
+    A1U_ASSERT_ABORT(sizeof(A1D_Putacc_header_t) == count*sizeof(DCQuad),"invalid header size")
 
     a1d_request->buffer_size = sndlen + sizeof(A1D_Putacc_header_t);
     status = A1DI_Malloc((void **) &(a1d_request->buffer_ptr),
                          sndlen + sizeof(A1D_Putacc_header_t));
-    A1U_ERR_ABORT(status != 0,
-            "A1DI_Malloc failed in A1DI_RecvSend_packedputs_callback\n");
+    A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_Malloc failed ");
 
     A1DI_Memcpy(a1d_request->buffer_ptr,(void *) msginfo,sizeof(A1D_Putacc_header_t));
 
