@@ -69,16 +69,6 @@ int main()
     rank = A1_Process_id(A1_GROUP_WORLD);
     nranks = A1_Process_total(A1_GROUP_WORLD);
 
-    if (nranks != 2)
-    {
-        printf("[%d] This test requires only two processes \n", rank);
-        fflush(stdout);
-
-        A1_Finalize();
-
-        return -1;
-    }
-
     buffer = (double **) malloc(sizeof(double *) * nranks);
 
     bufsize = MAX_MSG_SIZE * (ITERATIONS + SKIP);
@@ -86,9 +76,7 @@ int main()
     A1_Exchange_segments(A1_GROUP_WORLD, (void **) buffer);
 
     for (i = 0; i < bufsize/sizeof(double); i++)
-    {
        *(buffer[rank] + i) = 1.0 + rank;
-    }
 
     if (rank == 0)
     {
@@ -107,56 +95,40 @@ int main()
   
         if (rank == 0)
         {
-
             peer = 1;
 
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
-
-                if (i == SKIP) 
-                   t_start = A1_Time_seconds();
-
+                if (i == SKIP) t_start = A1_Time_seconds();
                 A1_Put(peer,
                        (void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
                        (void *) ((size_t) buffer[peer] + (size_t)(i * msgsize)),
                        msgsize);
-
             }
             t_stop = A1_Time_seconds();
             A1_Flush(peer);
-            printf("%20d %20.2f", msgsize, ((t_stop - t_start) * 1000000)
-                    / ITERATIONS);
+            printf("%20d %20.2f", msgsize, ((t_stop - t_start) * 1000000) / ITERATIONS);
             fflush(stdout);
-
-            A1_Barrier_group(A1_GROUP_WORLD);
 
             A1_Barrier_group(A1_GROUP_WORLD);
 
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
-
-                if (i == SKIP) 
-                   t_start = A1_Time_seconds();
-
+                if (i == SKIP) t_start = A1_Time_seconds();
                 A1_Put(peer,
                        (void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
                        (void *) ((size_t) buffer[peer] + (size_t)(i * msgsize)),
                        msgsize);
                 A1_Flush(peer);
-
             }
             t_stop = A1_Time_seconds();
             printf("%20.2f \n", ((t_stop - t_start) * 1000000) / ITERATIONS);
             fflush(stdout);
 
             A1_Barrier_group(A1_GROUP_WORLD);
-
-            A1_Barrier_group(A1_GROUP_WORLD);
-
         }
-        else
+        else if (rank == 1)
         {
-
             peer = 0;
 
             A1_Barrier_group(A1_GROUP_WORLD);
@@ -175,13 +147,8 @@ int main()
                 }
             }
 
-            for (i = 0; i < ( bufsize
-                    / sizeof(double)); i++)
-            {
+            for (i = 0; i < ( bufsize / sizeof(double)); i++)
                 *(buffer[rank] + i) = 1.0 + rank;
-            }
-
-            A1_Barrier_group(A1_GROUP_WORLD);
 
             A1_Barrier_group(A1_GROUP_WORLD);
 
@@ -199,16 +166,11 @@ int main()
                 }
             }
 
-            for (i = 0; i < (bufsize
-                    / sizeof(double)); i++)
-            {
+            for (i = 0; i < (bufsize / sizeof(double)); i++)
                 *(buffer[rank] + i) = 1.0 + rank;
-            }
 
             A1_Barrier_group(A1_GROUP_WORLD);
-
         }        
-
     }
 
     A1_Release_segments(A1_GROUP_WORLD, buffer[rank]);
