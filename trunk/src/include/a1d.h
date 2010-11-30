@@ -891,6 +891,18 @@ int A1D_Unlock_mutex(A1_group_t* group,
 int A1D_Flush(int proc);
 
 /**
+ * \brief Device level implementation of A1_NbFlush
+ *
+ *  On return, this call ensure that all blocking put or accumulate operations
+ *  issued to a particular process are complete remotely.
+ *
+ * \param[in]  proc          Rank of the remote process.
+ *
+ * \ingroup COMPLETION
+ */
+int A1D_NbFlush(int proc, A1_handle_t a1_handle);
+
+/**
  * \brief Device level implementation of A1_Flush_group
  *
  *  On return, this call ensure that all blocking put or accumulate operations
@@ -901,6 +913,18 @@ int A1D_Flush(int proc);
  * \ingroup COMPLETION
  */
 int A1D_Flush_group(A1_group_t *group);
+
+/**
+ * \brief Device level implementation of A1_NbFlush_group
+ *
+ *  On return, this call ensure that all blocking put or accumulate operations
+ *  issued to the group of processes are complete remotely.
+ *
+ * \param[in]  group          Group of the remote processs.
+ *
+ * \ingroup COMPLETION
+ */
+int A1D_NbFlush_group(A1_group_t *group, A1_handle_t a1_handle);
 
 /**
  * \brief Reduce data from all processes and broadcast results to all processes.  

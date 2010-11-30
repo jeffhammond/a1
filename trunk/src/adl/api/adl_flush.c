@@ -49,7 +49,7 @@ int A1_NbFlush(int proc, A1_handle_t a1_handle)
     }
 #   endif
 
-    status = A1D_Flush(proc, a1_handle);
+    status = A1D_NbFlush(proc, a1_handle);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1_NbFlush failed");
 
   fn_exit:
