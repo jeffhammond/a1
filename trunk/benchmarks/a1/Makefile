@@ -31,7 +31,7 @@ submit-all: $(OUTPUTS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 submit-clean:
-	$(RM) $(RMFLAGS) *.output *.error *.cobaltlog
+	$(RM) $(RMFLAGS) *.output *.error *.cobaltlog core.*
 
 clean:
 	$(RM) $(RMFLAGS) $(OBJECTS)
