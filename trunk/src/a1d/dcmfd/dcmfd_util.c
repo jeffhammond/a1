@@ -51,9 +51,7 @@ int A1DI_Control_xchange_initialize()
     conf.cb_recv_clientdata = (void *) &A1D_Control_xchange_info.rcv_active;
 
     status = DCMF_Control_register(&A1D_Control_xchange_info.protocol, &conf);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-                "Control xchange registartion returned with error %d \n",
-                status);
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Control_register failed ");
 
     fn_exit: A1U_FUNC_EXIT();
     return status;

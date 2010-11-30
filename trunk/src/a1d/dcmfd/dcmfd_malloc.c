@@ -27,6 +27,9 @@ int A1DI_Memregion_Global_xchange()
     A1DI_Memcpy((void *) &info,
                 (void *) &A1D_Memregion_global[A1D_Process_info.my_rank],
                 sizeof(DCMF_Memregion_t));
+
+    /* FIXME this implementation is not scalable enough
+     * TODO  break up this loop into chunks like A1D_Flush_group */
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
         likely_if (rank != A1D_Process_info.my_rank)
@@ -35,8 +38,7 @@ int A1DI_Memregion_Global_xchange()
                                   DCMF_SEQUENTIAL_CONSISTENCY,
                                   rank,
                                   &info);
-            A1U_ERR_POP(status != DCMF_SUCCESS,
-                        "DCMF_Control failed in A1DI_Memregion_Global_xchange\n");
+            A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Control failed ");
         }
     }
     A1DI_Conditional_advance(A1D_Control_xchange_info.rcv_active > 0);
@@ -65,7 +67,7 @@ int A1DI_Memregion_Global_initialize()
                                     (size_t) - 1,
                                     NULL,
                                     0);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Memregion_create failed \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Memregion_create failed ");
 
     status = A1DI_Memregion_Global_xchange();
     A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Memregion_Global_xchange failed \n");
@@ -79,7 +81,7 @@ int A1DI_Memregion_Global_initialize()
         status = DCMF_Memregion_query(&A1D_Memregion_global[i],
                                       &out,
                                       (void **) &A1D_Membase_global[i]);
-        A1U_ERR_POP(status != DCMF_SUCCESS, "Memregion query failed \n");
+        A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Memregion_query failed ");
     }
 
     fn_exit: A1U_FUNC_EXIT();
@@ -107,6 +109,8 @@ int A1DI_Memaddress_xchange(void **ptr)
                 (void *) &ptr[A1D_Process_info.my_rank],
                 sizeof(void *));
 
+    /* FIXME this implementation is not scalable enough
+     * TODO  break up this loop into chunks like A1D_Flush_group */
     for (rank = 0; rank < A1D_Process_info.num_ranks; rank++)
     {
         likely_if (rank != A1D_Process_info.my_rank)
@@ -134,13 +138,15 @@ int A1D_Exchange_segments(A1_group_t* group, void **ptr)
 
     A1DI_CRITICAL_ENTER();
 
-    if(group != A1_GROUP_WORLD && group != NULL)
+    if(group == A1_GROUP_WORLD || group == NULL)
     {
-       A1U_ERR_POP(A1_ERROR, "Groups are currently not supported in A1\n");
+        status = A1DI_Memaddress_xchange(ptr);
+        A1U_ERR_POP(status, "A1DI_Memaddress_xchange failed ");
     }
-
-    status = A1DI_Memaddress_xchange(ptr);
-    A1U_ERR_POP(status, "A1DI_Memaddress_xchange returned with error \n");
+    else
+    {
+        A1U_ERR_POP(A1_ERROR, "Groups are currently not supported in A1\n");
+    }
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();
@@ -160,8 +166,7 @@ int A1D_Alloc_segment(void** ptr, int bytes)
     A1DI_CRITICAL_ENTER();
 
     status = A1DI_Malloc(ptr, bytes);
-    A1U_ERR_POP(status != 0,
-                "A1DI_Malloc returned error in A1D_Alloc_segment\n");
+    A1U_ERR_POP(status != 0, "A1DI_Malloc failed");
 
   fn_exit: 
     A1DI_CRITICAL_EXIT();
