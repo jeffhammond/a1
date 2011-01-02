@@ -8,10 +8,19 @@
 #include "a1d.h"
 #include "a1u.h"
 
+#ifdef A1_USES_MPI_COLLECTIVES
+#include "mpi.h"
+MPI_Comm A1_COMM_WORLD;
+#endif
+
 int A1_Initialize(int thread_level)
 {
     int status = A1_SUCCESS;
     static int a1_active = 0;
+
+#   ifdef A1_USES_MPI_COLLECTIVES
+    int initialized
+#   endif
 
     A1U_FUNC_ENTER();
 
@@ -28,6 +37,13 @@ int A1_Initialize(int thread_level)
         return status;
     }
     a1_active = 1;
+
+#   ifdef A1_USES_MPI_COLLECTIVES
+    MPI_Initialized(&initialized);
+    A1U_ERR_POP(initialized!=1, "You need to initialize MPI for collectives");
+
+    MPI_Comm_dup(MPI_COMM_WORLD,A1_COMM_WORLD);
+#   endif
 
     status = A1D_Initialize(thread_level);
     A1U_ERR_POP(status!=A1_SUCCESS, "A1D_Initialize returned error\n");

@@ -8,11 +8,6 @@
 #include "a1d.h"
 #include "a1u.h"
 
-/* This is here because the build system does not yet have the necessary
- * logic to set these options for each device. */
-
-#undef A1_USES_MPI_COLLECTIVES
-
 #ifdef A1_USES_MPI_COLLECTIVES
 #include "mpi.h"
 #endif
@@ -42,7 +37,7 @@ int A1_Barrier_group(A1_group_t* group)
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        status = MPI_Barrier(MPI_COMM_WORLD);
+        status = MPI_Barrier(A1_COMM_WORLD);
         switch (status)
         {
             case MPI_ERR_COMM:
@@ -132,7 +127,7 @@ int A1_Sync_group(A1_group_t* group)
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        status = MPI_Barrier(MPI_COMM_WORLD);
+        status = MPI_Barrier(A1_COMM_WORLD);
         switch (status)
         {
             case MPI_ERR_COMM:
@@ -332,7 +327,7 @@ int A1_Allreduce_group(A1_group_t* group,
         }
 
         if (in==out) in = MPI_IN_PLACE;
-        status = MPI_Allreduce(in,out,count,mpi_type,mpi_oper,MPI_COMM_WORLD);
+        status = MPI_Allreduce(in,out,count,mpi_type,mpi_oper,A1_COMM_WORLD);
         switch (status)
         {
             case MPI_ERR_BUFFER:
@@ -512,7 +507,7 @@ int A1_Bcast_group(A1_group_t* group,
 #ifdef A1_USES_MPI_COLLECTIVES
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        status = MPI_Bcast(buffer,count,mpi_type,root,MPI_COMM_WORLD);
+        status = MPI_Bcast(buffer,count,mpi_type,root,A1_COMM_WORLD);
         switch (status)
         {
             case MPI_ERR_BUFFER:

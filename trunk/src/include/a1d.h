@@ -7,8 +7,16 @@
 #include "a1.h"
 #include "a1u.h"
 
+#ifdef A1_USES_MPI_COLLECTIVES
+#include "mpi.h"
+#endif
+
 #if !defined A1D_H_INCLUDED
 #define A1D_H_INCLUDED
+
+#ifdef A1_USES_MPI_COLLECTIVES
+extern MPI_Comm A1_COMM_WORLD;
+#endif
 
 /* ********************************************************************* */
 /*                                                                       */
