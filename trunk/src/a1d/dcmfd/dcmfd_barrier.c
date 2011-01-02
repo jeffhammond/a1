@@ -104,7 +104,7 @@ int A1D_Barrier_group(A1_group_t* group)
     if (group == A1_GROUP_WORLD || group == NULL)
     {
         status = A1DI_GlobalBarrier();
-        A1U_ERR_ABORT(status != A1_SUCCESS, "DCMF_GlobalBarrier failed ");
+        A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_GlobalBarrier failed ");
     }
     else
     {
@@ -133,7 +133,7 @@ int A1D_NbBarrier_group(A1_group_t* group, A1_handle_t a1_handle)
     {
         a1d_handle = (A1D_Handle_t *) a1_handle;
         status = A1DI_NbGlobalBarrier(a1d_handle);
-        A1U_ERR_ABORT(status != A1_SUCCESS, "DCMF_NbGlobalBarrier failed ");
+        A1U_ERR_ABORT(status != A1_SUCCESS, "A1DI_NbGlobalBarrier failed ");
     }
     else
     {

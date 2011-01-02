@@ -18,9 +18,7 @@ int A1DI_GlobalBcast_initialize()
     conf.protocol = DCMF_DEFAULT_GLOBALBCAST_PROTOCOL;
     status = DCMF_GlobalBcast_register(&A1D_GlobalBcast_protocol,
                                        &conf);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-                "DCMF_GlobalBcast_register returned with error %d \n",
-                status);
+    A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_GlobalBcast_register failed ");
 
     fn_exit:
     A1U_FUNC_EXIT();
@@ -52,9 +50,7 @@ int A1DI_GlobalBcast(int root,
                               root,
                               (char *) buffer,
                               count);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-                "DCMF_GlobalBcast returned with error %d \n",
-                status);
+    A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_GlobalBcast failed ");
 
     A1DI_Conditional_advance(gb_active > 0);
 
@@ -94,9 +90,7 @@ int A1DI_NbGlobalBcast(int root,
                               root,
                               (char *) buffer,
                               count);
-    A1U_ERR_POP(status != DCMF_SUCCESS,
-                "DCMF_GlobalBcast returned with error %d \n",
-                status);
+    A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_GlobalBcast failed ");
 
     fn_exit:
     A1U_FUNC_EXIT();
@@ -121,13 +115,12 @@ int A1D_Bcast_group(A1_group_t* group,
     {
         status = A1DI_GlobalBcast(root, count, buffer);
         A1U_ERR_ABORT(status != A1_SUCCESS,
-                      "A1DI_GlobalBcast returned with an error");
+                      "A1DI_GlobalBcast failed ");
         goto fn_exit;
     }
     else
     {
-        A1U_ERR_POP(1,
-                    "A1D_Bcast_group not implemented for non-world groups!");
+        A1U_ERR_POP(1,"A1D_Bcast_group not implemented for non-world groups!");
         goto fn_fail;
     }
 
@@ -159,13 +152,12 @@ int A1D_NbBcast_group(A1_group_t* group,
 
         status = A1DI_NbGlobalBcast(root, count, buffer, a1d_handle);
         A1U_ERR_ABORT(status != A1_SUCCESS,
-                      "A1DI_NbGlobalBcast returned with an error");
+                      "A1DI_NbGlobalBcast failed ");
         goto fn_exit;
     }
     else
     {
-        A1U_ERR_POP(1,
-                    "A1D_Bcast_group not implemented for non-world groups!");
+        A1U_ERR_POP(1,"A1D_Bcast_group not implemented for non-world groups!");
         goto fn_fail;
     }
 

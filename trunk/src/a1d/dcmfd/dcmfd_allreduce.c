@@ -7,14 +7,16 @@
 #include "dcmfdimpl.h"
 
 DCMF_Geometry_t geometry;
+
 DCMF_CollectiveProtocol_t A1D_Barrier_protocol, A1D_Localbarrier_protocol;
 DCMF_CollectiveProtocol_t *barrier_ptr, *localbarrier_ptr;
-DCMF_Barrier_Configuration_t barrier_conf;
-
 DCMF_CollectiveRequest_t crequest;
+
+DCMF_Barrier_Configuration_t barrier_conf;
 
 DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_tree_protocol;
 DCMF_CollectiveProtocol_t A1D_GlobalAllreduce_torus_protocol;
+
 DCMF_Allreduce_Configuration_t allreduce_tree_conf;
 DCMF_Allreduce_Configuration_t allreduce_torus_conf;
 
@@ -88,10 +90,10 @@ int A1DI_GlobalAllreduce_initialize()
     A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Allreduce_register (torus) failed ");
 
     /* check if geometry is valid for protocols */
-    //status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol);
-    //A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Geometry_analyze (tree) failed ");
-    //status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol);
-    //A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Geometry_analyze (torus) failed ");
+    status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol);
+    A1U_ERR_POP(status != 1,"DCMF_Geometry_analyze (tree) failed ");
+    status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol);
+    A1U_ERR_POP(status != 1,"DCMF_Geometry_analyze (torus) failed ");
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -307,16 +309,16 @@ int A1DI_MakeCOPYbuffer(A1_datatype_t a1_type, int count, void** in, void** tmp)
     goto fn_exit;
 }
 
-int A1DI_GlobalAllreduce_tree(int count,
-                              DCMF_Op dcmf_op,
-                              DCMF_Dt dcmf_type,
-                              void *in,
-                              void *out)
+int A1DI_GlobalAllreduce(int count,
+                         DCMF_Op dcmf_op,
+                         DCMF_Dt dcmf_type,
+                         DCMF_CollectiveProtocol_t dcmf_protocol,
+                         void *in,
+                         void *out)
 {
     int status = DCMF_SUCCESS;
     DCMF_CollectiveRequest_t request;
     DCMF_Callback_t done_callback;
-    int bytes = 0;
     volatile unsigned active = 0;
 
     A1U_FUNC_ENTER();
@@ -325,45 +327,7 @@ int A1DI_GlobalAllreduce_tree(int count,
     done_callback.function = A1DI_Generic_done;
     done_callback.clientdata = (void *) &active;
 
-    status = DCMF_Allreduce(&A1D_GlobalAllreduce_tree_protocol,
-                            &request,
-                            done_callback,
-                            DCMF_SEQUENTIAL_CONSISTENCY,
-                            &geometry,
-                            (char *) in,
-                            (char *) out,
-                            count,
-                            dcmf_type,
-                            dcmf_op);
-    A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Allreduce failed ");
-
-    A1DI_Conditional_advance(active > 0);
-
-    fn_exit: A1U_FUNC_EXIT();
-    return status;
-
-    fn_fail: goto fn_exit;
-}
-
-int A1DI_GlobalAllreduce_torus(int count,
-                               DCMF_Op dcmf_op,
-                               DCMF_Dt dcmf_type,
-                               void *in,
-                               void *out)
-{
-    int status = DCMF_SUCCESS;
-    DCMF_CollectiveRequest_t request;
-    DCMF_Callback_t done_callback;
-    int bytes = 0;
-    volatile unsigned active = 0;
-
-    A1U_FUNC_ENTER();
-
-    active += 1;
-    done_callback.function = A1DI_Generic_done;
-    done_callback.clientdata = (void *) &active;
-
-    status = DCMF_Allreduce(&A1D_GlobalAllreduce_torus_protocol,
+    status = DCMF_Allreduce(&dcmf_protocol,
                             &request,
                             done_callback,
                             DCMF_SEQUENTIAL_CONSISTENCY,
@@ -393,8 +357,8 @@ int A1D_Allreduce_group(A1_group_t* group,
     int status = A1_SUCCESS;
     DCMF_Op dcmf_op;
     DCMF_Dt dcmf_type;
-    int bytes;
-    void* tmp;
+    DCMF_CollectiveProtocol_t dcmf_protocol;
+    void* tmp = NULL;
     int use_tree = 0;
     int outofplc = 0;
 
@@ -407,26 +371,22 @@ int A1D_Allreduce_group(A1_group_t* group,
     A1DI_ConvertType_A1toDCMF(a1_type, &dcmf_type);
 
     /* if necessary, take the absolute value or copy the buffer */
-
     if ((a1_op == A1_MAXABS) || (a1_op == A1_MINABS))
     {
-        outofplc = 1;
         status = A1DI_MakeABSbuffer(a1_type, count, &in, &tmp);
         A1U_ERR_POP(status != A1_SUCCESS, "A1DI_MakeABSbuffer failed ");
     }
     else if ((a1_op == A1_PROD) || (a1_op == A1_OR))
     {
-        outofplc = 1;
         status = A1DI_MakeCOPYbuffer(a1_type, count, &in, &tmp);
         A1U_ERR_POP(status != A1_SUCCESS, "A1DI_MakeCOPYbuffer failed ");
     }
     else
     {
-        outofplc = 0;
+        tmp = in;
     }
 
     /* determine if we can use the tree network for this op/type combo */
-
     switch (a1_op)
     {
         /* DCMF can use tree for MAX/MIN and FLOAT/DOUBLE/INT32/INT64 types */
@@ -454,52 +414,17 @@ int A1D_Allreduce_group(A1_group_t* group,
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        if (outofplc == 1)
-        {
-            if (use_tree == 1)
-            {
-                status = A1DI_GlobalAllreduce_tree(count,
-                                                   dcmf_op,
-                                                   dcmf_type,
-                                                   tmp,
-                                                   out);
-                A1U_ERR_ABORT(status != A1_SUCCESS,"A1DI_GlobalAllreduce_tree failed ");
-            }
-            else
-            {
-                status = A1DI_GlobalAllreduce_torus(count,
-                                                   dcmf_op,
-                                                   dcmf_type,
-                                                   tmp,
-                                                   out);
-                A1U_ERR_ABORT(status != A1_SUCCESS,"A1DI_GlobalAllreduce_torus failed ");
-            }
-            A1DI_Free(tmp);
-            goto fn_exit;
-        }
-        else /* in-place */
-        {
-            if (use_tree == 1)
-            {
-                status = A1DI_GlobalAllreduce_tree(count,
-                                                    dcmf_op,
-                                                    dcmf_type,
-                                                    in,
-                                                    out);
-                A1U_ERR_ABORT(status != A1_SUCCESS,"A1DI_GlobalAllreduce_tree failed ");
+        dcmf_protocol = (use_tree ? A1D_GlobalAllreduce_tree_protocol : A1D_GlobalAllreduce_torus_protocol);
 
-            }
-            else
-            {
-                status = A1DI_GlobalAllreduce_torus(count,
-                                                    dcmf_op,
-                                                    dcmf_type,
-                                                    in,
-                                                    out);
-                A1U_ERR_ABORT(status != A1_SUCCESS,"A1DI_GlobalAllreduce_torus failed ");
-            }
-            goto fn_exit;
-        }
+        status = A1DI_GlobalAllreduce(count,
+                                      dcmf_op,
+                                      dcmf_type,
+                                      dcmf_protocol,
+                                      tmp,
+                                      out);
+        A1U_ERR_ABORT(status != A1_SUCCESS,"A1DI_GlobalAllreduce failed ");
+
+        goto fn_exit;
     }
     else
     {
@@ -508,6 +433,7 @@ int A1D_Allreduce_group(A1_group_t* group,
     }
 
     fn_exit:
+    if (tmp != NULL) A1DI_Free(tmp);
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;

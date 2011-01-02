@@ -14,14 +14,12 @@ volatile int A1D_Put_flushack_active;
 volatile int *A1D_Connection_send_active;
 volatile int *A1D_Connection_put_active;
 
-/**************************************************************** 
- * Control protocol used to send acknowledgements to send-flush *
- * messages                                                     *
- ****************************************************************/
+/************************************************************************
+ * Control protocol used to send acknowledgments to send-flush messages *
+ ************************************************************************/
 
-/* TODO: If this is just decrementing the payload like A1DI_Generic_done, why don't we have
- * another A1D_Generic_control_done?  Better yet, call them A1DI_Send_decrement and
- * A1D_Control_decrement. */
+/* NOTE: this is the function syntax of a control callback,
+ *       hence A1DI_Generic_done cannot be used. */
 void A1DI_Control_flushack_callback(void *clientdata,
                                     const DCMF_Control_t *info,
                                     size_t peer)
@@ -85,7 +83,7 @@ int A1DI_Send_flush_initialize()
     A1U_FUNC_ENTER();
 
     /* FIXME: The recv callback should be implemented when Send might be used *
-     * with large messages */
+     * with large messages.  Is this even possible? */
 
     conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
@@ -132,9 +130,8 @@ int A1DI_Put_flush_initialize()
 
     status = A1DI_Malloc((void **) &(A1D_Put_Flushcounter_ptr[A1D_Process_info.my_rank]),
                                   2);
-    A1U_ERR_POP(status != 0, "A1DI_Malloc failed \n");
+    A1U_ERR_POP(status != 0, "A1DI_Malloc failed ");
 
-    /*TODO: Use DCMF_Send operations instead to exploit TORUS network */
     A1D_Control_xchange_info.xchange_ptr = (void *) A1D_Put_Flushcounter_ptr;
     A1D_Control_xchange_info.xchange_size = sizeof(void *);
     A1D_Control_xchange_info.rcv_active += A1D_Process_info.num_ranks - 1;
@@ -152,7 +149,7 @@ int A1DI_Put_flush_initialize()
                                   DCMF_SEQUENTIAL_CONSISTENCY,
                                   rank,
                                   &info);
-            A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Control failed\n");
+            A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Control failed ");
         }
     }
     A1DI_Conditional_advance(A1D_Control_xchange_info.rcv_active > 0);
@@ -161,7 +158,7 @@ int A1DI_Put_flush_initialize()
     status = A1DI_Malloc((void **) &A1D_Connection_put_active,
                                  sizeof(int) * A1D_Process_info.num_ranks);
     A1U_ERR_POP(status != 0,
-                "Connection put active buffer allocation Failed \n");
+                "A1DI_Malloc failed ");
     A1DI_Memset((void *) A1D_Connection_put_active,
                 0,
                 sizeof(int) * A1D_Process_info.num_ranks);
@@ -197,7 +194,7 @@ int A1DI_Send_flush_start(int proc)
                        NULL,
                        &msginfo,
                        1);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Send returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Send failed ");
 
     A1D_Connection_send_active[proc] = 0;
     A1D_Connection_put_active[proc] = 0;
@@ -240,7 +237,7 @@ int A1DI_Put_flush_start(int proc)
                       src_disp,
                       dst_disp,
                       ack_callback);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put failed ");
 
     A1D_Connection_put_active[proc] = 0;
 
@@ -272,7 +269,7 @@ int A1DI_Send_flush(int proc)
                        NULL,
                        &msginfo,
                        1);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Send returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Send failed ");
 
     A1DI_Conditional_advance(A1D_Control_flushack_active > 0);
 
@@ -319,7 +316,7 @@ int A1DI_Put_flush(int proc)
                       src_disp,
                       dst_disp,
                       callback);
-    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put returned with an error \n");
+    A1U_ERR_POP(status != DCMF_SUCCESS, "DCMF_Put failed ");
 
     A1DI_Conditional_advance(A1D_Put_flushack_active > 0);
 
@@ -342,12 +339,12 @@ int A1D_Flush(int proc)
     if (A1D_Connection_send_active[proc])
     {
         status = A1DI_Send_flush(proc);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Send_flush failed\n");
+        A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Send_flush failed ");
     }
     else if (A1D_Connection_put_active[proc])
     {
         status = A1DI_Put_flush(proc);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Put_flush failed \n");
+        A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Put_flush failed ");
     }
 
     A1DI_Conditional_advance(A1D_Put_flushack_active > 0 || A1D_Control_flushack_active > 0);
@@ -372,12 +369,12 @@ int A1D_NbFlush(int proc, A1_handle_t a1_handle)
     if (A1D_Connection_send_active[proc])
     {
         status = A1DI_Send_flush(proc);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Send_flush failed\n");
+        A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Send_flush failed ");
     }
     else if (A1D_Connection_put_active[proc])
     {
         status = A1DI_Put_flush(proc);
-        A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Put_flush failed \n");
+        A1U_ERR_POP(status != A1_SUCCESS, "A1DI_Put_flush failed ");
     }
 
     A1DI_Conditional_advance(A1D_Put_flushack_active > 0 || A1D_Control_flushack_active > 0);
