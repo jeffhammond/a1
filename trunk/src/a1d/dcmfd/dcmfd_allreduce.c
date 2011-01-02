@@ -312,7 +312,7 @@ int A1DI_MakeCOPYbuffer(A1_datatype_t a1_type, int count, void** in, void** tmp)
 int A1DI_GlobalAllreduce(int count,
                          DCMF_Op dcmf_op,
                          DCMF_Dt dcmf_type,
-                         DCMF_CollectiveProtocol_t dcmf_protocol,
+                         DCMF_CollectiveProtocol_t* dcmf_protocol,
                          void *in,
                          void *out)
 {
@@ -327,7 +327,7 @@ int A1DI_GlobalAllreduce(int count,
     done_callback.function = A1DI_Generic_done;
     done_callback.clientdata = (void *) &active;
 
-    status = DCMF_Allreduce(&dcmf_protocol,
+    status = DCMF_Allreduce(dcmf_protocol,
                             &request,
                             done_callback,
                             DCMF_SEQUENTIAL_CONSISTENCY,
@@ -357,7 +357,7 @@ int A1D_Allreduce_group(A1_group_t* group,
     int status = A1_SUCCESS;
     DCMF_Op dcmf_op;
     DCMF_Dt dcmf_type;
-    DCMF_CollectiveProtocol_t dcmf_protocol;
+    DCMF_CollectiveProtocol_t* dcmf_protocol;
     void* tmp = NULL;
     int use_tree = 0;
     int outofplc = 0;
@@ -414,7 +414,14 @@ int A1D_Allreduce_group(A1_group_t* group,
 
     if (group == A1_GROUP_WORLD || group == NULL)
     {
-        dcmf_protocol = (use_tree ? A1D_GlobalAllreduce_tree_protocol : A1D_GlobalAllreduce_torus_protocol);
+        if (use_tree == 1)
+        {
+            dcmf_protocol = &A1D_GlobalAllreduce_tree_protocol;
+        }
+        else
+        {
+            dcmf_protocol = &A1D_GlobalAllreduce_torus_protocol;
+        }
 
         status = A1DI_GlobalAllreduce(count,
                                       dcmf_op,
