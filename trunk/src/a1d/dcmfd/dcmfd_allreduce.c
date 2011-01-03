@@ -37,7 +37,7 @@ static DCMF_Geometry_t *getGeometry(int x)
 
 int A1DI_GlobalAllreduce_initialize()
 {
-    int i, status = A1_SUCCESS;
+    int i, status = A1_SUCCESS, geomstatus;
 
     A1U_FUNC_ENTER();
 
@@ -90,10 +90,10 @@ int A1DI_GlobalAllreduce_initialize()
     A1U_ERR_POP(status != DCMF_SUCCESS,"DCMF_Allreduce_register (torus) failed ");
 
     /* check if geometry is valid for protocols */
-    status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol);
-    A1U_ERR_POP(status != 1,"DCMF_Geometry_analyze (tree) failed ");
-    status = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol);
-    A1U_ERR_POP(status != 1,"DCMF_Geometry_analyze (torus) failed ");
+    geomstatus = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_tree_protocol);
+    A1U_ERR_POP(geomstatus != 1,"DCMF_Geometry_analyze (tree) failed ");
+    geomstatus = DCMF_Geometry_analyze(&geometry, &A1D_GlobalAllreduce_torus_protocol);
+    A1U_ERR_POP(geomstatus != 1,"DCMF_Geometry_analyze (torus) failed ");
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
