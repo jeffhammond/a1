@@ -55,6 +55,11 @@ int A1D_Allocate_shared(void* ptrs[], long bytes);
 void A1D_Free_local(void* ptr);
 void A1D_Free_shared(void* ptr);
 
+int A1D_Fetch_and_inc32(int proc, int* local, int* remote, int incr);
+int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr);
+int A1D_Swap32(int proc, int* local, int* remote);
+int A1D_Swap64(int proc, long* local, long* remote);
+
 int A1D_GetC(int proc, int bytes, src, dst);
 int A1D_PutC(int proc, int bytes, src, dst);
 int A1D_AccC(int proc, int bytes, src, dst, int type, void* scale);

@@ -47,23 +47,8 @@
  *
  *********************************************************************/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <math.h>
-#include <assert.h>
-#include <pthread.h>
-
-//#include <bpcore/bgp_atomic_ops.h>
-//#include <spi/bgp_SPI.h>
-
-#include <dcmf.h>
-#include <dcmf_globalcollectives.h>
-#include <dcmf_collectives.h>
-
-#include <mpi.h>
-
 #include "a1d_api.h"
+#include "a1d_util.h"
 
 MPI_Comm A1D_COMM_WORLD;
 

@@ -152,14 +152,24 @@ int PARMCI_WaitAll()
     return(0);
 }
 
-
 /* remote atomic update and mutexes */
 
-int PARMCI_Rmw(int op, int *ploc, int *prem, int extra, int proc)
+int PARMCI_Rmw(int optype, void* local, void* remote, int incr, int proc)
 {
-    fprintf(stderr,"PARMCI_Rmw: not implemented \n");
-    assert(0);
-    return(-1);
+    switch (optype)
+    {
+        case ARMCI_FETCH_AND_ADD:
+            A1D_Fetch_and_inc32(proc, (int*)local, (int*)remote, (int)incr);
+        case ARMCI_FETCH_AND_ADD_LONG:
+            A1D_Fetch_and_inc64(proc, (long*)local, (long*)remote, (long)incr);
+        case ARMCI_SWAP:
+            A1D_Swap32(proc, (int*)local, (int*)remote);
+        case ARMCI_SWAP_LONG:
+            A1D_Swap64(proc, (long*)local, (long*)remote);
+        default:
+            assert(0);
+            break;
+    }
 }
 
 int PARMCI_Create_mutexes(int num)
