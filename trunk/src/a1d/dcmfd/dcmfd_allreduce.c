@@ -440,7 +440,7 @@ int A1D_Allreduce_group(A1_group_t* group,
     }
 
     fn_exit:
-    if (tmp != NULL) A1DI_Free(tmp);
+    if (tmp != in) A1DI_Free(tmp);
     A1DI_CRITICAL_EXIT();
     A1U_FUNC_EXIT();
     return status;
