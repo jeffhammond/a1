@@ -137,10 +137,10 @@ int main()
     dcmf_result = DCMF_Allreduce_register(&allreduce_notree_protocol, &allreduce_conf);
     assert(dcmf_result == DCMF_SUCCESS);
 
-    status = DCMF_Geometry_analyze(&geometry, &allreduce_protocol));
+    status = DCMF_Geometry_analyze(&geometry, &allreduce_protocol);
     assert(status == 1);
 
-    status = DCMF_Geometry_analyze(&geometry, &allreduce_notree_protocol));
+    status = DCMF_Geometry_analyze(&geometry, &allreduce_notree_protocol);
     assert(status == 1);
 
     done_callback.function = done;
