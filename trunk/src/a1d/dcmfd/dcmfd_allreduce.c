@@ -197,6 +197,52 @@ void A1DI_ConvertOp_A1toDCMF(A1_reduce_op_t a1_op,
     goto fn_exit;
 }
 
+int A1DI_TypeOp_uses_tree(A1_datatype_t a1_type, A1_reduce_op_t a1_op)
+{
+    int use_tree;
+
+    A1U_FUNC_ENTER();
+
+    /* determine if we can use the tree network for this op/type combo */
+    switch (a1_op)
+    {
+        /* DCMF can use tree for MAX/MIN and FLOAT/DOUBLE/INT32/INT64 types */
+        case A1_MAX:
+            use_tree = 1;
+            break;
+        case A1_MIN:
+            use_tree = 1;
+            break;
+        case A1_MAXABS:
+            use_tree = 1;
+            break;
+        case A1_MINABS:
+            use_tree = 1;
+            break;
+        case A1_SUM:
+            /* FLOAT on tree only for MIN/MAX */
+            use_tree = (a1_type != A1_FLOAT);
+            break;
+        /* these two can't be done on the tree network */
+        case A1_PROD:
+            use_tree = 0;
+            break;
+        case A1_OR:
+            use_tree = 0;
+            break;
+        default:
+            A1U_ERR_POP(1, "A1D_Allreduce_group unsupported op ");
+            break;
+    }
+
+    fn_exit:
+    A1U_FUNC_EXIT();
+    return use_tree;
+
+    fn_fail:
+    goto fn_exit;
+}
+
 int A1DI_MakeABSbuffer(A1_datatype_t a1_type, int count, void** in, void** tmp)
 {
     int bytes, status = A1_SUCCESS;
@@ -366,6 +412,8 @@ int A1D_Allreduce_group(A1_group_t* group,
 
     A1DI_CRITICAL_ENTER();
 
+    use_tree = A1DI_TypeOp_uses_tree(a1_type, a1_op);
+
     A1DI_ConvertOp_A1toDCMF(a1_op, &dcmf_op);
 
     A1DI_ConvertType_A1toDCMF(a1_type, &dcmf_type);
@@ -384,30 +432,6 @@ int A1D_Allreduce_group(A1_group_t* group,
     else
     {
         tmp = in;
-    }
-
-    /* determine if we can use the tree network for this op/type combo */
-    switch (a1_op)
-    {
-        /* DCMF can use tree for MAX/MIN and FLOAT/DOUBLE/INT32/INT64 types */
-        case A1_MAX:
-        case A1_MIN:
-        case A1_MAXABS:
-        case A1_MINABS:
-            use_tree = 1;
-            break;
-            /* FLOAT on tree only for MIN/MAX */
-        case A1_SUM:
-            use_tree = (a1_type != A1_FLOAT);
-            break;
-            /* these two can't be done on the tree network */
-        case A1_PROD:
-        case A1_OR:
-            use_tree = 0;
-            break;
-        default:
-            A1U_ERR_POP(1, "A1D_Allreduce_group unsupported reduce op ");
-            break;
     }
 
     /* finally, we do the collective */
