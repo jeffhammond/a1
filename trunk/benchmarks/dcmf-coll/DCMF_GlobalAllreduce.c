@@ -63,7 +63,7 @@ void done(void *clientdata, DCMF_Error_t *error)
 int main()
 {
 
-    int i, rank, nranks, msgsize, status, expected;
+    int i, rank, nranks, msgsize, status, expected, fail;
     long bufsize;
     int *buffer;
     DCMF_Protocol_t ga_protocol;
@@ -101,10 +101,8 @@ int main()
     for (msgsize = sizeof(int); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
         /*initializing buffer*/
-        for (i = 0; i < bufsize / sizeof(int); i++)
-        {
-            buffer[i] = rank;
-        }
+        for (i = 0; i < bufsize / sizeof(int); i++) buffer[i] = rank;
+        fail = 0;
 
         ga_active += 1;
 
@@ -120,31 +118,24 @@ int main()
                                       DCMF_SIGNED_INT,
                                       DCMF_SUM);
 
-        while (ga_active > 0)
-            DCMF_Messager_advance();
+        while (ga_active > 0) DCMF_Messager_advance();
 
         expected = (nranks - 1) * (nranks) / 2;
+
         for (i = 0; i < msgsize / sizeof(int); i++)
         {
             if (buffer[i] - expected != 0)
             {
-                printf("[%d] Validation has failed Expected: %d, Actual: %d, i: %d \n",
-                       rank,
-                       expected,
-                       buffer[i],
-                       i);
-                fflush(stdout);
-                exit(-1);
+                fail++;
+                printf("[%d] sum validation has failed Expected: %d, Actual: %d, i: %d \n", rank, expected, buffer[i], i);
             }
         }
 
-        printf("[%d] %d message sum reduce successful \n", rank, msgsize);
+        if (fail==0) printf("[%d] %d message sum reduce successful \n", rank, msgsize);
         fflush(stdout);
 
-        for (i = 0; i < bufsize / sizeof(int); i++)
-        {
-            buffer[i] = 1;
-        }
+        for (i = 0; i < bufsize / sizeof(int); i++) buffer[i] = 1;
+        fail = 0;
 
         ga_active += 1;
 
@@ -159,25 +150,18 @@ int main()
                                       DCMF_SIGNED_INT,
                                       DCMF_PROD);
 
-        while (ga_active > 0)
-            DCMF_Messager_advance();
+        while (ga_active > 0) DCMF_Messager_advance();
 
         expected = 1;
+
         for (i = 0; i < msgsize / sizeof(int); i++)
-        {
             if (buffer[i] - expected != 0)
             {
-                printf("[%d] Validation has failed Expected: %d, Actual: %d, i: %d \n",
-                       rank,
-                       expected,
-                       buffer[i],
-                       i);
-                fflush(stdout);
-                exit(-1);
+                fail++;
+                printf("[%d] prod validation has failed Expected: %d, Actual: %d, i: %d \n", rank, expected, buffer[i], i);
             }
-        }
 
-        printf("[%d] %d message product reduce successful\n", rank, msgsize);
+        if (fail==0) printf("[%d] %d message product reduce successful\n", rank, msgsize);
         fflush(stdout);
 
     }
