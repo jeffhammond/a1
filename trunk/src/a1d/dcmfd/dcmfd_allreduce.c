@@ -231,6 +231,7 @@ int A1DI_TypeOp_uses_tree(A1_datatype_t a1_type, A1_reduce_op_t a1_op)
             use_tree = 0;
             break;
         default:
+            use_tree = -1;
             A1U_ERR_POP(1, "A1D_Allreduce_group unsupported op ");
             break;
     }
@@ -424,6 +425,7 @@ int A1D_Allreduce_group(A1_group_t* group,
         status = A1DI_MakeABSbuffer(a1_type, count, &in, &tmp);
         A1U_ERR_POP(status != A1_SUCCESS, "A1DI_MakeABSbuffer failed ");
     }
+    /* these ops cannot be done in-place as best I can tell */
     else if ((a1_op == A1_PROD) || (a1_op == A1_OR))
     {
         status = A1DI_MakeCOPYbuffer(a1_type, count, &in, &tmp);
