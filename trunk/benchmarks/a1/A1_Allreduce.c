@@ -56,10 +56,10 @@
 
 int main()
 {
-
     int i, rank, nranks, msgsize, peer;
     long bufsize;
-    int *buffer;
+    int* in;
+    int* out;
     int t_start, t_stop, t_latency;
     int expected;
 
@@ -69,7 +69,8 @@ int main()
     nranks = A1_Process_total(A1_GROUP_WORLD);
 
     bufsize = MAX_MSG_SIZE;
-    buffer = (int *) malloc(bufsize);
+    in = (int *) malloc(bufsize);
+    out = (int *) malloc(bufsize);
 
     if (rank == 0)
     {
@@ -81,64 +82,63 @@ int main()
 
     for (msgsize = sizeof(int); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
-
-            for (i = 0; i < bufsize/sizeof(int); i++)
-            {
-                 buffer[i] = rank;
-            }
+            for (i = 0; i < bufsize/sizeof(int); i++) in[i]  = rank;
+            for (i = 0; i < bufsize/sizeof(int); i++) out[i] = 0;
 
             A1_Allreduce_group(A1_GROUP_WORLD,
                                msgsize/sizeof(int),
                                A1_SUM,
                                A1_INT32,
-                               (void *) buffer,
-                               (void *) buffer);
+                               (void *) in,
+                               (void *) out);
 
             expected = (nranks-1)*(nranks)/2;
+
             for (i = 0; i < msgsize/sizeof(int); i++)
-            {
-               if(buffer[i] - expected != 0)
+               if(out[i] - expected != 0)
                {
-                   printf("[%d] Validation has failed Expected: %d, Actual: %d, i: %d \n",
-                               rank, expected, buffer[i], i);
+                   printf("[%d] Validation has failed Expected: %d, Actual: %d, i: %d \n", rank, expected, out[i], i);
                    fflush(stdout);
-                   exit(-1);
                }
-            }
 
             printf("[%d] %d message sum reduce successful\n", rank, msgsize);
             fflush(stdout);
 
-            for (i = 0; i < bufsize/sizeof(int); i++)
-            {
-                  buffer[i] = 1;
-            }
+/*
+            for (i = 0; i < bufsize/sizeof(int); i++) in[i]  = 1;
+            for (i = 0; i < bufsize/sizeof(int); i++) out[i] = 0;
 
             A1_Allreduce_group(A1_GROUP_WORLD,
                                msgsize/sizeof(int),
                                A1_PROD,
                                A1_INT32,
-                               (void *) buffer,
-                               (void *) buffer);
+                               (void *) in,
+                               (void *) out);
 
             expected = 1;
             for (i = 0; i < msgsize/sizeof(int); i++)
-            {
-               if(buffer[i] - expected != 0)
+               if(out[i] - expected != 0)
                {
-                   printf("[%d] Validation has failed Expected: %d, Actual: %d, i: %d \n",
-                               rank, expected, buffer[i], i);
+                   printf("[%d] Validation has failed Expected: %d, Actual: %d, i: %d \n", rank, expected, out[i], i);
                    fflush(stdout);
-                   exit(-1);
                }
-            }
 
             printf("[%d] %d message product reduce successful\n", rank, msgsize);
             fflush(stdout);
-
+*/
     }
 
-    free(buffer);
+    A1_Barrier_group(A1_GROUP_WORLD);
+
+    printf("before free\n");
+    fflush(stdout);
+
+    free(in);
+    free(out);
+
+    printf("after free\n");
+    fflush(stdout);
+
     A1_Finalize();
 
     return 0;

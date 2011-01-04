@@ -101,6 +101,9 @@ int main()
 
     for (msgsize = sizeof(int); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
+        printf("[%d] trying allreduce for msgsize %d \n", rank, msgsize);
+
+        fflush(stdout);
         /*initializing buffer*/
         for (i = 0; i < bufsize/sizeof(int); i++)
         {

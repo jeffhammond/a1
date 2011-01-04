@@ -30,7 +30,7 @@ submit-all: $(OUTPUTS)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-submit-clean:
+submitclean:
 	$(RM) $(RMFLAGS) *.output *.error *.cobaltlog core.*
 
 clean:
