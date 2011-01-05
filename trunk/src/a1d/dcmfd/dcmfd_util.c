@@ -387,7 +387,7 @@ int A1DI_Malloc(void** ptr, size_t num)
     fn_fail: goto fn_exit;
 }
 
-int A1DI_Malloc(void* ptr)
+int A1DI_Free(void* ptr)
 {
     int status = A1_SUCCESS;
 
@@ -401,15 +401,13 @@ int A1DI_Malloc(void* ptr)
     fn_fail: goto fn_exit;
 }
 
-#define A1DI_Memset(ptr, val, num)  memset(ptr, val, num)
-
 int A1DI_Memset(void* ptr, int val, size_t num)
 {
     int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
-    memset(ptr, val, num)
+    memset(ptr, val, num);
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
@@ -417,13 +415,13 @@ int A1DI_Memset(void* ptr, int val, size_t num)
     fn_fail: goto fn_exit;
 }
 
-int A1DI_Memset(void* out, const void* in, size_t num)
+int A1DI_Memcpy(void* out, const void* in, size_t num)
 {
     int status = A1_SUCCESS;
 
     A1U_FUNC_ENTER();
 
-    memcpy(out, in, num)
+    memcpy(out, in, num);
 
     fn_exit: A1U_FUNC_EXIT();
     return status;
