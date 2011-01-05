@@ -160,22 +160,6 @@ extern LockBox_Mutex_t global_lbmutex;
 //   } while(0)                             \
 
 /*************************************************
- *          Memory Allocation Macros             *
- *************************************************/
-
-#define A1DI_Malloc(ptr, num) posix_memalign(ptr, a1d_settings.alignment, num)
-/*
- * I don't know why one would want unaligned memory, but here it is for posterity
- * #define A1DI_Malloc(ptr, num)  ((ptr = malloc(num)) == NULL)
- */
-
-#define A1DI_Free(ptr) free(ptr)
-
-#define A1DI_Memset(ptr, val, num)  memset(ptr, val, num)
-
-#define A1DI_Memcpy(trg, src, num)  memcpy(trg, src, num)
-
-/*************************************************
  *          Critical Section Macros              *
  *************************************************/
 

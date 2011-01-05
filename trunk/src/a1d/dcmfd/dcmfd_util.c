@@ -317,7 +317,9 @@ int A1DI_Unpack_strided_acc(void *data_ptr,
     goto fn_exit;
 }
 
-/**** Exposing locking to ADL layer ****/
+/*************************************************
+ *        Exposing locking to ADL layer          *
+ *************************************************/
 
 void A1D_Global_lock_acquire()
 {
@@ -345,4 +347,86 @@ void A1D_Global_lock_release()
 
   fn_fail:
     goto fn_exit;
+}
+
+/*************************************************
+ *          Memory Allocation Macros             *
+ *************************************************/
+
+int A1DI_Malloc(void** ptr, size_t num)
+{
+    int status;
+
+    A1U_FUNC_ENTER();
+
+    status = posix_memalign(ptr, a1d_settings.alignment, num);
+
+    likely_if (status == 0)
+    {
+            goto fn_exit;
+    }
+    else
+    {
+        if (status == ENOMEM)
+        {
+            A1U_ERR_ABORT(1,"insufficient memory");
+        }
+        else if (status == EINVAL)
+        {
+            A1U_ERR_ABORT(1,"alignment problem");
+        }
+        else
+        {
+            A1U_ERR_ABORT(1,"posix_memalign failed for no good reason.");
+        }
+    }
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int A1DI_Malloc(void* ptr)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    free(ptr);
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+#define A1DI_Memset(ptr, val, num)  memset(ptr, val, num)
+
+int A1DI_Memset(void* ptr, int val, size_t num)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    memset(ptr, val, num)
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
+}
+
+int A1DI_Memset(void* out, const void* in, size_t num)
+{
+    int status = A1_SUCCESS;
+
+    A1U_FUNC_ENTER();
+
+    memcpy(out, in, num)
+
+    fn_exit: A1U_FUNC_EXIT();
+    return status;
+
+    fn_fail: goto fn_exit;
 }

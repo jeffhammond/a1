@@ -158,8 +158,7 @@ void A1DI_RecvSendShort_putacc_callback(void *clientdata,
                     bytes/sizeof(float));
             break;
         default:
-            A1U_ERR_ABORT(status, "Invalid datatype received in Putacc operation \n")
-            ;
+            A1U_ERR_ABORT(status, "invalid datatype \n");
             break;
     }
 }
