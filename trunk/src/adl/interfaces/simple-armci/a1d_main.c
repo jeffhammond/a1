@@ -50,7 +50,59 @@
 #include "a1d_api.h"
 #include "a1d_util.h"
 
-MPI_Comm A1D_COMM_WORLD;
+void A1D_Memregions_create()
+{
+    int i;
+    int mpi_status;
+    size_t bytes_in = -1;
+    size_t bytes_out;
+    DCMF_Result dcmf_result;
+    DCMF_Memregion_t tmp_memregion;
+
+    /* create a memregion for the entire address space */
+    DCMF_CriticalSection_enter(0);
+    dcmf_result = DCMF_Memregion_create(&tmp_memregion,
+                                        &bytes_out,
+                                        bytes_in,
+                                        NULL,
+                                        0);
+    assert(dcmf_result==DCMF_SUCCESS);
+    DCMF_CriticalSection_exit(0);
+
+    /* allocate space for every memregion */
+    A1D_Memregions = (DCMF_Memregion_t*) malloc(world_size * sizeof(DCMF_Memregion_t));
+    assert(A1D_Memregions!=NULL);
+
+    /* exchange DCMF memregions */
+    mpi_status = MPI_Allgather(&tmp_memregion,sizeof(DCMF_Memregion_t),MPI_BYTE,
+                               &A1D_Memregions,sizeof(DCMF_Memregion_t),MPI_BYTE,
+                               A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
+    /* allocate space for base of every memregion */
+    A1D_Memregion_base = (void**) malloc(world_size * sizeof(void*));
+    assert(A1D_Memregion_base!=NULL);
+
+    /* get base for every memregion */
+    DCMF_CriticalSection_enter(0);
+    for (i = 0; i < world_size; i++)
+    {
+        dcmf_result = DCMF_Memregion_query(&A1D_Memregions[i],
+                                           &bytes_out,
+                                           &A1D_Memregion_base[i]);
+        assert(dcmf_result==DCMF_SUCCESS);
+    }
+    DCMF_CriticalSection_exit(0);
+
+    return;
+}
+
+void A1D_Memregions_destroy()
+{
+    free(A1D_Memregion_base);
+    free(A1D_Memregions);
+    return;
+}
 
 void A1D_Startup()
 {
@@ -63,13 +115,24 @@ void A1D_Startup()
     MPI_Initialized(&mpi_initialized);
     assert(mpi_initialized==1);
 
-    /* MPI has to be thread-safe so that DCMF doesn't explode */
-    MPI_Query_thread(&mpi_provided);
-    assert(mpi_provided==MPI_THREAD_MULTIPLE);
+    /* cache this info */
+    DCMF_CriticalSection_enter(0);
+    dcmf_rank = DCMF_Messager_rank();
+    dcmf_size = DCMF_Messager_size();
+    DCMF_CriticalSection_exit(0);
 
     /* have to use our own communicator for collectives to be proper */
     mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,A1D_COMM_WORLD);
     assert(mpi_status==0);
+
+    /* MPI will setup interrupts if the user requests it */
+#if 0
+
+    /* MPI has to be thread-safe so that DCMF doesn't explode */
+    /* this is unnecessary if MPI is single-threaded *
+     * MPI_Query_thread(&mpi_provided);
+     * assert(mpi_provided==MPI_THREAD_MULTIPLE);
+     */
 
     /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
@@ -86,36 +149,45 @@ void A1D_Startup()
     assert(dcmf_result==DCMF_SUCCESS);
     DCMF_CriticalSection_exit(0);
 
+
     /* barrier after DCMF_Messager_configure to make sure everyone has the new DCMF config */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
+#endif
+
+    A1D_Memregions_create();
+
     return(0);
 }
 
-void* A1D_Allocate_local(long bytes)
+void A1D_Cleanup()
 {
+    A1D_Memregions_destroy();
+    return;
+}
+
+void* A1D_Allocate_local(long bytes)
+                {
     void* ptr;
     ptr = malloc((size_t)bytes);
     /* accept null pointer if no memory requested */
     assert( (ptr!=NULL) || (bytes==0) );
     return ptr;
-}
+                }
 
 int A1D_Allocate_shared(void* ptrs[], long bytes)
 {
-    long rank;
-    void* tmp_ptr;
     int mpi_status;
-
-    rank = (long) DCMF_Messager_rank();
+    void* tmp_ptr;
 
     tmp_ptr = A1D_Allocate_local(bytes);
-    /* set to null just */
+    /* set to null just to be safe */
     if (bytes == 0) tmp_ptr = NULL;
 
-    mpi_status = MPI_Allgather(tmp_ptr,sizeof(void*),MPI_BYTE,
-                               ptrs,sizeof(void*),MPI_BYTE,
+    /* don't know how to portably send around MPI_Aint */
+    mpi_status = MPI_Allgather(&tmp_ptr,sizeof(void*),MPI_BYTE,
+                               &ptrs,sizeof(void*),MPI_BYTE,
                                A1D_COMM_WORLD);
     assert(mpi_status==0);
 

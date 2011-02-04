@@ -47,46 +47,25 @@
  *
  *********************************************************************/
 
-#ifndef A1D_API_H
-#define A1D_API_H
+#include "a1d_api.h"
+#include "a1d_util.h"
 
-int A1D_Startup();
-void A1D_Cleanup();
+int A1D_Fetch_and_inc32(int proc, int* local, int* remote, int incr)
+{
+    return 0;
+}
 
-void A1D_Memregions_create();
-void A1D_Memregions_destroy();
+int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr)
+{
+    return 0;
+}
 
-void* A1D_Allocate_local(long bytes);
-int A1D_Allocate_shared(void* ptrs[], long bytes);
-void A1D_Free_local(void* ptr);
-void A1D_Free_shared(void* ptr);
+int A1D_Swap32(int proc, int* local, int* remote)
+{
+    return 0;
+}
 
-int A1D_Fetch_and_inc32(int proc, int* local, int* remote, int incr);
-int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr);
-int A1D_Swap32(int proc, int* local, int* remote);
-int A1D_Swap64(int proc, long* local, long* remote);
-
-int A1D_GetC(int proc, int bytes, src, dst);
-int A1D_PutC(int proc, int bytes, src, dst);
-int A1D_AccC(int proc, int bytes, src, dst, int type, void* scale);
-
-int A1D_GetS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr);
-int A1D_PutS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr);
-int A1D_AccS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr,
-                          int type, void* scale);
-
-//typedef struct
-//{
-//        int ptr_array_len;
-//        void** src_ptr_array;
-//        void** dst_ptr_array;
-//}
-//a1d_iovec_t;
-
-#endif
+int A1D_Swap64(int proc, long* local, long* remote)
+{
+    return 0;
+}
