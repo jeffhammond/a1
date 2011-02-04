@@ -89,7 +89,7 @@ void A1D_Register_comm()
 
     DCMF_CriticalSection_exit(0);
 
-    return(0);
+    return;
 }
 
 int A1D_Get(int target, int bytes, void* src, void* dst)
@@ -129,7 +129,7 @@ int A1D_Get(int target, int bytes, void* src, void* dst)
     return(0);
 }
 
-int A1D_PutC(int proc, int bytes, src, dst)
+int A1D_PutC(int target, int bytes, void* src, void* dst)
 {
     DCMF_Result dcmf_result;
     DCMF_Request_t request;
@@ -177,32 +177,28 @@ int A1D_PutC(int proc, int bytes, src, dst)
           t[i] += s[i]*c;                                                   \
    } while(0)
 
-int A1D_AccC(int proc, int bytes, src, dst, int type, void* scale)
+int A1D_GetS(int proc, int stride_levels, int block_sizes,
+             void* src_ptr, int* src_stride_arr,
+             void* dst_ptr, int* dst_stride_arr)
 {
     return 0;
 }
 
-int A1D_GetS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr)
+int A1D_PutS(int proc, int stride_levels, int block_sizes,
+             void* src_ptr, int* src_stride_arr,
+             void* dst_ptr, int* dst_stride_arr)
 {
     return 0;
 }
 
-int A1D_PutS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr)
+int A1D_AccS(int proc, int stride_levels, int block_sizes,
+             void* src_ptr, int* src_stride_arr,
+             void* dst_ptr, int* dst_stride_arr,
+             int type, void* scale)
 {
     return 0;
 }
 
-int A1D_AccS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr,
-                          int type, void* scale)
-{
-    return 0;
-}
 
 
 

@@ -61,25 +61,25 @@ int A1D_Allocate_shared(void* ptrs[], long bytes);
 void A1D_Free_local(void* ptr);
 void A1D_Free_shared(void* ptr);
 
-int A1D_Fetch_and_inc32(int proc, int* local, int* remote, int incr);
-int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr);
-int A1D_Swap32(int proc, int* local, int* remote);
-int A1D_Swap64(int proc, long* local, long* remote);
+int A1D_Fetch_and_inc32(int target, int* local, int* remote, int incr);
+int A1D_Fetch_and_inc64(int target, long* local, long* remote, long incr);
+int A1D_Swap32(int target, int* local, int* remote);
+int A1D_Swap64(int target, long* local, long* remote);
 
-int A1D_GetC(int proc, int bytes, src, dst);
-int A1D_PutC(int proc, int bytes, src, dst);
-int A1D_AccC(int proc, int bytes, src, dst, int type, void* scale);
+int A1D_GetC(int target, int bytes, void* src, void* dst);
+int A1D_PutC(int target, int bytes, void* src, void* dst);
+int A1D_AccC(int target, int bytes, void* src, void* dst, int type, void* scale);
 
-int A1D_GetS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr);
-int A1D_PutS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr);
-int A1D_AccS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr,
-                          int type, void* scale);
+int A1D_GetS(int target, int stride_levels, int block_sizes,
+             void* src_ptr, int* src_stride_arr,
+             void* dst_ptr, int* dst_stride_arr);
+int A1D_PutS(int target, int stride_levels, int block_sizes,
+             void* src_ptr, int* src_stride_arr,
+             void* dst_ptr, int* dst_stride_arr);
+int A1D_AccS(int target, int stride_levels, int block_sizes,
+             void* src_ptr, int* src_stride_arr,
+             void* dst_ptr, int* dst_stride_arr,
+             int type, void* scale);
 
 //typedef struct
 //{
