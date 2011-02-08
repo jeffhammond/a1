@@ -47,11 +47,99 @@
  *
  *********************************************************************/
 
-#ifndef A1D_API_H
-#define A1D_API_H
+#include "a1d_core.h"
 
-#include "a1d_main.h"
-#include "a1d_comm.h"
-#include "a1d_stats.h"
+MPI_Comm A1D_COMM_WORLD;
 
-#endif
+int A1D_Initialize()
+{
+    int mpi_initialized, mpi_provided;
+    int mpi_status;
+    DCMF_Result dcmf_result;
+    DCMF_Configure_t dcmf_config;
+
+    /* MPI has to be initialized for this implementation to work */
+    MPI_Initialized(&mpi_initialized);
+    assert(mpi_initialized==1);
+
+    /* MPI has to be thread-safe so that DCMF doesn't explode */
+    MPI_Query_thread(&mpi_provided);
+    assert(mpi_provided==MPI_THREAD_MULTIPLE);
+
+    /* have to use our own communicator for collectives to be proper */
+    mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
+    /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
+    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
+    /* to be safe, but perhaps not necessary */
+    dcmf_config.thread_level = DCMF_THREAD_MULTIPLE;
+    /* this implementation of ARMCI for BGP is going to use interrupts exclusively */
+    dcmf_config.interrupts = DCMF_INTERRUPTS_ON;
+
+    /* reconfigure DCMF with interrupts on */
+    DCMF_CriticalSection_enter(0);
+    dcmf_result = DCMF_Messager_configure(&config, &config);
+    assert(dcmf_result==DCMF_SUCCESS);
+    DCMF_CriticalSection_exit(0);
+
+    /* barrier after DCMF_Messager_configure to make sure everyone has the new DCMF config */
+    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
+    return(0);
+}
+
+int A1D_Finalize()
+{
+	A1D_Print_stats();
+	return(0);
+}
+
+int A1D_Allocate_local(void** ptr, long bytes)
+{
+    void* tmp;
+    tmp = malloc((size_t)bytes);
+
+    /* just to be safe */
+    if (bytes == 0) tmp = NULL;
+
+    /* accept null pointer if no memory requested */
+    assert( (tmp!=NULL) || (bytes==0) );
+
+    ptr = &tmp;
+
+    return(0);
+}
+
+int A1D_Allocate_shared(void* ptrs[], long bytes)
+{
+    void* tmp_ptr;
+    int mpi_status;
+
+    A1D_Allocate_local(&tmp_ptr, bytes);
+
+    mpi_status = MPI_Allgather(tmp_ptr,sizeof(void*),MPI_BYTE,
+                               ptrs,sizeof(void*),MPI_BYTE,
+                               A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
+    return(0);
+}
+
+void A1D_Free_local(void* ptr)
+{
+	if (ptr != NULL) free(ptr);
+
+    return;
+}
+
+void A1D_Free_shared(void* ptr)
+{
+    A1D_Free_local(ptr);
+
+    return;
+}
+

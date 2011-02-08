@@ -47,11 +47,20 @@
  *
  *********************************************************************/
 
-#ifndef A1D_API_H
-#define A1D_API_H
+#ifndef A1D_HEADERS_H
+#define A1D_HEADERS_H
 
-#include "a1d_main.h"
-#include "a1d_comm.h"
-#include "a1d_stats.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <math.h>
+#include <assert.h>
+#include <pthread.h>
+
+#include <dcmf.h>
+#include <dcmf_globalcollectives.h>
+#include <dcmf_collectives.h>
+
+#include <mpi.h>
 
 #endif

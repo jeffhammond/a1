@@ -47,11 +47,17 @@
  *
  *********************************************************************/
 
-#ifndef A1D_API_H
-#define A1D_API_H
+#ifndef A1D_CORE_H
+#define A1D_CORE_H
 
-#include "a1d_main.h"
-#include "a1d_comm.h"
-#include "a1d_stats.h"
+#include "a1d_headers.h"
+
+int A1D_Initalize();
+int A1D_Finalize();
+
+void* A1D_Allocate_local(long bytes);
+int A1D_Allocate_shared(void* ptrs[], long bytes);
+void A1D_Free_local(void* ptr);
+void A1D_Free_shared(void* ptr);
 
 #endif

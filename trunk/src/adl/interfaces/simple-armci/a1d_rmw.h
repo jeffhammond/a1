@@ -47,11 +47,14 @@
  *
  *********************************************************************/
 
-#ifndef A1D_API_H
-#define A1D_API_H
+#ifndef A1D_RMW_H
+#define A1D_RMW_H
 
-#include "a1d_main.h"
-#include "a1d_comm.h"
-#include "a1d_stats.h"
+#include "a1d_headers.h"
+
+int A1D_Fetch_and_inc32(int proc, int* local, int* remote, int incr);
+int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr);
+int A1D_Swap32(int proc, int* local, int* remote);
+int A1D_Swap64(int proc, long* local, long* remote);
 
 #endif

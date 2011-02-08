@@ -47,11 +47,17 @@
  *
  *********************************************************************/
 
-#ifndef A1D_API_H
-#define A1D_API_H
+#ifndef A1D_STATS_H
+#define A1D_STATS_H
 
-#include "a1d_main.h"
-#include "a1d_comm.h"
-#include "a1d_stats.h"
+void A1D_Print_stats();
+
+
+
+
+
+
+
+
 
 #endif

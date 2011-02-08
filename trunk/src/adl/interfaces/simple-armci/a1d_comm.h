@@ -47,11 +47,32 @@
  *
  *********************************************************************/
 
-#ifndef A1D_API_H
-#define A1D_API_H
+#ifndef A1D_COMM_H
+#define A1D_COMM_H
 
-#include "a1d_main.h"
-#include "a1d_comm.h"
-#include "a1d_stats.h"
+#include "a1d_headers.h"
+
+int A1D_GetC(int proc, int bytes, src, dst);
+int A1D_PutC(int proc, int bytes, src, dst);
+int A1D_AccC(int proc, int bytes, src, dst, int type, void* scale);
+
+int A1D_GetS(int proc, stride_levels, block_sizes,
+                          src_ptr, src_stride_arr,
+                          dst_ptr, dst_stride_arr);
+int A1D_PutS(int proc, stride_levels, block_sizes,
+                          src_ptr, src_stride_arr,
+                          dst_ptr, dst_stride_arr);
+int A1D_AccS(int proc, stride_levels, block_sizes,
+                          src_ptr, src_stride_arr,
+                          dst_ptr, dst_stride_arr,
+                          int type, void* scale);
+
+//typedef struct
+//{
+//        int ptr_array_len;
+//        void** src_ptr_array;
+//        void** dst_ptr_array;
+//}
+//a1d_iovec_t;
 
 #endif
