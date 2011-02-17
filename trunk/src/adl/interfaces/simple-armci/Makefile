@@ -1,5 +1,7 @@
-CC      = mpixlc_r 
-COPT    = -g -O3 -qstrict
+#CC      = mpixlc_r 
+#COPT    = -g -O3 -qstrict
+CC      = mpicc
+COPT    = -g -O2 -Wall
 
 INCLUDE = -I. -I/bgsys/drivers/ppcfloor/arch/include/
 LIBS    = libarmci-bgp.a
@@ -15,6 +17,7 @@ all: libarmci-bgp.a $(TESTS)
 
 libarmci-bgp.a: $(OBJECTS)
 	$(AR) $(ARFLAGS) libarmci-bgp.a $(OBJECTS)
+	$(RM) $(OBJECTS)
 
 %.x: %.o
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@

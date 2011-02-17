@@ -48,6 +48,7 @@
  *********************************************************************/
 
 #include "a1d_core.h"
+#include "a1d_stats.h"
 
 MPI_Comm A1D_COMM_WORLD;
 
@@ -241,7 +242,7 @@ int A1D_Destroy_window(A1D_Window_t* window)
 #endif
 
     /* free the communicator */
-    mpi_status = MPI_Comm_free(window->comm);
+    mpi_status = MPI_Comm_free(&(window->comm));
     assert(mpi_status==0);
 
     return(0);
