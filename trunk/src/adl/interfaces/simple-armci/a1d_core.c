@@ -136,10 +136,10 @@ int A1D_Initialize()
     bytes_in = -1;
     DCMF_CriticalSection_enter(0);
     dcmf_result = DCMF_Memregion_create(&local_memregion,&bytes_out,bytes_in,NULL,0);
-    DCMF_CriticalSection_exit(0);
     assert(dcmf_result==DCMF_SUCCESS);
+    DCMF_CriticalSection_exit(0);
 
-    /* exchange memregions */
+    /* exchange memregions because we don't use symmetry heap */
     mpi_status = MPI_Allgather(&local_memregion,sizeof(DCMF_Memregion_t),MPI_BYTE,
                                A1D_Memregion_list,sizeof(DCMF_Memregion_t),MPI_BYTE,
                                A1D_COMM_WORLD);
@@ -148,16 +148,16 @@ int A1D_Initialize()
     /* destroy temporary local memregion */
     DCMF_CriticalSection_enter(0);
     dcmf_result = DCMF_Memregion_destroy(&local_memregion);
-    DCMF_CriticalSection_exit(0);
     assert(dcmf_result==DCMF_SUCCESS);
+    DCMF_CriticalSection_exit(0);
 
     /* check for valid memregions */
     DCMF_CriticalSection_enter(0);
     for (i = 0; i < mpi_size; i++)
     {
         dcmf_result = DCMF_Memregion_query(&A1D_Memregion_list[i],
-                                      &bytes_out,
-                                      (void **) &A1D_Baseptr_list[i]);
+                                           &bytes_out,
+                                           &A1D_Baseptr_list[i]);
         assert(dcmf_result==DCMF_SUCCESS);
     }
     DCMF_CriticalSection_exit(0);
@@ -183,7 +183,7 @@ int A1D_Finalize()
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    /* destroy all memregions - probably unnecessary */
+    /* destroy all memregions - not absolutely unnecessary if memregion creation has no side effects */
     DCMF_CriticalSection_enter(0);
     for (i = 0; i < mpi_size; i++)
     {
