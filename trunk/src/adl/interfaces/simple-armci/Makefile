@@ -11,8 +11,8 @@ CFLAGS  = $(COPT) $(INCLUDE)
 LDFLAGS = $(COPT)
 
 TESTS   := $(wildcard test*.c)
-OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
-HEADERS := $(wildcard *.h)
+OBJECTS := $(patsubst %.c,%.o,$(wildcard a1d*.c))
+HEADERS := $(wildcard a1d*.h)
 
 all: libarmci-bgp.a $(TESTS)
 

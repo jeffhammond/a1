@@ -61,8 +61,8 @@ int A1D_Initialize()
 {
     int mpi_initialized, mpi_provided;
     int mpi_status;
-    int bytes_in, bytes_out;
     int i;
+    size_t bytes_in, bytes_out;
     DCMF_Result dcmf_result;
     DCMF_Configure_t dcmf_config;
     DCMF_Memregion_t local_memregion;
@@ -126,11 +126,11 @@ int A1D_Initialize()
 
     /* allocate memregion list */
     A1D_Memregion_list = malloc( mpi_size * sizeof(DCMF_Memregion_t) );
-    A1U_ERR_POP(A1D_Memregion_list != NULL);
+    assert(A1D_Memregion_list != NULL);
 
     /* allocate base pointer list */
     A1D_Baseptr_list = malloc( mpi_size * sizeof(void*) );
-    A1U_ERR_POP(A1D_Memregion_list != NULL);
+    assert(A1D_Memregion_list != NULL);
 
     /* create memregions */
     bytes_in = -1;
@@ -174,11 +174,13 @@ int A1D_Initialize()
 int A1D_Finalize()
 {
     int mpi_status;
+    int i;
+    DCMF_Result dcmf_result;
 
     A1D_Print_stats();
 
     /* barrier so that no one is able to access remote memregions after they are destroyed */
-    mpi_status = MPI_Barrier(window->comm);
+    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
     /* destroy all memregions - probably unnecessary */
