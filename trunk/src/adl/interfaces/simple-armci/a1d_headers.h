@@ -53,6 +53,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <math.h>
 #include <assert.h>
 #include <pthread.h>

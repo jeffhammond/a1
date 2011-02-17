@@ -28,10 +28,10 @@
  *
  * The copyright holders provide no reassurances that the source code
  * provided does not infringe any patent, copyright, or any other
- * intellectual property rights of third parties.  The copyright holders
+ * int32_tellectual property rights of third parties.  The copyright holders
  * disclaim any liability to any recipient for claims brought against
  * recipient by any third party for infringement of that parties
- * intellectual property rights.
+ * int32_tellectual property rights.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -47,25 +47,14 @@
  *
  *********************************************************************/
 
-#include "a1d_api.h"
-#include "a1d_util.h"
+#include "a1d_headers.h"
 
-int A1D_Fetch_and_inc32(int proc, int* local, int* remote, int incr)
-{
-    return 0;
-}
+#ifndef A1D_ATOMIC_H
+#define A1D_ATOMIC_H
 
-int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr)
-{
-    return 0;
-}
+int32_t A1D_Fetch_and_inc32(int proc, int32_t* local, int32_t* remote, int32_t incr);
+int32_t A1D_Fetch_and_inc64(int proc, int64_t* local, int64_t* remote, int64_t incr);
+int32_t A1D_Swap32(int proc, int32_t* local, int32_t* remote);
+int32_t A1D_Swap64(int proc, int64_t* local, int64_t* remote);
 
-int A1D_Swap32(int proc, int* local, int* remote)
-{
-    return 0;
-}
-
-int A1D_Swap64(int proc, long* local, long* remote)
-{
-    return 0;
-}
+#endif

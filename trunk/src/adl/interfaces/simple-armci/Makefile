@@ -10,6 +10,7 @@ LD      = $(CC)
 CFLAGS  = $(COPT) $(INCLUDE)
 LDFLAGS = $(COPT)
 
+TESTS   := $(wildcard test*.c)
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 HEADERS := $(wildcard *.h)
 

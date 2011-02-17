@@ -50,14 +50,8 @@
 #ifndef A1D_STATS_H
 #define A1D_STATS_H
 
+#include "a1d_headers.h"
+
 void A1D_Print_stats();
-
-
-
-
-
-
-
-
 
 #endif
