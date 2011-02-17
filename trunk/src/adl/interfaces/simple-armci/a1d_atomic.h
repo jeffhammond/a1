@@ -47,27 +47,25 @@
  *
  *********************************************************************/
 
-#ifndef A1D_CORE_H
-#define A1D_CORE_H
+#include "a1d_api.h"
+#include "a1d_util.h"
 
-#include "a1d_headers.h"
-
-int A1D_Initalize();
-int A1D_Finalize();
-
-void* A1D_Allocate_local(long bytes);
-int A1D_Allocate_shared(void* ptrs[], long bytes);
-void A1D_Free_local(void* ptr);
-void A1D_Free_shared(void* ptr);
-
-typedef struct
+int A1D_Fetch_and_inc32(int proc, int* local, int* remote, int incr)
 {
-	MPI_Comm comm
-	void** addr_list;
-#ifndef NO_WINDOW_BOUNDS_CHECKING
-	int* size_list; /* for correctness checking, technically optional */
-#endif
+    return 0;
 }
-A1D_Window_t;
 
-#endif
+int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr)
+{
+    return 0;
+}
+
+int A1D_Swap32(int proc, int* local, int* remote)
+{
+    return 0;
+}
+
+int A1D_Swap64(int proc, long* local, long* remote)
+{
+    return 0;
+}
