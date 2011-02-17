@@ -49,21 +49,22 @@
 
 #include "a1d_comm.h"
 
-int A1D_GetC(int proc, int bytes, src, dst)
+int A1D_GetC(int proc, int bytes, void* src, void* dst)
 {
     return 0;
 }
 
-int A1D_PutC(int proc, int bytes, src, dst)
+int A1D_PutC(int proc, int bytes, void* src, void* dst)
 {
     return 0;
 }
 
-int A1D_AccC(int proc, int bytes, src, dst, int type, void* scale)
+int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale)
 {
     return 0;
 }
 
+/*
 int A1D_GetS(int proc, stride_levels, block_sizes,
                           src_ptr, src_stride_arr,
                           dst_ptr, dst_stride_arr)
@@ -85,6 +86,6 @@ int A1D_AccS(int proc, stride_levels, block_sizes,
 {
     return 0;
 }
-
+*/
 
 

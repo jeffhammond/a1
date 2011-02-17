@@ -54,17 +54,17 @@ int A1D_Fetch_and_inc32(int proc, int* local, int* remote, int incr)
 	return(0);
 }
 
-int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr);
+int A1D_Fetch_and_inc64(int proc, long* local, long* remote, long incr)
 {
 	return(0);
 }
 
-int A1D_Swap32(int proc, int* local, int* remote);
+int A1D_Swap32(int proc, int* local, int* remote)
 {
 	return(0);
 }
 
-int A1D_Swap64(int proc, long* local, long* remote);
+int A1D_Swap64(int proc, long* local, long* remote)
 {
 	return(0);
 }

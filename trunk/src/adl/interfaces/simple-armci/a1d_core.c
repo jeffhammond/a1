@@ -67,7 +67,7 @@ int A1D_Initialize()
     assert(mpi_provided==MPI_THREAD_MULTIPLE);
 
     /* have to use our own communicator for collectives to be proper */
-    mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,A1D_COMM_WORLD);
+    mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,&A1D_COMM_WORLD);
     assert(mpi_status==0);
 
     /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
@@ -81,7 +81,7 @@ int A1D_Initialize()
 
     /* reconfigure DCMF with interrupts on */
     DCMF_CriticalSection_enter(0);
-    dcmf_result = DCMF_Messager_configure(&config, &config);
+    dcmf_result = DCMF_Messager_configure(&dcmf_config, &dcmf_config);
     assert(dcmf_result==DCMF_SUCCESS);
     DCMF_CriticalSection_exit(0);
 
@@ -109,7 +109,7 @@ int A1D_Finalize()
  *
  ***************************************************/
 
-int A1D_Allocate_local(void** ptr, long bytes)
+int A1D_Allocate_local(void** ptr, int bytes)
 {
     void* tmp;
     tmp = malloc((size_t)bytes);
@@ -171,42 +171,44 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
     int mpi_size;
     int mpi_rank;
     void* tmp_ptr;
-    MPI_Comm wcomm;
+    MPI_Comm newcomm;
 
     /* save (dup) the communicator into the window object */
-    mpi_status = MPI_Comm_dup(comm,A1_Window_t->comm);
+    mpi_status = MPI_Comm_dup(comm,&newcomm);
     assert(mpi_status==0);
 
+    window->comm = newcomm;
+
     /* need array sizeof(comm) for now */
-    mpi_status = MPI_Comm_size(A1D_Window_t->comm,&mpi_size);
+    mpi_status = MPI_Comm_size(window->comm,&mpi_size);
     assert(mpi_status==0);
 
     /* my rank in this communicator */
-    mpi_status = MPI_Comm_rank(A1_Window_t->comm,&mpi_rank);
+    mpi_status = MPI_Comm_rank(window->comm,&mpi_rank);
     assert(mpi_status==0);
 
     /* allocate list of base pointers for this window */
-    A1D_Window_t->addr_list = malloc( mpi_size * size(void*) );
-    assert(A1D_Window_t->addr_list != NULL);
+    window->addr_list = malloc( mpi_size * sizeof(void*) );
+    assert(window->addr_list != NULL);
 
     /* allocate local memory for this window */
     A1D_Allocate_local(&tmp_ptr, bytes);
 
     /* exchange base pointers */
     mpi_status = MPI_Allgather(tmp_ptr,sizeof(void*),MPI_BYTE,
-                               A1D_Window_t->addr_list,sizeof(void*),MPI_BYTE,
-                               A1D_Window_t->comm);
+                               window->addr_list,sizeof(void*),MPI_BYTE,
+                               window->comm);
     assert(mpi_status==0);
 
 #ifndef NO_WINDOW_BOUNDS_CHECKING
     /* allocate list of sizes */
-    A1D_Window_t->addr_list = malloc( mpi_size * size(int) );
-    assert(A1D_Window_t->size_list != NULL);
+    window->addr_list = malloc(mpi_size*sizeof(int));
+    assert(window->size_list != NULL);
 
     /* exchange sizes pointers */
-    mpi_status = MPI_Allgather(bytes,sizeof(int),MPI_BYTE,
-                               A1D_Window_t->size_list,sizeof(int),MPI_BYTE,
-                               A1D_Window_t->comm);
+    mpi_status = MPI_Allgather(&bytes,sizeof(int),MPI_BYTE,
+                               window->size_list,sizeof(int),MPI_BYTE,
+                               window->comm);
     assert(mpi_status==0);
 
 #endif
@@ -214,32 +216,32 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
     return(0);
 }
 
-int A1D_Destroy_window(A1_Window_t* window)
+int A1D_Destroy_window(A1D_Window_t* window)
 {
     int mpi_status;
     int mpi_rank;
 
     /* barrier so that no one is able to access window memory after it is free */
-    mpi_status = MPI_Barrier(A1_Window_t->comm);
+    mpi_status = MPI_Barrier(window->comm);
     assert(mpi_status==0);
 
     /* my rank in this communicator */
-    mpi_status = MPI_Comm_rank(A1_Window_t->comm,&mpi_rank);
+    mpi_status = MPI_Comm_rank(window->comm,&mpi_rank);
     assert(mpi_status==0);
 
     /* free the local memory */
-    A1D_Free_local(A1D_Window_t->addr_list[mpi_rank]);
+    A1D_Free_local(window->addr_list[mpi_rank]);
 
     /* free the list of base pointers */
-    free(A1D_Window_t->addr_list);
+    free(window->addr_list);
 
 #ifndef NO_WINDOW_BOUNDS_CHECKING
     /* free list of sizes */
-    free(A1D_Window_t->size_list);
+    free(window->size_list);
 #endif
 
     /* free the communicator */
-    mpi_status = MPI_Comm_free(A1_Window_t->comm);
+    mpi_status = MPI_Comm_free(window->comm);
     assert(mpi_status==0);
 
     return(0);

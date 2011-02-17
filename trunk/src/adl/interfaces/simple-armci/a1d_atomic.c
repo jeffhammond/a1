@@ -48,7 +48,7 @@
  *********************************************************************/
 
 #include "a1d_api.h"
-#include "a1d_util.h"
+#include "a1d_headers.h"
 
 #ifndef A1D_ATOMIC_H
 #define A1D_ATOMIC_H

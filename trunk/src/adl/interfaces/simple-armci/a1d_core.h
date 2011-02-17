@@ -55,14 +55,15 @@
 int A1D_Initalize();
 int A1D_Finalize();
 
-void* A1D_Allocate_local(long bytes);
-int A1D_Allocate_shared(void* ptrs[], long bytes);
-void A1D_Free_local(void* ptr);
+int A1D_Allocate_shared(void* ptrs[], int bytes);
 void A1D_Free_shared(void* ptr);
+
+int A1D_Allocate_local(void** ptr, int bytes);
+void A1D_Free_local(void* ptr);
 
 typedef struct
 {
-	MPI_Comm comm
+	MPI_Comm comm;
 	void** addr_list;
 #ifndef NO_WINDOW_BOUNDS_CHECKING
 	int* size_list; /* for correctness checking, technically optional */
