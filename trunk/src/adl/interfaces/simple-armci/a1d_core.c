@@ -50,14 +50,28 @@
 #include "a1d_core.h"
 #include "a1d_stats.h"
 
+int mpi_rank;
+int mpi_size;
+
 MPI_Comm A1D_COMM_WORLD;
+DCMF_Memregion_t* A1D_Memregion_list;
+void** A1D_Baseptr_list;
 
 int A1D_Initialize()
 {
     int mpi_initialized, mpi_provided;
     int mpi_status;
+    int bytes_in, bytes_out;
+    int i;
     DCMF_Result dcmf_result;
     DCMF_Configure_t dcmf_config;
+    DCMF_Memregion_t local_memregion;
+
+    /***************************************************
+     *
+     * configure MPI
+     *
+     ***************************************************/
 
     /* MPI has to be initialized for this implementation to work */
     MPI_Initialized(&mpi_initialized);
@@ -71,9 +85,23 @@ int A1D_Initialize()
     mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,&A1D_COMM_WORLD);
     assert(mpi_status==0);
 
+    /*  */
+    mpi_status = MPI_Comm_size(A1D_COMM_WORLD,&mpi_size);
+    assert(mpi_status==0);
+
+    /*  */
+    mpi_status = MPI_Comm_rank(A1D_COMM_WORLD,&mpi_rank);
+    assert(mpi_status==0);
+
     /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
+
+    /***************************************************
+     *
+     * configure DCMF
+     *
+     ***************************************************/
 
     /* to be safe, but perhaps not necessary */
     dcmf_config.thread_level = DCMF_THREAD_MULTIPLE;
@@ -90,6 +118,56 @@ int A1D_Initialize()
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
+    /***************************************************
+     *
+     * setup DCMF memregions
+     *
+     ***************************************************/
+
+    /* allocate memregion list */
+    A1D_Memregion_list = malloc( mpi_size * sizeof(DCMF_Memregion_t) );
+    A1U_ERR_POP(A1D_Memregion_list != NULL);
+
+    /* allocate base pointer list */
+    A1D_Baseptr_list = malloc( mpi_size * sizeof(void*) );
+    A1U_ERR_POP(A1D_Memregion_list != NULL);
+
+    /* create memregions */
+    bytes_in = -1;
+    DCMF_CriticalSection_enter(0);
+    dcmf_result = DCMF_Memregion_create(&local_memregion,&bytes_out,bytes_in,NULL,0);
+    DCMF_CriticalSection_exit(0);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    /* exchange memregions */
+    mpi_status = MPI_Allgather(&local_memregion,sizeof(DCMF_Memregion_t),MPI_BYTE,
+                               A1D_Memregion_list,sizeof(DCMF_Memregion_t),MPI_BYTE,
+                               A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
+    /* destroy temporary local memregion */
+    DCMF_CriticalSection_enter(0);
+    dcmf_result = DCMF_Memregion_destroy(&local_memregion);
+    DCMF_CriticalSection_exit(0);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    /* check for valid memregions */
+    DCMF_CriticalSection_enter(0);
+    for (i = 0; i < mpi_size; i++)
+    {
+        dcmf_result = DCMF_Memregion_query(&A1D_Memregion_list[i],
+                                      &bytes_out,
+                                      (void **) &A1D_Baseptr_list[i]);
+        assert(dcmf_result==DCMF_SUCCESS);
+    }
+    DCMF_CriticalSection_exit(0);
+
+    /***************************************************
+     *
+     *
+     *
+     ***************************************************/
+
     return(0);
 }
 
@@ -97,10 +175,30 @@ int A1D_Finalize()
 {
     int mpi_status;
 
+    A1D_Print_stats();
+
+    /* barrier so that no one is able to access remote memregions after they are destroyed */
+    mpi_status = MPI_Barrier(window->comm);
+    assert(mpi_status==0);
+
+    /* destroy all memregions - probably unnecessary */
+    DCMF_CriticalSection_enter(0);
+    for (i = 0; i < mpi_size; i++)
+    {
+        dcmf_result = DCMF_Memregion_destroy(&A1D_Memregion_list[i]);
+        assert(dcmf_result==DCMF_SUCCESS);
+    }
+    DCMF_CriticalSection_exit(0);
+
+    /* free memregion list */
+    free(A1D_Memregion_list);
+
+    /* free base pointer list */
+    free(A1D_Baseptr_list);
+
     mpi_status = MPI_Comm_free(&A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    A1D_Print_stats();
     return(0);
 }
 
@@ -145,7 +243,7 @@ int A1D_Allocate_shared(void* ptrs[], int bytes)
 
     A1D_Allocate_local(&tmp_ptr, bytes);
 
-    mpi_status = MPI_Allgather(tmp_ptr,sizeof(void*),MPI_BYTE,
+    mpi_status = MPI_Allgather(&tmp_ptr,sizeof(void*),MPI_BYTE,
                                ptrs,sizeof(void*),MPI_BYTE,
                                A1D_COMM_WORLD);
     assert(mpi_status==0);
@@ -196,7 +294,7 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
     A1D_Allocate_local(&tmp_ptr, bytes);
 
     /* exchange base pointers */
-    mpi_status = MPI_Allgather(tmp_ptr,sizeof(void*),MPI_BYTE,
+    mpi_status = MPI_Allgather(&tmp_ptr,sizeof(void*),MPI_BYTE,
                                window->addr_list,sizeof(void*),MPI_BYTE,
                                window->comm);
     assert(mpi_status==0);
@@ -222,7 +320,7 @@ int A1D_Destroy_window(A1D_Window_t* window)
     int mpi_status;
     int mpi_rank;
 
-    /* barrier so that no one is able to access window memory after it is free */
+    /* barrier so that no one is able to access remote window memory after it is free */
     mpi_status = MPI_Barrier(window->comm);
     assert(mpi_status==0);
 
