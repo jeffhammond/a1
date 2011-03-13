@@ -49,43 +49,178 @@
 
 #include "a1d_comm.h"
 
-int A1D_GetC(int proc, int bytes, void* src, void* dst)
+DCMF_Protocol_t A1D_Put_protocol;
+DCMF_Protocol_t A1D_Get_protocol;
+#ifdef ACCUMULATE_IMPLEMENTED
+DCMF_Protocol_t A1D_Acc_protocol;
+#endif
+
+int A1DI_Put_initialize()
 {
-    return 0;
+    DCMF_Result dcmf_result;
+    DCMF_Put_Configuration_t conf;
+
+    conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    dcmf_result = DCMF_Put_register(&A1D_Put_protocol, &conf);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    return(0);
 }
 
-int A1D_PutC(int proc, int bytes, void* src, void* dst)
+int A1DI_Get_initialize()
 {
-    return 0;
+    DCMF_Result dcmf_result;
+    DCMF_Get_Configuration_t conf;
+
+    conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    dcmf_result = DCMF_Put_register(&A1D_Get_protocol, &conf);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    return(0);
 }
 
+#ifdef ACCUMULATE_IMPLEMENTED
+int A1DI_Acc_initialize()
+{
+    DCMF_Result dcmf_result;
+    DCMF_Send_Configuration_t conf;
+
+    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.network = DCMF_TORUS_NETWORK;
+    conf.cb_recv_short = A1D_Acc_short_cb;
+    conf.cb_recv_short_clientdata = NULL;
+    conf.cb_recv = A1D_Acc_cb;
+    conf.cb_recv_clientdata = NULL;
+
+    dcmf_result = DCMF_Send_register(&A1D_Acc_protocol, &conf);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    return(0);
+}
+#endif
+
+
+int A1D_GetC(int target, int bytes, void* src, void* dst)
+{
+    DCMF_Result dcmf_result;
+    DCMF_Request_t request;
+    DCMF_Callback_t done_callback, ack_callback;
+    volatile int done_active;
+    size_t src_disp, dst_disp;
+
+    done_callback.function = A1D_Done_cb;
+    done_callback.clientdata = (void *) &done_active;
+    done_active = 1;
+
+    src_disp = (size_t) src - (size_t) A1D_Baseptr_list[myrank];
+    dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
+
+    dcmf_result = DCMF_Get(&A1D_Get_protocol,
+                           &request,
+                           done_callback,
+                           DCMF_RELAXED_CONSISTENCY,
+                           target,
+                           bytes,
+                           &A1D_Memregion_list[target],
+                           &A1D_Memregion_list[myrank],
+                           src_disp,
+                           dst_disp);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    A1DI_Conditional_advance(done_active > 0);
+
+    return(0);
+}
+
+int A1D_PutC(int target, int bytes, void* src, void* dst)
+{
+    DCMF_Result dcmf_result;
+    DCMF_Request_t request;
+    DCMF_Callback_t done_callback;
+    volatile int done_active;
+    size_t src_disp, dst_disp;
+
+    src_disp = (size_t) src - (size_t) A1D_Baseptr_list[myrank];
+    dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
+
+    done_callback.function = A1D_Done_cb;
+    done_callback.clientdata = (void *) &done_active;
+    done_active = 1;
+
+#ifdef FLUSH_IMPLEMENTED
+
+    A1D_Put_flush_list[target]++;
+
+    /* local completion only - must flush later */
+    dcmf_result = DCMF_Put(&A1D_Put_protocol,
+                           &request,
+                           done_callback, /* local completion */
+                           DCMF_SEQUENTIAL_CONSISTENCY,
+                           target,
+                           bytes,
+                           &A1D_Memregion_list[myrank],
+                           &A1D_Memregion_list[target],
+                           src_disp,
+                           dst_disp,
+                           A1D_Nocallback); /* remote completion */
+    assert(dcmf_result==DCMF_SUCCESS);
+
+#else
+
+    /* end-to-end completion - no flush required */
+    dcmf_result = DCMF_Put(&A1D_Put_protocol,
+                           &request,
+                           A1D_Nocallback, /* local completion */
+                           DCMF_RELAXED_CONSISTENCY,
+                           target,
+                           bytes,
+                           &A1D_Memregion_list[myrank],
+                           &A1D_Memregion_list[target],
+                           src_disp,
+                           dst_disp,
+                           done_callback); /* remote completion */
+    assert(dcmf_result==DCMF_SUCCESS);
+
+#endif
+
+    A1DI_Conditional_advance(done_active > 0);
+
+    return(0);
+}
+
+#ifdef ACCUMULATE_IMPLEMENTED
 int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale)
 {
     return 0;
 }
+#endif
 
-/*
-int A1D_GetS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr)
-{
-    return 0;
-}
+#ifdef STRIDED_IMPLEMENTED
 
-int A1D_PutS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr)
-{
-    return 0;
-}
+    int A1D_GetS(int proc, stride_levels, block_sizes,
+                 src_ptr, src_stride_arr,
+                 dst_ptr, dst_stride_arr)
+    {
+        return 0;
+    }
 
-int A1D_AccS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr,
-                          int type, void* scale)
-{
-    return 0;
-}
-*/
+    int A1D_PutS(int proc, stride_levels, block_sizes,
+                 src_ptr, src_stride_arr,
+                 dst_ptr, dst_stride_arr)
+    {
+        return 0;
+    }
 
+    #ifdef ACCUMULATE_IMPLEMENTED
+    int A1D_AccS(int proc, stride_levels, block_sizes,
+                 src_ptr, src_stride_arr,
+                 dst_ptr, dst_stride_arr,
+                 int type, void* scale)
+    {
+        return 0;
+    }
+    #endif
 
+#endif

@@ -51,6 +51,7 @@
 #define A1D_COMM_H
 
 #include "a1d_headers.h"
+#include "a1d_globals.h"
 
 int A1D_GetC(int proc, int bytes, void* src, void* dst);
 int A1D_PutC(int proc, int bytes, void* src, void* dst);

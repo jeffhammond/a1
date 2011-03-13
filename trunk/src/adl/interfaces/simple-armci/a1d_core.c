@@ -50,12 +50,31 @@
 #include "a1d_core.h"
 #include "a1d_stats.h"
 
-int mpi_rank;
+int myrank;
 int mpi_size;
 
 MPI_Comm A1D_COMM_WORLD;
 DCMF_Memregion_t* A1D_Memregion_list;
 void** A1D_Baseptr_list;
+
+#ifdef FLUSH_IMPLEMENTED
+  int* A1D_Put_flush_list;
+  #ifdef ACCUMULATE_IMPLEMENTED
+    int* A1D_Send_flush_list;
+  #endif
+#endif
+
+DCMF_Callback_t A1D_Nocallback;
+
+int A1D_Rank()
+{
+    return mpi_rank;
+}
+
+int A1D_Size()
+{
+    return mpi_size;
+}
 
 int A1D_Initialize()
 {
@@ -85,13 +104,17 @@ int A1D_Initialize()
     mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,&A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    /*  */
+    /* get my MPI rank */
+    mpi_status = MPI_Comm_rank(A1D_COMM_WORLD,&myrank);
+    assert(mpi_status==0);
+
+    /* get MPI world size */
     mpi_status = MPI_Comm_size(A1D_COMM_WORLD,&mpi_size);
     assert(mpi_status==0);
 
-    /*  */
-    mpi_status = MPI_Comm_rank(A1D_COMM_WORLD,&mpi_rank);
-    assert(mpi_status==0);
+    /* make sure MPI and DCMF agree */
+    assert(myrank==DCMF_Messager_rank());
+    assert(mpi_size==DCMF_Messager_size());
 
     /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
@@ -105,8 +128,11 @@ int A1D_Initialize()
 
     /* to be safe, but perhaps not necessary */
     dcmf_config.thread_level = DCMF_THREAD_MULTIPLE;
-    /* this implementation of ARMCI for BGP is going to use interrupts exclusively */
+#ifdef ACCUMULATE_IMPLEMENTED
+    /* interrupts required for accumulate only, Put/Get use DMA
+     * if accumulate not used, MPI will query environment for DCMF_INTERRUPTS */
     dcmf_config.interrupts = DCMF_INTERRUPTS_ON;
+#endif
 
     /* reconfigure DCMF with interrupts on */
     DCMF_CriticalSection_enter(0);
@@ -162,11 +188,33 @@ int A1D_Initialize()
     }
     DCMF_CriticalSection_exit(0);
 
+#ifdef FLUSH_IMPLEMENTED
     /***************************************************
      *
-     *
+     * setup flush list(s)
      *
      ***************************************************/
+
+    /* allocate Put list */
+    A1D_Put_flush_list = malloc( mpi_size * sizeof(int) );
+    assert(A1D_Put_flush_list != NULL);
+
+  #ifdef ACCUMULATE_IMPLEMENTED
+    /* allocate Acc list */
+    A1D_Send_flush_list = malloc( mpi_size * sizeof(int) );
+    assert(A1D_Send_flush_list != NULL);
+  #endif
+
+#endif
+
+    /***************************************************
+     *
+     * define null callback
+     *
+     ***************************************************/
+
+    A1D_Nocallback.function = NULL;
+    A1D_Nocallback.clientdata = NULL;
 
     return(0);
 }
@@ -178,6 +226,17 @@ int A1D_Finalize()
     DCMF_Result dcmf_result;
 
     A1D_Print_stats();
+
+#ifdef FLUSH_IMPLEMENTED
+    /* free Put list */
+    free(A1D_Put_flush_list);
+
+  #ifdef ACCUMULATE_IMPLEMENTED
+    /* free Acc list */
+    free(A1D_Send_flush_list);
+  #endif
+
+#endif
 
     /* barrier so that no one is able to access remote memregions after they are destroyed */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
@@ -256,6 +315,10 @@ int A1D_Allocate_shared(void* ptrs[], int bytes)
 
 void A1D_Free_shared(void* ptr)
 {
+    /* barrier so that no one tries to access memory which is no longer allocated */
+    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
     A1D_Free_local(ptr);
     return;
 }
