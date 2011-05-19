@@ -114,6 +114,23 @@ void random_matrix(matrix_t * mat)
     return;
 }
 
+void random_matrix_parallel(matrix_t * mat, int seed)
+{
+    int i,j,dim;
+    double * data;
+
+    srand(seed*time(NULL));
+
+    dim = mat->dim;
+    data = mat->data;
+
+    for(i=0;i<dim;i++)
+        for(j=0;j<dim;j++)
+            data[i*dim+j] = (double)rand()/RAND_MAX;
+
+    return;
+}
+
 void copy_matrix(matrix_t * in, matrix_t * out)
 {
     int i,j,dim;

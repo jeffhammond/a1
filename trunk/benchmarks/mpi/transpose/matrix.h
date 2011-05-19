@@ -52,6 +52,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <time.h>
 #include <mpi.h>
 
 #ifndef MATRIX_H_
@@ -70,6 +71,7 @@ void trans_matrix(matrix_t * mat);
 void zero_matrix(matrix_t * mat);
 void setup_matrix(matrix_t * mat);
 void random_matrix(matrix_t * mat);
+void random_matrix_parallel(matrix_t * mat, int seed);
 void print_matrix(matrix_t * mat);
 void copy_matrix(matrix_t * in, matrix_t * out);
 void compare_matrix(matrix_t * in, matrix_t * out);

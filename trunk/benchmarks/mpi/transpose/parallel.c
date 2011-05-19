@@ -76,6 +76,7 @@ int main(int argc, char* argv[])
     MPI_Status stats[2];
 
     int test;
+    int i;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
     assert(provided==MPI_THREAD_SINGLE);
@@ -118,8 +119,26 @@ int main(int argc, char* argv[])
         alloc_matrix(&in,  dim);
         alloc_matrix(&out, dim);
 
-        random_matrix(&in);
+        random_matrix_parallel(&in,rank);
         zero_matrix(&out);
+
+        /* print before */
+        fflush(stdout);
+        MPI_Barrier(cartcomm);
+        if (rank==0) printf("BEFORE\n");
+        if (rank==0) printf("=============\n");
+        MPI_Barrier(cartcomm);
+        for (i=0;i<(gridsize*gridsize);i++)
+        {
+            if (i==rank)
+            {
+                printf("rank = %d\n",rank);
+                print_matrix(&in);
+                printf("=============\n");
+                fflush(stdout);
+            }
+            MPI_Barrier(cartcomm);
+        }
 
         tags[0] = 0;
         tags[1] = 0;
@@ -131,25 +150,52 @@ int main(int argc, char* argv[])
         /* lower triangle of processor grid receives */
         if (mycoords[0]<mycoords[1])
         {
-            rc = MPI_Recv(out.data,out.dim,MPI_DOUBLE,partner,tags[0],cartcomm,&stats[0]);
+            rc = MPI_Recv(out.data,out.dim*out.dim,MPI_DOUBLE,partner,tags[0],cartcomm,&stats[0]);
+            trans_matrix_ip(&out);
         }
         else if (mycoords[0]>mycoords[1])
         {
-            rc = MPI_Send(in.data, in.dim, MPI_DOUBLE,partner,tags[1],cartcomm);
+            rc = MPI_Send(in.data, in.dim*in.dim,  MPI_DOUBLE,partner,tags[1],cartcomm);
         }
 
         /* now the other way */
         if (mycoords[0]>mycoords[1])
         {
-            rc = MPI_Recv(out.data,out.dim,MPI_DOUBLE,partner,tags[0],cartcomm,&stats[0]);
+            rc = MPI_Recv(out.data,out.dim*out.dim,MPI_DOUBLE,partner,tags[0],cartcomm,&stats[0]);
+            trans_matrix_ip(&out);
         }
         else if (mycoords[0]<mycoords[1])
         {
-            rc = MPI_Send(in.data, in.dim, MPI_DOUBLE,partner,tags[1],cartcomm);
+            rc = MPI_Send(in.data, in.dim*in.dim,  MPI_DOUBLE,partner,tags[1],cartcomm);
+        }
+
+        /* local transpose of diagonal blocks */
+        if (mycoords[0]==mycoords[1])
+        {
+            trans_matrix_oop(&in,&out);
         }
 
         /* no communication for the diagonal */
 #endif
+
+        /* print after */
+        fflush(stdout);
+        MPI_Barrier(cartcomm);
+        if (rank==0) printf("AFTER\n");
+        if (rank==0) printf("=============\n");
+        MPI_Barrier(cartcomm);
+        for (i=0;i<(gridsize*gridsize);i++)
+        {
+            if (i==rank)
+            {
+                printf("rank = %d\n",rank);
+                print_matrix(&out);
+                printf("=============\n");
+                fflush(stdout);
+            }
+            MPI_Barrier(cartcomm);
+        }
+
         free_matrix(&in);
         free_matrix(&out);
 
