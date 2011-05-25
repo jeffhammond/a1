@@ -1,22 +1,16 @@
-/* -*- Mode: C; c-basic-offset:4 ; -*- */
-/*
- *  Copyright (C) 2010 by Argonne National Laboratory.
- *      See COPYRIGHT in top-level directory.
- *
- * dmapp_put.c
- *
- *  Created on: Sep 18, 2010
- *      Author: jeff
- */
+/* Copyright 2010 Cray Inc. */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 #include "pmi.h"
-#include "dmapp.h"
+#include "dmapp.h
+"
 #define MAX_NELEMS (128L*1024L)
+
 /* If necessary, run the job with fewer than the maximum number of cores
  * per node so that enough memory is available for each PE. */
+
 int main(int argc, char **argv)
 {
     int pe = -1;
@@ -31,11 +25,13 @@ int main(int argc, char **argv)
     dmapp_rma_attrs_t actual_args = { 0 }, rma_args = { 0 };
     dmapp_jobinfo_t job;
     dmapp_seg_desc_t *seg = NULL;
+
     /* Set the RMA parameters. */
     rma_args.put_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
     rma_args.max_outstanding_nb = DMAPP_DEF_OUTSTANDING_NB;
     rma_args.offload_threshold = DMAPP_OFFLOAD_THRESHOLD;
     rma_args.max_concurrency = 1;
+
     /* Initialize DMAPP. */
     status = dmapp_init(&rma_args, &actual_args);
     if (status != DMAPP_RC_SUCCESS)
@@ -43,6 +39,7 @@ int main(int argc, char **argv)
         fprintf(stderr, " dmapp_init FAILED: %d\n", status);
         exit(1);
     }
+
     /* Allocate and initialize the source and target arrays. */
     source = (long *) dmapp_sheap_malloc(nelems * sizeof(long));
     target = (long *) dmapp_sheap_malloc(nelems * sizeof(long));
@@ -59,6 +56,7 @@ int main(int argc, char **argv)
         source[i] = i;
         target[i] = -9L;
     }
+
     /* Wait for all PEs to complete array initialization. */
     PMI_Barrier();
 
@@ -81,6 +79,7 @@ int main(int argc, char **argv)
         fprintf(stderr, " dmapp_put FAILED: %d\n", status);
         exit(1);
     }
+
     /* Wait for all PEs to complete their PUT. */
     PMI_Barrier();
 
@@ -89,12 +88,7 @@ int main(int argc, char **argv)
     {
         if ((target[i] != i) && (fail_count < 10))
         {
-            fprintf(stderr,
-                    " PE %d: target[%ld] is %ld, should be %ld\n",
-                    pe,
-                    i,
-                    target[i],
-                    (long) i);
+            fprintf(stderr," PE %d: target[%ld] is %ld, should be %ld\n", pe, i, target[i], (long) i);
             fail_count++;
         }
     }
@@ -104,10 +98,11 @@ int main(int argc, char **argv)
     }
     else
     {
-        fprintf(stderr, " dmapp_put FAILED for PE %04d: "
-            "%d or more wrong values\n", pe, fail_count);
+        fprintf(stderr, " dmapp_put FAILED for PE %04d: %d or more wrong values\n", pe, fail_count);
     }
+
     /* Finalize. */
     status = dmapp_finalize();
-    return (0);
+
+    return(0);
 }
