@@ -4,12 +4,14 @@ COPT    = -g -O2
 FOPT    = -g -O2
 
 # CSCS paths
-DMAPP_PATH=/opt/cray/dmapp/2.2-1.0301.2349.6.6.gem
-GNIH_PATH=/opt/cray/gni-headers/2.0-1.0301.2302.4.1.gem
-PMI_PATH=/opt/cray/pmi/1.0-1.0000.7901.22.1.gem
+DMAPP_PATH=/opt/cray/dmapp/default
+GNIH_PATH=/opt/cray/gni-headers/default
+UGNI_PATH=/opt/cray/ugni/default
+UDREG_PATH=/opt/cray/udreg/default
+PMI_PATH=/opt/cray/pmi/default
 
-INCLUDE = -I$(DMAPP_PATH)/include -I$(GNIH_PATH)/include -I$(PMI_PATH)/include
-LIBS    = -L$(DMAPP_PATH)/lib64   -L$(GNIH_PATH)/lib64   -L$(PMI_PATH)/lib64 -ldmapp -lpmi
+INCLUDE = -I$(DMAPP_PATH)/include -I$(UDREG_PATH)/include -I$(GNIH_PATH)/include -I$(PMI_PATH)/include
+LIBS    = -L$(DMAPP_PATH)/lib64   -L$(UDREG_PATH)/lib64   -L$(UGNI_PATH)/lib64   -L$(PMI_PATH)/lib64 -ldmapp -ludreg -lugni -lpmi
 
 CFLAGS  = $(COPT) $(INCLUDE)
 

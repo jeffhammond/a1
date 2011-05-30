@@ -1,11 +1,14 @@
-/* Copyright 2010 Cray Inc. */
+/* Code from which this is derived is copyright 2010 Cray Inc. */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <assert.h>
+#include <math.h>
 #include "pmi.h"
 #include "dmapp.h
 "
+
 #define MAX_NELEMS (128L*1024L)
 
 /* If necessary, run the job with fewer than the maximum number of cores
@@ -17,10 +20,9 @@ int main(int argc, char **argv)
     int npes = -1;
     int target_pe;
     int fail_count = 0;
-    long nelems = MAX_NELEMS;
-    long *source;
-    long *target;
-    long i;
+
+    long i, nelems = MAX_NELEMS;
+
     dmapp_return_t status;
     dmapp_rma_attrs_t actual_args = { 0 }, rma_args = { 0 };
     dmapp_jobinfo_t job;
@@ -34,75 +36,51 @@ int main(int argc, char **argv)
 
     /* Initialize DMAPP. */
     status = dmapp_init(&rma_args, &actual_args);
-    if (status != DMAPP_RC_SUCCESS)
-    {
-        fprintf(stderr, " dmapp_init FAILED: %d\n", status);
-        exit(1);
-    }
-
-    /* Allocate and initialize the source and target arrays. */
-    source = (long *) dmapp_sheap_malloc(nelems * sizeof(long));
-    target = (long *) dmapp_sheap_malloc(nelems * sizeof(long));
-    if ((source == NULL) || (target == NULL))
-    {
-        fprintf(stderr,
-                " sheap_malloc'd failed src 0x%lx targ 0x%lx\n",
-                (long) source,
-                (long) target);
-        exit(1);
-    }
-    for (i = 0; i < nelems; i++)
-    {
-        source[i] = i;
-        target[i] = -9L;
-    }
-
-    /* Wait for all PEs to complete array initialization. */
-    PMI_Barrier();
+    assert(status==DMAPP_RC_SUCCESS);
 
     /* Get job related information. */
     status = dmapp_get_jobinfo(&job);
-    if (status != DMAPP_RC_SUCCESS)
-    {
-        fprintf(stderr, " dmapp_get_jobinfo FAILED: %d\n", status);
-        exit(1);
-    }
+    assert(status==DMAPP_RC_SUCCESS);
     pe = job.pe;
     npes = job.npes;
     seg = &(job.sheap_seg);
 
+    /* Allocate and initialize the source and target arrays. */
+    long * source = (long *) dmapp_sheap_malloc(nelems * sizeof(long));
+    assert(source!=NULL);
+    long * target = (long *) dmapp_sheap_malloc(nelems * sizeof(long));
+    assert(target!=NULL);
+
+    for (i = 0; i < nelems; i++)source[i] = i;
+    for (i = 0; i < nelems; i++)target[i] = -9L;
+
+    /* Wait for all PEs to complete array initialization. */
+    PMI_Barrier();
+
     /* Send my data to my target PE. */
     target_pe = npes - pe - 1;
     status = dmapp_put(target, seg, target_pe, source, nelems, DMAPP_QW);
-    if (status != DMAPP_RC_SUCCESS)
-    {
-        fprintf(stderr, " dmapp_put FAILED: %d\n", status);
-        exit(1);
-    }
+    assert(status==DMAPP_RC_SUCCESS);
+
 
     /* Wait for all PEs to complete their PUT. */
     PMI_Barrier();
 
     /* Check the results. */
     for (i = 0; i < nelems; i++)
-    {
         if ((target[i] != i) && (fail_count < 10))
         {
             fprintf(stderr," PE %d: target[%ld] is %ld, should be %ld\n", pe, i, target[i], (long) i);
             fail_count++;
         }
-    }
-    if (fail_count == 0)
-    {
-        fprintf(stderr, " dmapp_put PASSED for PE %04d\n", pe);
-    }
-    else
-    {
-        fprintf(stderr, " dmapp_put FAILED for PE %04d: %d or more wrong values\n", pe, fail_count);
-    }
+
+    if (fail_count == 0) fprintf(stderr, " dmapp_put PASSED for PE %04d\n", pe);
+    else fprintf(stderr, " dmapp_put FAILED for PE %04d: %d or more wrong values\n", pe, fail_count);
+
 
     /* Finalize. */
     status = dmapp_finalize();
+    assert(status==DMAPP_RC_SUCCESS);
 
     return(0);
 }
