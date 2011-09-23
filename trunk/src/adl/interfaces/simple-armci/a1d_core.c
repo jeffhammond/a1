@@ -244,7 +244,9 @@ int A1D_Finalize()
 {
     int mpi_status;
     int i;
+#ifdef __bgp__
     DCMF_Result dcmf_result;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Finalize() \n");
@@ -256,6 +258,7 @@ int A1D_Finalize()
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
+#ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
 #ifdef FLUSH_IMPLEMENTED
@@ -279,6 +282,7 @@ int A1D_Finalize()
     free(A1D_Baseptr_list);
 
     DCMF_CriticalSection_exit(0);
+#endif
 
     /* free the A1D communicator */
     mpi_status = MPI_Comm_free(&A1D_COMM_WORLD);

@@ -1,15 +1,15 @@
 #CC      = mpixlc_r 
 #COPT    = -g -O3 -qstrict
-#CC      = mpicc
-#COPT    = -g -O2 -Wall -std=c99
-CC      = mpixlc_r
-COPT    = -g -O3 -qstrict -qlanglvl=extc99
+CC      = mpicc
+COPT    = -g -O2 -Wall -std=c99
+#CC      = mpixlc_r
+#COPT    = -g -O3 -qstrict -qlanglvl=extc99
 
-INCLUDE = -I../
+INC     = -I../
 LIBS    = -L../ -larmci-bgp
 
 LD      = $(CC)
-CFLAGS  = $(COPT) $(INCLUDE)
+CFLAGS  = $(COPT) $(INC)
 LDFLAGS = $(COPT)
 
 all: ARMCI_Hello.x ARMCI_Get.x
