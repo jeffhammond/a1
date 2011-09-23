@@ -88,14 +88,8 @@ int main(int argc, char* argv[])
 
     target = 0; 
 
-    for(i=0; i<COUNT; i++)
-    {
-       complete[i] = 0;
-    } 
-    if(rank == target) 
-    { 
-       *(counter[rank]) = 0;
-    }
+    for(i=0; i<COUNT; i++) complete[i] = 0;
+    if(rank == target) *(counter[rank]) = 0;
     increment = 1;
     counter_fetch = 0;
     counters_received = 0;
@@ -134,10 +128,7 @@ int main(int argc, char* argv[])
     {
         printf("Checking for fairness...\n", rank);
         fflush(stdout);
-        for(i=0; i<COUNT; i++)
-        {
-           printf("counter value %d was received by process %d\n", i, complete[i]);
-        }
+        for(i=0; i<COUNT; i++) printf("counter value %d was received by process %d\n", i, complete[i]);
         fflush(stdout);
     }
     MPI_Barrier(MPI_COMM_WORLD);

@@ -83,10 +83,7 @@ int main(int argc, char *argv[])
     buffer = (double **) malloc(sizeof(double *) * nranks);
     PARMCI_Malloc((void **) buffer, bufsize);
 
-    for (i = 0; i < bufsize / sizeof(double); i++)
-    {
-        *(buffer[rank] + i) = 1.0 + rank;
-    }
+    for (i = 0; i < bufsize / sizeof(double); i++) *(buffer[rank] + i) = 1.0 + rank;
 
     PARMCI_Barrier();
 
