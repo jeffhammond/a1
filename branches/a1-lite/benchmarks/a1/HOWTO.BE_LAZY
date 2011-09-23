@@ -1,0 +1,1 @@
+setenv TESTNAME A1_Collectives ; setenv NODES 64 ; setenv MODE smp ; make ${TESTNAME}.${NODES}.${MODE}.output
