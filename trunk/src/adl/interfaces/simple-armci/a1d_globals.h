@@ -62,7 +62,7 @@ A1D_Window_t;
 
 extern MPI_Comm A1D_COMM_WORLD;
 
-extern int myrank;
+extern int mpi_rank;
 extern int mpi_size;
 
 extern DCMF_Memregion_t* A1D_Memregion_list;
