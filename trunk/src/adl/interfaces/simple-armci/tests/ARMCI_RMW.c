@@ -51,7 +51,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
-#include <armci.h>
+#include <parmci.h>
 
 #define COUNT 1024*1024
 
@@ -73,16 +73,16 @@ int main(int argc, char* argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
-    ARMCI_Init_args(&argc, &argv);
+    PARMCI_Init_args(&argc, &argv);
 
     complete = (int *) malloc(sizeof(int) * COUNT);
 
-    counter = (int**) ARMCI_Malloc_local( nranks * sizeof(int*) );
-    ARMCI_Malloc((void *) counter[rank], sizeof(int));
+    counter = (int**) PARMCI_Malloc_local( nranks * sizeof(int*) );
+    PARMCI_Malloc((void *) counter[rank], sizeof(int));
 
     if (rank == 0)
     {
-        printf("ARMCI_RMW Test - in usec \n");
+        printf("PARMCI_RMW Test - in usec \n");
         fflush(stdout);
     }
 
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
  
     while(counter_fetch < COUNT)
     {  
-        ARMCI_Rmw(ARMCI_FETCH_AND_ADD,
+        PARMCI_Rmw(PARMCI_FETCH_AND_ADD,
                   (void *) &counter_fetch,
                   (void *) counter[target],
                   increment,
@@ -145,10 +145,10 @@ int main(int argc, char* argv[])
     printf("process %d received %d counters\n", rank, counters_received);
     fflush(stdout);
 
-    ARMCI_Free(counter[rank]);
-    ARMCI_Free_local(counter);
+    PARMCI_Free(counter[rank]);
+    PARMCI_Free_local(counter);
 
-    ARMCI_Finalize();
+    PARMCI_Finalize();
 
     MPI_Finalize();
 

@@ -56,7 +56,7 @@
 int A1D_Rank();
 int A1D_Size();
 
-int A1D_Initalize();
+int A1D_Initialize();
 int A1D_Finalize();
 
 int A1D_Allocate_shared(void* ptrs[], int bytes);

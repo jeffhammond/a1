@@ -47,25 +47,25 @@
  *
  *********************************************************************/
 
-#include "parmci.h
+#include "parmci.h"
 #include "a1d_api.h"
 
 /* initialization and termination */
 
 int PARMCI_Init()
 {
-    return A1D_Startup();
+    return A1D_Initialize();
 }
 
 int PARMCI_Init_args(int *argc, char ***argv)
 {
-    fprintf(stderr,"PARMCI_Init_args: argc/argv may not be setup properly by DCMF \n");
-    return A1D_Startup();
+    //fprintf(stderr,"PARMCI_Init_args: argc/argv may not be setup properly by DCMF \n");
+    return A1D_Initialize();
 }
 
 void PARMCI_Finalize()
 {
-    A1D_Cleanup();
+    A1D_Finalize();
     return;
 }
 
@@ -73,7 +73,9 @@ void PARMCI_Finalize()
 
 void *PARMCI_Malloc_local(armci_size_t bytes)
 {
-    return A1D_Allocate_local((long)bytes);
+    void * ptr;
+    A1D_Allocate_local(&ptr,(long)bytes);
+    return ptr;
 }
 
 int PARMCI_Malloc(void** ptr_arr, armci_size_t bytes)
@@ -87,17 +89,18 @@ int PARMCI_Free_local(void* ptr)
     return(0);
 }
 
-int PARMCI_Free(void* ptr);
+int PARMCI_Free(void* ptr)
 {
     A1D_Free_shared(ptr);
     return(0);
 }
 
-void *PARMCI_Memat(armci_meminfo_t* meminfo, int memflg)
+/* NOT USED
+void * PARMCI_Memat(armci_meminfo_t* meminfo, int memflg)
 {
     fprintf(stderr,"PARMCI_Memat: not implemented \n");
     assert(0);
-    return;
+    return (void *) NULL;
 }
 
 void PARMCI_Memget(size_t bytes, armci_meminfo_t* meminfo, int memflg)
@@ -106,11 +109,13 @@ void PARMCI_Memget(size_t bytes, armci_meminfo_t* meminfo, int memflg)
     assert(0);
     return;
 }
+*/
 
 /* synchronization */
 
 void PARMCI_Barrier()
 {
+    int mpi_status;
     /* no need to flush right now since Put/Acc wait on remote completion */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
@@ -162,31 +167,51 @@ int PARMCI_WaitAll()
 
 /* remote atomic update and mutexes */
 
-long PARMCI_Rmw(int optype, void* local, void* remote, int incr, int proc)
+long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
 {
+    int  * iptr;
+    long * lptr;
+    int  ival;
+    long lval;
+
     switch (optype)
     {
         case ARMCI_ADD:
-            A1D_Fetch_and_inc32(proc, (int*)remote, (int)incr);
+            A1D_Inc32(proc, (int32_t *)remote, (int32_t)incr);
+            ival = -1;
+            return (int64_t)ival;
         case ARMCI_ADD_LONG:
-            A1D_Fetch_and_inc64(proc, (long*)remote, (long)incr);
+            A1D_Inc64(proc, (int64_t*)remote, (int64_t)incr);
+            lval = -1;
+            return lval;
 #ifdef PROPER_RMW_IMPLEMENTED
         case ARMCI_FETCH_AND_ADD:
-            A1D_Fetch_and_inc32(proc, (int*)local, (int*)remote, (int)incr);
+            A1D_Fetch_and_inc32(proc, (int32_t *)local, (int32_t *)remote, (int32_t)incr);
+            iptr = (int32_t *) local;
+            ival = *iptr;
+            return (int64_t)ival;
         case ARMCI_FETCH_AND_ADD_LONG:
-            A1D_Fetch_and_inc64(proc, (long*)local, (long*)remote, (long)incr);
+            A1D_Fetch_and_inc64(proc, (int64_t *)local, (int64_t *)remote, (int64_t)incr);
+            lptr = (int64_t *) local;
+            lval = *lptr;
+            return lval;
         case ARMCI_SWAP:
-            A1D_Swap32(proc, (int*)local, (int*)remote);
+            A1D_Swap32(proc, (int32_t *)local, (int32_t *)remote);
+            iptr = (int32_t *) local;
+            ival = *iptr;
+            return (int64_t)ival;
         case ARMCI_SWAP_LONG:
-            A1D_Swap64(proc, (long*)local, (long*)remote);
+            A1D_Swap64(proc, (int64_t *)local, (int64_t *)remote);
+            lptr = (int64_t *) local;
+            lval = *lptr;
+            return lval;
 #endif
         default:
             fprintf(stderr,"PARMCI_Rmw: operation not implemented \n");
             assert(0);
             break;
     }
-    return *local;
-
+    return 0;
 }
 
 int PARMCI_Create_mutexes(int num)
@@ -231,7 +256,7 @@ int PARMCI_Put(void *src, void *dst, int bytes, int proc)
 
 int PARMCI_Acc(int type, void *scale, void *src, void* dst, int bytes, int proc)
 {
-    return A1D_AccC(proc, byes, src, dst, type, scale);
+    return A1D_AccC(proc, bytes, src, dst, type, scale);
 }
 
 int PARMCI_GetS(void *src_ptr, int *src_stride_arr,
@@ -314,7 +339,7 @@ int PARMCI_NbPut(void *src, void *dst, int bytes, int proc,
 int PARMCI_NbAcc(int type, void *scale, void *src, void* dst, int bytes, int proc,
                  armci_hdl_t * nb_handle)
 {
-    return A1D_AccC(proc, byes, src, dst, type, scale);
+    return A1D_AccC(proc, bytes, src, dst, type, scale);
 }
 
 int PARMCI_NbGetS(void *src_ptr, int *src_stride_arr,

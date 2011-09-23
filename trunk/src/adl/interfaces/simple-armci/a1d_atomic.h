@@ -66,11 +66,11 @@ typedef struct
 }
 A1D_Inc64_t;
 
-int32_t A1D_Inc32(int proc, int32_t* remote, int32_t incr);
-int32_t A1D_Inc64(int proc, int64_t* remote, int64_t incr);
-int32_t A1D_Fetch_and_inc32(int proc, int32_t* local, int32_t* remote, int32_t incr);
-int32_t A1D_Fetch_and_inc64(int proc, int64_t* local, int64_t* remote, int64_t incr);
-int32_t A1D_Swap32(int proc, int32_t* local, int32_t* remote);
-int32_t A1D_Swap64(int proc, int64_t* local, int64_t* remote);
+int32_t A1D_Inc32(int proc, int32_t * remote, int32_t incr);
+int32_t A1D_Inc64(int proc, int64_t * remote, int64_t incr);
+int32_t A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t incr);
+int32_t A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t incr);
+int32_t A1D_Swap32(int proc, int32_t * local, int32_t * remote);
+int32_t A1D_Swap64(int proc, int64_t * local, int64_t * remote);
 
 #endif

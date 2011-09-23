@@ -50,7 +50,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <armci.h>
+#include <parmci.h>
 #include <mpi.h>
 
 #define MAX_MSG_SIZE 1024*1024
@@ -70,23 +70,23 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
-    ARMCI_Init_args(&argc, &argv);
+    PARMCI_Init_args(&argc, &argv);
 
     bufsize = MAX_MSG_SIZE * (ITERATIONS + SKIP);
     buffer = (double **) malloc(sizeof(double *) * nranks);
-    ARMCI_Malloc((void **) buffer, bufsize);
+    PARMCI_Malloc((void **) buffer, bufsize);
 
     for (i = 0; i < bufsize / sizeof(double); i++)
     {
         *(buffer[rank] + i) = 1.0 + rank;
     }
 
-    ARMCI_Barrier();
+    PARMCI_Barrier();
 
     if (rank == 0)
     {
 
-        printf("ARMCI_Get Latency in usec \n");
+        printf("PARMCI_Get Latency in usec \n");
         printf("%20s %22s \n", "Message Size", "Latency");
         fflush(stdout);
 
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 
                 if (i == SKIP) t_start = MPI_Wtime();
 
-                ARMCI_Get((void *) ((size_t) buffer[dest] + (size_t)(i
+                PARMCI_Get((void *) ((size_t) buffer[dest] + (size_t)(i
                         * msgsize)), (void *) ((size_t) buffer[rank]
                         + (size_t)(i * msgsize)), msgsize, 1);
 
@@ -131,9 +131,9 @@ int main(int argc, char **argv)
 
     }
 
-    ARMCI_Barrier();
+    PARMCI_Barrier();
 
-    ARMCI_Free(buffer[rank]);
+    PARMCI_Free(buffer[rank]);
 
     MPI_Finalize();
 

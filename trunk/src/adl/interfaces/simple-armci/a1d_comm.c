@@ -55,6 +55,11 @@ DCMF_Protocol_t A1D_Get_protocol;
 DCMF_Protocol_t A1D_Acc_protocol;
 #endif
 
+void A1D_Done_cb(void * clientdata, DCMF_Error_t * error)
+{
+    --(*((uint32_t *) clientdata));
+}
+
 int A1DI_Put_initialize()
 {
     DCMF_Result dcmf_result;
@@ -220,12 +225,10 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     return(0);
 }
 
-#ifdef ACCUMULATE_IMPLEMENTED
 int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale)
 {
     return 0;
 }
-#endif
 
 #ifdef STRIDED_IMPLEMENTED
 

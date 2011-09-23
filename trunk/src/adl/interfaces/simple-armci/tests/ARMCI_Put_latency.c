@@ -50,7 +50,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <armci.h>
+#include <parmci.h>
 #include <mpi.h>
 
 #define MAX_MSG_SIZE 1024*1024
@@ -63,21 +63,21 @@ int main(int argc, char *argv[])
     int i, rank, nranks, msgsize, peer;
     long bufsize;
     double **buffer;
-    double t_start, t_stop, t_latency;
+    double t_start, t_stop;
     int provided;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
-    ARMCI_Init_args(&argc, &argv);
+    PARMCI_Init_args(&argc, &argv);
 
     if (nranks != 2)
     {
         printf("[%d] This test requires only two processes \n", rank);
         fflush(stdout);
 
-        ARMCI_Finalize();
+        PARMCI_Finalize();
 
         return -1;
     }
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 
     bufsize = MAX_MSG_SIZE * (ITERATIONS + SKIP);
     buffer = (double **) malloc(sizeof(double *) * nranks);
-    ARMCI_Malloc((void **) buffer, bufsize);
+    PARMCI_Malloc((void **) buffer, bufsize);
 
     for (i = 0; i < bufsize/sizeof(double); i++)
     {
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
     if (rank == 0)
     {
-        printf("ARMCI_Put Latency - local and remote completions - in usec \n");
+        printf("PARMCI_Put Latency - local and remote completions - in usec \n");
         printf("%20s %22s %22s\n",
                "Message Size",
                "Latency-LocalCompelte",
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         fflush(stdout);
     }
 
-    ARMCI_Barrier();
+    PARMCI_Barrier();
 
     for (msgsize = sizeof(double); msgsize < MAX_MSG_SIZE; msgsize *= 2)
     {
@@ -119,20 +119,20 @@ int main(int argc, char *argv[])
                 if (i == SKIP) 
                    t_start = MPI_Wtime();
 
-                ARMCI_Put((void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
+                PARMCI_Put((void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
                        (void *) ((size_t) buffer[peer] + (size_t)(i * msgsize)),
                        msgsize, peer);
 
             }
             t_stop = MPI_Wtime();
-            ARMCI_Fence(peer);
+            PARMCI_Fence(peer);
             printf("%20d %20.2f", msgsize, ((t_stop - t_start) * 1000000)
                     / ITERATIONS);
             fflush(stdout);
 
-            ARMCI_Barrier();
+            PARMCI_Barrier();
 
-            ARMCI_Barrier();
+            PARMCI_Barrier();
 
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
@@ -140,19 +140,19 @@ int main(int argc, char *argv[])
                 if (i == SKIP) 
                    t_start = MPI_Wtime();
 
-                ARMCI_Put((void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
+                PARMCI_Put((void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
                        (void *) ((size_t) buffer[peer] + (size_t)(i * msgsize)),
                        msgsize, peer);
-                ARMCI_Fence(peer);
+                PARMCI_Fence(peer);
 
             }
             t_stop = MPI_Wtime();
             printf("%20.2f \n", ((t_stop - t_start) * 1000000) / ITERATIONS);
             fflush(stdout);
 
-            ARMCI_Barrier();
+            PARMCI_Barrier();
 
-            ARMCI_Barrier();
+            PARMCI_Barrier();
 
         }
         else
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 
             peer = 0;
 
-            ARMCI_Barrier();
+            PARMCI_Barrier();
 
             /** Data Validation **/
             for (i = 0; i < ( (ITERATIONS + SKIP) * msgsize / sizeof(double)); i++)
@@ -182,9 +182,9 @@ int main(int argc, char *argv[])
                 *(buffer[rank] + i) = 1.0 + rank;
             }
 
-            ARMCI_Barrier();
+            PARMCI_Barrier();
 
-            ARMCI_Barrier();
+            PARMCI_Barrier();
 
             /** Data Validation **/
             for (i = 0; i < ((ITERATIONS + SKIP) * msgsize / sizeof(double)); i++)
@@ -206,15 +206,15 @@ int main(int argc, char *argv[])
                 *(buffer[rank] + i) = 1.0 + rank;
             }
 
-            ARMCI_Barrier();
+            PARMCI_Barrier();
 
         }        
 
     }
 
-    ARMCI_Barrier();
+    PARMCI_Barrier();
 
-    ARMCI_Free(buffer[rank]);
+    PARMCI_Free(buffer[rank]);
 
     MPI_Finalize();
 

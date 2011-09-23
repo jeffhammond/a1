@@ -5,6 +5,19 @@
 
 typedef long armci_size_t;
 
+typedef enum
+{
+    ARMCI_ADD,
+    ARMCI_ADD_LONG,
+#ifdef PROPER_RMW_IMPLEMENTED
+    ARMCI_FETCH_AND_ADD,
+    ARMCI_FETCH_AND_ADD_LONG,
+    ARMCI_SWAP,
+    ARMCI_SWAP_LONG
+#endif
+}
+armci_rmw_t;
+
 /* for vector calls */
 typedef struct
 {
@@ -23,7 +36,7 @@ typedef struct
 }
 armci_hdl_t;
 
-/* NOT USED */
+/* NOT USED
 typedef struct armci_meminfo_ds
 {
   char     *armci_addr;
@@ -33,24 +46,13 @@ typedef struct armci_meminfo_ds
   long      idlist[64];
 }
 armci_meminfo_t;
+*/
 
 /* initialization and termination */
 
-int PARMCI_Init()
-{
-    A1D_Initialize();
-}
-
-int PARMCI_Init_args(int *argc, char ***argv)
-{
-    A1D_Initialize();
-    A1D_Warn("");
-}
-
-void PARMCI_Finalize()
-{
-    A1D_Finalize();
-}
+int PARMCI_Init();
+int PARMCI_Init_args(int *argc, char ***argv);
+void PARMCI_Finalize();
 
 /* memory management */
 
@@ -60,8 +62,10 @@ int PARMCI_Free(void *ptr);
 void *PARMCI_Malloc_local(armci_size_t bytes);
 int PARMCI_Free_local(void *ptr);
 
+/* NOT USED
 void *PARMCI_Memat(armci_meminfo_t * meminfo, int memflg);
 void PARMCI_Memget(size_t bytes, armci_meminfo_t * meminfo, int memflg);
+*/
 
 /* synchronization */
 
@@ -77,7 +81,7 @@ int PARMCI_WaitAll();
 
 /* remote atomic update and mutexes */
 
-int PARMCI_Rmw(int op, int *ploc, int *prem, int extra, int proc);
+long PARMCI_Rmw(int op, void * ploc, void * prem, int extra, int proc);
 
 int PARMCI_Create_mutexes(int num);
 int PARMCI_Destroy_mutexes();

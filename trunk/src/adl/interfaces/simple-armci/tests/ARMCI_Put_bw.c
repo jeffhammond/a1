@@ -50,7 +50,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <armci.h>
+#include <parmci.h>
 #include <mpi.h>
 
 #define MAX_MSGSIZE 2*1024*1024
@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
     double t_start, t_stop, t_total, d_total;
     double expected, bandwidth;
     int provided;
-    armci_hdl_t handle;
 
     max_msgsize = MAX_MSGSIZE;
 
@@ -78,26 +77,23 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
-    ARMCI_Init_args(&argc, &argv);
+    PARMCI_Init_args(&argc, &argv);
 
     bufsize = max_msgsize * ITERATIONS_LARGE;
     buffer = (double **) malloc(sizeof(double *) * nranks);
-    ARMCI_Malloc((void **) buffer, bufsize);
+    PARMCI_Malloc((void **) buffer, bufsize);
 
     for (i = 0; i < bufsize / sizeof(double); i++)
     {
         *(buffer[rank] + i) = 1.0 + rank;
     }
 
-    ARMCI_INIT_HANDLE(&handle);
-    ARMCI_SET_AGGREGATE_HANDLE(&handle);
-
-    ARMCI_Barrier();
+    PARMCI_Barrier();
 
     if (rank == 0)
     {
 
-        printf("ARMCI_Put Bandwidth in MBPS \n");
+        printf("PARMCI_Put Bandwidth in MBPS \n");
         printf("%20s %22s \n", "Message Size", "Bandwidth");
         fflush(stdout);
 
@@ -117,13 +113,11 @@ int main(int argc, char *argv[])
             for (i = 0; i < iterations; i++)
             {
 
-                ARMCI_NbPut((void *) ((size_t) buffer[dest] + (size_t)(i
+                PARMCI_Put((void *) ((size_t) buffer[dest] + (size_t)(i
                            * msgsize)), (void *) ((size_t) buffer[rank]
-                           + (size_t)(i * msgsize)), msgsize, dest, &handle);
+                           + (size_t)(i * msgsize)), msgsize, dest);
 
             }
-
-            ARMCI_Wait(&handle);
 
             t_stop = MPI_Wtime();
             d_total = (iterations * msgsize) / (1024 * 1024);
@@ -132,18 +126,16 @@ int main(int argc, char *argv[])
             printf("%20d %20.4lf \n", msgsize, bandwidth);
             fflush(stdout);
            
-            ARMCI_Fence(dest);
+            PARMCI_Fence(dest);
         }
 
     }
 
-    ARMCI_Barrier();
+    PARMCI_Barrier();
 
-    ARMCI_UNSET_AGGREGATE_HANDLE(&handle);
+    PARMCI_Free((void *) buffer[rank]);
 
-    ARMCI_Free((void *) buffer[rank]);
-
-    ARMCI_Finalize();
+    PARMCI_Finalize();
 
     MPI_Finalize(); 
 

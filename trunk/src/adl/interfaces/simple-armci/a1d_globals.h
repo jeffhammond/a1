@@ -81,10 +81,6 @@ extern DCMF_Protocol_t A1D_Acc_protocol;
 
 extern DCMF_Callback_t A1D_Nocallback;
 
-void A1D_Done_cb(void * clientdata, DCMF_Error_t * error)
-{
-    --(*((uint32_t *) clientdata));
-}
 
 #define A1DI_Advance()                                             \
  do {                                                              \
@@ -95,5 +91,6 @@ void A1D_Done_cb(void * clientdata, DCMF_Error_t * error)
     do {                                                            \
           DCMF_Messager_advance(0);                                 \
     } while(boolean)                                                \
+
 
 #endif
