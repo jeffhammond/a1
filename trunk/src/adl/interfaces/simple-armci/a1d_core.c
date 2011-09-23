@@ -315,6 +315,8 @@ int A1D_Allocate_shared(void* ptrs[], int bytes)
 
 void A1D_Free_shared(void* ptr)
 {
+    int mpi_status;
+
     /* barrier so that no one tries to access memory which is no longer allocated */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
