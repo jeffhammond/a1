@@ -7,7 +7,7 @@ INCLUDE = -I. -I/bgsys/drivers/ppcfloor/arch/include/
 LIBS    = libarmci-bgp.a
 
 LD      = $(CC)
-CFLAGS  = $(COPT) $(INCLUDE)
+CFLAGS  = $(COPT) $(INCLUDE) -DDEBUG_FUNCTION_ENTER_EXIT
 LDFLAGS = $(COPT)
 
 TESTS       := $(wildcard test*.c)

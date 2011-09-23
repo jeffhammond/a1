@@ -57,10 +57,14 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     int32_t incr;
     A1D_Inc32_t * data = (A1D_Inc32_t *) info ;
 
+    A1U_DEBUG_ENTER();
+
     address = data->address;
     incr    = data->incr;
 
     (*address) += incr;
+
+    A1U_DEBUG_EXIT();
 
     return;
 }
@@ -69,6 +73,8 @@ void A1D_Inc32_initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Control_Configuration_t conf;
+
+    A1U_DEBUG_ENTER();
 
     DCMF_CriticalSection_enter(0);
 
@@ -82,6 +88,8 @@ void A1D_Inc32_initialize()
 
     DCMF_CriticalSection_exit(0);
 
+    A1U_DEBUG_EXIT();
+
     return;
 }
 
@@ -90,6 +98,8 @@ int32_t A1D_Inc32(int proc, int32_t * remote, int32_t incr)
     DCMF_Result dcmf_result;
     A1D_Inc32_t data;
     DCMF_Control_t payload;
+
+    A1U_DEBUG_ENTER();
 
     DCMF_CriticalSection_enter(0);
 
@@ -105,6 +115,8 @@ int32_t A1D_Inc32(int proc, int32_t * remote, int32_t incr)
     assert(dcmf_result==DCMF_SUCCESS);
 
     DCMF_CriticalSection_exit(0);
+
+    A1U_DEBUG_EXIT();
 
     return(0);
 }

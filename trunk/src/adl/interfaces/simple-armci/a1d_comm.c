@@ -65,6 +65,8 @@ int A1DI_Put_initialize()
     DCMF_Result dcmf_result;
     DCMF_Put_Configuration_t conf;
 
+    A1U_DEBUG_ENTER();
+
     DCMF_CriticalSection_enter(0);
 
     conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
@@ -75,6 +77,8 @@ int A1DI_Put_initialize()
 
     DCMF_CriticalSection_exit(0);
 
+    A1U_DEBUG_EXIT();
+
     return(0);
 }
 
@@ -82,6 +86,8 @@ int A1DI_Get_initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Get_Configuration_t conf;
+
+    A1U_DEBUG_ENTER();
 
     DCMF_CriticalSection_enter(0);
 
@@ -93,6 +99,8 @@ int A1DI_Get_initialize()
 
     DCMF_CriticalSection_exit(0);
 
+    A1U_DEBUG_EXIT();
+
     return(0);
 }
 
@@ -101,6 +109,8 @@ int A1DI_Acc_initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Send_Configuration_t conf;
+
+    A1U_DEBUG_ENTER();
 
     DCMF_CriticalSection_enter(0);
 
@@ -116,6 +126,8 @@ int A1DI_Acc_initialize()
 
     DCMF_CriticalSection_exit(0);
 
+    A1U_DEBUG_EXIT();
+
     return(0);
 }
 #endif
@@ -128,6 +140,8 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     DCMF_Callback_t done_callback;
     volatile int done_active;
     size_t src_disp, dst_disp;
+
+    A1U_DEBUG_ENTER();
 
     DCMF_CriticalSection_enter(0);
 
@@ -165,6 +179,8 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     DCMF_Callback_t done_callback;
     volatile int done_active;
     size_t src_disp, dst_disp;
+
+    A1U_DEBUG_ENTER();
 
     DCMF_CriticalSection_enter(0);
 
@@ -221,6 +237,8 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     A1DI_Conditional_advance(done_active > 0);
 
     DCMF_CriticalSection_exit(0);
+
+    A1U_DEBUG_EXIT();
 
     return(0);
 }

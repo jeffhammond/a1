@@ -86,6 +86,8 @@ int A1D_Initialize()
     DCMF_Configure_t dcmf_config;
     DCMF_Memregion_t local_memregion;
 
+    A1U_DEBUG_ENTER();
+
     /***************************************************
      *
      * configure MPI
@@ -216,6 +218,8 @@ int A1D_Initialize()
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
 
+    A1U_DEBUG_EXIT();
+
     return(0);
 }
 
@@ -224,6 +228,8 @@ int A1D_Finalize()
     int mpi_status;
     int i;
     DCMF_Result dcmf_result;
+
+    A1U_DEBUG_ENTER();
 
     A1D_Print_stats();
 
@@ -260,6 +266,8 @@ int A1D_Finalize()
     mpi_status = MPI_Comm_free(&A1D_COMM_WORLD);
     assert(mpi_status==0);
 
+    A1U_DEBUG_EXIT();
+
     return(0);
 }
 
@@ -272,6 +280,9 @@ int A1D_Finalize()
 int A1D_Allocate_local(void** ptr, int bytes)
 {
     void* tmp;
+
+    A1U_DEBUG_ENTER();
+
     tmp = malloc((size_t)bytes);
 
     /* just to be safe */
@@ -282,12 +293,19 @@ int A1D_Allocate_local(void** ptr, int bytes)
 
     ptr = &tmp;
 
+    A1U_DEBUG_EXIT();
+
     return(0);
 }
 
 void A1D_Free_local(void* ptr)
 {
+    A1U_DEBUG_ENTER();
+
     if (ptr != NULL) free(ptr);
+
+    A1U_DEBUG_EXIT();
+
     return;
 }
 
@@ -302,12 +320,16 @@ int A1D_Allocate_shared(void* ptrs[], int bytes)
     int mpi_status;
     void* tmp_ptr;
 
+    A1U_DEBUG_ENTER();
+
     A1D_Allocate_local(&tmp_ptr, bytes);
 
     mpi_status = MPI_Allgather(&tmp_ptr,sizeof(void*),MPI_BYTE,
                                ptrs,sizeof(void*),MPI_BYTE,
                                A1D_COMM_WORLD);
     assert(mpi_status==0);
+
+    A1U_DEBUG_EXIT();
 
     return(0);
 }
@@ -317,11 +339,16 @@ void A1D_Free_shared(void* ptr)
 {
     int mpi_status;
 
+    A1U_DEBUG_ENTER();
+
     /* barrier so that no one tries to access memory which is no longer allocated */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
     A1D_Free_local(ptr);
+
+    A1U_DEBUG_EXIT();
+
     return;
 }
 
@@ -338,6 +365,8 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
     int mpi_rank;
     void* tmp_ptr;
     MPI_Comm newcomm;
+
+    A1U_DEBUG_ENTER();
 
     /* save (dup) the communicator into the window object */
     mpi_status = MPI_Comm_dup(comm,&newcomm);
@@ -379,6 +408,8 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
 
 #endif
 
+    A1U_DEBUG_EXIT();
+
     return(0);
 }
 
@@ -386,6 +417,8 @@ int A1D_Destroy_window(A1D_Window_t* window)
 {
     int mpi_status;
     int mpi_rank;
+
+    A1U_DEBUG_ENTER();
 
     /* barrier so that no one is able to access remote window memory after it is free */
     mpi_status = MPI_Barrier(window->comm);
@@ -409,6 +442,8 @@ int A1D_Destroy_window(A1D_Window_t* window)
     /* free the communicator */
     mpi_status = MPI_Comm_free(&(window->comm));
     assert(mpi_status==0);
+
+    A1U_DEBUG_EXIT();
 
     return(0);
 }
