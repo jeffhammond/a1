@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     int i, rank, nranks, msgsize, dest;
     long bufsize;
     double **buffer;
-    double t_start, t_stop, t_latency;
+    double t_start=0.0, t_stop=0.0;
     int provided;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
@@ -76,16 +76,12 @@ int main(int argc, char **argv)
     buffer = (double **) malloc(sizeof(double *) * nranks);
     PARMCI_Malloc((void **) buffer, bufsize);
 
-    for (i = 0; i < bufsize / sizeof(double); i++)
-    {
-        *(buffer[rank] + i) = 1.0 + rank;
-    }
+    for (i = 0; i < bufsize / sizeof(double); i++) *(buffer[rank] + i) = 1.0 + rank;
 
     PARMCI_Barrier();
 
     if (rank == 0)
     {
-
         printf("PARMCI_Get Latency in usec \n");
         printf("%20s %22s \n", "Message Size", "Latency");
         fflush(stdout);
@@ -94,39 +90,28 @@ int main(int argc, char **argv)
 
         for (msgsize = sizeof(double); msgsize <= MAX_MSG_SIZE; msgsize *= 2)
         {
-
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
-
                 if (i == SKIP) t_start = MPI_Wtime();
 
                 PARMCI_Get((void *) ((size_t) buffer[dest] + (size_t)(i
                         * msgsize)), (void *) ((size_t) buffer[rank]
                         + (size_t)(i * msgsize)), msgsize, 1);
-
             }
             t_stop = MPI_Wtime();
-            printf("%20d %20.2f \n", msgsize, ((t_stop - t_start) * 1000000)
-                    / ITERATIONS);
+            printf("%20d %20.2f \n", msgsize, ((t_stop - t_start) * 1000000) / ITERATIONS);
             fflush(stdout);
 
             for (i = 0; i < ((ITERATIONS + SKIP) * msgsize) / sizeof(double); i++)
-            {
                 if (*(buffer[rank] + i) != (1.0 + dest))
                 {
                     printf("Data validation failed At displacement : %d Expected : %f Actual : %f \n",
-                           i,
-                           (1.0 + dest),
-                           *(buffer[rank] + i));
+                           i, (1.0 + dest), *(buffer[rank] + i));
                     fflush(stdout);
                     return -1;
                 }
-            }
 
-            for (i = 0; i < bufsize / sizeof(double); i++)
-            {
-                *(buffer[rank] + i) = 1.0 + rank;
-            }
+            for (i = 0; i < bufsize / sizeof(double); i++) *(buffer[rank] + i) = 1.0 + rank;
         }
 
     }

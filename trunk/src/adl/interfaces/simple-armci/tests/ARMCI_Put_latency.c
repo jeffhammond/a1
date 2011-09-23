@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     int i, rank, nranks, msgsize, peer;
     long bufsize;
     double **buffer;
-    double t_start, t_stop;
+    double t_start=0.0, t_stop=0.0;
     int provided;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
@@ -88,10 +88,7 @@ int main(int argc, char *argv[])
     buffer = (double **) malloc(sizeof(double *) * nranks);
     PARMCI_Malloc((void **) buffer, bufsize);
 
-    for (i = 0; i < bufsize/sizeof(double); i++)
-    {
-       *(buffer[rank] + i) = 1.0 + rank;
-    }
+    for (i = 0; i < bufsize/sizeof(double); i++) *(buffer[rank] + i) = 1.0 + rank;
 
     if (rank == 0)
     {
@@ -110,14 +107,11 @@ int main(int argc, char *argv[])
   
         if (rank == 0)
         {
-
             peer = 1;
 
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
-
-                if (i == SKIP) 
-                   t_start = MPI_Wtime();
+                if (i == SKIP) t_start = MPI_Wtime();
 
                 PARMCI_Put((void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
                        (void *) ((size_t) buffer[peer] + (size_t)(i * msgsize)),
@@ -126,19 +120,14 @@ int main(int argc, char *argv[])
             }
             t_stop = MPI_Wtime();
             PARMCI_Fence(peer);
-            printf("%20d %20.2f", msgsize, ((t_stop - t_start) * 1000000)
-                    / ITERATIONS);
+            printf("%20d %20.2f", msgsize, ((t_stop - t_start) * 1000000) / ITERATIONS);
             fflush(stdout);
-
-            PARMCI_Barrier();
 
             PARMCI_Barrier();
 
             for (i = 0; i < ITERATIONS + SKIP; i++)
             {
-
-                if (i == SKIP) 
-                   t_start = MPI_Wtime();
+                if (i == SKIP) t_start = MPI_Wtime();
 
                 PARMCI_Put((void *) ((size_t) buffer[rank] + (size_t)(i * msgsize)),
                        (void *) ((size_t) buffer[peer] + (size_t)(i * msgsize)),
@@ -151,60 +140,38 @@ int main(int argc, char *argv[])
             fflush(stdout);
 
             PARMCI_Barrier();
-
-            PARMCI_Barrier();
-
         }
         else
         {
-
             peer = 0;
 
             PARMCI_Barrier();
 
             /** Data Validation **/
             for (i = 0; i < ( (ITERATIONS + SKIP) * msgsize / sizeof(double)); i++)
-            {
                 if (*(buffer[rank] + i) != (1.0 + peer)) 
                 {
                     printf("Data validation failed At displacement : %d Expected : %f Actual : %f \n",
-                           i,
-                           (1.0 + peer),
-                           *(buffer[rank] + i));
+                           i, (1.0 + peer), *(buffer[rank] + i));
                     fflush(stdout);
                     return -1;
                 }
-            }
 
-            for (i = 0; i < ( bufsize
-                    / sizeof(double)); i++)
-            {
-                *(buffer[rank] + i) = 1.0 + rank;
-            }
-
-            PARMCI_Barrier();
+            for (i = 0; i < ( bufsize / sizeof(double)); i++) *(buffer[rank] + i) = 1.0 + rank;
 
             PARMCI_Barrier();
 
             /** Data Validation **/
             for (i = 0; i < ((ITERATIONS + SKIP) * msgsize / sizeof(double)); i++)
-            {
                 if (*(buffer[rank] + i) != (1.0 + peer))
                 {
                     printf("Data validation failed At displacement : %d Expected : %f Actual : %f \n",
-                           i,
-                           (1.0 + peer),
-                           *(buffer[rank] + i));
+                           i, (1.0 + peer), *(buffer[rank] + i));
                     fflush(stdout);
                     return -1;
                 }
-            }
 
-            for (i = 0; i < (bufsize
-                    / sizeof(double)); i++)
-            {
-                *(buffer[rank] + i) = 1.0 + rank;
-            }
+            for (i = 0; i < (bufsize / sizeof(double)); i++) *(buffer[rank] + i) = 1.0 + rank;
 
             PARMCI_Barrier();
 
