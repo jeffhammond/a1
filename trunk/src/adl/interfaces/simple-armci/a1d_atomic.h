@@ -52,6 +52,20 @@
 #ifndef A1D_ATOMIC_H
 #define A1D_ATOMIC_H
 
+typedef struct
+{
+    int32_t * address;
+    int32_t incr;
+}
+A1D_Inc32_t;
+
+typedef struct
+{
+    int64_t * address;
+    int64_t incr;
+}
+A1D_Inc64_t;
+
 int32_t A1D_Inc32(int proc, int32_t* remote, int32_t incr);
 int32_t A1D_Inc64(int proc, int64_t* remote, int64_t incr);
 int32_t A1D_Fetch_and_inc32(int proc, int32_t* local, int32_t* remote, int32_t incr);

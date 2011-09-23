@@ -116,7 +116,6 @@ int A1D_Create_counter(A1_group_t* group, A1_counter_t *counter_ptr)
 
     unlikely_if (a1d_counter->rank == A1D_Process_info.my_rank)
     {
-
         a1d_counter->value_ptr = NULL;
 
         for (index = 0; index < A1D_Process_info.num_ranks; index++)
@@ -195,7 +194,7 @@ int A1D_Incr_counter(A1_counter_t counter, long increment, long* original)
     if (a1d_counter->rank == A1D_Process_info.my_rank)
     {
         *original = a1d_counter->value;
-        a1d_counter->value = a1d_counter->value + increment;
+        a1d_counter->value += increment;
     }
     else
     {

@@ -49,32 +49,87 @@
 
 #include "a1d_atomic.h"
 
-int32_t A1D_Inc32(int proc, int32_t* remote, int32_t incr)
+DCMF_Protocol_t A1D_Inc32_protocol;
+
+void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
+{
+    int32_t * address;
+    int32_t incr;
+    A1D_Inc32_t * data = (A1D_Inc32_t *) info ;
+
+    address = data->address;
+    incr    = data->incr;
+
+    (*address) += incr;
+
+    return;
+}
+
+void A1D_Inc32_initialize()
+{
+    DCMF_Result dcmf_result;
+    DCMF_Control_Configuration_t conf;
+
+    DCMF_CriticalSection_enter(0);
+
+    conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
+    conf.network            = DCMF_DEFAULT_NETWORK;
+    conf.cb_recv            = A1DI_Inc32_cb;
+    conf.cb_recv_clientdata = NULL;
+
+    dcmf_result = DCMF_Control_register(&A1D_Inc32_protocol, &conf);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    DCMF_CriticalSection_exit(0);
+
+    return;
+}
+
+int32_t A1D_Inc32(int proc, int32_t * remote, int32_t incr)
+{
+    DCMF_Result dcmf_result;
+    A1D_Inc32_t data;
+    DCMF_Control_t payload;
+
+    DCMF_CriticalSection_enter(0);
+
+    data.address = remote;
+    data.incr    = incr;
+
+    memcpy(&payload, &data, sizeof(A1D_Inc32_t));
+
+    dcmf_result =  DCMF_Control(&A1D_Inc32_protocol,
+                                DCMF_SEQUENTIAL_CONSISTENCY,
+                                proc,
+                                &payload);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    DCMF_CriticalSection_exit(0);
+
+    return(0);
+}
+
+int32_t A1D_Inc64(int proc, int64_t * remote, int64_t incr)
 {
     return(0);
 }
 
-int32_t A1D_Inc64(int proc, int64_t* remote, int64_t incr)
+int32_t A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t incr)
 {
     return(0);
 }
 
-int32_t A1D_Fetch_and_inc32(int proc, int32_t* local, int32_t* remote, int32_t incr)
+int32_t A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t incr)
 {
     return(0);
 }
 
-int32_t A1D_Fetch_and_inc64(int proc, int64_t* local, int64_t* remote, int64_t incr)
+int32_t A1D_Swap32(int proc, int32_t * local, int32_t * remote)
 {
     return(0);
 }
 
-int32_t A1D_Swap32(int proc, int32_t* local, int32_t* remote)
-{
-    return(0);
-}
-
-int32_t A1D_Swap64(int proc, int64_t* local, int64_t* remote)
+int32_t A1D_Swap64(int proc, int64_t * local, int64_t * remote)
 {
     return(0);
 }
