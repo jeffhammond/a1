@@ -120,7 +120,7 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
 {
     DCMF_Result dcmf_result;
     DCMF_Request_t request;
-    DCMF_Callback_t done_callback, ack_callback;
+    DCMF_Callback_t done_callback;
     volatile int done_active;
     size_t src_disp, dst_disp;
 

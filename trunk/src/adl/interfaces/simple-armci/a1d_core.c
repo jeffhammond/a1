@@ -113,8 +113,8 @@ int A1D_Initialize()
     assert(mpi_status==0);
 
     /* make sure MPI and DCMF agree */
-    assert(mpi_rank==DCMF_Messager_rank());
-    assert(mpi_size==DCMF_Messager_size());
+    assert(mpi_rank==(int)DCMF_Messager_rank());
+    assert(mpi_size==(int)DCMF_Messager_size());
 
     /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
