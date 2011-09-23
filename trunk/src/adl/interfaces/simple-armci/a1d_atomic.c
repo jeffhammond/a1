@@ -224,7 +224,7 @@ int32_t A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t
     return(0);
 }
 
-int32_t A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t incr)
+int64_t A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t incr)
 {
     return(0);
 }
@@ -234,7 +234,7 @@ int32_t A1D_Swap32(int proc, int32_t * local, int32_t * remote)
     return(0);
 }
 
-int32_t A1D_Swap64(int proc, int64_t * local, int64_t * remote)
+int64_t A1D_Swap64(int proc, int64_t * local, int64_t * remote)
 {
     return(0);
 }

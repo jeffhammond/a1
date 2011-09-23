@@ -74,7 +74,7 @@ int A1DI_PutC_initialize()
     conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
 
-    dcmf_result = DCMF_Put_register(&A1D_Put_protocol, &conf);
+    dcmf_result = DCMF_Put_register(&A1D_PutC_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
     DCMF_CriticalSection_exit(0);
@@ -98,7 +98,7 @@ int A1DI_GetC_initialize()
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
 
-    dcmf_result = DCMF_Get_register(&A1D_Get_protocol, &conf);
+    dcmf_result = DCMF_Get_register(&A1D_GetC_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -159,7 +159,7 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
 
-    dcmf_result = DCMF_Get(&A1D_Get_protocol,
+    dcmf_result = DCMF_Get(&A1D_GetC_protocol,
                            &request,
                            done_callback,
                            DCMF_RELAXED_CONSISTENCY,
@@ -210,7 +210,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     A1D_Put_flush_list[target]++;
 
     /* local completion only - must flush later */
-    dcmf_result = DCMF_Put(&A1D_Put_protocol,
+    dcmf_result = DCMF_Put(&A1D_PutC_protocol,
                            &request,
                            done_callback, /* local completion */
                            DCMF_SEQUENTIAL_CONSISTENCY,
@@ -232,7 +232,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     DCMF_CriticalSection_enter(0);
 
     /* end-to-end completion - no flush required */
-    dcmf_result = DCMF_Put(&A1D_Put_protocol,
+    dcmf_result = DCMF_Put(&A1D_PutC_protocol,
                            &request,
                            A1D_Nocallback, /* local completion */
                            DCMF_RELAXED_CONSISTENCY,
