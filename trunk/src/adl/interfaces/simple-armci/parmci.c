@@ -154,7 +154,7 @@ int PARMCI_WaitAll()
 
 /* remote atomic update and mutexes */
 
-int PARMCI_Rmw(int optype, void* local, void* remote, int incr, int proc)
+long PARMCI_Rmw(int optype, void* local, void* remote, int incr, int proc)
 {
     switch (optype)
     {
@@ -170,6 +170,8 @@ int PARMCI_Rmw(int optype, void* local, void* remote, int incr, int proc)
             assert(0);
             break;
     }
+    return *local;
+
 }
 
 int PARMCI_Create_mutexes(int num)
@@ -190,14 +192,14 @@ void PARMCI_Lock(int mutex, int proc)
 {
     fprintf(stderr,"PARMCI_Lock: not implemented \n");
     assert(0);
-    return(-1);
+    return;
 }
 
 void PARMCI_Unlock(int mutex, int proc)
 {
     fprintf(stderr,"PARMCI_Unlock: not implemented \n");
     assert(0);
-    return(-1);
+    return;
 }
 
 /* blocking one-sided */
