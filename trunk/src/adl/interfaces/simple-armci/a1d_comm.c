@@ -49,10 +49,10 @@
 
 #include "a1d_comm.h"
 
-DCMF_Protocol_t A1D_Put_protocol;
-DCMF_Protocol_t A1D_Get_protocol;
+DCMF_Protocol_t A1D_PutC_protocol;
+DCMF_Protocol_t A1D_GetC_protocol;
 #ifdef ACCUMULATE_IMPLEMENTED
-DCMF_Protocol_t A1D_Acc_protocol;
+DCMF_Protocol_t A1D_AccC_protocol;
 #endif
 
 void A1D_Done_cb(void * clientdata, DCMF_Error_t * error)
@@ -60,13 +60,13 @@ void A1D_Done_cb(void * clientdata, DCMF_Error_t * error)
     --(*((uint32_t *) clientdata));
 }
 
-int A1DI_Put_initialize()
+int A1DI_PutC_initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Put_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"entering A1DI_PutC_initialize() \n");
 #endif
 
     DCMF_CriticalSection_enter(0);
@@ -80,22 +80,20 @@ int A1DI_Put_initialize()
     DCMF_CriticalSection_exit(0);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"exiting A1DI_PutC_initialize() \n");
 #endif
 
     return(0);
 }
 
-int A1DI_Get_initialize()
+int A1DI_GetC_initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Get_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"entering A1DI_GetC_initialize() \n");
 #endif
-
-    DCMF_CriticalSection_enter(0);
 
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
@@ -103,26 +101,22 @@ int A1DI_Get_initialize()
     dcmf_result = DCMF_Get_register(&A1D_Get_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
-    DCMF_CriticalSection_exit(0);
-
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"exiting A1DI_GetC_initialize() \n");
 #endif
 
     return(0);
 }
 
 #ifdef ACCUMULATE_IMPLEMENTED
-int A1DI_Acc_initialize()
+int A1DI_AccC_Initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Send_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"entering A1DI_AccC_Initialize() \n");
 #endif
-
-    DCMF_CriticalSection_enter(0);
 
     conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
@@ -134,10 +128,8 @@ int A1DI_Acc_initialize()
     dcmf_result = DCMF_Send_register(&A1D_Acc_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
-    DCMF_CriticalSection_exit(0);
-
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"exiting A1DI_AccC_Initialize() \n");
 #endif
 
     return(0);
@@ -154,7 +146,7 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     size_t src_disp, dst_disp;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"entering A1D_GetC(int target, int bytes, void* src, void* dst) \n");
 #endif
 
     DCMF_CriticalSection_enter(0);
@@ -183,6 +175,11 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
 
     DCMF_CriticalSection_exit(0);
 
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_GetC(int target, int bytes, void* src, void* dst) \n");
+#endif
+
+
     return(0);
 }
 
@@ -195,7 +192,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     size_t src_disp, dst_disp;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"entering A1D_PutC(int target, int bytes, void* src, void* dst) \n");
 #endif
 
     DCMF_CriticalSection_enter(0);
@@ -255,7 +252,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     DCMF_CriticalSection_exit(0);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+    fprintf(stderr,"exiting A1D_PutC(int target, int bytes, void* src, void* dst) \n");
 #endif
 
     return(0);
