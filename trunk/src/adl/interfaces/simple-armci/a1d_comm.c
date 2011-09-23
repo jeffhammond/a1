@@ -75,7 +75,7 @@ int A1DI_Get_initialize()
 
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
-    dcmf_result = DCMF_Put_register(&A1D_Get_protocol, &conf);
+    dcmf_result = DCMF_Get_register(&A1D_Get_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
     return(0);
