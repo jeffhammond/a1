@@ -50,6 +50,8 @@
 #ifndef A1D_GLOBALS_H
 #define A1D_GLOBALS_H
 
+#include "a1d_headers.h"
+
 typedef struct
 {
     MPI_Comm comm;
@@ -92,31 +94,9 @@ extern DCMF_Callback_t A1D_Nocallback;
           DCMF_Messager_advance(0);                                 \
     } while(boolean)                                                \
 
-#if defined HAVE__FUNC__
-#define A1U_FUNC __func__
-#elif defined HAVE_CAP__FUNC__
-#define A1U_FUNC __FUNC__
-#elif defined HAVE__FUNCTION__
-#define A1U_FUNC __FUNCTION__
-#else
-#define A1U_FUNC "???"
-#endif
-
-#if defined __FILE__
-#define A1U_FILE __FILE__
-#else
-#define A1U_FILE "???"
-#endif
-
-#if defined __LINE__
-#define A1U_LINE __LINE__
-#else
-#define A1U_LINE "???"
-#endif
-
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-#define A1U_DEBUG_ENTER() fprintf(stderr,"entering function %s at line %s of file %s\n",A1U_FUNC,A1U_LINE,A1U_FILE)
-#define A1U_DEBUG_EXIT()  fprintf(stderr,"exiting function %s at line %s of file %s\n",A1U_FUNC,A1U_LINE,A1U_FILE)
+#define A1U_DEBUG_ENTER() fprintf(stderr,"entering function %s at line %s of file %s\n",__func__,__LINE__,__FILE__)
+#define A1U_DEBUG_EXIT()  fprintf(stderr,"exiting  function %s at line %s of file %s\n",__func__,__LINE__,__FILE__)
 #else
 #define A1U_DEBUG_ENTER()
 #define A1U_DEBUG_EXIT()

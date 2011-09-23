@@ -64,6 +64,8 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+    printf("%d: before PARMCI_Init_args(..)\n",rank);
+
     PARMCI_Init_args(&argc, &argv);
 
     int winsize = ( argc > 1 ? atoi(argv[1]) : 100 );
@@ -98,6 +100,9 @@ int main(int argc, char *argv[])
     PARMCI_Free(window[rank]);
 
     PARMCI_Finalize();
+
+    printf("%d: after PARMCI_Finalize()\n",rank);
+    fflush(stdout);
 
     MPI_Finalize();
 
