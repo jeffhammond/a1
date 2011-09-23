@@ -50,8 +50,6 @@
 #ifndef A1D_API_H
 #define A1D_API_H
 
-#define ACCUMULATE_IMPLEMENTED 1
-
 #include "a1d_core.h"
 #include "a1d_comm.h"
 #include "a1d_atomic.h"

@@ -50,6 +50,8 @@
 #ifndef A1D_GLOBALS_H
 #define A1D_GLOBALS_H
 
+#define ACCUMULATE_IMPLEMENTED
+
 typedef struct
 {
     MPI_Comm comm;
