@@ -60,10 +60,15 @@ int A1DI_Put_initialize()
     DCMF_Result dcmf_result;
     DCMF_Put_Configuration_t conf;
 
+    DCMF_CriticalSection_enter(0);
+
     conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
+
     dcmf_result = DCMF_Put_register(&A1D_Put_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
+
+    DCMF_CriticalSection_exit(0);
 
     return(0);
 }
@@ -73,10 +78,15 @@ int A1DI_Get_initialize()
     DCMF_Result dcmf_result;
     DCMF_Get_Configuration_t conf;
 
+    DCMF_CriticalSection_enter(0);
+
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
+
     dcmf_result = DCMF_Get_register(&A1D_Get_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
+
+    DCMF_CriticalSection_exit(0);
 
     return(0);
 }
@@ -87,6 +97,8 @@ int A1DI_Acc_initialize()
     DCMF_Result dcmf_result;
     DCMF_Send_Configuration_t conf;
 
+    DCMF_CriticalSection_enter(0);
+
     conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
     conf.network = DCMF_TORUS_NETWORK;
     conf.cb_recv_short = A1D_Acc_short_cb;
@@ -96,6 +108,8 @@ int A1DI_Acc_initialize()
 
     dcmf_result = DCMF_Send_register(&A1D_Acc_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
+
+    DCMF_CriticalSection_exit(0);
 
     return(0);
 }
@@ -110,8 +124,11 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     volatile int done_active;
     size_t src_disp, dst_disp;
 
+    DCMF_CriticalSection_enter(0);
+
     done_callback.function = A1D_Done_cb;
     done_callback.clientdata = (void *) &done_active;
+
     done_active = 1;
 
     src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
@@ -131,6 +148,8 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
 
     A1DI_Conditional_advance(done_active > 0);
 
+    DCMF_CriticalSection_exit(0);
+
     return(0);
 }
 
@@ -142,11 +161,14 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     volatile int done_active;
     size_t src_disp, dst_disp;
 
+    DCMF_CriticalSection_enter(0);
+
     src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
 
     done_callback.function = A1D_Done_cb;
     done_callback.clientdata = (void *) &done_active;
+
     done_active = 1;
 
 #ifdef FLUSH_IMPLEMENTED
@@ -167,7 +189,13 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
                            A1D_Nocallback); /* remote completion */
     assert(dcmf_result==DCMF_SUCCESS);
 
+    A1DI_Conditional_advance(done_active > 0);
+
+    DCMF_CriticalSection_exit(0);
+
 #else
+
+    DCMF_CriticalSection_enter(0);
 
     /* end-to-end completion - no flush required */
     dcmf_result = DCMF_Put(&A1D_Put_protocol,
@@ -187,6 +215,8 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
 
     A1DI_Conditional_advance(done_active > 0);
 
+    DCMF_CriticalSection_exit(0);
+
     return(0);
 }
 
@@ -199,19 +229,19 @@ int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale)
 
 #ifdef STRIDED_IMPLEMENTED
 
-    int A1D_GetS(int proc, stride_levels, block_sizes,
-                 src_ptr, src_stride_arr,
-                 dst_ptr, dst_stride_arr)
-    {
-        return 0;
-    }
+int A1D_GetS(int proc, stride_levels, block_sizes,
+             src_ptr, src_stride_arr,
+             dst_ptr, dst_stride_arr)
+{
+    return 0;
+}
 
-    int A1D_PutS(int proc, stride_levels, block_sizes,
-                 src_ptr, src_stride_arr,
-                 dst_ptr, dst_stride_arr)
-    {
-        return 0;
-    }
+int A1D_PutS(int proc, stride_levels, block_sizes,
+             src_ptr, src_stride_arr,
+             dst_ptr, dst_stride_arr)
+{
+    return 0;
+}
 
     #ifdef ACCUMULATE_IMPLEMENTED
     int A1D_AccS(int proc, stride_levels, block_sizes,

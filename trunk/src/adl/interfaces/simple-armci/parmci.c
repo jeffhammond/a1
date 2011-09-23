@@ -119,13 +119,21 @@ void PARMCI_Barrier()
 
 void PARMCI_Fence(int proc)
 {
+#ifdef FLUSH_IMPLEMENTED
+#  error YOU HAVE TO IMPLEMENT A1D_Flush(..)!
+#else
     /* no need to flush right now since Put/Acc wait on remote completion */
     return;
+#endif
 }
 void PARMCI_AllFence()
 {
+#ifdef FLUSH_IMPLEMENTED
+#  error YOU HAVE TO IMPLEMENT A1D_Flush_all(..)!
+#else
     /* no need to flush right now since Put/Acc wait on remote completion */
     return;
+#endif
 }
 
 int PARMCI_Test(armci_hdl_t * nb_handle)
@@ -156,6 +164,10 @@ int PARMCI_WaitAll()
 
 long PARMCI_Rmw(int optype, void* local, void* remote, int incr, int proc)
 {
+    fprintf(stderr,"PARMCI_Rmw: not implemented \n");
+    assert(0);
+    return(-1);
+
     switch (optype)
     {
         case ARMCI_FETCH_AND_ADD:
@@ -223,18 +235,26 @@ int PARMCI_GetS(void *src_ptr, int *src_stride_arr,
                 void *dst_ptr, int *dst_stride_arr,
                 int *block_sizes, int stride_levels, int proc)
 {
-    return A1D_GetS(proc, stride_levels, block_sizes,
-                    src_ptr, src_stride_arr,
-                    dst_ptr, dst_stride_arr);
+    fprintf(stderr,"PARMCI_GetS: not implemented \n");
+    assert(0);
+    return(-1);
+
+//    return A1D_GetS(proc, stride_levels, block_sizes,
+//                    src_ptr, src_stride_arr,
+//                    dst_ptr, dst_stride_arr);
 }
 
 int PARMCI_PutS(void *src_ptr, int *src_stride_arr,
                 void *dst_ptr, int *dst_stride_arr,
                 int *block_sizes, int stride_levels, int proc)
 {
-    return A1D_PutS(proc, stride_levels, block_sizes,
-                    src_ptr, src_stride_arr,
-                    dst_ptr, dst_stride_arr);
+    fprintf(stderr,"PARMCI_PutS: not implemented \n");
+    assert(0);
+    return(-1);
+
+//    return A1D_PutS(proc, stride_levels, block_sizes,
+//                    src_ptr, src_stride_arr,
+//                    dst_ptr, dst_stride_arr);
 }
 
 int PARMCI_AccS(int optype, void *scale,
@@ -242,10 +262,14 @@ int PARMCI_AccS(int optype, void *scale,
                 void *dst_ptr, int *dst_stride_arr,
                 int *count, int stride_levels, int proc)
 {
-    return A1D_AccS(proc, stride_levels, block_sizes,
-                    src_ptr, src_stride_arr,
-                    dst_ptr, dst_stride_arr,
-                    type, scale);
+    fprintf(stderr,"PARMCI_AccS: not implemented \n");
+    assert(0);
+    return(-1);
+
+//    return A1D_AccS(proc, stride_levels, block_sizes,
+//                    src_ptr, src_stride_arr,
+//                    dst_ptr, dst_stride_arr,
+//                    type, scale);
 }
 
 
@@ -295,9 +319,13 @@ int PARMCI_NbGetS(void *src_ptr, int *src_stride_arr,
                   int *block_sizes, int stride_levels, int proc,
                   armci_hdl_t * nb_handle)
 {
-    return A1D_GetS(proc, stride_levels, block_sizes,
-                    src_ptr, src_stride_arr,
-                    dst_ptr, dst_stride_arr);
+    fprintf(stderr,"PARMCI_NbGetS: not implemented \n");
+    assert(0);
+    return(-1);
+
+//    return A1D_GetS(proc, stride_levels, block_sizes,
+//                    src_ptr, src_stride_arr,
+//                    dst_ptr, dst_stride_arr);
 }
 
 int PARMCI_NbPutS(void *src_ptr, int *src_stride_arr,
@@ -305,9 +333,13 @@ int PARMCI_NbPutS(void *src_ptr, int *src_stride_arr,
                   int *block_sizes, int stride_levels, int proc,
                   armci_hdl_t * nb_handle)
 {
-    return A1D_PutS(proc, stride_levels, block_sizes,
-                    src_ptr, src_stride_arr,
-                    dst_ptr, dst_stride_arr);
+    fprintf(stderr,"PARMCI_NbPutS: not implemented \n");
+    assert(0);
+    return(-1);
+
+//    return A1D_PutS(proc, stride_levels, block_sizes,
+//                    src_ptr, src_stride_arr,
+//                    dst_ptr, dst_stride_arr);
 }
 
 int PARMCI_NbAccS(int optype, void *scale,
@@ -316,10 +348,14 @@ int PARMCI_NbAccS(int optype, void *scale,
                   int *count, int stride_levels, int proc,
                   armci_hdl_t * nb_handle)
 {
-    return A1D_AccS(proc, stride_levels, block_sizes,
-                    src_ptr, src_stride_arr,
-                    dst_ptr, dst_stride_arr,
-                    type, scale);
+    fprintf(stderr,"PARMCI_NbAccS: not implemented \n");
+    assert(0);
+    return(-1);
+
+//    return A1D_AccS(proc, stride_levels, block_sizes,
+//                    src_ptr, src_stride_arr,
+//                    dst_ptr, dst_stride_arr,
+//                    type, scale);
 }
 
 
