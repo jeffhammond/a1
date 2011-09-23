@@ -67,9 +67,9 @@ int main(int argc, char *argv[])
     PARMCI_Init_args(&argc, &argv);
 
     int winsize = ( argc > 1 ? atoi(argv[1]) : 100 );
-    if ( rank == 0 ) printf( "winsize = %d doubles", winsize );
+    if ( rank == 0 ) printf( "winsize = %d doubles\n", winsize );
 
-    double ** window = (double **) malloc( size * sizeof(double*) );
+    double ** window = (double **) PARMCI_Malloc_local( size * sizeof(double*) );
     PARMCI_Malloc((void **) window, winsize * sizeof(double) );
     for (i = 0; i < winsize; i++) 
     {
