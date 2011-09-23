@@ -49,11 +49,11 @@
 
 #include "a1d_comm.h"
 
+#ifdef __bgp__
+
 DCMF_Protocol_t A1D_PutC_protocol;
 DCMF_Protocol_t A1D_GetC_protocol;
-#ifdef ACCUMULATE_IMPLEMENTED
 DCMF_Protocol_t A1D_AccC_protocol;
-#endif
 
 void A1D_Done_cb(void * clientdata, DCMF_Error_t * error)
 {
@@ -108,7 +108,6 @@ int A1DI_GetC_initialize()
     return(0);
 }
 
-#ifdef ACCUMULATE_IMPLEMENTED
 int A1DI_AccC_Initialize()
 {
     DCMF_Result dcmf_result;
@@ -119,13 +118,13 @@ int A1DI_AccC_Initialize()
 #endif
 
     conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
-    conf.network = DCMF_TORUS_NETWORK;
-    conf.cb_recv_short = A1D_Acc_short_cb;
+    conf.network  = DCMF_TORUS_NETWORK;
+    conf.cb_recv_short            = NULL;
     conf.cb_recv_short_clientdata = NULL;
-    conf.cb_recv = A1D_Acc_cb;
+    conf.cb_recv            = NULL;
     conf.cb_recv_clientdata = NULL;
 
-    dcmf_result = DCMF_Send_register(&A1D_Acc_protocol, &conf);
+    dcmf_result = DCMF_Send_register(&A1D_AccC_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -134,20 +133,25 @@ int A1DI_AccC_Initialize()
 
     return(0);
 }
+
 #endif
 
 
 int A1D_GetC(int target, int bytes, void* src, void* dst)
 {
+#ifdef __bgp__
     DCMF_Result dcmf_result;
     DCMF_Request_t request;
     DCMF_Callback_t done_callback;
     volatile int done_active;
     size_t src_disp, dst_disp;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_GetC(int target, int bytes, void* src, void* dst) \n");
 #endif
+
+#ifdef __bgp__
 
     DCMF_CriticalSection_enter(0);
 
@@ -175,6 +179,8 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
 
     DCMF_CriticalSection_exit(0);
 
+#endif
+
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_GetC(int target, int bytes, void* src, void* dst) \n");
 #endif
@@ -185,16 +191,19 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
 
 int A1D_PutC(int target, int bytes, void* src, void* dst)
 {
+#ifdef __bgp__
     DCMF_Result dcmf_result;
     DCMF_Request_t request;
     DCMF_Callback_t done_callback;
     volatile int done_active;
     size_t src_disp, dst_disp;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_PutC(int target, int bytes, void* src, void* dst) \n");
 #endif
 
+#ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
     src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
@@ -250,6 +259,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     A1DI_Conditional_advance(done_active > 0);
 
     DCMF_CriticalSection_exit(0);
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_PutC(int target, int bytes, void* src, void* dst) \n");
@@ -279,7 +289,6 @@ int A1D_PutS(int proc, stride_levels, block_sizes,
     return 0;
 }
 
-#ifdef ACCUMULATE_IMPLEMENTED
 int A1D_AccS(int proc, stride_levels, block_sizes,
              src_ptr, src_stride_arr,
              dst_ptr, dst_stride_arr,
@@ -287,6 +296,5 @@ int A1D_AccS(int proc, stride_levels, block_sizes,
 {
     return 0;
 }
-#endif
 
 #endif

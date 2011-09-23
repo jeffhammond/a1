@@ -59,9 +59,13 @@
 #include <assert.h>
 #include <pthread.h>
 
-#include <dcmf.h>
-#include <dcmf_globalcollectives.h>
-#include <dcmf_collectives.h>
+#  ifdef __bgp__
+
+#  include <dcmf.h>
+#  include <dcmf_globalcollectives.h>
+#  include <dcmf_collectives.h>
+
+#  endif
 
 #include <mpi.h>
 

@@ -54,17 +54,18 @@ int mpi_rank;
 int mpi_size;
 
 MPI_Comm A1D_COMM_WORLD;
-DCMF_Memregion_t * A1D_Memregion_list;
 void ** A1D_Baseptr_list;
+
+#ifdef __bgp__
+DCMF_Memregion_t * A1D_Memregion_list;
+DCMF_Callback_t A1D_Nocallback;
+#endif
 
 #ifdef FLUSH_IMPLEMENTED
 int* A1D_Put_flush_list;
-#  ifdef ACCUMULATE_IMPLEMENTED
 int* A1D_Send_flush_list;
-#  endif
 #endif
 
-DCMF_Callback_t A1D_Nocallback;
 
 int A1D_Rank()
 {
@@ -82,9 +83,11 @@ int A1D_Initialize()
     int mpi_status;
     int i;
     size_t bytes_in, bytes_out;
+#ifdef __bgp__
     DCMF_Result dcmf_result;
     DCMF_Configure_t dcmf_config;
     DCMF_Memregion_t local_memregion;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Initialize() \n");
@@ -116,10 +119,6 @@ int A1D_Initialize()
     mpi_status = MPI_Comm_size(A1D_COMM_WORLD,&mpi_size);
     assert(mpi_status==0);
 
-    /* make sure MPI and DCMF agree */
-    assert(mpi_rank==(int)DCMF_Messager_rank());
-    assert(mpi_size==(int)DCMF_Messager_size());
-
     /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
@@ -130,21 +129,25 @@ int A1D_Initialize()
      *
      ***************************************************/
 
+#ifdef __bgp__
     DCMF_CriticalSection_enter(0);
+
+    /* make sure MPI and DCMF agree */
+    assert(mpi_rank==(int)DCMF_Messager_rank());
+    assert(mpi_size==(int)DCMF_Messager_size());
 
     /* probably not necessary since we require MPI_THREAD_MULTIPLE. */
     dcmf_config.thread_level = DCMF_THREAD_MULTIPLE;
-#ifdef ACCUMULATE_IMPLEMENTED
     /* interrupts required for accumulate only, Put/Get use DMA
      * if accumulate not used, MPI will query environment for DCMF_INTERRUPTS */
     dcmf_config.interrupts = DCMF_INTERRUPTS_ON;
-#endif
 
     /* reconfigure DCMF with interrupts on */
     dcmf_result = DCMF_Messager_configure(&dcmf_config, &dcmf_config);
     assert(dcmf_result==DCMF_SUCCESS);
 
     DCMF_CriticalSection_exit(0);
+#endif
 
     /* barrier after DCMF_Messager_configure to make sure everyone has the new DCMF config */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
@@ -156,6 +159,7 @@ int A1D_Initialize()
      *
      ***************************************************/
 
+#ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
     /* allocate memregion list */
@@ -194,24 +198,27 @@ int A1D_Initialize()
         assert(dcmf_result==DCMF_SUCCESS);
     }
 
-#ifdef FLUSH_IMPLEMENTED
     /***************************************************
      *
-     * setup flush list(s)
+     * setup protocols and flush list(s)
      *
      ***************************************************/
 
+    A1DI_GetC_initialize();
+
+    A1DI_PutC_initialize();
+#  ifdef FLUSH_IMPLEMENTED
     /* allocate Put list */
     A1D_Put_flush_list = malloc( mpi_size * sizeof(int) );
     assert(A1D_Put_flush_list != NULL);
+#  endif
 
-#  ifdef ACCUMULATE_IMPLEMENTED
+    A1DI_AccC_initialize();
+#  ifdef FLUSH_IMPLEMENTED
     /* allocate Acc list */
     A1D_Send_flush_list = malloc( mpi_size * sizeof(int) );
     assert(A1D_Send_flush_list != NULL);
 #  endif
-
-#endif
 
     /***************************************************
      *
@@ -222,19 +229,9 @@ int A1D_Initialize()
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
 
-    /***************************************************
-     *
-     * initialize protocols
-     *
-     ***************************************************/
-
-    A1DI_PutC_initialize();
-    A1DI_GetC_initialize();
-#  ifdef ACCUMULATE_IMPLEMENTED
-    A1DI_AccC_initialize();
-#  endif
-
     DCMF_CriticalSection_exit(0);
+
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Initialize() \n");
@@ -264,10 +261,8 @@ int A1D_Finalize()
 #ifdef FLUSH_IMPLEMENTED
     /* free Put list */
     free(A1D_Put_flush_list);
-#  ifdef ACCUMULATE_IMPLEMENTED
     /* free Acc list */
     free(A1D_Send_flush_list);
-#  endif
 #endif
 
     /* destroy all memregions - not absolutely unnecessary if memregion creation has no side effects */
@@ -312,7 +307,7 @@ int A1D_Allocate_local(void ** ptr, int bytes)
 
     if (bytes>0) 
     {
-        tmp = malloc(bytes);
+        tmp = calloc(bytes,1);
         assert( tmp != NULL );
     }
     else
@@ -355,7 +350,7 @@ void A1D_Free_local(void* ptr)
  *
  ***************************************************/
 
-int A1D_Allocate_shared(void* ptrs[], int bytes)
+int A1D_Allocate_shared(void * ptrs[], int bytes)
 {
     int mpi_status;
     void * tmp_ptr;
@@ -366,8 +361,8 @@ int A1D_Allocate_shared(void* ptrs[], int bytes)
 
     A1D_Allocate_local(&tmp_ptr, bytes);
 
-    mpi_status = MPI_Allgather(&tmp_ptr,sizeof(void*),MPI_BYTE,
-                               ptrs,sizeof(void*),MPI_BYTE,
+    mpi_status = MPI_Allgather(&tmp_ptr, sizeof(void *), MPI_BYTE,
+                               ptrs,     sizeof(void *), MPI_BYTE,
                                A1D_COMM_WORLD);
     assert(mpi_status==0);
 

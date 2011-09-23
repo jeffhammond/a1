@@ -56,9 +56,9 @@ typedef struct
 {
     MPI_Comm comm;
     void ** addr_list;
-#ifndef NO_WINDOW_BOUNDS_CHECKING
+#  ifndef NO_WINDOW_BOUNDS_CHECKING
     int * size_list; /* for correctness checking, technically optional */
-#endif
+#  endif
 }
 A1D_Window_t;
 
@@ -67,24 +67,23 @@ extern MPI_Comm A1D_COMM_WORLD;
 extern int mpi_rank;
 extern int mpi_size;
 
-extern DCMF_Memregion_t * A1D_Memregion_list;
+extern int * A1D_Put_flush_list;
+extern int * A1D_Acc_flush_list;
+
 extern void ** A1D_Baseptr_list;
 
-extern int * A1D_Put_flush_list;
-#ifdef ACCUMULATE_IMPLEMENTED
-extern int * A1D_Acc_flush_list;
-#endif
+#  ifdef __bgp__
+
+extern DCMF_Memregion_t * A1D_Memregion_list;
 
 extern DCMF_Protocol_t A1D_PutC_protocol;
 extern DCMF_Protocol_t A1D_GetC_protocol;
-#ifdef ACCUMULATE_IMPLEMENTED
 extern DCMF_Protocol_t A1D_AccC_protocol;
-#endif
-DCMF_Protocol_t A1D_Inc32_protocol;
-DCMF_Protocol_t A1D_Inc64_protocol;
+
+extern DCMF_Protocol_t A1D_Inc32_protocol;
+extern DCMF_Protocol_t A1D_Inc64_protocol;
 
 extern DCMF_Callback_t A1D_Nocallback;
-
 
 #define A1DI_Advance()                                             \
  do {                                                              \
@@ -95,5 +94,7 @@ extern DCMF_Callback_t A1D_Nocallback;
     do {                                                            \
           DCMF_Messager_advance(0);                                 \
     } while(boolean)                                                \
+
+#  endif
 
 #endif

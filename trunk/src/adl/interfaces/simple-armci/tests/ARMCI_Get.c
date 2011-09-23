@@ -64,15 +64,18 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    printf("%d: before PARMCI_Init_args(..)\n",rank);
-
     PARMCI_Init_args(&argc, &argv);
 
     int winsize = ( argc > 1 ? atoi(argv[1]) : 100 );
+    if ( rank == 0 ) printf( "winsize = %d doubles", winsize );
 
     double ** window = (double **) malloc( size * sizeof(double*) );
-    PARMCI_Malloc((void **) window, winsize);
-    for (i = 0; i < winsize; i++) window[rank][i] = (double)rank;
+    PARMCI_Malloc((void **) window, winsize * sizeof(double) );
+    for (i = 0; i < winsize; i++) 
+    {
+        printf("%d: i=%d \n",rank,i);
+        window[rank][i] = (double)rank;
+    }
 
     double * buffer = PARMCI_Malloc_local(winsize);
     for (i = 0; i < winsize; i++) buffer[i] = -1.0;
@@ -83,10 +86,10 @@ int main(int argc, char *argv[])
         for (i=1; i<size; i++)
         {
             double t0 = MPI_Wtime();
-            PARMCI_Get(window[i], buffer, winsize, i);
+            PARMCI_Get( window[i], buffer, winsize * sizeof(double), i );
             double t1 = MPI_Wtime();
 
-            for (i = 0; i < winsize; i++) assert( buffer[i] == i );
+            for (i = 0; i < winsize; i++) assert( buffer[i] == (double)i );
 
             double bw = winsize * sizeof(double) / (t1 - t0);
             printf("PARMCI_Get from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",i,0,winsize,t1-t0,bw);
@@ -100,9 +103,6 @@ int main(int argc, char *argv[])
     PARMCI_Free(window[rank]);
 
     PARMCI_Finalize();
-
-    printf("%d: after PARMCI_Finalize()\n",rank);
-    fflush(stdout);
 
     MPI_Finalize();
 

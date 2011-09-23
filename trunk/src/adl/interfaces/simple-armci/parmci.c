@@ -71,16 +71,16 @@ void PARMCI_Finalize()
 
 /* memory management */
 
-void *PARMCI_Malloc_local(armci_size_t bytes)
+void * PARMCI_Malloc_local(armci_size_t bytes)
 {
     void * ptr;
-    A1D_Allocate_local(&ptr,(long)bytes);
+    A1D_Allocate_local(&ptr, bytes);
     return ptr;
 }
 
 int PARMCI_Malloc(void** ptr_arr, armci_size_t bytes)
 {
-    return A1D_Allocate_shared(ptr_arr, (long)bytes);
+    return A1D_Allocate_shared(ptr_arr, bytes);
 }
 
 int PARMCI_Free_local(void* ptr)
@@ -181,7 +181,7 @@ long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
             ival = -1;
             return (int64_t)ival;
         case ARMCI_ADD_LONG:
-            A1D_Inc64(proc, (int64_t*)remote, (int64_t)incr);
+            A1D_Inc64(proc, (int64_t *)remote, (int64_t)incr);
             lval = -1;
             return lval;
 #ifdef PROPER_RMW_IMPLEMENTED
