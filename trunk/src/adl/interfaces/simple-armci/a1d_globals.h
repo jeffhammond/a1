@@ -95,11 +95,16 @@ extern DCMF_Callback_t A1D_Nocallback;
     } while(boolean)                                                \
 
 #if defined HAVE__FUNC__
-#define A1U_FUNC __func__
+#  define A1U_FUNC __func__
 #elif defined HAVE_CAP__FUNC__
-#define A1U_FUNC __FUNC__
+#  define A1U_FUNC __FUNC__
 #elif defined HAVE__FUNCTION__
-#define A1U_FUNC __FUNCTION__
+#  define A1U_FUNC __FUNCTION__
+#elif __STDC_VERSION__ < 199901L && __GNUC__ >= 2
+#  define A1U_FUNC __FUNCTION__
+#else
+#  warning A1U_FUNC is undefined
+#  define A1U_FUNC "<unknown>"
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
