@@ -1,15 +1,15 @@
 #CC      = mpixlc_r 
 #COPT    = -g -O3 -qstrict
-#CC      = mpicc
-#COPT    = -g -O2 -std=c99
-CC      = mpixlc_r
-COPT    = -g -O3 -qstrict -qlanglvl=extc99
+CC      = mpicc
+COPT    = -g -O2 -std=c99
+#CC      = mpixlc_r
+#COPT    = -g -O3 -qstrict -qlanglvl=extc99
 
-INCLUDE = -I. -I/bgsys/drivers/ppcfloor/arch/include/
+#INC = -I. -I/bgsys/drivers/ppcfloor/arch/include/
 LIBS    = libarmci-bgp.a
 
 LD      = $(CC)
-CFLAGS  = $(COPT) $(INCLUDE) -DDEBUG_FUNCTION_ENTER_EXIT
+CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
 LDFLAGS = $(COPT)
 
 TESTS       := $(wildcard test*.c)
