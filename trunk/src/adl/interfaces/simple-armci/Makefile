@@ -1,5 +1,3 @@
-#CC      = mpixlc_r 
-#COPT    = -g -O3 -qstrict
 CC      = mpicc
 COPT    = -g -O2 -std=c99
 #CC      = mpixlc_r
