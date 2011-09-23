@@ -86,5 +86,14 @@ void A1D_Done_cb(void *clientdata, DCMF_Error_t *error)
     --(*((uint32_t *) clientdata));
 }
 
+#define A1DI_Advance()                                             \
+ do {                                                              \
+         DCMF_Messager_advance(0);                                 \
+    } while(0)                                                     \
+
+#define A1DI_Conditional_advance(boolean)                           \
+    do {                                                            \
+          DCMF_Messager_advance(0);                                 \
+    } while(boolean)                                                \
 
 #endif
