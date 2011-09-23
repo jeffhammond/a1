@@ -49,42 +49,18 @@
 
 #include "a1d_atomic.h"
 
-#if 0
-
-DCMF_Protocol_t TODO;
-
-int A1D_Fetch_and_inc32_initialize()
+int32_t A1D_Inc32(int proc, int32_t* remote, int32_t incr)
 {
-    int dcmf_result;
-    DCMF_Send_Configuration_t conf;
-
-    DCMF_CriticalSection_enter(0);
-
-    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
-    conf.network  = DCMF_TORUS_NETWORK;
-
-    conf.cb_recv_short            = A1DI_RecvSendShort_rmw_callback;
-    conf.cb_recv_short_clientdata = NULL;
-
-    conf.cb_recv            = A1DI_RecvSend_rmw_callback;
-    conf.cb_recv_clientdata = NULL;
-
-    dcmf_result = DCMF_Send_register(&A1D_Fetch_and_inc32_protocol, &conf);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    dcmf_result = DCMF_Send_register(&A1D_Fetch_and_inc32_protocol_response, &conf);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    DCMF_CriticalSection_exit(0);
-
     return(0);
 }
 
-#endif
+int32_t A1D_Inc64(int proc, int64_t* remote, int64_t incr)
+{
+    return(0);
+}
 
 int32_t A1D_Fetch_and_inc32(int proc, int32_t* local, int32_t* remote, int32_t incr)
 {
-    assert(0);
     return(0);
 }
 
