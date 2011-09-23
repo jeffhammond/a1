@@ -58,9 +58,9 @@ DCMF_Memregion_t * A1D_Memregion_list;
 void ** A1D_Baseptr_list;
 
 #ifdef FLUSH_IMPLEMENTED
-  int* A1D_Put_flush_list;
+int* A1D_Put_flush_list;
 #  ifdef ACCUMULATE_IMPLEMENTED
-    int* A1D_Send_flush_list;
+int* A1D_Send_flush_list;
 #  endif
 #endif
 
@@ -86,7 +86,9 @@ int A1D_Initialize()
     DCMF_Configure_t dcmf_config;
     DCMF_Memregion_t local_memregion;
 
-    A1U_DEBUG_ENTER();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     /***************************************************
      *
@@ -222,7 +224,9 @@ int A1D_Initialize()
 
     DCMF_CriticalSection_exit(0);
 
-    A1U_DEBUG_EXIT();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     return(0);
 }
@@ -233,7 +237,9 @@ int A1D_Finalize()
     int i;
     DCMF_Result dcmf_result;
 
-    A1U_DEBUG_ENTER();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     A1D_Print_stats();
 
@@ -271,7 +277,9 @@ int A1D_Finalize()
     mpi_status = MPI_Comm_free(&A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    A1U_DEBUG_EXIT();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting  function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     return(0);
 }
@@ -286,7 +294,9 @@ int A1D_Allocate_local(void ** ptr, int bytes)
 {
     void * tmp;
 
-    A1U_DEBUG_ENTER();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     if (bytes>0) 
     {
@@ -305,18 +315,24 @@ int A1D_Allocate_local(void ** ptr, int bytes)
 
     ptr = &tmp;
 
-    A1U_DEBUG_EXIT();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     return(0);
 }
 
 void A1D_Free_local(void* ptr)
 {
-    A1U_DEBUG_ENTER();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     if (ptr != NULL) free(ptr);
 
-    A1U_DEBUG_EXIT();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     return;
 }
@@ -332,7 +348,9 @@ int A1D_Allocate_shared(void* ptrs[], int bytes)
     int mpi_status;
     void * tmp_ptr;
 
-    A1U_DEBUG_ENTER();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     A1D_Allocate_local(&tmp_ptr, bytes);
 
@@ -341,7 +359,9 @@ int A1D_Allocate_shared(void* ptrs[], int bytes)
                                A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    A1U_DEBUG_EXIT();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     return(0);
 }
@@ -351,7 +371,9 @@ void A1D_Free_shared(void* ptr)
 {
     int mpi_status;
 
-    A1U_DEBUG_ENTER();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     /* barrier so that no one tries to access memory which is no longer allocated */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
@@ -359,7 +381,9 @@ void A1D_Free_shared(void* ptr)
 
     A1D_Free_local(ptr);
 
-    A1U_DEBUG_EXIT();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     return;
 }
@@ -378,7 +402,9 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
     void* tmp_ptr;
     MPI_Comm newcomm;
 
-    A1U_DEBUG_ENTER();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     /* save (dup) the communicator into the window object */
     mpi_status = MPI_Comm_dup(comm,&newcomm);
@@ -420,7 +446,9 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
 
 #endif
 
-    A1U_DEBUG_EXIT();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     return(0);
 }
@@ -430,7 +458,9 @@ int A1D_Destroy_window(A1D_Window_t* window)
     int mpi_status;
     int mpi_rank;
 
-    A1U_DEBUG_ENTER();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     /* barrier so that no one is able to access remote window memory after it is free */
     mpi_status = MPI_Barrier(window->comm);
@@ -455,7 +485,9 @@ int A1D_Destroy_window(A1D_Window_t* window)
     mpi_status = MPI_Comm_free(&(window->comm));
     assert(mpi_status==0);
 
-    A1U_DEBUG_EXIT();
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting function %s at line %s of file %s \n",__func__,__LINE__,__FILE__);
+#endif
 
     return(0);
 }
