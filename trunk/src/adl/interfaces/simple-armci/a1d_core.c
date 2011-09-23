@@ -50,7 +50,7 @@
 #include "a1d_core.h"
 #include "a1d_stats.h"
 
-int myrank;
+int mpi_rank;
 int mpi_size;
 
 MPI_Comm A1D_COMM_WORLD;
@@ -105,7 +105,7 @@ int A1D_Initialize()
     assert(mpi_status==0);
 
     /* get my MPI rank */
-    mpi_status = MPI_Comm_rank(A1D_COMM_WORLD,&myrank);
+    mpi_status = MPI_Comm_rank(A1D_COMM_WORLD,&mpi_rank);
     assert(mpi_status==0);
 
     /* get MPI world size */
@@ -113,7 +113,7 @@ int A1D_Initialize()
     assert(mpi_status==0);
 
     /* make sure MPI and DCMF agree */
-    assert(myrank==DCMF_Messager_rank());
+    assert(mpi_rank==DCMF_Messager_rank());
     assert(mpi_size==DCMF_Messager_size());
 
     /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
