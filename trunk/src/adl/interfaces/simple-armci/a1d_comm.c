@@ -114,7 +114,7 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     done_callback.clientdata = (void *) &done_active;
     done_active = 1;
 
-    src_disp = (size_t) src - (size_t) A1D_Baseptr_list[myrank];
+    src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
 
     dcmf_result = DCMF_Get(&A1D_Get_protocol,
@@ -124,7 +124,7 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
                            target,
                            bytes,
                            &A1D_Memregion_list[target],
-                           &A1D_Memregion_list[myrank],
+                           &A1D_Memregion_list[mpi_rank],
                            src_disp,
                            dst_disp);
     assert(dcmf_result==DCMF_SUCCESS);
@@ -142,7 +142,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     volatile int done_active;
     size_t src_disp, dst_disp;
 
-    src_disp = (size_t) src - (size_t) A1D_Baseptr_list[myrank];
+    src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
 
     done_callback.function = A1D_Done_cb;
@@ -160,7 +160,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
                            DCMF_SEQUENTIAL_CONSISTENCY,
                            target,
                            bytes,
-                           &A1D_Memregion_list[myrank],
+                           &A1D_Memregion_list[mpi_rank],
                            &A1D_Memregion_list[target],
                            src_disp,
                            dst_disp,
@@ -176,7 +176,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
                            DCMF_RELAXED_CONSISTENCY,
                            target,
                            bytes,
-                           &A1D_Memregion_list[myrank],
+                           &A1D_Memregion_list[mpi_rank],
                            &A1D_Memregion_list[target],
                            src_disp,
                            dst_disp,
