@@ -54,14 +54,14 @@ int mpi_rank;
 int mpi_size;
 
 MPI_Comm A1D_COMM_WORLD;
-DCMF_Memregion_t* A1D_Memregion_list;
-void** A1D_Baseptr_list;
+DCMF_Memregion_t * A1D_Memregion_list;
+void ** A1D_Baseptr_list;
 
 #ifdef FLUSH_IMPLEMENTED
   int* A1D_Put_flush_list;
-  #ifdef ACCUMULATE_IMPLEMENTED
+#  ifdef ACCUMULATE_IMPLEMENTED
     int* A1D_Send_flush_list;
-  #endif
+#  endif
 #endif
 
 DCMF_Callback_t A1D_Nocallback;
@@ -128,7 +128,9 @@ int A1D_Initialize()
      *
      ***************************************************/
 
-    /* to be safe, but perhaps not necessary */
+    DCMF_CriticalSection_enter(0);
+
+    /* probably not necessary since we require MPI_THREAD_MULTIPLE. */
     dcmf_config.thread_level = DCMF_THREAD_MULTIPLE;
 #ifdef ACCUMULATE_IMPLEMENTED
     /* interrupts required for accumulate only, Put/Get use DMA
@@ -137,9 +139,9 @@ int A1D_Initialize()
 #endif
 
     /* reconfigure DCMF with interrupts on */
-    DCMF_CriticalSection_enter(0);
     dcmf_result = DCMF_Messager_configure(&dcmf_config, &dcmf_config);
     assert(dcmf_result==DCMF_SUCCESS);
+
     DCMF_CriticalSection_exit(0);
 
     /* barrier after DCMF_Messager_configure to make sure everyone has the new DCMF config */
@@ -152,6 +154,8 @@ int A1D_Initialize()
      *
      ***************************************************/
 
+    DCMF_CriticalSection_enter(0);
+
     /* allocate memregion list */
     A1D_Memregion_list = malloc( mpi_size * sizeof(DCMF_Memregion_t) );
     assert(A1D_Memregion_list != NULL);
@@ -162,9 +166,9 @@ int A1D_Initialize()
 
     /* create memregions */
     bytes_in = -1;
-    DCMF_CriticalSection_enter(0);
     dcmf_result = DCMF_Memregion_create(&local_memregion,&bytes_out,bytes_in,NULL,0);
     assert(dcmf_result==DCMF_SUCCESS);
+
     DCMF_CriticalSection_exit(0);
 
     /* exchange memregions because we don't use symmetry heap */
@@ -173,14 +177,13 @@ int A1D_Initialize()
                                A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    /* destroy temporary local memregion */
     DCMF_CriticalSection_enter(0);
+
+    /* destroy temporary local memregion */
     dcmf_result = DCMF_Memregion_destroy(&local_memregion);
     assert(dcmf_result==DCMF_SUCCESS);
-    DCMF_CriticalSection_exit(0);
 
     /* check for valid memregions */
-    DCMF_CriticalSection_enter(0);
     for (i = 0; i < mpi_size; i++)
     {
         dcmf_result = DCMF_Memregion_query(&A1D_Memregion_list[i],
@@ -188,7 +191,6 @@ int A1D_Initialize()
                                            &A1D_Baseptr_list[i]);
         assert(dcmf_result==DCMF_SUCCESS);
     }
-    DCMF_CriticalSection_exit(0);
 
 #ifdef FLUSH_IMPLEMENTED
     /***************************************************
@@ -201,11 +203,11 @@ int A1D_Initialize()
     A1D_Put_flush_list = malloc( mpi_size * sizeof(int) );
     assert(A1D_Put_flush_list != NULL);
 
-  #ifdef ACCUMULATE_IMPLEMENTED
+#  ifdef ACCUMULATE_IMPLEMENTED
     /* allocate Acc list */
     A1D_Send_flush_list = malloc( mpi_size * sizeof(int) );
     assert(A1D_Send_flush_list != NULL);
-  #endif
+#  endif
 
 #endif
 
@@ -217,6 +219,8 @@ int A1D_Initialize()
 
     A1D_Nocallback.function = NULL;
     A1D_Nocallback.clientdata = NULL;
+
+    DCMF_CriticalSection_exit(0);
 
     A1U_DEBUG_EXIT();
 
@@ -233,29 +237,27 @@ int A1D_Finalize()
 
     A1D_Print_stats();
 
-#ifdef FLUSH_IMPLEMENTED
-    /* free Put list */
-    free(A1D_Put_flush_list);
-
-  #ifdef ACCUMULATE_IMPLEMENTED
-    /* free Acc list */
-    free(A1D_Send_flush_list);
-  #endif
-
-#endif
-
     /* barrier so that no one is able to access remote memregions after they are destroyed */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    /* destroy all memregions - not absolutely unnecessary if memregion creation has no side effects */
     DCMF_CriticalSection_enter(0);
+
+#ifdef FLUSH_IMPLEMENTED
+    /* free Put list */
+    free(A1D_Put_flush_list);
+#  ifdef ACCUMULATE_IMPLEMENTED
+    /* free Acc list */
+    free(A1D_Send_flush_list);
+#  endif
+#endif
+
+    /* destroy all memregions - not absolutely unnecessary if memregion creation has no side effects */
     for (i = 0; i < mpi_size; i++)
     {
         dcmf_result = DCMF_Memregion_destroy(&A1D_Memregion_list[i]);
         assert(dcmf_result==DCMF_SUCCESS);
     }
-    DCMF_CriticalSection_exit(0);
 
     /* free memregion list */
     free(A1D_Memregion_list);
@@ -263,6 +265,9 @@ int A1D_Finalize()
     /* free base pointer list */
     free(A1D_Baseptr_list);
 
+    DCMF_CriticalSection_exit(0);
+
+    /* free the A1D communicator */
     mpi_status = MPI_Comm_free(&A1D_COMM_WORLD);
     assert(mpi_status==0);
 
@@ -277,19 +282,26 @@ int A1D_Finalize()
  *
  ***************************************************/
 
-int A1D_Allocate_local(void** ptr, int bytes)
+int A1D_Allocate_local(void ** ptr, int bytes)
 {
-    void* tmp;
+    void * tmp;
 
     A1U_DEBUG_ENTER();
 
-    tmp = malloc((size_t)bytes);
-
-    /* just to be safe */
-    if (bytes == 0) tmp = NULL;
-
-    /* accept null pointer if no memory requested */
-    assert( (tmp!=NULL) || (bytes==0) );
+    if (bytes>0) 
+    {
+        tmp = malloc(bytes);
+        assert( tmp != NULL );
+    }
+    else
+    {
+        if (bytes<0)
+        {
+            fprintf(stderr, "You requested %d bytes.  What kind of computer do you think I am?\n",bytes);
+            fflush(stderr);
+        }
+        tmp = NULL;
+    }
 
     ptr = &tmp;
 
@@ -318,7 +330,7 @@ void A1D_Free_local(void* ptr)
 int A1D_Allocate_shared(void* ptrs[], int bytes)
 {
     int mpi_status;
-    void* tmp_ptr;
+    void * tmp_ptr;
 
     A1U_DEBUG_ENTER();
 

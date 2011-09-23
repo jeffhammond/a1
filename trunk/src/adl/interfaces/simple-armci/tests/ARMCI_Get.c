@@ -50,101 +50,52 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <mpi.h>
 #include <parmci.h>
 
-#define MAX_MSGSIZE 2*1024*1024
-#define ITERATIONS 20
-
-
-//#define DATA_VALIDATION  
-
 int main(int argc, char *argv[])
 {
-
-    int rank, nranks;
-    size_t i, msgsize, dest;
-    size_t iterations, max_msgsize;
-    int bufsize;
-    double **buffer;
-    double t_start, t_stop, t_total, d_total;
-    double expected, bandwidth;
+    int i;
+    int rank, size;
     int provided;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &nranks);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    max_msgsize = MAX_MSGSIZE;
     PARMCI_Init_args(&argc, &argv);
 
-    bufsize = max_msgsize * ITERATIONS;
-    buffer = (double **) malloc(sizeof(double *) * nranks);
-    PARMCI_Malloc((void **) buffer, bufsize);
+    int winsize = ( argc > 1 ? atoi(argv[1]) : 100 );
 
-    for (i = 0; i < bufsize / sizeof(double); i++) *(buffer[rank] + i) = 1.0 + rank;
+    double ** window = (double **) malloc( size * sizeof(double*) );
+    PARMCI_Malloc((void **) window, winsize);
+    for (i = 0; i < winsize; i++) window[rank][i] = (double)rank;
+
+    double * buffer = PARMCI_Malloc_local(winsize);
+    for (i = 0; i < winsize; i++) buffer[i] = -1.0;
 
     PARMCI_Barrier();
 
     if (rank == 0)
-    {
-
-        printf("PARMCI_Get Bandwidth in MBPS \n");
-        printf("%20s %22s \n", "Message Size", "Bandwidth");
-        fflush(stdout);
-
-        dest = 1;
-        expected = 1 + dest;
-
-        for (msgsize = sizeof(double); msgsize <= max_msgsize; msgsize *= 2)
+        for (i=1; i<size; i++)
         {
+            double t0 = MPI_Wtime();
+            PARMCI_Get(window[i], buffer, winsize, i);
+            double t1 = MPI_Wtime();
 
-            iterations = bufsize/msgsize;
+            for (i = 0; i < winsize; i++) assert( buffer[i] == i );
 
-            t_start = MPI_Wtime();
-
-            for (i = 0; i < iterations; i++)
-            {
-
-                PARMCI_Get((void *) ((size_t) buffer[dest] + (size_t)(i
-                        * msgsize)), (void *) ((size_t) buffer[rank]
-                        + (size_t)(i * msgsize)), msgsize, dest);
-            }
-
-            t_stop = MPI_Wtime();
-            d_total = (iterations * msgsize) / (1024 * 1024);
-            t_total = t_stop - t_start;
-            bandwidth = d_total / t_total;
-            printf("%20d %20.4lf \n", msgsize, bandwidth);
+            double bw = winsize * sizeof(double) / (t1 - t0);
+            printf("PARMCI_Get from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",i,0,winsize,t1-t0,bw);
             fflush(stdout);
-
-#ifdef DATA_VALIDATION 
-            {
-                for(j=0; j<((iterations*msgsize)/sizeof(double)); j++)
-                {
-                    if(*(buffer[rank] + j) != expected)
-                    {
-                        printf("Data validation failed At displacement : %d Expected : %lf Actual : %lf \n",
-                                j, expected, *(buffer[rank] + j));
-                        fflush(stdout);
-                        return -1;
-                    }
-                }
-
-                for(j=0; j<bufsize/sizeof(double); j++)
-                {
-                    *(buffer[rank] + j) = 1.0 + rank;
-                }
-            }
-#endif
-
         }
-
-    }
 
     PARMCI_Barrier();
 
-    PARMCI_Free((void *) buffer[rank]);
+    PARMCI_Free_local(buffer);
+
+    PARMCI_Free(window[rank]);
 
     PARMCI_Finalize();
 
