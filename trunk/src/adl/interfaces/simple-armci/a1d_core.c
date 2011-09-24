@@ -369,9 +369,6 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
                                A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    printf("%d: tmp_ptr = %u ptrs[rank] = %u \n",
-            A1D_Rank(), tmp_ptr, ptrs[A1D_Rank()] );
-
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allocate_shared(void* ptrs[], int bytes) \n");
 #endif
