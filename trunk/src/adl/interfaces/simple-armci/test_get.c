@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
             PARMCI_Get( window[t], buffer, winsize * sizeof(double), t );
             double t1 = MPI_Wtime();
 
-            for (int i = 0; i < winsize; i++) assert( buffer[i] == (double)i );
+            for (int i = 0; i < winsize; i++) assert( buffer[i] == (double)t );
             //for (int i = 0; i < winsize; i++) 
             //    if ( buffer[i] != (double)i ) printf("rank %d buffer[%d] = %lf \n", rank, i, buffer[t] );
 
