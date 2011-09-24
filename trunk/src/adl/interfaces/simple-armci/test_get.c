@@ -56,7 +56,6 @@
 
 int main(int argc, char *argv[])
 {
-    int i;
     int rank, size;
     int provided;
 
@@ -71,26 +70,28 @@ int main(int argc, char *argv[])
 
     double ** window = (double **) PARMCI_Malloc_local( size * sizeof(double *) );
     PARMCI_Malloc( (void **) window, winsize * sizeof(double) );
-    for (i = 0; i < winsize; i++) window[rank][i] = (double)(rank);
+    for (int i = 0; i < winsize; i++) window[rank][i] = (double)(rank);
     //for (i = 0; i < winsize; i++) printf("window[%d][%d] = %lf \n", rank, i, window[rank][i] );
 
     double * buffer = (double *) PARMCI_Malloc_local(  winsize * sizeof(double) );
-    for (i = 0; i < winsize; i++) buffer[i] = (double)(-rank);
+    for (int i = 0; i < winsize; i++) buffer[i] = (double)(-rank);
     //for (i = 0; i < winsize; i++) printf("%d: buffer[%d] = %lf \n", rank, i, buffer[i] );
 
     PARMCI_Barrier();
 
     if (rank == 0)
-        for (i=1; i<size; i++)
+        for (int t=1; t<size; t++)
         {
             double t0 = MPI_Wtime();
-            PARMCI_Get( window[i], buffer, winsize * sizeof(double), i );
+            PARMCI_Get( window[t], buffer, winsize * sizeof(double), t );
             double t1 = MPI_Wtime();
 
-            for (i = 0; i < winsize; i++) assert( buffer[i] == (double)i );
+            for (int i = 0; i < winsize; i++) assert( buffer[i] == (double)i );
+            //for (int i = 0; i < winsize; i++) 
+            //    if ( buffer[i] != (double)i ) printf("rank %d buffer[%d] = %lf \n", rank, i, buffer[t] );
 
-            double bw = winsize * sizeof(double) / (t1 - t0);
-            printf("PARMCI_Get from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",i,0,winsize,t1-t0,bw);
+            double bw = 1e-6 * winsize * sizeof(double) / (t1 - t0);
+            printf("PARMCI_Get from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",t,0,winsize,t1-t0,bw);
             fflush(stdout);
         }
 
@@ -99,7 +100,6 @@ int main(int argc, char *argv[])
     PARMCI_Free_local( (void *) buffer );
 
     PARMCI_Free( (void *) window[rank] );
-
     PARMCI_Free_local( (void *) window );
 
     PARMCI_Finalize();
