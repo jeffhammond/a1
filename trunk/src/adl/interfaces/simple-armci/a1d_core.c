@@ -48,6 +48,7 @@
  *********************************************************************/
 
 #include "a1d_core.h"
+#include "a1d_comm.h"
 #include "a1d_stats.h"
 
 int mpi_rank;
@@ -99,7 +100,7 @@ int A1D_Initialize()
      *
      ***************************************************/
 
-    /* MPI has to be initialized for this implementation to work */
+    /* MPI has to be Initialized for this implementation to work */
     MPI_Initialized(&mpi_initialized);
     assert(mpi_initialized==1);
 
@@ -204,16 +205,16 @@ int A1D_Initialize()
      *
      ***************************************************/
 
-    A1DI_GetC_initialize();
+    A1DI_GetC_Initialize();
 
-    A1DI_PutC_initialize();
+    A1DI_PutC_Initialize();
 #  ifdef FLUSH_IMPLEMENTED
     /* allocate Put list */
     A1D_Put_flush_list = malloc( mpi_size * sizeof(int) );
     assert(A1D_Put_flush_list != NULL);
 #  endif
 
-    A1DI_AccC_initialize();
+    A1DI_AccC_Initialize();
 #  ifdef FLUSH_IMPLEMENTED
     /* allocate Acc list */
     A1D_Send_flush_list = malloc( mpi_size * sizeof(int) );

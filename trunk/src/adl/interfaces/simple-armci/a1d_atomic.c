@@ -99,13 +99,13 @@ void A1DI_Inc64_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
 }
 
 
-void A1D_Inc32_initialize()
+void A1D_Inc32_Initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Control_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Inc32_initialize() \n");
+    fprintf(stderr,"entering A1D_Inc32_Initialize() \n");
 #endif
 
     DCMF_CriticalSection_enter(0);
@@ -121,19 +121,19 @@ void A1D_Inc32_initialize()
     DCMF_CriticalSection_exit(0);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Inc32_initialize() \n");
+    fprintf(stderr,"exiting A1D_Inc32_Initialize() \n");
 #endif
 
     return;
 }
 
-void A1D_Inc64_initialize()
+void A1D_Inc64_Initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Control_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Inc64_initialize() \n");
+    fprintf(stderr,"entering A1D_Inc64_Initialize() \n");
 #endif
 
     DCMF_CriticalSection_enter(0);
@@ -149,7 +149,7 @@ void A1D_Inc64_initialize()
     DCMF_CriticalSection_exit(0);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Inc64_initialize() \n");
+    fprintf(stderr,"exiting A1D_Inc64_Initialize() \n");
 #endif
 
     return;

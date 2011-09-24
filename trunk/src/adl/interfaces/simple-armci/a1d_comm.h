@@ -53,6 +53,10 @@
 #include "a1d_headers.h"
 #include "a1d_globals.h"
 
+int A1DI_PutC_Initialize();
+int A1DI_GetC_Initialize();
+int A1DI_AccC_Initialize();
+
 int A1D_GetC(int proc, int bytes, void* src, void* dst);
 int A1D_PutC(int proc, int bytes, void* src, void* dst);
 int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale);

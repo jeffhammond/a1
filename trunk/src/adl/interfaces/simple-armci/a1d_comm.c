@@ -60,13 +60,13 @@ void A1D_Done_cb(void * clientdata, DCMF_Error_t * error)
     --(*((uint32_t *) clientdata));
 }
 
-int A1DI_PutC_initialize()
+int A1DI_PutC_Initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Put_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_PutC_initialize() \n");
+    fprintf(stderr,"entering A1DI_PutC_Initialize() \n");
 #endif
 
     DCMF_CriticalSection_enter(0);
@@ -80,19 +80,19 @@ int A1DI_PutC_initialize()
     DCMF_CriticalSection_exit(0);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_PutC_initialize() \n");
+    fprintf(stderr,"exiting A1DI_PutC_Initialize() \n");
 #endif
 
     return(0);
 }
 
-int A1DI_GetC_initialize()
+int A1DI_GetC_Initialize()
 {
     DCMF_Result dcmf_result;
     DCMF_Get_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_GetC_initialize() \n");
+    fprintf(stderr,"entering A1DI_GetC_Initialize() \n");
 #endif
 
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
@@ -102,7 +102,7 @@ int A1DI_GetC_initialize()
     assert(dcmf_result==DCMF_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_GetC_initialize() \n");
+    fprintf(stderr,"exiting A1DI_GetC_Initialize() \n");
 #endif
 
     return(0);
