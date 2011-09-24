@@ -3,8 +3,6 @@
 /* #include "parmci.h" */
 /* #include "armci.h" */
 
-typedef long armci_size_t;
-
 typedef enum
 {
     ARMCI_ADD,
@@ -39,8 +37,8 @@ armci_hdl_t;
 /* NOT USED
 typedef struct armci_meminfo_ds
 {
-  char     *armci_addr;
-  char     *addr;
+  void     *armci_addr;
+  void     *addr;
   size_t    size;
   int       cpid;
   long      idlist[64];
@@ -56,11 +54,11 @@ void PARMCI_Finalize();
 
 /* memory management */
 
-int PARMCI_Malloc(void **ptr_arr, armci_size_t bytes);
-int PARMCI_Free(void *ptr);
+int PARMCI_Malloc(void * ptr_arr[], int bytes);
+int PARMCI_Free(void * ptr);
 
-void *PARMCI_Malloc_local(armci_size_t bytes);
-int PARMCI_Free_local(void *ptr);
+void * PARMCI_Malloc_local(int bytes);
+int PARMCI_Free_local(void * ptr);
 
 /* NOT USED
 void *PARMCI_Memat(armci_meminfo_t * meminfo, int memflg);

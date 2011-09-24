@@ -10,7 +10,7 @@ LD      = $(CC)
 CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
 LDFLAGS = $(COPT)
 
-TESTS       := $(wildcard test*.c)
+TESTS       := $(patsubst %.c,%.x,$(wildcard test*.c))
 A1D_OBJECTS := $(patsubst %.c,%.o,$(wildcard a1d*.c))
 OBJECTS     := parmci.o $(A1D_OBJECTS)
 HEADERS     := $(wildcard a1d*.h)

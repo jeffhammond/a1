@@ -301,7 +301,7 @@ int A1D_Finalize()
  *
  ***************************************************/
 
-int A1D_Allocate_local(void ** ptr, int bytes)
+void * A1D_Allocate_local(int bytes)
 {
     void * tmp;
 
@@ -324,16 +324,14 @@ int A1D_Allocate_local(void ** ptr, int bytes)
         tmp = NULL;
     }
 
-    ptr = &tmp;
-
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allocate_local(void ** ptr, int bytes) \n");
 #endif
 
-    return(0);
+    return tmp;
 }
 
-void A1D_Free_local(void* ptr)
+void A1D_Free_local(void * ptr)
 {
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Free_local(void* ptr) \n");
@@ -363,12 +361,15 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
     fprintf(stderr,"entering A1D_Allocate_shared(void* ptrs[], int bytes) \n");
 #endif
 
-    A1D_Allocate_local(&tmp_ptr, bytes);
+    tmp_ptr = calloc(bytes,1);
 
     mpi_status = MPI_Allgather(&tmp_ptr, sizeof(void *), MPI_BYTE,
                                ptrs,     sizeof(void *), MPI_BYTE,
                                A1D_COMM_WORLD);
     assert(mpi_status==0);
+
+    printf("%d: tmp_ptr = %u ptrs[rank] = %u \n",
+            A1D_Rank(), tmp_ptr, ptrs[A1D_Rank()] );
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allocate_shared(void* ptrs[], int bytes) \n");
@@ -378,7 +379,7 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 }
 
 
-void A1D_Free_shared(void* ptr)
+void A1D_Free_shared(void * ptr)
 {
     int mpi_status;
 
@@ -390,7 +391,7 @@ void A1D_Free_shared(void* ptr)
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    A1D_Free_local(ptr);
+    free(ptr);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Free_shared(void* ptr) \n");
@@ -410,7 +411,7 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
     int mpi_status;
     int mpi_size;
     int mpi_rank;
-    void* tmp_ptr;
+    void * tmp_ptr;
     MPI_Comm newcomm;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -432,15 +433,15 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
     assert(mpi_status==0);
 
     /* allocate list of base pointers for this window */
-    window->addr_list = malloc( mpi_size * sizeof(void*) );
+    window->addr_list = malloc( mpi_size * sizeof(void *) );
     assert(window->addr_list != NULL);
 
     /* allocate local memory for this window */
-    A1D_Allocate_local(&tmp_ptr, bytes);
+    tmp_ptr = A1D_Allocate_local(bytes);
 
     /* exchange base pointers */
-    mpi_status = MPI_Allgather(&tmp_ptr,sizeof(void*),MPI_BYTE,
-                               window->addr_list,sizeof(void*),MPI_BYTE,
+    mpi_status = MPI_Allgather(&tmp_ptr,          sizeof(void *), MPI_BYTE,
+                               window->addr_list, sizeof(void *), MPI_BYTE,
                                window->comm);
     assert(mpi_status==0);
 
@@ -450,8 +451,8 @@ int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
     assert(window->size_list != NULL);
 
     /* exchange sizes pointers */
-    mpi_status = MPI_Allgather(&bytes,sizeof(int),MPI_BYTE,
-                               window->size_list,sizeof(int),MPI_BYTE,
+    mpi_status = MPI_Allgather(&bytes,            sizeof(int), MPI_BYTE,
+                               window->size_list, sizeof(int), MPI_BYTE,
                                window->comm);
     assert(mpi_status==0);
 

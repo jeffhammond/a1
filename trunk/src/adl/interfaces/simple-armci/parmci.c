@@ -71,25 +71,23 @@ void PARMCI_Finalize()
 
 /* memory management */
 
-void * PARMCI_Malloc_local(armci_size_t bytes)
+void * PARMCI_Malloc_local(int bytes)
 {
-    void * ptr;
-    A1D_Allocate_local(&ptr, bytes);
-    return ptr;
+    return A1D_Allocate_local(bytes);
 }
 
-int PARMCI_Malloc(void** ptr_arr, armci_size_t bytes)
+int PARMCI_Malloc(void * ptr_arr[], int bytes)
 {
     return A1D_Allocate_shared(ptr_arr, bytes);
 }
 
-int PARMCI_Free_local(void* ptr)
+int PARMCI_Free_local(void * ptr)
 {
     A1D_Free_local(ptr);
     return(0);
 }
 
-int PARMCI_Free(void* ptr)
+int PARMCI_Free(void * ptr)
 {
     A1D_Free_shared(ptr);
     return(0);
