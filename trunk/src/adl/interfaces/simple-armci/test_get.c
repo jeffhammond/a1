@@ -91,7 +91,8 @@ int main(int argc, char *argv[])
             //    if ( buffer[i] != (double)i ) printf("rank %d buffer[%d] = %lf \n", rank, i, buffer[t] );
 
             double bw = 1e-6 * winsize * sizeof(double) / (t1 - t0);
-            printf("PARMCI_Get from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",t,0,winsize,t1-t0,bw);
+            printf("PARMCI_Get from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",
+                    t, 0, winsize * (int)sizeof(double), t1-t0, bw);
             fflush(stdout);
         }
 
