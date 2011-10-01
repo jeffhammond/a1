@@ -61,50 +61,16 @@ void cb_done(void * clientdata, DCMF_Error_t * error)
     --(*((uint32_t *) clientdata));
 }
 
-void blocking_get(int remote, int bytes,
-                 DCMF_Memregion_t origin_memregion, size_t origin_offset,
-                 DCMF_Memregion_t remote_memregion, size_t remote_offset)
-{
-    DCMF_Result dcmf_result;
-    DCMF_Request_t request;
-    DCMF_Callback_t done_callback;
-    volatile int active;
-
-    DCMF_CriticalSection_enter(0);
-
-    done_callback.function = cb_done;
-    done_callback.clientdata = (void *) &active;
-
-    active = 1;
-
-    dcmf_result = DCMF_Get(&get_protocol,
-                           &request,
-                           done_callback,
-                           //DCMF_RELAXED_CONSISTENCY,
-                           DCMF_SEQUENTIAL_CONSISTENCY,
-                           remote,
-                           bytes,
-                           origin_memregion,
-                           remote_memregion,
-                           origin_offset,
-                           remote_offset);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    A1DI_Conditional_advance(active > 0);
-
-    DCMF_CriticalSection_exit(0);
-
-    return;
-}
-
 int main(int argc, char *argv[])
 {
     int rank, size;
     int provided;
+    int mpi_status;
 
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    assert( size > 1 );
 
     {
         DCMF_Result dcmf_result;
@@ -117,10 +83,10 @@ int main(int argc, char *argv[])
         assert(dcmf_result==DCMF_SUCCESS);
     }
 
-    int max_count   = ( argc > 1 ? atoi(argv[1]) : 1000000 );
+    int max_count   = ( argc > 1 ? atoi(argv[1]) : 20 );
     int repetitions = ( argc > 2 ? atoi(argv[2]) : 10 );
 
-    if ( rank == 0 ) printf( "size = %d max_count = %d bytes\n", size, max_count );
+    if ( rank == 0 ) printf( "size = %d max_count = %d bytes \n", size, max_count );
 
     for ( int count=1 ; count < max_count ; count*=2 )
     {
@@ -191,8 +157,8 @@ int main(int argc, char *argv[])
                                            //DCMF_SEQUENTIAL_CONSISTENCY,
                                            target,
                                            bytes,
-                                           local_memregion,
-                                           memregion_list[target],
+                                           &memregion_list[target],
+                                           &local_memregion,
                                            0,
                                            0);
 
@@ -204,14 +170,15 @@ int main(int argc, char *argv[])
                 }
                 t1 = DCMF_Timer();
 
-                for ( int i = 0 ; i < count ; i++ ) assert( local_buffer[i] == target );
-                //for (int i = 0; i < w; i++)
-                //    if ( shared_buffer[i] != i ) printf("rank %d shared_buffer[%d] = %lf \n", target, i, shared_buffer[i] );
+                //for ( int i = 0 ; i < count ; i++ ) assert( local_buffer[i] == target );
+                for (int i = 0; i < count; i++)
+                    if ( shared_buffer[i] != i ) printf("target %d shared_buffer[%d] = %d \n", target, i, shared_buffer[i] );
+                fflush(stdout);
 
                 dt =  ( t1 - t0 ) / repetitions;
                 bw = (double) bytes / dt / 1000000;
                 printf("DCMF_Get of from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",
-                       t, 0, bytes, dt, bw);
+                       target, 0, bytes, dt, bw);
                 fflush(stdout);
             }
 
@@ -232,6 +199,9 @@ int main(int argc, char *argv[])
 
         free(shared_buffer);
     }
+
+    mpi_status = MPI_Barrier(MPI_COMM_WORLD);
+    assert(mpi_status==0);
 
     MPI_Finalize();
 
