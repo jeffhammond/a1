@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <assert.h>
 #include <mpi.h>
 #include <dcmf.h>
@@ -135,6 +136,8 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < count; i++)
                     if ( local_buffer[i] != remote ) printf("remote %d local_buffer[%d] = %d \n", remote, i, local_buffer[i] );
                 fflush(stdout);
+
+                sleep(1);
 
                 dt =  ( t1 - t0 ) / repetitions;
                 bw = (double) bytes / dt / 1000000;
