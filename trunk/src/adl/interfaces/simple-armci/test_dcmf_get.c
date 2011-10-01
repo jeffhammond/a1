@@ -58,9 +58,6 @@ int main(int argc, char *argv[])
         DCMF_Memregion_t * memregion_list = (DCMF_Memregion_t *) malloc( size * sizeof(DCMF_Memregion_t) );
         assert( memregion_list!=NULL );
 
-        void ** baseptr_list = (void *) malloc( size * sizeof(void *) );
-        assert( baseptr_list!=NULL );
-
         mpi_status = MPI_Barrier(MPI_COMM_WORLD);
         assert(mpi_status==0);
 
@@ -69,13 +66,15 @@ int main(int argc, char *argv[])
                                    MPI_COMM_WORLD);
         assert(mpi_status==0);
 
-        DCMF_CriticalSection_enter(0);
-        for (int i=0; i<size; i++)
-        {
-            dcmf_result = DCMF_Memregion_query( &memregion_list[i], &bytes_out, &baseptr_list[i] );
-            assert( dcmf_result==DCMF_SUCCESS );
-        }
-        DCMF_CriticalSection_exit(0);
+//        void ** baseptr_list = (void *) malloc( size * sizeof(void *) );
+//        assert( baseptr_list!=NULL );
+//        DCMF_CriticalSection_enter(0);
+//        for (int i=0; i<size; i++)
+//        {
+//            dcmf_result = DCMF_Memregion_query( &memregion_list[i], &bytes_out, &baseptr_list[i] );
+//            assert( dcmf_result==DCMF_SUCCESS );
+//        }
+//        DCMF_CriticalSection_exit(0);
 
         mpi_status = MPI_Barrier(MPI_COMM_WORLD);
         assert(mpi_status==0);
@@ -84,7 +83,6 @@ int main(int argc, char *argv[])
         {
             int * local_buffer = malloc( bytes );
             assert( local_buffer!=NULL );
-            for ( int i = 0 ; i < count ; i++ ) local_buffer[i] = -1;
 
             DCMF_Memregion_t local_memregion;
             DCMF_CriticalSection_enter(0);
@@ -92,9 +90,11 @@ int main(int argc, char *argv[])
             DCMF_CriticalSection_exit(0);
             assert( dcmf_result==DCMF_SUCCESS && bytes_out==bytes );
 
-            for (int target=1; target<size; target++)
+            for (int remote=1; remote<size; remote++)
             {
                 double t0, t1, dt, bw;
+
+                for ( int i = 0 ; i < count ; i++ ) local_buffer[i] = -1;
 
                 t0 = DCMF_Timer();
                 for (int r=0; r<repetitions; r++)
@@ -116,11 +116,11 @@ int main(int argc, char *argv[])
                                            done_callback,
                                            //DCMF_RELAXED_CONSISTENCY,
                                            DCMF_SEQUENTIAL_CONSISTENCY,
-                                           target,
+                                           remote,
                                            bytes,
-                                           &memregion_list[target],
+                                           &memregion_list[remote],
                                            &local_memregion,
-                                           baseptr_list,
+                                           0,
                                            0);
 
                     while (active > 0) DCMF_Messager_advance();
@@ -131,15 +131,15 @@ int main(int argc, char *argv[])
                 }
                 t1 = DCMF_Timer();
 
-                //for ( int i = 0 ; i < count ; i++ ) assert( local_buffer[i] == target );
+                //for ( int i = 0 ; i < count ; i++ ) assert( local_buffer[i] == remote );
                 for (int i = 0; i < count; i++)
-                    if ( shared_buffer[i] != i ) printf("target %d shared_buffer[%d] = %d \n", target, i, shared_buffer[i] );
+                    if ( local_buffer[i] != remote ) printf("remote %d local_buffer[%d] = %d \n", remote, i, local_buffer[i] );
                 fflush(stdout);
 
                 dt =  ( t1 - t0 ) / repetitions;
                 bw = (double) bytes / dt / 1000000;
                 printf("DCMF_Get of from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",
-                       target, 0, bytes, dt, bw);
+                       remote, 0, bytes, dt, bw);
                 fflush(stdout);
             }
 
