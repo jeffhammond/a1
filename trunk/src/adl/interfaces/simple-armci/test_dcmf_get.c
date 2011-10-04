@@ -35,23 +35,29 @@ int main(int argc, char *argv[])
     dcmf_result = DCMF_Get_register(&get_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
-    int min_count   = ( argc > 1 ? atoi(argv[1]) : 1    );
-    int max_count   = ( argc > 2 ? atoi(argv[2]) : 1024 );
-    int repetitions = ( argc > 3 ? atoi(argv[3]) : 10   );
+    size_t min_count   = (size_t) ( argc > 1 ? atoi(argv[1]) : 1    );
+    size_t max_count   = (size_t) ( argc > 2 ? atoi(argv[2]) : 1024 );
+    size_t repetitions = (size_t) ( argc > 3 ? atoi(argv[3]) : 10   );
 
     if ( rank == 0 ) printf( "size = %d max_count = %d bytes \n", size, max_count );
 
     mpi_status = MPI_Barrier(MPI_COMM_WORLD);
     assert(mpi_status==0);
 
-    for ( int count = min_count ; count < max_count ; count*=2 )
+    //for ( int count = min_count ; count < max_count ; count*=2 )
+    for ( size_t count = min_count ; count < max_count ; count++ )
     {
-        size_t bytes = count * sizeof(int);
+        //size_t bytes = count * sizeof(int);
+        size_t bytes = count * sizeof(char);
         size_t bytes_out;
 
-        int * shared_buffer = malloc( bytes );
+        //int * shared_buffer = malloc( bytes );
+        char * shared_buffer = malloc( bytes );
         assert( shared_buffer!=NULL );
-        for ( int i = 0 ; i < count ; i++ ) shared_buffer[i] = 1000000+rank;
+
+        //int correct = 1000000+target;
+        char correct = (char)( ((int)'0') + (rank%10) );
+        for ( int i = 0 ; i < count ; i++ ) shared_buffer[i] = correct;
 
         mpi_status = MPI_Barrier(MPI_COMM_WORLD);
         assert(mpi_status==0);
@@ -69,7 +75,7 @@ int main(int argc, char *argv[])
         dcmf_result = DCMF_Memregion_query( &shared_memregion, &bytes_out, &base );
         DCMF_CriticalSection_exit(0);
         assert( dcmf_result==DCMF_SUCCESS );
-        //printf("%d: (shared_buffer) requested base = %p actual base = %p \n", rank, shared_buffer, base );
+        if ( shared_buffer != base ) printf("%d: (shared_buffer) requested base = %p actual base = %p \n", rank, shared_buffer, base );
 
         DCMF_Memregion_t * memregion_list = (DCMF_Memregion_t *) malloc( size * sizeof(DCMF_Memregion_t) );
         assert( memregion_list!=NULL );
@@ -97,9 +103,10 @@ int main(int argc, char *argv[])
 
         if (rank == 0)
         {
-            int * local_buffer = malloc( bytes );
+            //int * local_buffer = malloc( bytes );
+            char * local_buffer = malloc( bytes );
             assert( local_buffer!=NULL );
-            for ( int i = 0 ; i < count ; i++ ) local_buffer[i] = -999;
+            for ( size_t i = 0 ; i < count ; i++ ) local_buffer[i] = 'x';
 
             DCMF_Memregion_t local_memregion;
             DCMF_CriticalSection_enter(0);
@@ -111,16 +118,16 @@ int main(int argc, char *argv[])
             dcmf_result = DCMF_Memregion_query( &local_memregion, &bytes_out, &base );
             DCMF_CriticalSection_exit(0);
             assert( dcmf_result==DCMF_SUCCESS );
-            //printf("%d: (local_buffer) requested base = %p actual base = %p \n", rank, local_buffer, base );
+            if ( local_buffer != base ) printf("%d: (local_buffer) requested base = %p actual base = %p \n", rank, local_buffer, base );
 
-            for ( int target = 1 ; target < size ; target++ )
+            for ( size_t target = 1 ; target < size ; target++ )
             {
                 double t0, t1, dt, bw;
 
-                for ( int i = 0 ; i < count ; i++ ) local_buffer[i] = -1;
+                for ( size_t i = 0 ; i < count ; i++ ) local_buffer[i] = 'a';
 
                 t0 = DCMF_Timer();
-                for ( int r=0 ; r<repetitions ; r++ )
+                for ( size_t r = 0 ; r < repetitions ; r++ )
                 {
                     DCMF_Request_t request;
                     DCMF_Callback_t done_callback;
@@ -155,11 +162,18 @@ int main(int argc, char *argv[])
                 t1 = DCMF_Timer();
 
                 //for ( int i = 0 ; i < count ; i++ ) assert( local_buffer[i] == (1000000+target) );
-                for ( int i = 0 ; i < count ; i++ )
-                    if ( local_buffer[i] != (1000000+target) ) printf("%d: target %d local_buffer[%d] = %d \n", rank, target, i, local_buffer[i] );
+                int errors = 1;
+                //int correct = 1000000+target;
+                char correct = (char)( ((int)'0') + (target%10) );
+                for ( size_t i = 0 ; i < count ; i++ )
+                    if ( local_buffer[i] != correct ) errors++;
+                if ( errors > 0 )
+                    for ( size_t i = 0 ; i < count ; i++ )
+                        //printf("%d: target %d local_buffer[%d] = %d (expected = %d) \n", rank, target, i, local_buffer[i], correct );
+                        printf("%d: target %d local_buffer[%d] = %c (expected = %c) \n", rank, target, i, local_buffer[i], correct );
                 fflush(stdout);
 
-                sleep(1);
+                //sleep(1);
 
                 dt =  ( t1 - t0 ) / repetitions;
                 bw = (double) bytes / dt / 1000000;
