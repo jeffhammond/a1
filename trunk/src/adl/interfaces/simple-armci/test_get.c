@@ -67,17 +67,17 @@ int main(int argc, char *argv[])
 
     int w, maxwinsize = ( argc > 1 ? atoi(argv[1]) : 1000000 );
 
-    if ( rank == 0 ) printf( "size = %d maxwinsize = %d doubles\n", size, maxwinsize );
+    if ( rank == 0 ) printf( "size = %d maxwinsize = %d floats\n", size, maxwinsize );
 
     for ( w=1 ; w<maxwinsize ; w*=2 )
     {
-        double ** window = (double **) PARMCI_Malloc_local( size * sizeof(double *) );
-        PARMCI_Malloc( (void **) window, w * sizeof(double) );
-        for (int i = 0; i < w; i++) window[rank][i] = (double)(rank);
+        float ** window = (float **) PARMCI_Malloc_local( size * sizeof(float *) );
+        PARMCI_Malloc( (void **) window, w * sizeof(float) );
+        for (int i = 0; i < w; i++) window[rank][i] = (float)(rank);
         //for (i = 0; i < w; i++) printf("window[%d][%d] = %lf \n", rank, i, window[rank][i] );
 
-        double * buffer = (double *) PARMCI_Malloc_local(  w * sizeof(double) );
-        for (int i = 0; i < w; i++) buffer[i] = (double)(-rank);
+        float * buffer = (float *) PARMCI_Malloc_local(  w * sizeof(float) );
+        for (int i = 0; i < w; i++) buffer[i] = (float)(-rank);
         //for (i = 0; i < w; i++) printf("%d: buffer[%d] = %lf \n", rank, i, buffer[i] );
 
         PARMCI_Barrier();
@@ -86,22 +86,22 @@ int main(int argc, char *argv[])
             for (int t=1; t<size; t++)
             {
                 int bytes, repeat = 10;
-                double t0, t1, dt, bw;
+                float t0, t1, dt, bw;
 
-                bytes = w * sizeof(double);
+                bytes = w * sizeof(float);
 
                 PARMCI_Get( window[t], buffer, bytes, t );
-                for (int i = (w-1); i >=0 ; i--) assert( buffer[i] == (double)t );
+                for (int i = (w-1); i >=0 ; i--) assert( buffer[i] == (float)t );
                 //for (int i = 0; i < w; i++) 
-                //    if ( buffer[i] != (double)i ) printf("rank %d buffer[%d] = %lf \n", rank, i, buffer[t] );
+                //    if ( buffer[i] != (float)i ) printf("rank %d buffer[%d] = %lf \n", rank, i, buffer[t] );
 
                 t0 = MPI_Wtime();
                 for (int r=0; r<repeat; r++) PARMCI_Get( window[t], buffer, bytes, t );
                 t1 = MPI_Wtime();
 
                 dt =  ( t1 - t0 ) / repeat;
-                bw = (double)bytes / dt / 1000000;
-                printf("PARMCI_Get of from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n",
+                bw = (float)bytes / dt / 1000000;
+                printf("PARMCI_Get of from rank %d to rank %d of %d bytes took %f seconds (%f MB/s)\n",
                        t, 0, bytes, dt, bw);
                 fflush(stdout);
             }

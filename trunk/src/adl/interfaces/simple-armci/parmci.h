@@ -50,6 +50,7 @@ armci_meminfo_t;
 
 int PARMCI_Init();
 int PARMCI_Init_args(int *argc, char ***argv);
+
 void PARMCI_Finalize();
 
 /* memory management */
