@@ -3,7 +3,7 @@ COPT    = -g -O0 -std=c99
 #CC      = mpixlc_r
 #COPT    = -g -O3 -qstrict -qlanglvl=extc99
 
-#INC = -I. -I/bgsys/drivers/ppcfloor/arch/include/
+INC     = -I. -I/bgsys/drivers/ppcfloor/arch/include/
 LIBS    = libarmci-bgp.a
 
 LD      = $(CC)
