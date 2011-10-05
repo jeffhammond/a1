@@ -187,7 +187,7 @@ long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
             A1D_Fetch_and_inc32(proc, (int32_t *)local, (int32_t *)remote, (int32_t)incr);
             iptr = (int32_t *) local;
             ival = *iptr;
-            return (int64_t)ival;
+            return (long)ival;
         case ARMCI_FETCH_AND_ADD_LONG:
             A1D_Fetch_and_inc64(proc, (int64_t *)local, (int64_t *)remote, (int64_t)incr);
             lptr = (int64_t *) local;
@@ -197,7 +197,7 @@ long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
             A1D_Swap32(proc, (int32_t *)local, (int32_t *)remote);
             iptr = (int32_t *) local;
             ival = *iptr;
-            return (int64_t)ival;
+            return (long)ival;
         case ARMCI_SWAP_LONG:
             A1D_Swap64(proc, (int64_t *)local, (int64_t *)remote);
             lptr = (int64_t *) local;

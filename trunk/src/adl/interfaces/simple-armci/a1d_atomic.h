@@ -55,15 +55,31 @@
 
 typedef struct
 {
-    int32_t * address;
-    int32_t incr;
+    int32_t   value;
+    int32_t * return_address;
+}
+A1D_Fetch32_t;
+
+typedef struct
+{
+    int64_t   value;
+    int64_t * return_address;
+}
+A1D_Fetch64_t;
+
+typedef struct
+{
+    int32_t   incr;
+    int32_t * incr_address;
+    int32_t * return_address;
 }
 A1D_Inc32_t;
 
 typedef struct
 {
-    int64_t * address;
-    int64_t incr;
+    int64_t   incr;
+    int64_t * incr_address;
+    int64_t * return_address;
 }
 A1D_Inc64_t;
 
