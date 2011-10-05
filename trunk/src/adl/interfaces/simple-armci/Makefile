@@ -10,13 +10,14 @@ LD      = $(CC)
 CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
 LDFLAGS = $(COPT)
 
-TESTS       := $(patsubst %.c,%.x,$(wildcard test*.c))
-A1D_OBJECTS := $(patsubst %.c,%.o,$(wildcard a1d*.c))
-A1D_HEADERS := $(patsubst %.c,%.h,$(wildcard a1d*.c))
-OBJECTS     := parmci.o $(A1D_OBJECTS)
-HEADERS     := parmci.h $(A1D_HEADERS)
+TEST_BINARIES := $(patsubst %.c,%.x,$(wildcard test*.c))
+TEST_OBJECTS  := $(patsubst %.c,%.o,$(wildcard test*.c))
+A1D_OBJECTS   := $(patsubst %.c,%.o,$(wildcard a1d*.c))
+A1D_HEADERS   := $(patsubst %.c,%.h,$(wildcard a1d*.c))
+OBJECTS       := parmci.o $(A1D_OBJECTS) $(TEST_OBJECTS)
+HEADERS       := parmci.h $(A1D_HEADERS)
 
-all: $(TESTS)
+all: $(TEST_BINARIES)
 
 %.x: %.o libarmci-bgp.a
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
@@ -31,5 +32,5 @@ clean:
 	$(RM) $(RMFLAGS) $(OBJECTS)
 
 realclean: clean
-	$(RM) $(RMFLAGS) $(TESTS) libarmci-bgp.a
+	$(RM) $(RMFLAGS) $(TEST_BINARIES) libarmci-bgp.a
 
