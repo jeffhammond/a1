@@ -191,6 +191,8 @@ int main(int argc, char *argv[])
 
             free(local_buffer);
         }
+        mpi_status = MPI_Barrier(MPI_COMM_WORLD);
+        assert(mpi_status==0);
 
         free(memregion_list);
 
