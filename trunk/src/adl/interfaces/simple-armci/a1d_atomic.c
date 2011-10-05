@@ -49,8 +49,6 @@
 
 #include "a1d_atomic.h"
 
-#define __bgp__
-
 #ifdef __bgp__
 
 DCMF_Protocol_t A1D_Fetch32_protocol;
@@ -122,7 +120,7 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     if ( return_address != NULL )
     {
         DCMF_Result dcmf_result;
-        A1D_Inc32_t return_data;
+        A1D_Fetch32_t return_data;
         DCMF_Control_t return_payload;
 
         return_data.value          = (*incr_address);
@@ -163,7 +161,7 @@ void A1DI_Inc64_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     if ( return_address != NULL )
     {
         DCMF_Result dcmf_result;
-        A1D_Inc64_t return_data;
+        A1D_Fetch64_t return_data;
         DCMF_Control_t return_payload;
 
         return_data.value          = (*incr_address);
