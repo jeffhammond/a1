@@ -205,16 +205,18 @@ int A1D_Initialize()
      *
      ***************************************************/
 
-    A1DI_GetC_Initialize();
+    A1DI_Atomics_Initialize();
 
-    A1DI_PutC_Initialize();
+    A1DI_Get_Initialize();
+
+    A1DI_Put_Initialize();
 #  ifdef FLUSH_IMPLEMENTED
     /* allocate Put list */
     A1D_Put_flush_list = malloc( mpi_size * sizeof(int) );
     assert(A1D_Put_flush_list != NULL);
 #  endif
 
-    A1DI_AccC_Initialize();
+    A1DI_Acc_Initialize();
 #  ifdef FLUSH_IMPLEMENTED
     /* allocate Acc list */
     A1D_Send_flush_list = malloc( mpi_size * sizeof(int) );
@@ -319,7 +321,7 @@ void * A1D_Allocate_local(int bytes)
     {
         if (bytes<0)
         {
-            fprintf(stderr, "You requested %d bytes.  What kind of computer do you think I am?\n",bytes);
+            fprintf(stderr, "You requested %d bytes.  What kind of computer do you think I am? \n",bytes);
             fflush(stderr);
         }
         tmp = NULL;
@@ -338,7 +340,15 @@ void A1D_Free_local(void * ptr)
     fprintf(stderr,"entering A1D_Free_local(void* ptr) \n");
 #endif
 
-    if (ptr != NULL) free(ptr);
+    if (ptr != NULL)
+    {
+        free(ptr);
+    }
+    else
+    {
+        fprintf(stderr, "You tried to free a NULL pointer.  Please check your code. \n");
+        fflush(stderr);
+    }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Free_local(void* ptr) \n");
@@ -362,7 +372,7 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
     fprintf(stderr,"entering A1D_Allocate_shared(void* ptrs[], int bytes) \n");
 #endif
 
-    tmp_ptr = calloc(bytes,1);
+    tmp_ptr = A1D_Allocate_local(bytes);
 
     mpi_status = MPI_Allgather(&tmp_ptr, sizeof(void *), MPI_BYTE,
                                ptrs,     sizeof(void *), MPI_BYTE,
@@ -389,7 +399,7 @@ void A1D_Free_shared(void * ptr)
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-    free(ptr);
+    A1D_Free_local(ptr);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Free_shared(void* ptr) \n");

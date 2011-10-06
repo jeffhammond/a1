@@ -55,10 +55,12 @@ DCMF_Protocol_t A1D_PutC_protocol;
 DCMF_Protocol_t A1D_GetC_protocol;
 DCMF_Protocol_t A1D_AccC_protocol;
 
-void A1D_Done_cb(void * clientdata, DCMF_Error_t * error)
+void A1DI_Done_cb(void * clientdata, DCMF_Error_t * error)
 {
     --(*((uint32_t *) clientdata));
 }
+
+/*********************************************************************/
 
 int A1DI_PutC_Initialize()
 {
@@ -72,7 +74,7 @@ int A1DI_PutC_Initialize()
     DCMF_CriticalSection_enter(0);
 
     conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
-    conf.network = DCMF_TORUS_NETWORK;
+    conf.network  = DCMF_TORUS_NETWORK;
 
     dcmf_result = DCMF_Put_register(&A1D_PutC_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
@@ -96,7 +98,7 @@ int A1DI_GetC_Initialize()
 #endif
 
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
-    conf.network = DCMF_TORUS_NETWORK;
+    conf.network  = DCMF_TORUS_NETWORK;
 
     dcmf_result = DCMF_Get_register(&A1D_GetC_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
@@ -117,12 +119,12 @@ int A1DI_AccC_Initialize()
     fprintf(stderr,"entering A1DI_AccC_Initialize() \n");
 #endif
 
-    conf.protocol = DCMF_DEFAULT_SEND_PROTOCOL;
-    conf.network  = DCMF_TORUS_NETWORK;
+    conf.protocol                 = DCMF_DEFAULT_SEND_PROTOCOL;
+    conf.network                  = DCMF_TORUS_NETWORK;
     conf.cb_recv_short            = NULL;
     conf.cb_recv_short_clientdata = NULL;
-    conf.cb_recv            = NULL;
-    conf.cb_recv_clientdata = NULL;
+    conf.cb_recv                  = NULL;
+    conf.cb_recv_clientdata       = NULL;
 
     dcmf_result = DCMF_Send_register(&A1D_AccC_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
@@ -134,8 +136,59 @@ int A1DI_AccC_Initialize()
     return(0);
 }
 
+/*********************************************************************/
+
+int A1DI_Put_Initialize()
+{
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1DI_Put_Initialize() \n");
 #endif
 
+    A1DI_PutC_Initialize();
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1DI_Put_Initialize() \n");
+#endif
+
+    return(0);
+}
+
+int A1DI_Get_Initialize()
+{
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1DI_Get_Initialize() \n");
+#endif
+
+    A1DI_GetC_Initialize();
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1DI_Get_Initialize() \n");
+#endif
+
+    return(0);
+}
+
+int A1DI_Acc_Initialize()
+{
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1DI_Acc_Initialize() \n");
+#endif
+
+    A1DI_AccC_Initialize();
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1DI_Acc_Initialize() \n");
+#endif
+
+    return(0);
+}
+
+#endif
+
+/*********************************************************************/
 
 int A1D_GetC(int target, int bytes, void* src, void* dst)
 {
@@ -155,7 +208,7 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
 
     DCMF_CriticalSection_enter(0);
 
-    done_callback.function = A1D_Done_cb;
+    done_callback.function = A1DI_Done_cb;
     done_callback.clientdata = (void *) &done_active;
 
     done_active = 1;
@@ -186,7 +239,6 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     fprintf(stderr,"exiting A1D_GetC(int target, int bytes, void* src, void* dst) \n");
 #endif
 
-
     return(0);
 }
 
@@ -210,7 +262,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
 
-    done_callback.function = A1D_Done_cb;
+    done_callback.function = A1DI_Done_cb;
     done_callback.clientdata = (void *) &done_active;
 
     done_active = 1;
@@ -274,6 +326,8 @@ int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale)
     return 0;
 }
 
+/*********************************************************************/
+
 #ifdef STRIDED_IMPLEMENTED
 
 int A1D_GetS(int proc, stride_levels, block_sizes,
@@ -299,3 +353,5 @@ int A1D_AccS(int proc, stride_levels, block_sizes,
 }
 
 #endif
+
+/*********************************************************************/
