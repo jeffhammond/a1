@@ -49,6 +49,7 @@
 
 #include "a1d_core.h"
 #include "a1d_comm.h"
+#include "a1d_atomic.h"
 #include "a1d_stats.h"
 
 int mpi_rank;
@@ -205,7 +206,7 @@ int A1D_Initialize()
      *
      ***************************************************/
 
-    A1DI_Atomics_Initialize();
+    A1DI_Atomic_Initialize();
 
     A1DI_Get_Initialize();
 

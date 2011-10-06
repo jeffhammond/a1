@@ -83,6 +83,10 @@ typedef struct
 }
 A1D_Inc64_t;
 
+void A1DI_Atomic_Initialize();
+
+void A1D_Fetch32(int proc, int32_t * local, int32_t * fetch_address);
+void A1D_Fetch64(int proc, int64_t * local, int64_t * fetch_address);
 void A1D_Inc32(int proc, int32_t * remote, int32_t incr);
 void A1D_Inc64(int proc, int64_t * remote, int64_t incr);
 void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t incr);

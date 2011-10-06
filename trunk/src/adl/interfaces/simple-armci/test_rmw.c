@@ -84,63 +84,18 @@ int main(int argc, char *argv[])
         {
             int bytes = w * sizeof(int);
 
-            for (int i = 0; i < w; i++) buffer[i] = t;
+            for (int i = 0; i < w; i++) buffer[i] = 1000000+t;
 
             PARMCI_Put( buffer, window[t], bytes, t );
             PARMCI_Fence( t );
 
             for (int i = 0; i < w; i++) buffer[i] = 0;
 
-            PARMCI_Get( window[t], buffer, bytes, t );
-
-            int errors = 0;
+            for (int i = 0; i < w; i++) 
+                PARMCI_Rmw( ARMCI_FETCH, &buffer[i], &window[t][i], 0, t );
 
             for (int i = 0; i < w; i++) 
-                if ( buffer[i] != t ) errors++;
-
-            if ( errors > 0 )
-                for (int i = 0; i < w; i++) 
-                    printf("rank %d buffer[%d] = %d \n", rank, i, buffer[i] );
-        }
-
-    PARMCI_Barrier();
-
-    if (rank != 0)
-    {
-       int errors = 0;
-
-       for (int i = 0; i < w; i++) 
-           if ( window[rank][i] != rank ) errors++;
-
-       if ( errors > 0 )
-           for (int i = 0; i < w; i++) 
-               printf("rank %d window[%d][%d] = %d \n", rank, rank, i, window[rank][i] );
-    }
-
-    PARMCI_Barrier();
-
-    if (rank == 0)
-        for (int t=1; t<size; t++)
-        {
-            int bytes = w * sizeof(int);
-
-            double t0, t1, t2, dt1, dt2, bw1, bw2;
-
-            for (int i = 0; i < w; i++) buffer[i] = -1;
-
-            t0 = MPI_Wtime();
-            PARMCI_Put( buffer, window[t], bytes, t );
-            t1 = MPI_Wtime();
-            PARMCI_Fence( t );
-            t2 = MPI_Wtime();
-
-            dt1 =  ( t1 - t0 );
-            dt2 =  ( t2 - t0 );
-            bw1 = (double)bytes / dt1 / 1000000;
-            bw2 = (double)bytes / dt2 / 1000000;
-            printf("PARMCI_Put of from rank %d to rank %d of %d bytes - local: %lf s (%lf MB/s) remote: %lf s (%lf MB/s) \n",
-                   t, 0, bytes, dt1, bw1, dt2, bw2);
-            fflush(stdout);
+                printf("rank %d buffer[%d] = %d \n", rank, i, buffer[i] );
         }
 
     PARMCI_Barrier();
