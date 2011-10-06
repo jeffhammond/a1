@@ -71,7 +71,12 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
     value          = data->value;
     return_address = data->return_address;
 
-    if ( return_address != NULL )
+    if ( return_address == NULL )
+    {
+        fprintf(stderr,"A1DI_Fetch32_cb: return_address is a NULL pointer. This is bad. \n");
+        //assert( return_address != NULL );
+    }
+    else
     {
         (*return_address) = value;
     }
@@ -96,7 +101,12 @@ void A1DI_Fetch64_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
     value          = data->value;
     return_address = data->return_address;
 
-    if ( return_address != NULL )
+    if ( return_address == NULL )
+    {
+        fprintf(stderr,"A1DI_Fetch64_cb: return_address is a NULL pointer. This is bad. \n");
+        //assert( return_address != NULL );
+    }
+    else
     {
         (*return_address) = value;
     }
@@ -123,27 +133,35 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     incr_address   = data->incr_address;
     return_address = data->return_address;
 
-    if ( incr_address != NULL && return_address != NULL )
+    if ( incr_address == NULL )
     {
-        DCMF_Result dcmf_result;
-        A1D_Fetch32_t return_data;
-        DCMF_Control_t return_payload;
-
-        return_data.value          = (*incr_address);
-        return_data.return_address = return_address;
-
-        memcpy(&return_payload, &return_data, sizeof(A1D_Inc32_t));
-
-        dcmf_result =  DCMF_Control(&A1D_Fetch32_protocol,
-                                    DCMF_SEQUENTIAL_CONSISTENCY,
-                                    peer,
-                                    &return_payload);
+        fprintf(stderr,"A1DI_Inc32_cb: incr_address is a NULL pointer. This is bad. \n");
+        //assert( incr_address != NULL );
     }
-
-    if ( incr != 0 && incr_address != NULL )
+    else
     {
-        /* TODO: use actual atomic here */
-        (*incr_address) += incr;
+        if ( return_address != NULL )
+        {
+            DCMF_Result dcmf_result;
+            A1D_Fetch32_t return_data;
+            DCMF_Control_t return_payload;
+
+            return_data.value          = (*incr_address);
+            return_data.return_address = return_address;
+
+            memcpy(&return_payload, &return_data, sizeof(A1D_Inc32_t));
+
+            dcmf_result =  DCMF_Control(&A1D_Fetch32_protocol,
+                                        DCMF_SEQUENTIAL_CONSISTENCY,
+                                        peer,
+                                        &return_payload);
+        }
+
+        if ( incr != 0 )
+        {
+            /* TODO: use actual atomic here */
+            (*incr_address) += incr;
+        }
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -168,27 +186,35 @@ void A1DI_Inc64_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     incr_address   = data->incr_address;
     return_address = data->return_address;
 
-    if ( incr_address != NULL && return_address != NULL )
+    if ( incr_address == NULL )
     {
-        DCMF_Result dcmf_result;
-        A1D_Fetch64_t return_data;
-        DCMF_Control_t return_payload;
-
-        return_data.value          = (*incr_address);
-        return_data.return_address = return_address;
-
-        memcpy(&return_payload, &return_data, sizeof(A1D_Inc64_t));
-
-        dcmf_result =  DCMF_Control(&A1D_Fetch64_protocol,
-                                    DCMF_SEQUENTIAL_CONSISTENCY,
-                                    peer,
-                                    &return_payload);
+        fprintf(stderr,"A1DI_Inc32_cb: incr_address is a NULL pointer. This is bad. \n");
+        //assert( incr_address != NULL );
     }
-
-    if ( incr != 0 && incr_address != NULL )
+    else
     {
-        /* TODO: use actual atomic here */
-        (*incr_address) += incr;
+        if ( return_address != NULL )
+        {
+            DCMF_Result dcmf_result;
+            A1D_Fetch64_t return_data;
+            DCMF_Control_t return_payload;
+
+            return_data.value          = (*incr_address);
+            return_data.return_address = return_address;
+
+            memcpy(&return_payload, &return_data, sizeof(A1D_Inc64_t));
+
+            dcmf_result =  DCMF_Control(&A1D_Fetch64_protocol,
+                                        DCMF_SEQUENTIAL_CONSISTENCY,
+                                        peer,
+                                        &return_payload);
+        }
+
+        if ( incr != 0 )
+        {
+            /* TODO: use actual atomic here */
+            (*incr_address) += incr;
+        }
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -320,25 +346,27 @@ void A1DI_Atomic_Initialize()
 
 /***********************************************************************/
 
-void A1D_Fetch32(int proc, int32_t * return_value, int32_t * fetch_address)
+void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 {
 #ifdef __bgp__
     DCMF_Result dcmf_result;
     A1D_Inc32_t data;
     DCMF_Control_t payload;
-    int32_t * return_address;
+    int32_t temp; /* TODO: this should go away */
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Fetch32(int proc, int32_t * fetch_address, int32_t * return_value) \n");
+    fprintf(stderr,"entering A1D_Fetch32(int proc, int32_t * remote, int32_t * local) \n");
 #endif
 
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
+    return_address = return_value;
+
     data.incr           = 0;
-    data.incr_address   = NULL;
-    data.return_address = return_address;
+    data.incr_address   = remote;
+    data.return_address = &temp;
 
     memcpy(&payload, &data, sizeof(A1D_Inc32_t));
 
@@ -348,37 +376,40 @@ void A1D_Fetch32(int proc, int32_t * return_value, int32_t * fetch_address)
                                &payload);
     assert(dcmf_result==DCMF_SUCCESS);
 
-    (*return_value) = (*return_address);
+    /* TODO: this is not the preferred way to do it */
+    (*local) = temp;
 
     DCMF_CriticalSection_exit(0);
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Fetch32(int proc, int32_t * fetch_address, int32_t * return_value) \n");
+    fprintf(stderr,"exiting A1D_Fetch32(int proc, int32_t * remote, int32_t * local) \n");
 #endif
 
     return;
 }
 
-void A1D_Fetch64(int proc, int64_t * return_value, int64_t * fetch_address)
+void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
 {
 #ifdef __bgp__
     DCMF_Result dcmf_result;
     A1D_Inc64_t data;
     DCMF_Control_t payload;
-    int64_t * return_address;
+    int32_t temp; /* TODO: this should go away */
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Fetch64(int proc, int64_t * fetch_address, int64_t * return_value) \n");
+    fprintf(stderr,"entering A1D_Fetch64(int proc, int64_t * remote, int64_t * local) \n");
 #endif
 
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
+    return_address = return_value;
+
     data.incr           = 0;
-    data.incr_address   = NULL;
-    data.return_address = return_address;
+    data.incr_address   = remote;
+    data.return_address = &temp;
 
     memcpy(&payload, &data, sizeof(A1D_Inc64_t));
 
@@ -388,13 +419,14 @@ void A1D_Fetch64(int proc, int64_t * return_value, int64_t * fetch_address)
                                &payload);
     assert(dcmf_result==DCMF_SUCCESS);
 
-    (*return_value) = (*return_address);
+    /* TODO: this is not the preferred way to do it */
+    (*local) = temp;
 
     DCMF_CriticalSection_exit(0);
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Fetch64(int proc, int64_t * fetch_address, int64_t * return_value) \n");
+    fprintf(stderr,"exiting A1D_Fetch64(int proc, int64_t * remote, int64_t * local) \n");
 #endif
 
     return;
