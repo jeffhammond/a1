@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    assert( size > 1 );
 
     PARMCI_Init_args(&argc, &argv);
 

@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    assert( size > 1 );
 
     PARMCI_Init_args(&argc, &argv);
 
@@ -86,6 +87,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < w; i++) buffer[i] = 1000000+t;
 
+            for (int i = 0; i < w; i++) 
+                printf("rank %d (before put+fence) buffer[%d] = %d \n", rank, i, buffer[i] );
+
             PARMCI_Put( buffer, window[t], bytes, t );
             PARMCI_Fence( t );
 
@@ -95,7 +99,13 @@ int main(int argc, char *argv[])
                 PARMCI_Rmw( ARMCI_FETCH, &buffer[i], &window[t][i], 0, t );
 
             for (int i = 0; i < w; i++) 
-                printf("rank %d buffer[%d] = %d \n", rank, i, buffer[i] );
+                printf("rank %d (after atomic fetch) buffer[%d] = %d \n", rank, i, buffer[i] );
+
+            PARMCI_Get( window[t], buffer, bytes, t );
+
+            for (int i = 0; i < w; i++) 
+                printf("rank %d (after get) buffer[%d] = %d \n", rank, i, buffer[i] );
+
         }
 
     PARMCI_Barrier();
