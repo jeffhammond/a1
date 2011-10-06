@@ -362,8 +362,6 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
-    return_address = return_value;
-
     data.incr           = 0;
     data.incr_address   = remote;
     data.return_address = &temp;
@@ -395,7 +393,7 @@ void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
     DCMF_Result dcmf_result;
     A1D_Inc64_t data;
     DCMF_Control_t payload;
-    int32_t temp; /* TODO: this should go away */
+    int64_t temp; /* TODO: this should go away */
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -404,8 +402,6 @@ void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
 
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
-
-    return_address = return_value;
 
     data.incr           = 0;
     data.incr_address   = remote;
