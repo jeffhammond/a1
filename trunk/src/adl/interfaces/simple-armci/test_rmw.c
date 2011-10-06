@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     int w = ( argc > 1 ? atoi(argv[1]) : 10 );
 
-    if ( rank == 0 ) printf( "size = %d maxwinsize = %d doubles\n", size, maxwinsize );
+    if ( rank == 0 ) printf( "size = %d w = %d doubles\n", size, w );
 
     int ** window;
     window  = (int **) PARMCI_Malloc_local( size * sizeof(int *) );
