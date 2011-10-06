@@ -65,14 +65,14 @@ int main(int argc, char *argv[])
 
     PARMCI_Init_args(&argc, &argv);
 
-    int w, maxwinsize = ( argc > 1 ? atoi(argv[1]) : 1000000 );
+    int w = ( argc > 1 ? atoi(argv[1]) : 10 );
 
     if ( rank == 0 ) printf( "size = %d maxwinsize = %d doubles\n", size, maxwinsize );
 
-    double ** window;
-    window  = (double **) PARMCI_Malloc_local( size * sizeof(double *) );
-    PARMCI_Malloc( (void **) window, w * sizeof(double) );
-    for (int i = 0; i < w; i++) window[rank][i] = 0.0;
+    int ** window;
+    window  = (int **) PARMCI_Malloc_local( size * sizeof(int *) );
+    PARMCI_Malloc( (void **) window, w * sizeof(int) );
+    for (int i = 0; i < w; i++) window[rank][i] = 0;
 
     double * buffer;
     buffer = (double *) PARMCI_Malloc_local(  w * sizeof(double) );
@@ -82,25 +82,25 @@ int main(int argc, char *argv[])
     if (rank == 0)
         for (int t=1; t<size; t++)
         {
-            int bytes = w * sizeof(double);
+            int bytes = w * sizeof(int);
 
-            for (int i = 0; i < w; i++) buffer[i] = (double)(t);
+            for (int i = 0; i < w; i++) buffer[i] = t;
 
             PARMCI_Put( buffer, window[t], bytes, t );
             PARMCI_Fence( t );
 
-            for (int i = 0; i < w; i++) buffer[i] = 0.0;
+            for (int i = 0; i < w; i++) buffer[i] = 0;
 
             PARMCI_Get( window[t], buffer, bytes, t );
 
             int errors = 0;
 
             for (int i = 0; i < w; i++) 
-                if ( buffer[i] != (double)(t) ) errors++;
+                if ( buffer[i] != t ) errors++;
 
             if ( errors > 0 )
                 for (int i = 0; i < w; i++) 
-                    printf("rank %d buffer[%d] = %lf \n", rank, i, buffer[i] );
+                    printf("rank %d buffer[%d] = %d \n", rank, i, buffer[i] );
         }
 
     PARMCI_Barrier();
@@ -110,11 +110,11 @@ int main(int argc, char *argv[])
        int errors = 0;
 
        for (int i = 0; i < w; i++) 
-           if ( window[rank][i] != (double)(rank) ) errors++;
+           if ( window[rank][i] != rank ) errors++;
 
        if ( errors > 0 )
            for (int i = 0; i < w; i++) 
-               printf("rank %d window[%d][%d] = %lf \n", rank, rank, i, window[rank][i] );
+               printf("rank %d window[%d][%d] = %d \n", rank, rank, i, window[rank][i] );
     }
 
     PARMCI_Barrier();
@@ -122,11 +122,11 @@ int main(int argc, char *argv[])
     if (rank == 0)
         for (int t=1; t<size; t++)
         {
-            int bytes = w * sizeof(double);
+            int bytes = w * sizeof(int);
 
             double t0, t1, t2, dt1, dt2, bw1, bw2;
 
-            for (int i = 0; i < w; i++) buffer[i] = (double)(-1);
+            for (int i = 0; i < w; i++) buffer[i] = -1;
 
             t0 = MPI_Wtime();
             PARMCI_Put( buffer, window[t], bytes, t );

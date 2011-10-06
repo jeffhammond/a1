@@ -176,12 +176,22 @@ long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
     {
         case ARMCI_ADD:
             A1D_Inc32(proc, (int32_t *)remote, (int32_t)incr);
-            ival = -1;
-            return (int64_t)ival;
+            ival = 0;
+            return (long)ival;
         case ARMCI_ADD_LONG:
             A1D_Inc64(proc, (int64_t *)remote, (int64_t)incr);
+            lval = 0;
+            return lval;
+#if NOT_YET
+        case ARMCI_FETCH:
+            A1D_Fetch32(proc, (int32_t *)remote, (int32_t)incr);
+            ival = -1;
+            return (long)ival;
+        case ARMCI_FETCH_LONG:
+            A1D_Fetch64(proc, (int64_t *)remote, (int64_t)incr);
             lval = -1;
             return lval;
+#endif
 #ifdef PROPER_RMW_IMPLEMENTED
         case ARMCI_FETCH_AND_ADD:
             A1D_Fetch_and_inc32(proc, (int32_t *)local, (int32_t *)remote, (int32_t)incr);
