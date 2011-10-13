@@ -236,6 +236,7 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Fetch32 \n");
+    printf("A1D_Fetch32 proc = %d, remote = %p, local = %p, *remote = %d, *local = %d \n", proc, remote, local, *remote, *local);
 #endif
 
 #ifdef __bgp__
