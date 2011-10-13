@@ -57,6 +57,7 @@ typedef struct
 {
     int32_t   value;
     int32_t * return_address;
+    volatile uint32_t * active_address;
 }
 A1D_Fetch32_t;
 
@@ -65,6 +66,7 @@ typedef struct
     int32_t   incr;
     int32_t * incr_address;
     int32_t * return_address;
+    volatile uint32_t * active_address;
 }
 A1D_Inc32_t;
 

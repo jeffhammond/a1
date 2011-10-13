@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
 
     int * buffer;
     buffer = (int *) PARMCI_Malloc_local(  w * sizeof(int) );
+    for (int i = 0; i < w; i++) buffer[i] = -17037;
 
     PARMCI_Barrier();
 
@@ -93,7 +94,7 @@ int main(int argc, char *argv[])
             PARMCI_Put( buffer, window[t], bytes, t );
             PARMCI_Fence( t );
 
-            for (int i = 0; i < w; i++) buffer[i] = 0;
+            for (int i = 0; i < w; i++) buffer[i] = 94697;
 
             for (int i = 0; i < w; i++) 
                 PARMCI_Rmw( ARMCI_FETCH, &buffer[i], &window[t][i], 0, t );

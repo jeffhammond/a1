@@ -61,6 +61,7 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
 {
     int32_t   value = 999999999;
     int32_t * return_address = NULL;
+    volatile uint32_t * active_address = NULL;
     A1D_Fetch32_t data;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -71,8 +72,9 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
 
     value          = data.value;
     return_address = data.return_address;
+    active_address = data.active_address;
 
-    printf("A1D_Fetch32_cb rank = %d peer = %d, value = %d, return_address = %p \n", A1D_Rank(), peer, value, return_address );
+    fprintf(stderr,"A1D_Fetch32_cb A rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
 
     if ( return_address == NULL )
     {
@@ -84,6 +86,19 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
         // TODO: should use atomic set here if stores are not sufficient
         //(*return_address) = value;
         memcpy( return_address, &value, sizeof(int32_t) );
+    }
+
+    if ( active_address == NULL )
+    {
+        fprintf(stderr,"A1DI_Fetch32_cb: active_address is a NULL pointer. This is bad. \n");
+        assert( active_address != NULL );
+    }
+    else
+    {
+        fprintf(stderr,"A1D_Fetch32_cb B rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
+        /* TODO: use actual atomic here */
+        (*active_address) = 0;
+        fprintf(stderr,"A1D_Fetch32_cb C rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -98,6 +113,7 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     int32_t   incr = 999999999;
     int32_t * incr_address = NULL;
     int32_t * return_address = NULL;
+    volatile uint32_t * active_address = NULL;
     A1D_Inc32_t data;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -108,24 +124,34 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     incr           = data.incr;
     incr_address   = data.incr_address;
     return_address = data.return_address;
+    active_address = data.active_address;
 
-    printf("A1D_Inc32_cb rank = %d peer = %d, incr = %d, incr_address = %p return_address = %p \n", A1D_Rank(), peer, incr, incr_address, return_address );
+    fprintf(stderr,"A1D_Inc32_cb rank = %d peer = %d, incr = %d, incr_address = %p return_address = %p active_address = %p \n", A1D_Rank(), peer, incr, incr_address, return_address, active_address );
 
     if ( incr_address == NULL )
     {
         fprintf(stderr,"A1DI_Inc32_cb: incr_address is a NULL pointer. This is bad. \n");
-        //assert( incr_address != NULL );
+        assert( incr_address != NULL );
     }
     else
     {
         if ( return_address != NULL )
         {
+            /* if sending message back to source, make sure 
+             * the active address is valid */
+            if ( active_address == NULL )
+            {
+                fprintf(stderr,"A1DI_Inc32_cb: active_address is a NULL pointer. This is bad. \n");
+                assert( active_address != NULL );
+            }
+
             DCMF_Result dcmf_result;
             A1D_Fetch32_t return_data;
             DCMF_Control_t return_payload;
 
             return_data.value          = (*incr_address);
             return_data.return_address = return_address;
+            return_data.active_address = active_address;
 
             memcpy(&return_payload, &return_data, sizeof(A1D_Fetch32_t));
 
@@ -134,6 +160,8 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
                                         peer,
                                         &return_payload);
         }
+        /* else return_address == NULL
+         * do not send anything back to source  */
 
         if ( incr != 0 )
         {
@@ -239,13 +267,14 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
     DCMF_Result dcmf_result;
     A1D_Inc32_t data;
     DCMF_Control_t payload;
+    volatile uint32_t active = 0;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Fetch32 \n");
 #endif
 
-    printf("A1D_Fetch32 rank = %d target = %d, remote = %p, local = %p, *remote = %d, *local = %d \n", A1D_Rank(), proc, remote, local, *remote, *local );
+    fprintf(stderr,"A1D_Fetch32 A rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
@@ -253,14 +282,25 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
     data.incr           = 0;
     data.incr_address   = remote;
     data.return_address = local;
+    data.active_address = &active;
 
     memcpy(&payload, &data, sizeof(A1D_Inc32_t));
+
+    active = 1;
+
+    fprintf(stderr,"A1D_Fetch32 B rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
     dcmf_result = DCMF_Control(&A1D_Inc32_protocol,
                                DCMF_SEQUENTIAL_CONSISTENCY,
                                proc,
                                &payload);
     assert(dcmf_result==DCMF_SUCCESS);
+
+    fprintf(stderr,"A1D_Fetch32 C rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
+
+    while (active) DCMF_Messager_advance();
+
+    fprintf(stderr,"A1D_Fetch32 D rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
     DCMF_CriticalSection_exit(0);
 #endif
@@ -290,6 +330,7 @@ void A1D_Inc32(int proc, int32_t * remote, int32_t incr)
     data.incr           = incr;
     data.incr_address   = remote;
     data.return_address = NULL;
+    data.active_address = NULL;
 
     memcpy(&payload, &data, sizeof(A1D_Inc32_t));
 
@@ -315,6 +356,7 @@ void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t in
     DCMF_Result dcmf_result;
     A1D_Inc32_t data;
     DCMF_Control_t payload;
+    volatile int32_t active = 0;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -327,14 +369,19 @@ void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t in
     data.incr           = incr;
     data.incr_address   = remote;
     data.return_address = local;
+    data.active_address = &active;
 
     memcpy(&payload, &data, sizeof(A1D_Inc32_t));
+
+    active++;
 
     dcmf_result = DCMF_Control(&A1D_Inc32_protocol,
                                DCMF_SEQUENTIAL_CONSISTENCY,
                                proc,
                                &payload);
     assert(dcmf_result==DCMF_SUCCESS);
+
+    while (active) DCMF_Messager_advance();
 
     DCMF_CriticalSection_exit(0);
 #endif
