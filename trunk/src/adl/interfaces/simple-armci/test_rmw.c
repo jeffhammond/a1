@@ -68,15 +68,15 @@ int main(int argc, char *argv[])
 
     int w = ( argc > 1 ? atoi(argv[1]) : 10 );
 
-    if ( rank == 0 ) printf( "size = %d w = %d doubles\n", size, w );
+    if ( rank == 0 ) printf( "testing RMW: %d ranks, %d integers\n", size, w );
 
     int ** window;
     window  = (int **) PARMCI_Malloc_local( size * sizeof(int *) );
     PARMCI_Malloc( (void **) window, w * sizeof(int) );
     for (int i = 0; i < w; i++) window[rank][i] = 0;
 
-    double * buffer;
-    buffer = (double *) PARMCI_Malloc_local(  w * sizeof(double) );
+    int * buffer;
+    buffer = (int *) PARMCI_Malloc_local(  w * sizeof(int) );
 
     PARMCI_Barrier();
 
