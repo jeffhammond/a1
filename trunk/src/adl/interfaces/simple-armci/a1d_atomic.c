@@ -59,27 +59,31 @@ DCMF_Protocol_t A1D_Inc32_protocol;
 
 void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
 {
-    int32_t   value;
-    int32_t * return_address;
-    A1D_Fetch32_t * data = (A1D_Fetch32_t *) info ;
+    int32_t   value = 999999999;
+    int32_t * return_address = NULL;
+    A1D_Fetch32_t data;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1DI_Fetch32_cb \n");
 #endif
 
-    value          = data->value;
-    return_address = data->return_address;
+    memcpy( &data, info, sizeof(A1D_Fetch32_t) );
+
+    value          = data.value;
+    return_address = data.return_address;
 
     printf("A1D_Fetch32_cb rank = %d peer = %d, value = %d, return_address = %p \n", A1D_Rank(), peer, value, return_address );
 
     if ( return_address == NULL )
     {
         fprintf(stderr,"A1DI_Fetch32_cb: return_address is a NULL pointer. This is bad. \n");
-        //assert( return_address != NULL );
+        assert( return_address != NULL );
     }
     else
     {
-        (*return_address) = value;
+        // TODO: should use atomic set here if stores are not sufficient
+        //(*return_address) = value;
+        memcpy( return_address, &value, sizeof(int32_t) );
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -91,18 +95,19 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
 
 void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
 {
-    int32_t   incr;
-    int32_t * incr_address;
-    int32_t * return_address;
-    A1D_Inc32_t * data = (A1D_Inc32_t *) info ;
+    int32_t   incr = 999999999;
+    int32_t * incr_address = NULL;
+    int32_t * return_address = NULL;
+    A1D_Inc32_t data;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1DI_Inc32_cb \n");
 #endif
 
-    incr           = data->incr;
-    incr_address   = data->incr_address;
-    return_address = data->return_address;
+    memcpy( &data, info, sizeof(A1D_Inc32_t) );
+    incr           = data.incr;
+    incr_address   = data.incr_address;
+    return_address = data.return_address;
 
     printf("A1D_Inc32_cb rank = %d peer = %d, incr = %d, incr_address = %p return_address = %p \n", A1D_Rank(), peer, incr, incr_address, return_address );
 
@@ -122,7 +127,7 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
             return_data.value          = (*incr_address);
             return_data.return_address = return_address;
 
-            memcpy(&return_payload, &return_data, sizeof(A1D_Inc32_t));
+            memcpy(&return_payload, &return_data, sizeof(A1D_Fetch32_t));
 
             dcmf_result =  DCMF_Control(&A1D_Fetch32_protocol,
                                         DCMF_SEQUENTIAL_CONSISTENCY,
@@ -158,7 +163,7 @@ void A1DI_Fetch32_Initialize()
     if ( sizeof(A1D_Fetch32_t) > sizeof(DCMF_Control_t) )
     {
         fprintf(stderr,"A1D_Fetch32_t requires more storage than DCMF_Control_t! \n");
-        assert(0);
+        assert( sizeof(A1D_Fetch32_t) == sizeof(DCMF_Control_t) );
     }
 
     conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
@@ -188,7 +193,7 @@ void A1DI_Inc32_Initialize()
     if ( sizeof(A1D_Inc32_t) > sizeof(DCMF_Control_t) )
     {
         fprintf(stderr,"A1D_Inc32_t requires more storage than DCMF_Control_t! \n");
-        assert(0);
+        assert( sizeof(A1D_Inc32_t) == sizeof(DCMF_Control_t) );
     }
 
     conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
@@ -267,7 +272,7 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
     return;
 }
 
-void A1D_Inc32(int proc, int32_t * incr_address, int32_t incr)
+void A1D_Inc32(int proc, int32_t * remote, int32_t incr)
 {
 #ifdef __bgp__
     DCMF_Result dcmf_result;
@@ -283,7 +288,7 @@ void A1D_Inc32(int proc, int32_t * incr_address, int32_t incr)
     DCMF_CriticalSection_enter(0);
 
     data.incr           = incr;
-    data.incr_address   = incr_address;
+    data.incr_address   = remote;
     data.return_address = NULL;
 
     memcpy(&payload, &data, sizeof(A1D_Inc32_t));
@@ -306,11 +311,43 @@ void A1D_Inc32(int proc, int32_t * incr_address, int32_t incr)
 
 void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t incr)
 {
+#ifdef __bgp__
+    DCMF_Result dcmf_result;
+    A1D_Inc32_t data;
+    DCMF_Control_t payload;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Fetch_and_inc32 \n");
+#endif
+
+#ifdef __bgp__
+    DCMF_CriticalSection_enter(0);
+
+    data.incr           = incr;
+    data.incr_address   = remote;
+    data.return_address = local;
+
+    memcpy(&payload, &data, sizeof(A1D_Inc32_t));
+
+    dcmf_result = DCMF_Control(&A1D_Inc32_protocol,
+                               DCMF_SEQUENTIAL_CONSISTENCY,
+                               proc,
+                               &payload);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    DCMF_CriticalSection_exit(0);
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Fetch_and_inc32 \n");
+#endif
     return;
 }
 
 void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
 {
+    assert(0);
     return;
 }
 
