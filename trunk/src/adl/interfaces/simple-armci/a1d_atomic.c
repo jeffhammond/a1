@@ -48,6 +48,7 @@
  *********************************************************************/
 
 #include "a1d_atomic.h"
+#include "a1d_core.h"
 
 #ifdef __bgp__
 
@@ -68,6 +69,8 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
 
     value          = data->value;
     return_address = data->return_address;
+
+    printf("A1D_Fetch32_cb rank = %d peer = %d, value = %d, return_address = %p \n", A1D_Rank(), peer, value, return_address );
 
     if ( return_address == NULL )
     {
@@ -100,6 +103,8 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     incr           = data->incr;
     incr_address   = data->incr_address;
     return_address = data->return_address;
+
+    printf("A1D_Inc32_cb rank = %d peer = %d, incr = %d, incr_address = %p return_address = %p \n", A1D_Rank(), peer, incr, incr_address, return_address );
 
     if ( incr_address == NULL )
     {
@@ -229,20 +234,20 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
     DCMF_Result dcmf_result;
     A1D_Inc32_t data;
     DCMF_Control_t payload;
-    int32_t temp; /* TODO: this should go away */
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Fetch32 \n");
-    printf("A1D_Fetch32 proc = %d, remote = %p, local = %p, *remote = %d, *local = %d \n", proc, remote, local, *remote, *local);
 #endif
+
+    printf("A1D_Fetch32 rank = %d target = %d, remote = %p, local = %p, *remote = %d, *local = %d \n", A1D_Rank(), proc, remote, local, *remote, *local );
 
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
     data.incr           = 0;
     data.incr_address   = remote;
-    data.return_address = &temp;
+    data.return_address = local;
 
     memcpy(&payload, &data, sizeof(A1D_Inc32_t));
 
@@ -251,9 +256,6 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
                                proc,
                                &payload);
     assert(dcmf_result==DCMF_SUCCESS);
-
-    /* TODO: this is not the preferred way to do it */
-    (*local) = temp;
 
     DCMF_CriticalSection_exit(0);
 #endif

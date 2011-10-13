@@ -17,7 +17,8 @@ A1D_HEADERS   := $(patsubst %.c,%.h,$(wildcard a1d*.c))
 OBJECTS       := parmci.o $(A1D_OBJECTS) $(TEST_OBJECTS)
 HEADERS       := parmci.h $(A1D_HEADERS)
 
-all: $(TEST_BINARIES)
+#all: $(TEST_BINARIES)
+all: test_rmw.x
 
 %.x: %.o libarmci-bgp.a
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
