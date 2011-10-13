@@ -107,7 +107,7 @@ void PARMCI_Memget(size_t bytes, armci_meminfo_t* meminfo, int memflg)
     assert(0);
     return;
 }
-*/
+ */
 
 /* synchronization */
 
@@ -167,59 +167,50 @@ int PARMCI_WaitAll()
 
 long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
 {
-    int  * iptr;
-    long * lptr;
-    int  ival;
-    long lval;
+    int32_t   ival = -1;
+    int32_t * iptr = NULL;
 
     switch (optype)
     {
+        case ARMCI_FETCH:
+            A1D_Fetch32(proc, (int32_t*)remote, (int32_t*)local );
+            iptr = (int32_t*) local;
+            ival = (*iptr);
+            return (long)ival;
+
         case ARMCI_ADD:
-            A1D_Inc32(proc, (int32_t *)remote, (int32_t)incr );
+            A1D_Inc32(proc, (int32_t*)remote, (int32_t)incr );
             ival = 0;
             return (long)ival;
-        case ARMCI_ADD_LONG:
-            A1D_Inc64(proc, (int64_t *)remote, (int64_t)incr );
-            lval = 0;
-            return lval;
-        case ARMCI_FETCH:
-            A1D_Fetch32(proc, (int32_t *)remote, (int32_t *)local );
-            iptr = (int32_t *) local;
-            ival = *iptr;
-            return (long)ival;
-        case ARMCI_FETCH_LONG:
-            A1D_Fetch64(proc, (int64_t *)remote, (int64_t *)local );
-            lptr = (int64_t *) local;
-            lval = *lptr;
-            return lval;
-#ifdef PROPER_RMW_IMPLEMENTED
+
         case ARMCI_FETCH_AND_ADD:
-            A1D_Fetch_and_inc32(proc, (int32_t *)local, (int32_t *)remote, (int32_t)incr);
-            iptr = (int32_t *) local;
-            ival = *iptr;
+            A1D_Fetch_and_inc32(proc, (int32_t*)remote, (int32_t*)local, (int32_t)incr );
+            iptr = (int32_t*)local;
+            ival = (*iptr);
             return (long)ival;
-        case ARMCI_FETCH_AND_ADD_LONG:
-            A1D_Fetch_and_inc64(proc, (int64_t *)local, (int64_t *)remote, (int64_t)incr);
-            lptr = (int64_t *) local;
-            lval = *lptr;
-            return lval;
+
+#if 0
         case ARMCI_SWAP:
-            A1D_Swap32(proc, (int32_t *)local, (int32_t *)remote);
+            A1D_Swap32(proc, (int32_t *)remote, (int32_t *)local );
             iptr = (int32_t *) local;
-            ival = *iptr;
+            ival = (*iptr);
             return (long)ival;
-        case ARMCI_SWAP_LONG:
-            A1D_Swap64(proc, (int64_t *)local, (int64_t *)remote);
-            lptr = (int64_t *) local;
-            lval = *lptr;
-            return lval;
 #endif
-        default:
-            fprintf(stderr,"PARMCI_Rmw: operation not implemented \n");
+
+        case ARMCI_FETCH_LONG:
+        case ARMCI_ADD_LONG:
+        case ARMCI_FETCH_AND_ADD_LONG:
+        case ARMCI_SWAP_LONG:
+            fprintf(stderr,"PARMCI_Rmw: operations on 64-bit integers (long) are not implemented on BGP. \n");
             assert(0);
-            break;
+            return (long)ival;
+
+        default:
+            fprintf(stderr,"PARMCI_Rmw: unknown operation request! \n");
+            assert(0);
+            return (long)ival;
     }
-    return 0;
+    return (long)(-1);
 }
 
 int PARMCI_Create_mutexes(int num)
@@ -275,9 +266,9 @@ int PARMCI_GetS(void *src_ptr, int *src_stride_arr,
     assert(0);
     return(-1);
 
-//    return A1D_GetS(proc, stride_levels, block_sizes,
-//                    src_ptr, src_stride_arr,
-//                    dst_ptr, dst_stride_arr);
+    //    return A1D_GetS(proc, stride_levels, block_sizes,
+    //                    src_ptr, src_stride_arr,
+    //                    dst_ptr, dst_stride_arr);
 }
 
 int PARMCI_PutS(void *src_ptr, int *src_stride_arr,
@@ -288,9 +279,9 @@ int PARMCI_PutS(void *src_ptr, int *src_stride_arr,
     assert(0);
     return(-1);
 
-//    return A1D_PutS(proc, stride_levels, block_sizes,
-//                    src_ptr, src_stride_arr,
-//                    dst_ptr, dst_stride_arr);
+    //    return A1D_PutS(proc, stride_levels, block_sizes,
+    //                    src_ptr, src_stride_arr,
+    //                    dst_ptr, dst_stride_arr);
 }
 
 int PARMCI_AccS(int optype, void *scale,
@@ -302,10 +293,10 @@ int PARMCI_AccS(int optype, void *scale,
     assert(0);
     return(-1);
 
-//    return A1D_AccS(proc, stride_levels, block_sizes,
-//                    src_ptr, src_stride_arr,
-//                    dst_ptr, dst_stride_arr,
-//                    type, scale);
+    //    return A1D_AccS(proc, stride_levels, block_sizes,
+    //                    src_ptr, src_stride_arr,
+    //                    dst_ptr, dst_stride_arr,
+    //                    type, scale);
 }
 
 
@@ -359,9 +350,9 @@ int PARMCI_NbGetS(void *src_ptr, int *src_stride_arr,
     assert(0);
     return(-1);
 
-//    return A1D_GetS(proc, stride_levels, block_sizes,
-//                    src_ptr, src_stride_arr,
-//                    dst_ptr, dst_stride_arr);
+    //    return A1D_GetS(proc, stride_levels, block_sizes,
+    //                    src_ptr, src_stride_arr,
+    //                    dst_ptr, dst_stride_arr);
 }
 
 int PARMCI_NbPutS(void *src_ptr, int *src_stride_arr,
@@ -373,9 +364,9 @@ int PARMCI_NbPutS(void *src_ptr, int *src_stride_arr,
     assert(0);
     return(-1);
 
-//    return A1D_PutS(proc, stride_levels, block_sizes,
-//                    src_ptr, src_stride_arr,
-//                    dst_ptr, dst_stride_arr);
+    //    return A1D_PutS(proc, stride_levels, block_sizes,
+    //                    src_ptr, src_stride_arr,
+    //                    dst_ptr, dst_stride_arr);
 }
 
 int PARMCI_NbAccS(int optype, void *scale,
@@ -388,10 +379,10 @@ int PARMCI_NbAccS(int optype, void *scale,
     assert(0);
     return(-1);
 
-//    return A1D_AccS(proc, stride_levels, block_sizes,
-//                    src_ptr, src_stride_arr,
-//                    dst_ptr, dst_stride_arr,
-//                    type, scale);
+    //    return A1D_AccS(proc, stride_levels, block_sizes,
+    //                    src_ptr, src_stride_arr,
+    //                    dst_ptr, dst_stride_arr,
+    //                    type, scale);
 }
 
 

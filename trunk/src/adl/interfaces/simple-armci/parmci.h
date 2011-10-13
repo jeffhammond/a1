@@ -5,16 +5,14 @@
 
 typedef enum
 {
-    ARMCI_ADD,
-    ARMCI_ADD_LONG,
     ARMCI_FETCH,
     ARMCI_FETCH_LONG,
-#ifdef PROPER_RMW_IMPLEMENTED
+    ARMCI_ADD,
+    ARMCI_ADD_LONG,
     ARMCI_FETCH_AND_ADD,
     ARMCI_FETCH_AND_ADD_LONG,
     ARMCI_SWAP,
     ARMCI_SWAP_LONG
-#endif
 }
 armci_rmw_t;
 

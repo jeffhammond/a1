@@ -52,9 +52,7 @@
 #ifdef __bgp__
 
 DCMF_Protocol_t A1D_Fetch32_protocol;
-DCMF_Protocol_t A1D_Fetch64_protocol;
 DCMF_Protocol_t A1D_Inc32_protocol;
-DCMF_Protocol_t A1D_Inc64_protocol;
 
 /***********************************************************************/
 
@@ -65,7 +63,7 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
     A1D_Fetch32_t * data = (A1D_Fetch32_t *) info ;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Fetch32_cb() \n");
+    fprintf(stderr,"entering A1DI_Fetch32_cb \n");
 #endif
 
     value          = data->value;
@@ -82,37 +80,7 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Fetch32_cb() \n");
-#endif
-
-    return;
-}
-
-void A1DI_Fetch64_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
-{
-    int64_t   value;
-    int64_t * return_address;
-    A1D_Fetch64_t * data = (A1D_Fetch64_t *) info ;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Fetch64_cb() \n");
-#endif
-
-    value          = data->value;
-    return_address = data->return_address;
-
-    if ( return_address == NULL )
-    {
-        fprintf(stderr,"A1DI_Fetch64_cb: return_address is a NULL pointer. This is bad. \n");
-        //assert( return_address != NULL );
-    }
-    else
-    {
-        (*return_address) = value;
-    }
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Fetch64_cb() \n");
+    fprintf(stderr,"exiting A1DI_Fetch32_cb \n");
 #endif
 
     return;
@@ -126,7 +94,7 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     A1D_Inc32_t * data = (A1D_Inc32_t *) info ;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Inc32_cb() \n");
+    fprintf(stderr,"entering A1DI_Inc32_cb \n");
 #endif
 
     incr           = data->incr;
@@ -165,60 +133,7 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Inc32_cb() \n");
-#endif
-
-    return;
-}
-
-void A1DI_Inc64_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
-{
-    int64_t   incr;
-    int64_t * incr_address;
-    int64_t * return_address;
-    A1D_Inc64_t * data = (A1D_Inc64_t *) info ;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Inc64_cb() \n");
-#endif
-
-    incr           = data->incr;
-    incr_address   = data->incr_address;
-    return_address = data->return_address;
-
-    if ( incr_address == NULL )
-    {
-        fprintf(stderr,"A1DI_Inc32_cb: incr_address is a NULL pointer. This is bad. \n");
-        //assert( incr_address != NULL );
-    }
-    else
-    {
-        if ( return_address != NULL )
-        {
-            DCMF_Result dcmf_result;
-            A1D_Fetch64_t return_data;
-            DCMF_Control_t return_payload;
-
-            return_data.value          = (*incr_address);
-            return_data.return_address = return_address;
-
-            memcpy(&return_payload, &return_data, sizeof(A1D_Inc64_t));
-
-            dcmf_result =  DCMF_Control(&A1D_Fetch64_protocol,
-                                        DCMF_SEQUENTIAL_CONSISTENCY,
-                                        peer,
-                                        &return_payload);
-        }
-
-        if ( incr != 0 )
-        {
-            /* TODO: use actual atomic here */
-            (*incr_address) += incr;
-        }
-    }
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Inc64_cb() \n");
+    fprintf(stderr,"exiting A1DI_Inc32_cb \n");
 #endif
 
     return;
@@ -232,8 +147,14 @@ void A1DI_Fetch32_Initialize()
     DCMF_Control_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Fetch32_Initialize() \n");
+    fprintf(stderr,"entering A1DI_Fetch32_Initialize \n");
 #endif
+
+    if ( sizeof(A1D_Fetch32_t) > sizeof(DCMF_Control_t) )
+    {
+        fprintf(stderr,"A1D_Fetch32_t requires more storage than DCMF_Control_t! \n");
+        assert(0);
+    }
 
     conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
     conf.network            = DCMF_DEFAULT_NETWORK;
@@ -244,31 +165,7 @@ void A1DI_Fetch32_Initialize()
     assert(dcmf_result==DCMF_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Fetch32_Initialize() \n");
-#endif
-
-    return;
-}
-
-void A1DI_Fetch64_Initialize()
-{
-    DCMF_Result dcmf_result;
-    DCMF_Control_Configuration_t conf;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Fetch64_Initialize() \n");
-#endif
-
-    conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
-    conf.network            = DCMF_DEFAULT_NETWORK;
-    conf.cb_recv            = A1DI_Fetch64_cb;
-    conf.cb_recv_clientdata = NULL;
-
-    dcmf_result = DCMF_Control_register(&A1D_Fetch64_protocol, &conf);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Fetch64_Initialize() \n");
+    fprintf(stderr,"exiting A1DI_Fetch32_Initialize \n");
 #endif
 
     return;
@@ -280,8 +177,14 @@ void A1DI_Inc32_Initialize()
     DCMF_Control_Configuration_t conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Inc32_Initialize() \n");
+    fprintf(stderr,"entering A1DI_Inc32_Initialize \n");
 #endif
+
+    if ( sizeof(A1D_Inc32_t) > sizeof(DCMF_Control_t) )
+    {
+        fprintf(stderr,"A1D_Inc32_t requires more storage than DCMF_Control_t! \n");
+        assert(0);
+    }
 
     conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
     conf.network            = DCMF_DEFAULT_NETWORK;
@@ -292,31 +195,7 @@ void A1DI_Inc32_Initialize()
     assert(dcmf_result==DCMF_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Inc32_Initialize() \n");
-#endif
-
-    return;
-}
-
-void A1DI_Inc64_Initialize()
-{
-    DCMF_Result dcmf_result;
-    DCMF_Control_Configuration_t conf;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Inc64_Initialize() \n");
-#endif
-
-    conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
-    conf.network            = DCMF_DEFAULT_NETWORK;
-    conf.cb_recv            = A1DI_Inc64_cb;
-    conf.cb_recv_clientdata = NULL;
-
-    dcmf_result = DCMF_Control_register(&A1D_Inc64_protocol, &conf);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Inc64_Initialize() \n");
+    fprintf(stderr,"exiting A1DI_Inc32_Initialize \n");
 #endif
 
     return;
@@ -325,7 +204,7 @@ void A1DI_Inc64_Initialize()
 void A1DI_Atomic_Initialize()
 {
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Atomic_Initialize() \n");
+    fprintf(stderr,"entering A1DI_Atomic_Initialize \n");
 #endif
 
     A1DI_Fetch32_Initialize();
@@ -334,7 +213,7 @@ void A1DI_Atomic_Initialize()
     A1DI_Inc64_Initialize();
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Atomic_Initialize() \n");
+    fprintf(stderr,"exiting A1DI_Atomic_Initialize \n");
 #endif
 
     return;
@@ -356,7 +235,7 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Fetch32(int proc, int32_t * remote, int32_t * local) \n");
+    fprintf(stderr,"entering A1D_Fetch32 \n");
 #endif
 
 #ifdef __bgp__
@@ -381,48 +260,7 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Fetch32(int proc, int32_t * remote, int32_t * local) \n");
-#endif
-
-    return;
-}
-
-void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
-{
-#ifdef __bgp__
-    DCMF_Result dcmf_result;
-    A1D_Inc64_t data;
-    DCMF_Control_t payload;
-    int64_t temp; /* TODO: this should go away */
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Fetch64(int proc, int64_t * remote, int64_t * local) \n");
-#endif
-
-#ifdef __bgp__
-    DCMF_CriticalSection_enter(0);
-
-    data.incr           = 0;
-    data.incr_address   = remote;
-    data.return_address = &temp;
-
-    memcpy(&payload, &data, sizeof(A1D_Inc64_t));
-
-    dcmf_result = DCMF_Control(&A1D_Inc64_protocol,
-                               DCMF_SEQUENTIAL_CONSISTENCY,
-                               proc,
-                               &payload);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    /* TODO: this is not the preferred way to do it */
-    (*local) = temp;
-
-    DCMF_CriticalSection_exit(0);
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Fetch64(int proc, int64_t * remote, int64_t * local) \n");
+    fprintf(stderr,"exiting A1D_Fetch32 \n");
 #endif
 
     return;
@@ -437,7 +275,7 @@ void A1D_Inc32(int proc, int32_t * incr_address, int32_t incr)
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Inc32(int proc, int32_t * incr_address, int32_t incr) \n");
+    fprintf(stderr,"entering A1D_Inc32 \n");
 #endif
 
 #ifdef __bgp__
@@ -459,66 +297,18 @@ void A1D_Inc32(int proc, int32_t * incr_address, int32_t incr)
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Inc32(int proc, int32_t * incr_address, int32_t incr) \n");
+    fprintf(stderr,"exiting A1D_Inc32 \n");
 #endif
 
     return;
 }
-
-void A1D_Inc64(int proc, int64_t * incr_address, int64_t incr)
-{
-#ifdef __bgp__
-    DCMF_Result dcmf_result;
-    A1D_Inc64_t data;
-    DCMF_Control_t payload;
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Inc64(int proc, int64_t * incr_address, int64_t incr) \n");
-#endif
-
-#ifdef __bgp__
-    DCMF_CriticalSection_enter(0);
-
-    data.incr           = incr;
-    data.incr_address   = incr_address;
-    data.return_address = NULL;
-
-    memcpy(&payload, &data, sizeof(A1D_Inc64_t));
-
-    dcmf_result = DCMF_Control(&A1D_Inc64_protocol,
-                               DCMF_SEQUENTIAL_CONSISTENCY,
-                               proc,
-                               &payload);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    DCMF_CriticalSection_exit(0);
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Inc64(int proc, int64_t * incr_address, int64_t incr) \n");
-#endif
-
-    return;
-}
-
 
 void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t incr)
 {
     return;
 }
 
-void A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t incr)
-{
-    return;
-}
-
 void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
-{
-    return;
-}
-
-void A1D_Swap64(int proc, int64_t * local, int64_t * remote)
 {
     return;
 }
