@@ -208,9 +208,7 @@ void A1DI_Atomic_Initialize()
 #endif
 
     A1DI_Fetch32_Initialize();
-    A1DI_Fetch64_Initialize();
     A1DI_Inc32_Initialize();
-    A1DI_Inc64_Initialize();
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1DI_Atomic_Initialize \n");
