@@ -481,7 +481,7 @@ void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
 {
 #ifdef __bgp__
     DCMF_Result dcmf_result;
-    A1D_Inc32_t data;
+    A1D_Swap32_t data;
     DCMF_Control_t payload;
     volatile int32_t active = 0;
 #endif
@@ -493,12 +493,12 @@ void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
-    data.incr           = incr;
-    data.incr_address   = remote;
+    data.value          = (*local);
+    data.target_address = remote;
     data.return_address = local;
     data.active_address = &active;
 
-    memcpy(&payload, &data, sizeof(A1D_Inc32_t));
+    memcpy(&payload, &data, sizeof(A1D_Swap32_t));
 
     active++;
 
