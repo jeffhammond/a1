@@ -6,13 +6,17 @@
 typedef enum
 {
     ARMCI_FETCH,
-    ARMCI_FETCH_LONG,
     ARMCI_ADD,
-    ARMCI_ADD_LONG,
     ARMCI_FETCH_AND_ADD,
-    ARMCI_FETCH_AND_ADD_LONG,
     ARMCI_SWAP,
+#ifdef SUPPORTS_64BIT_ATOMICS 
+    ARMCI_FETCH_LONG,
+    ARMCI_ADD_LONG,
+    ARMCI_FETCH_AND_ADD_LONG,
     ARMCI_SWAP_LONG
+#else
+    #warning 64b atomics are not available on this architecture.
+#endif
 }
 armci_rmw_t;
 

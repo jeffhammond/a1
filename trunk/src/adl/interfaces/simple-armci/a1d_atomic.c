@@ -75,7 +75,7 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
     return_address = data.return_address;
     active_address = data.active_address;
 
-    //fprintf(stderr,"A1D_Fetch32_cb A rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
+    fprintf(stderr,"A1D_Fetch32_cb A rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
 
     if ( return_address == NULL )
     {
@@ -96,10 +96,10 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
     }
     else
     {
-        //fprintf(stderr,"A1D_Fetch32_cb B rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
+        fprintf(stderr,"A1D_Fetch32_cb B rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
         /* TODO: use actual atomic here */
         (*active_address) = 0;
-        //fprintf(stderr,"A1D_Fetch32_cb C rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
+        fprintf(stderr,"A1D_Fetch32_cb C rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -127,7 +127,7 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     return_address = data.return_address;
     active_address = data.active_address;
 
-    //fprintf(stderr,"A1D_Inc32_cb rank = %d peer = %d, incr = %d, incr_address = %p return_address = %p active_address = %p \n", A1D_Rank(), peer, incr, incr_address, return_address, active_address );
+    fprintf(stderr,"A1D_Inc32_cb rank = %d peer = %d, incr = %d, incr_address = %p return_address = %p active_address = %p \n", A1D_Rank(), peer, incr, incr_address, return_address, active_address );
 
     if ( incr_address == NULL )
     {
@@ -194,7 +194,7 @@ void A1DI_Swap32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     return_address = data.return_address;
     active_address = data.active_address;
 
-    //fprintf(stderr,"A1DI_Swap32_cb rank = %d peer = %d, incr = %d, incr_address = %p return_address = %p active_address = %p \n", A1D_Rank(), peer, incr, incr_address, return_address, active_address );
+    fprintf(stderr,"A1DI_Swap32_cb rank = %d peer = %d, value = %d, target_address = %p return_address = %p active_address = %p \n", A1D_Rank(), peer, value, target_address, return_address, active_address );
 
     if ( target_address == NULL || return_address == NULL || active_address == NULL )
     {
@@ -359,7 +359,7 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
     fprintf(stderr,"entering A1D_Fetch32 \n");
 #endif
 
-    //fprintf(stderr,"A1D_Fetch32 A rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
+    fprintf(stderr,"A1D_Fetch32 A rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
@@ -373,7 +373,7 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 
     active = 1;
 
-    //fprintf(stderr,"A1D_Fetch32 B rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
+    fprintf(stderr,"A1D_Fetch32 B rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
     dcmf_result = DCMF_Control(&A1D_Inc32_protocol,
                                DCMF_SEQUENTIAL_CONSISTENCY,
@@ -381,11 +381,11 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
                                &payload);
     assert(dcmf_result==DCMF_SUCCESS);
 
-    //fprintf(stderr,"A1D_Fetch32 C rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
+    fprintf(stderr,"A1D_Fetch32 C rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
     while (active) DCMF_Messager_advance();
 
-    //fprintf(stderr,"A1D_Fetch32 D rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
+    fprintf(stderr,"A1D_Fetch32 D rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
     DCMF_CriticalSection_exit(0);
 #endif

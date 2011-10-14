@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
             PARMCI_Put( buffer, window[t], bytes, t );
             PARMCI_Fence( t );
 
-            for (int i = 0; i < w; i++) buffer[i] = 94697;
+            for (int i = 0; i < w; i++) buffer[i] = 11111;
 
             for (int i = 0; i < w; i++) 
                 PARMCI_Rmw( ARMCI_FETCH, &buffer[i], &window[t][i], 0, t );
@@ -102,11 +102,25 @@ int main(int argc, char *argv[])
             for (int i = 0; i < w; i++) 
                 printf("rank %d (after atomic fetch) buffer[%d] = %d \n", rank, i, buffer[i] );
 
+            for (int i = 0; i < w; i++) buffer[i] = 33333;
+
             PARMCI_Get( window[t], buffer, bytes, t );
 
             for (int i = 0; i < w; i++) 
-                printf("rank %d (after get) buffer[%d] = %d \n", rank, i, buffer[i] );
+                printf("rank %d (after get 1) buffer[%d] = %d \n", rank, i, buffer[i] );
 
+            for (int i = 0; i < w; i++) 
+                PARMCI_Rmw( ARMCI_FETCH_AND_ADD, &buffer[i], &window[t][i], 1000, t );
+
+            for (int i = 0; i < w; i++) 
+                printf("rank %d (after atomic fetch-and-add-1000) buffer[%d] = %d \n", rank, i, buffer[i] );
+
+            for (int i = 0; i < w; i++) buffer[i] = 55555;
+
+            PARMCI_Get( window[t], buffer, bytes, t );
+
+            for (int i = 0; i < w; i++) 
+                printf("rank %d (after get 2) buffer[%d] = %d \n", rank, i, buffer[i] );
         }
 
     PARMCI_Barrier();
@@ -117,6 +131,8 @@ int main(int argc, char *argv[])
     PARMCI_Free_local( (void *) window );
 
     PARMCI_Finalize();
+
+    if ( rank == 0 )  printf("the end \n");
 
     MPI_Finalize();
 
