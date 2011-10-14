@@ -77,7 +77,7 @@ typedef struct
     int32_t * return_address;
     volatile uint32_t * active_address;
 }
-A1D_Inc32_t;
+A1D_Swap32_t;
 
 void A1DI_Atomic_Initialize();
 
