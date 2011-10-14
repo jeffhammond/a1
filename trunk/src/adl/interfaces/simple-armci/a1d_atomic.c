@@ -54,6 +54,7 @@
 
 DCMF_Protocol_t A1D_Fetch32_protocol;
 DCMF_Protocol_t A1D_Inc32_protocol;
+DCMF_Protocol_t A1D_Swap32_protocol;
 
 /***********************************************************************/
 
@@ -163,15 +164,68 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
         /* else return_address == NULL
          * do not send anything back to source  */
 
-        if ( incr != 0 )
-        {
-            /* TODO: use actual atomic here */
-            (*incr_address) += incr;
-        }
+        /* TODO: use actual atomic here and move before DCMF_Control send-back */
+        (*incr_address) += incr;
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1DI_Inc32_cb \n");
+#endif
+
+    return;
+}
+
+void A1DI_Swap32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
+{
+    int32_t   value;
+    int32_t * target_address = NULL;
+    int32_t * return_address = NULL;
+    int32_t   swap_temp;
+    volatile uint32_t * active_address = NULL;
+    A1D_Swap32_t data;
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1DI_Swap32_cb \n");
+#endif
+
+    memcpy( &data, info, sizeof(A1D_Swap32_t) );
+    value          = data.value;
+    target_address = data.target_address;
+    return_address = data.return_address;
+    active_address = data.active_address;
+
+    //fprintf(stderr,"A1DI_Swap32_cb rank = %d peer = %d, incr = %d, incr_address = %p return_address = %p active_address = %p \n", A1D_Rank(), peer, incr, incr_address, return_address, active_address );
+
+    if ( target_address == NULL || return_address == NULL || active_address == NULL )
+    {
+        if ( target_address == NULL ) fprintf(stderr,"A1DI_Swap32_cb: target_address is a NULL pointer. This is bad. \n");
+        if ( return_address == NULL ) fprintf(stderr,"A1DI_Swap32_cb: return_address is a NULL pointer. This is bad. \n");
+        if ( active_address == NULL ) fprintf(stderr,"A1DI_Swap32_cb: active_address is a NULL pointer. This is bad. \n");
+        assert( target_address != NULL && return_address != NULL && active_address != NULL );
+    }
+    else
+    {
+        DCMF_Result dcmf_result;
+        A1D_Swap32_t return_data;
+        DCMF_Control_t return_payload;
+
+        /* TODO: do with real atomic */
+        swap_temp = (*target_address);
+        (*target_address) = value;
+        return_data.value          = swap_temp;
+        return_data.return_address = return_address;
+        return_data.active_address = active_address;
+
+        memcpy(&return_payload, &return_data, sizeof(A1D_Swap32_t));
+
+        dcmf_result =  DCMF_Control(&A1D_Swap32_protocol,
+                                    DCMF_SEQUENTIAL_CONSISTENCY,
+                                    peer,
+                                    &return_payload);
+    }
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1DI_Swap32_cb \n");
 #endif
 
     return;
@@ -239,13 +293,45 @@ void A1DI_Inc32_Initialize()
     return;
 }
 
+void A1DI_Swap32_Initialize()
+{
+    DCMF_Result dcmf_result;
+    DCMF_Control_Configuration_t conf;
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1DI_Swap32_Initialize \n");
+#endif
+
+    if ( sizeof(A1D_Swap32_t) > sizeof(DCMF_Control_t) )
+    {
+        fprintf(stderr,"A1D_Swap32_t requires more storage than DCMF_Control_t! \n");
+        assert( sizeof(A1D_Swap32_t) == sizeof(DCMF_Control_t) );
+    }
+
+    conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
+    conf.network            = DCMF_DEFAULT_NETWORK;
+    conf.cb_recv            = A1DI_Swap32_cb;
+    conf.cb_recv_clientdata = NULL;
+
+    dcmf_result = DCMF_Control_register(&A1D_Swap32_protocol, &conf);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1DI_Swap32_Initialize \n");
+#endif
+
+    return;
+}
+
 void A1DI_Atomic_Initialize()
 {
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1DI_Atomic_Initialize \n");
 #endif
 
-    A1DI_FetchInc32_Initialize();
+    A1DI_Fetch32_Initialize();
+    A1DI_Inc32_Initialize();
+    A1DI_Swap32_Initialize();
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1DI_Atomic_Initialize \n");
@@ -393,7 +479,44 @@ void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t in
 
 void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
 {
-    assert(0);
+#ifdef __bgp__
+    DCMF_Result dcmf_result;
+    A1D_Inc32_t data;
+    DCMF_Control_t payload;
+    volatile int32_t active = 0;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Swap32 \n");
+#endif
+
+#ifdef __bgp__
+    DCMF_CriticalSection_enter(0);
+
+    data.incr           = incr;
+    data.incr_address   = remote;
+    data.return_address = local;
+    data.active_address = &active;
+
+    memcpy(&payload, &data, sizeof(A1D_Inc32_t));
+
+    active++;
+
+    dcmf_result = DCMF_Control(&A1D_Swap32_protocol,
+                               DCMF_SEQUENTIAL_CONSISTENCY,
+                               proc,
+                               &payload);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    while (active) DCMF_Messager_advance();
+
+    DCMF_CriticalSection_exit(0);
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Swap32 \n");
+#endif
+    return;
     return;
 }
 

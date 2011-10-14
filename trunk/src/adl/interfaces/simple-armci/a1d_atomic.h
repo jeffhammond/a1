@@ -70,6 +70,15 @@ typedef struct
 }
 A1D_Inc32_t;
 
+typedef struct
+{
+    int32_t   value;
+    int32_t * target_address;
+    int32_t * return_address;
+    volatile uint32_t * active_address;
+}
+A1D_Inc32_t;
+
 void A1DI_Atomic_Initialize();
 
 void A1D_Fetch32(int proc, int32_t * remote, int32_t * local);
