@@ -7,6 +7,10 @@
 #include <mpi.h>
 #include <dcmf.h>
 
+int posix_memalign(void **memptr, size_t alignment, size_t size); 
+
+/***************************************************************/
+
 static int rank = -1, size = -1;
 
 /***************************************************************/
@@ -19,9 +23,9 @@ static volatile int    remote_active;
 
 /***************************************************************/
 
-void local_completion_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
+void local_completion_cb(void * clientdata, DCMF_Error_t * error)
 {
-    printf("local_completion_cb rank=%d peer=%d \n", rank, peer);
+    printf("local_completion_cb rank=%d \n", rank );
 
     local_active = 0;
 
@@ -34,7 +38,7 @@ DCMF_Protocol_t control_proto;
 
 void remote_completion_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
 {
-    printf("remote_completion_cb rank=%d peer=%d \n", rank, peer);
+    printf("remote_completion_cb rank=%d peer=%d \n", rank, peer );
 
     remote_active = 0;
 
@@ -46,16 +50,18 @@ void remote_completion_cb(void * clientdata, const DCMF_Control_t * info, size_t
 void default_long_cleanup_cb(void * clientdata, DCMF_Error_t * error)
 {
     int peer = (int) clientdata;
+    DCMF_Result dcmf_result;
+    DCMF_Control_t info;
 
     printf("default_long_cleanup_cb rank=%d peer=%d \n", rank, peer);
 
     free(recv_request);
     free(recv_buffer);
 
-    dcmf_result =  DCMF_Control(&remote_completion_cb,
+    dcmf_result =  DCMF_Control(&control_proto,
                                 DCMF_SEQUENTIAL_CONSISTENCY,
                                 peer,
-                                NULL);
+                                &info);
     assert(dcmf_result==DCMF_SUCCESS);
 
     return;
@@ -89,14 +95,14 @@ DCMF_Request_t * default_long_cb(void *clientdata,
     int rc = 0;
     printf("default_long_cb rank=%d peer=%d count=%u \n", rank, peer, count);
 
-    rc = posix_memalign( &recv_request, 128, DCMF_Request_t );
+    rc = posix_memalign( (void**) &recv_request, 128, sizeof(DCMF_Request_t) );
     assert( (rc == 0) && (recv_request != NULL) );
 
-    rc = posix_memalign( &recv_buffer, 128, sndlen );
+    rc = posix_memalign( (void**) &recv_buffer, 128, sndlen );
     assert( (rc == 0) && (recv_buffer != NULL) );
 
     (*rcvlen) = sndlen;
-    (*rcvbuf) = &recv_buffer;
+    (*rcvbuf) = (char*) recv_buffer;
 
     cb_done->function   = default_long_cleanup_cb;
     cb_done->clientdata = (void *) peer;
@@ -159,15 +165,19 @@ int main(int argc, char *argv[])
     if ( rank == 0 )
     {
         int i;
-        DCMF_Request_t request,
+        DCMF_Request_t request;
+        DCMF_Callback_t callback;
         size_t target = 1;
         size_t send_bytes = ( argc > 1 ? atoi(argv[1]) : 1 );
         char * send_buffer = NULL;
 
-        rc = posix_memalign( &send_buffer, 128, send_bytes );
+        rc = posix_memalign( (void**) &send_buffer, 128, send_bytes );
         assert( (rc == 0) && (send_buffer != NULL) );
 
-        for (i=0;i<bytes;i++) send_buffer[i] = 'X';
+        for (i=0;i<send_bytes;i++) send_buffer[i] = 'X';
+
+        callback.function   = local_completion_cb;
+        callback.clientdata = NULL;
 
         local_active  = 1;
         remote_active = 1;
@@ -175,15 +185,15 @@ int main(int argc, char *argv[])
         printf("before DCMF_Send \n");
 
         DCMF_CriticalSection_enter(0);
-        status = DCMF_Send(&default_proto,
-                           &request,
-                           local_completion_cb,
-                           DCMF_SEQUENTIAL_CONSISTENCY,
-                           target,
-                           bytes,
-                           send_buffer,
-                           NULL,
-                           0);
+        dcmf_result = DCMF_Send(&default_proto,
+                                &request,
+                                callback,
+                                DCMF_SEQUENTIAL_CONSISTENCY,
+                                target,
+                                send_bytes,
+                                send_buffer,
+                                NULL,
+                                0);
         assert(dcmf_result==DCMF_SUCCESS);
 
         printf("after DCMF_Send \n");
