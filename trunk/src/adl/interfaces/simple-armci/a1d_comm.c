@@ -57,14 +57,8 @@ DCMF_Protocol_t A1D_AccC_protocol;
 
 void A1DI_Done_cb(void * clientdata, DCMF_Error_t * error)
 {
-    int32_t * atomic = (int32_t *) clientdata;
-    register int32_t temp;
-
-    _bgp_msync();
-    do {
-        temp = _bgp_LoadReserved( atomic );
-        --temp;
-    } while( !_bgp_StoreConditional( atomic, temp ) );
+    int32_t * temp = (int32_t *) clientdata;
+    (*temp) = 0; /* TODO use atomic operation */
 }
 
 /*********************************************************************/
@@ -203,7 +197,7 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     DCMF_Result dcmf_result;
     DCMF_Request_t request;
     DCMF_Callback_t done_callback;
-    volatile int done_active;
+    volatile int32_t done_active;
     size_t src_disp, dst_disp;
 #endif
 
@@ -218,13 +212,7 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     done_callback.function = A1DI_Done_cb;
     done_callback.clientdata = (void *) &done_active;
 
-    // done_active = 1;
-    register int32_t temp;
-    _bgp_msync();
-    do {
-        temp = _bgp_LoadReserved( &done_active );
-        temp++;
-    } while( !_bgp_StoreConditional( &done_active, temp ) );
+    done_active = 1; /* TODO use atomic operation */
 
     src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
@@ -278,7 +266,7 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     done_callback.function = A1DI_Done_cb;
     done_callback.clientdata = (void *) &done_active;
 
-    done_active = 1;
+    done_active = 1; /* TODO use atomic operation */
 
 #ifdef FLUSH_IMPLEMENTED
 

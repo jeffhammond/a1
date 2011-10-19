@@ -86,15 +86,50 @@ extern DCMF_Protocol_t A1D_Inc64_protocol;
 extern DCMF_Callback_t A1D_Nocallback;
 
 #define A1DI_Advance()                                             \
- do {                                                              \
-         DCMF_Messager_advance(0);                                 \
-    } while(0)                                                     \
+        do {                                                              \
+            DCMF_Messager_advance(0);                                 \
+        } while(0)                                                     \
 
 #define A1DI_Conditional_advance(boolean)                           \
-    do {                                                            \
-          DCMF_Messager_advance(0);                                 \
-    } while(boolean)                                                \
+        do {                                                            \
+            DCMF_Messager_advance(0);                                 \
+        } while(boolean)                                                \
 
+
+//static inline A1DI_Atomic_load(int32_t * ptr)
+//{
+//    int32_t val;
+//    __asm__ __volatile__ ("lwarx %[val],0,%[ptr]"
+//                              : [val] "=r" (val)
+//                              : [ptr] "r" (ptr)
+//                              : "cc");
+//    return val;
+//}
+//
+//static inline A1DI_Atomic_store(int32_t * ptr, int val)
+//{
+//    int ret = 1; /* init to non-zero, will be reset to 0 if SC was successful */
+//    __asm__ __volatile__ ("stwcx. %[val],0,%[ptr];\n"
+//            "beq 1f;\n"
+//            "li %[ret], 0;\n"
+//            "1: ;\n"
+//              : [ret] "=r" (ret)
+//              : [ptr] "r" (ptr), [val] "r" (val), "0" (ret)
+//              : "cc", "memory");
+//    return ret;
+//}
+//
+//static inline  A1DI_Atomic_increment(int32_t atomic)
+//{
+//    register int32_t _temp;
+//    _bgp_msync();
+//    do {
+//        _temp = _bgp_LoadReserved( integer );
+//        --(_temp);
+//    } while( !_bgp_StoreConditional( integer, _temp ) );
+//}
+
+/* __bgp__ */
 #  endif
 
 #endif
