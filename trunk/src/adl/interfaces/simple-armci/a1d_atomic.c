@@ -444,7 +444,7 @@ void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t in
     DCMF_Result dcmf_result;
     A1D_Inc32_t data;
     DCMF_Control_t payload;
-    volatile int32_t active = 0;
+    volatile uint32_t active = 0;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -486,7 +486,7 @@ void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
     DCMF_Result dcmf_result;
     A1D_Swap32_t data;
     DCMF_Control_t payload;
-    volatile int32_t active = 0;
+    volatile uint32_t active = 0;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
