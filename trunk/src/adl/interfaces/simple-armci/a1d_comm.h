@@ -77,8 +77,8 @@ typedef struct
         double double_value;
         float float_value;
 #ifdef A1D_USE_COMPLEX
-        double complex double_value;
-        float complex float_value;
+        double _Complex double_value;
+        float _Complex float_value;
 #endif
         int32_t int32_value;
         uint32_t uint32_value;
