@@ -101,14 +101,6 @@ void A1DI_AccC_short_cb(void *clientdata,
     fprintf(stderr,"entering A1DI_AccC_short_cb() \n");
 #endif
 
-    printf("%d: default_short_cb peer=%d count=%u \n", rank, peer, count);
-    fflush(stdout);
-
-    for (i=0;i<bytes;i++)
-        printf("%d: src[%d] = %c \n", rank, i, src[i]);
-
-    fflush(stdout);
-
     dcmf_result =  DCMF_Control(&A1D_RemoteDone_protocol,
                                 DCMF_SEQUENTIAL_CONSISTENCY,
                                 peer,
@@ -188,12 +180,12 @@ int A1DI_AccC_Initialize()
     send_conf.cb_recv                  = NULL;
     send_conf.cb_recv_clientdata       = NULL;
 
-    dcmf_result = DCMF_Send_register(&A1D_AccC_protocol, &conf);
+    dcmf_result = DCMF_Send_register(&A1D_AccC_protocol, &send_conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
     control_conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
     control_conf.network            = DCMF_DEFAULT_NETWORK;
-    control_conf.cb_recv            = remote_completion_cb;
+    control_conf.cb_recv            = A1DI_Control_done_cb;
     control_conf.cb_recv_clientdata = NULL;
 
     dcmf_result = DCMF_Control_register(&A1D_RemoteDone_protocol, &control_conf);
