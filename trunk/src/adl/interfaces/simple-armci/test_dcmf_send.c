@@ -19,7 +19,8 @@ static int              recv_peer;
 static size_t           recv_bytes;
 static DCMF_Request_t * recv_request;
 static void *           recv_buffer;
-static volatile int    local_active;
+static volatile int     local_active;
+static volatile int     remote_active;
 
 /***************************************************************/
 
@@ -41,6 +42,8 @@ void remote_completion_cb(void * clientdata, const DCMF_Control_t * info, size_t
 {
     printf("%d: remote_completion_cb peer=%d \n", rank, peer );
     fflush(stdout);
+
+    remote_active = 0;
 
     return;
 }
@@ -83,6 +86,8 @@ void default_short_cb(void *clientdata,
                       size_t bytes)
 {
     size_t i;
+    DCMF_Result dcmf_result;
+    DCMF_Control_t info;
 
     printf("%d: default_short_cb peer=%d count=%u \n", rank, peer, count);
     fflush(stdout);
@@ -90,6 +95,12 @@ void default_short_cb(void *clientdata,
         printf("%d: src[%d] = %c \n", rank, i, src[i]);
 
     fflush(stdout);
+
+    dcmf_result =  DCMF_Control(&control_proto,
+                                DCMF_SEQUENTIAL_CONSISTENCY,
+                                peer,
+                                &info);
+    assert(dcmf_result==DCMF_SUCCESS);
 
     return;
 }
@@ -217,6 +228,10 @@ int main(int argc, char *argv[])
 
         while ( local_active ) DCMF_Messager_advance(0);
         printf("%d: after local completion \n", rank );
+        fflush(stdout);
+
+        while ( remote_active ) DCMF_Messager_advance(0);
+        printf("%d: after remote completion \n", rank );
         fflush(stdout);
 
         DCMF_CriticalSection_exit(0);
