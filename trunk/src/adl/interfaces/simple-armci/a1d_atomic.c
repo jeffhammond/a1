@@ -84,9 +84,8 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
     }
     else
     {
-        // TODO: should use atomic set here if stores are not sufficient
-        //(*return_address) = value;
-        memcpy( return_address, &value, sizeof(int32_t) );
+        _bgp_msync();
+        while( !_bgp_StoreConditional( return_address, value ) );
     }
 
     if ( active_address == NULL )
@@ -97,8 +96,15 @@ void A1DI_Fetch32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer
     else
     {
         fprintf(stderr,"A1D_Fetch32_cb B rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
-        /* TODO: use actual atomic here */
-        (*active_address) = 0;
+
+        register int32_t temp;
+        _bgp_msync();
+        do {
+            temp = _bgp_LoadReserved( active_address );
+            --temp;
+        } while( !_bgp_StoreConditional( active_address, temp ) );
+
+
         fprintf(stderr,"A1D_Fetch32_cb C rank = %d peer = %d, value = %d, return_address = %p, active_address = %p, *active_address = %u \n", A1D_Rank(), peer, value, return_address, active_address, *active_address );
     }
 
@@ -138,8 +144,7 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     {
         if ( return_address != NULL )
         {
-            /* if sending message back to source, make sure 
-             * the active address is valid */
+            /* if sending message back to source, make sure the active address is valid */
             if ( active_address == NULL )
             {
                 fprintf(stderr,"A1DI_Inc32_cb: active_address is a NULL pointer. This is bad. \n");
@@ -150,7 +155,14 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
             A1D_Fetch32_t return_data;
             DCMF_Control_t return_payload;
 
-            return_data.value          = (*incr_address);
+            register int32_t old_val, new_val;
+            _bgp_msync();
+            do {
+                old_val = _bgp_LoadReserved( incr_address );
+                new_val = old_val + incr;
+            } while( !_bgp_StoreConditional( incr_address, new_val ) );
+
+            return_data.value          = old_val;
             return_data.return_address = return_address;
             return_data.active_address = active_address;
 
@@ -160,12 +172,9 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
                                         DCMF_SEQUENTIAL_CONSISTENCY,
                                         peer,
                                         &return_payload);
+            assert(dcmf_result==DCMF_SUCCESS);
         }
-        /* else return_address == NULL
-         * do not send anything back to source  */
-
-        /* TODO: use actual atomic here and move before DCMF_Control send-back */
-        (*incr_address) += incr;
+        /* else return_address == NULL do not send anything back to source  */
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -209,10 +218,14 @@ void A1DI_Swap32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
         A1D_Swap32_t return_data;
         DCMF_Control_t return_payload;
 
-        /* TODO: do with real atomic */
-        swap_temp = (*target_address);
-        (*target_address) = value;
-        return_data.value          = swap_temp;
+        register int32_t swap_before, swap_after;
+        _bgp_msync();
+        do {
+            swap_before = _bgp_LoadReserved( target_address );
+            swap_after = value;
+        } while( !_bgp_StoreConditional( target_address, swap_after ) );
+
+        return_data.value          = swap_before;
         return_data.return_address = return_address;
         return_data.active_address = active_address;
 
@@ -222,6 +235,7 @@ void A1DI_Swap32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
                                     DCMF_SEQUENTIAL_CONSISTENCY,
                                     peer,
                                     &return_payload);
+        assert(dcmf_result==DCMF_SUCCESS);
     }
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -383,7 +397,7 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 
     fprintf(stderr,"A1D_Fetch32 C rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
-    while (active) DCMF_Messager_advance();
+    A1DI_Conditional_advance(active);
 
     fprintf(stderr,"A1D_Fetch32 D rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
@@ -466,7 +480,7 @@ void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t in
                                &payload);
     assert(dcmf_result==DCMF_SUCCESS);
 
-    while (active) DCMF_Messager_advance();
+    A1DI_Conditional_advance(active);
 
     DCMF_CriticalSection_exit(0);
 #endif
@@ -508,7 +522,7 @@ void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
                                &payload);
     assert(dcmf_result==DCMF_SUCCESS);
 
-    while (active) DCMF_Messager_advance();
+    A1DI_Conditional_advance(active);
 
     DCMF_CriticalSection_exit(0);
 #endif

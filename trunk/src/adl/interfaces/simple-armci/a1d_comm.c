@@ -57,7 +57,14 @@ DCMF_Protocol_t A1D_AccC_protocol;
 
 void A1DI_Done_cb(void * clientdata, DCMF_Error_t * error)
 {
-    --(*((uint32_t *) clientdata));
+    int32_t * atomic = (int32_t *) clientdata;
+    register int32_t temp;
+
+    _bgp_msync();
+    do {
+        temp = _bgp_LoadReserved( atomic );
+        --temp;
+    } while( !_bgp_StoreConditional( atomic, temp ) );
 }
 
 /*********************************************************************/
@@ -211,7 +218,13 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     done_callback.function = A1DI_Done_cb;
     done_callback.clientdata = (void *) &done_active;
 
-    done_active = 1;
+    // done_active = 1;
+    register int32_t temp;
+    _bgp_msync();
+    do {
+        temp = _bgp_LoadReserved( &done_active );
+        temp++;
+    } while( !_bgp_StoreConditional( &done_active, temp ) );
 
     src_disp = (size_t) src - (size_t) A1D_Baseptr_list[mpi_rank];
     dst_disp = (size_t) dst - (size_t) A1D_Baseptr_list[target];
