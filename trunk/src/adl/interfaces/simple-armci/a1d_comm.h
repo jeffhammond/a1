@@ -53,6 +53,41 @@
 #include "a1d_headers.h"
 #include "a1d_globals.h"
 
+typedef enum
+{
+    A1D_DOUBLE,
+    A1D_SINGLE,
+#ifdef A1D_USE_COMPLEX
+    A1D_DOUBLE_COMPLEX,
+    A1D_SINGLE_COMPLEX,
+#endif
+    A1D_INT32,
+    A1D_UINT32,
+    A1D_INT64,
+    A1D_UINT64
+}
+A1D_datatype_t;
+
+typedef struct
+{
+    void * remote_ptr;
+    A1_datatype_t datatype;
+    union
+    {
+        double double_value;
+        float float_value;
+#ifdef A1D_USE_COMPLEX
+        double complex double_value;
+        float complex float_value;
+#endif
+        int32_t int32_value;
+        uint32_t uint32_value;
+        int64_t int64_value;
+        uint64_t uint64_value;
+    } scaling;
+}
+A1D_AccC_t;
+
 int A1DI_Put_Initialize();
 int A1DI_Get_Initialize();
 int A1DI_Acc_Initialize();

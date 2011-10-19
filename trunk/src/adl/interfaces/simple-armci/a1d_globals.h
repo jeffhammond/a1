@@ -76,13 +76,6 @@ extern void ** A1D_Baseptr_list;
 
 extern DCMF_Memregion_t * A1D_Memregion_list;
 
-extern DCMF_Protocol_t A1D_PutC_protocol;
-extern DCMF_Protocol_t A1D_GetC_protocol;
-extern DCMF_Protocol_t A1D_AccC_protocol;
-
-extern DCMF_Protocol_t A1D_Inc32_protocol;
-extern DCMF_Protocol_t A1D_Inc64_protocol;
-
 extern DCMF_Callback_t A1D_Nocallback;
 
 #define A1DI_Advance()                                             \

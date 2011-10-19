@@ -54,11 +54,71 @@
 DCMF_Protocol_t A1D_PutC_protocol;
 DCMF_Protocol_t A1D_GetC_protocol;
 DCMF_Protocol_t A1D_AccC_protocol;
+DCMF_Protocol_t A1D_RemoteDone_protocol;
 
 void A1DI_Done_cb(void * clientdata, DCMF_Error_t * error)
 {
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1DI_Done_cb() \n");
+#endif
+
     int32_t * temp = (int32_t *) clientdata;
     (*temp) = 0; /* TODO use atomic operation */
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1DI_Done_cb() \n");
+#endif
+    return;
+}
+
+void A1DI_Control_done_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
+{
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1DI_Control_done_cb() \n");
+#endif
+
+    int32_t * temp = (int32_t *) clientdata;
+    (*temp) = 0; /* TODO use atomic operation */
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1DI_Control_done_cb() \n");
+#endif
+    return;
+}
+
+void A1DI_AccC_short_cb(void *clientdata,
+                        const DCQuad *msginfo,
+                        unsigned count,
+                        size_t peer,
+                        const char *src,
+                        size_t bytes)
+{
+    size_t i;
+    DCMF_Result dcmf_result;
+    DCMF_Control_t info;
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1DI_AccC_short_cb() \n");
+#endif
+
+    printf("%d: default_short_cb peer=%d count=%u \n", rank, peer, count);
+    fflush(stdout);
+
+    for (i=0;i<bytes;i++)
+        printf("%d: src[%d] = %c \n", rank, i, src[i]);
+
+    fflush(stdout);
+
+    dcmf_result =  DCMF_Control(&A1D_RemoteDone_protocol,
+                                DCMF_SEQUENTIAL_CONSISTENCY,
+                                peer,
+                                &info);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1DI_AccC_short_cb() \n");
+#endif
+    return;
 }
 
 /*********************************************************************/
@@ -75,7 +135,7 @@ int A1DI_PutC_Initialize()
     DCMF_CriticalSection_enter(0);
 
     conf.protocol = DCMF_DEFAULT_PUT_PROTOCOL;
-    conf.network  = DCMF_TORUS_NETWORK;
+    conf.network  = DCMF_DEFAULT_NETWORK;
 
     dcmf_result = DCMF_Put_register(&A1D_PutC_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
@@ -99,7 +159,7 @@ int A1DI_GetC_Initialize()
 #endif
 
     conf.protocol = DCMF_DEFAULT_GET_PROTOCOL;
-    conf.network  = DCMF_TORUS_NETWORK;
+    conf.network  = DCMF_DEFAULT_NETWORK;
 
     dcmf_result = DCMF_Get_register(&A1D_GetC_protocol, &conf);
     assert(dcmf_result==DCMF_SUCCESS);
@@ -114,20 +174,29 @@ int A1DI_GetC_Initialize()
 int A1DI_AccC_Initialize()
 {
     DCMF_Result dcmf_result;
-    DCMF_Send_Configuration_t conf;
+    DCMF_Send_Configuration_t send_conf;
+    DCMF_Control_Configuration_t control_conf;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1DI_AccC_Initialize() \n");
 #endif
 
-    conf.protocol                 = DCMF_DEFAULT_SEND_PROTOCOL;
-    conf.network                  = DCMF_TORUS_NETWORK;
-    conf.cb_recv_short            = NULL;
-    conf.cb_recv_short_clientdata = NULL;
-    conf.cb_recv                  = NULL;
-    conf.cb_recv_clientdata       = NULL;
+    send_conf.protocol                 = DCMF_DEFAULT_SEND_PROTOCOL;
+    send_conf.network                  = DCMF_DEFAULT_NETWORK;
+    send_conf.cb_recv_short            = NULL;
+    send_conf.cb_recv_short_clientdata = NULL;
+    send_conf.cb_recv                  = NULL;
+    send_conf.cb_recv_clientdata       = NULL;
 
     dcmf_result = DCMF_Send_register(&A1D_AccC_protocol, &conf);
+    assert(dcmf_result==DCMF_SUCCESS);
+
+    control_conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
+    control_conf.network            = DCMF_DEFAULT_NETWORK;
+    control_conf.cb_recv            = remote_completion_cb;
+    control_conf.cb_recv_clientdata = NULL;
+
+    dcmf_result = DCMF_Control_register(&A1D_RemoteDone_protocol, &control_conf);
     assert(dcmf_result==DCMF_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT

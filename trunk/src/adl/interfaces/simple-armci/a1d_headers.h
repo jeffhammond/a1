@@ -50,6 +50,10 @@
 #ifndef A1D_HEADERS_H
 #define A1D_HEADERS_H
 
+#if __STDC_VERSION__ >= 199901L
+#  define A1D_USE_COMPLEX
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -59,14 +63,16 @@
 #include <assert.h>
 #include <pthread.h>
 
-#  ifdef __bgp__
+#ifdef A1D_USE_COMPLEX
+#  include <complex.h>
+#endif
 
+#ifdef __bgp__
 #  include <bpcore/ppc450_inlines.h>
 #  include <dcmf.h>
 #  include <dcmf_globalcollectives.h>
 #  include <dcmf_collectives.h>
-
-#  endif
+#endif
 
 #include <mpi.h>
 
