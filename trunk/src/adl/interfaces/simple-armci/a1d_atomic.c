@@ -364,6 +364,12 @@ void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 
     fprintf(stderr,"A1D_Fetch32 A rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
 
+    if ( (remote & 0x07uL != 0) || (local & 0x07uL != 0) )
+    {
+        printf("%d: remote = %p local = %p \n", A1D_Rank(), remote, local );
+        assert( (remote & 0x07uL != 0) && (local & 0x07uL != 0) );
+    }
+
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
@@ -412,6 +418,12 @@ void A1D_Inc32(int proc, int32_t * remote, int32_t incr)
     fprintf(stderr,"entering A1D_Inc32 \n");
 #endif
 
+    if ( remote & 0x07uL != 0 )
+    {
+        printf("%d: remote = %p \n", A1D_Rank(), remote );
+        assert( remote & 0x07uL != 0 );
+    }
+
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
 
@@ -450,6 +462,12 @@ void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t in
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Fetch_and_inc32 \n");
 #endif
+
+    if ( (remote & 0x07uL != 0) || (local & 0x07uL != 0) )
+    {
+        printf("%d: remote = %p local = %p \n", A1D_Rank(), remote, local );
+        assert( (remote & 0x07uL != 0) && (local & 0x07uL != 0) );
+    }
 
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
@@ -492,6 +510,12 @@ void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Swap32 \n");
 #endif
+
+    if ( (remote & 0x07uL != 0) || (local & 0x07uL != 0) )
+    {
+        printf("%d: remote = %p local = %p \n", A1D_Rank(), remote, local );
+        assert( (remote & 0x07uL != 0) && (local & 0x07uL != 0) );
+    }
 
 #ifdef __bgp__
     DCMF_CriticalSection_enter(0);
