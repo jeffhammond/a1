@@ -71,7 +71,7 @@ A1D_datatype_t;
 typedef struct
 {
     void * remote_ptr;
-    A1_datatype_t datatype;
+    A1D_datatype_t datatype;
     union
     {
         double double_value;
