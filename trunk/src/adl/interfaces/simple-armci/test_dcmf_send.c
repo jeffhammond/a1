@@ -16,16 +16,17 @@ static int rank = -1, size = -1;
 /***************************************************************/
 
 static int              recv_peer;
+static size_t           recv_bytes;
 static DCMF_Request_t * recv_request;
 static void *           recv_buffer;
 static volatile int    local_active;
-static volatile int    remote_active;
 
 /***************************************************************/
 
 void local_completion_cb(void * clientdata, DCMF_Error_t * error)
 {
-    printf("local_completion_cb rank=%d \n", rank );
+    printf("%d: local_completion_cb \n", rank );
+    fflush(stdout);
 
     local_active = 0;
 
@@ -38,9 +39,8 @@ DCMF_Protocol_t control_proto;
 
 void remote_completion_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
 {
-    printf("remote_completion_cb rank=%d peer=%d \n", rank, peer );
-
-    remote_active = 0;
+    printf("%d: remote_completion_cb peer=%d \n", rank, peer );
+    fflush(stdout);
 
     return;
 }
@@ -49,11 +49,19 @@ void remote_completion_cb(void * clientdata, const DCMF_Control_t * info, size_t
 
 void default_long_cleanup_cb(void * clientdata, DCMF_Error_t * error)
 {
+    size_t i;
     int peer = (int) clientdata;
     DCMF_Result dcmf_result;
     DCMF_Control_t info;
+    char * char_buffer = (char*) recv_buffer;
 
-    printf("default_long_cleanup_cb rank=%d peer=%d \n", rank, peer);
+    printf("%d: default_long_cleanup_cb peer=%d \n", rank, peer);
+    fflush(stdout);
+
+    for (i=0;i<recv_bytes;i++)
+        printf("%d: recv_buffer[%d] = %c \n", rank, i, char_buffer[i]);
+
+    fflush(stdout);
 
     free(recv_request);
     free(recv_buffer);
@@ -76,9 +84,12 @@ void default_short_cb(void *clientdata,
 {
     size_t i;
 
-    printf("default_short_cb rank=%d peer=%d count=%u \n", rank, peer, count);
+    printf("%d: default_short_cb peer=%d count=%u \n", rank, peer, count);
+    fflush(stdout);
     for (i=0;i<bytes;i++)
         printf("%d: src[%d] = %c \n", rank, i, src[i]);
+
+    fflush(stdout);
 
     return;
 }
@@ -93,7 +104,8 @@ DCMF_Request_t * default_long_cb(void *clientdata,
                                  DCMF_Callback_t *cb_done)
 {
     int rc = 0;
-    printf("default_long_cb rank=%d peer=%d count=%u \n", rank, peer, count);
+    printf("%d: default_long_cb peer=%d count=%u \n", rank, peer, count);
+    fflush(stdout);
 
     rc = posix_memalign( (void**) &recv_request, 128, sizeof(DCMF_Request_t) );
     assert( (rc == 0) && (recv_request != NULL) );
@@ -103,6 +115,8 @@ DCMF_Request_t * default_long_cb(void *clientdata,
 
     (*rcvlen) = sndlen;
     (*rcvbuf) = (char*) recv_buffer;
+
+    recv_bytes = (*rcvlen);
 
     cb_done->function   = default_long_cleanup_cb;
     cb_done->clientdata = (void *) peer;
@@ -171,6 +185,9 @@ int main(int argc, char *argv[])
         size_t send_bytes = ( argc > 1 ? atoi(argv[1]) : 1 );
         char * send_buffer = NULL;
 
+        printf("%d: sending %d bytes \n", rank, send_bytes );
+        fflush(stdout);
+
         rc = posix_memalign( (void**) &send_buffer, 128, send_bytes );
         assert( (rc == 0) && (send_buffer != NULL) );
 
@@ -180,9 +197,9 @@ int main(int argc, char *argv[])
         callback.clientdata = NULL;
 
         local_active  = 1;
-        remote_active = 1;
 
-        printf("before DCMF_Send \n");
+        printf("%d: before DCMF_Send \n", rank );
+        fflush(stdout);
 
         DCMF_CriticalSection_enter(0);
         dcmf_result = DCMF_Send(&default_proto,
@@ -195,16 +212,12 @@ int main(int argc, char *argv[])
                                 NULL,
                                 0);
         assert(dcmf_result==DCMF_SUCCESS);
-
-        printf("after DCMF_Send \n");
+        printf("%d: after DCMF_Send \n", rank );
+        fflush(stdout);
 
         while ( local_active ) DCMF_Messager_advance(0);
-
-        printf("after local completion \n");
-
-        while ( remote_active ) DCMF_Messager_advance(0);
-
-        printf("after remote completion \n");
+        printf("%d: after local completion \n", rank );
+        fflush(stdout);
 
         DCMF_CriticalSection_exit(0);
     }
