@@ -82,6 +82,7 @@ int A1D_Initialize()
 
     uint64_t              world_pset_concat_buf_size = -1;
     void *                world_pset_concat_buf = NULL;
+    dmapp_c_pset_delimiter_strided_t world_pset_strided;
 
     dmapp_c_pset_desc_t   dmapp_world_desc;
     uint64_t              dmapp_world_id = 1000;
@@ -177,7 +178,8 @@ int A1D_Initialize()
 #ifdef A1D_C99_STRUCT_INIT
     dmapp_world_desc.u.stride_type   = { .n_pes = pmi_size, .base_pe = 0, .stride_pe = 1 };
 #else
-    dmapp_world_desc.u.stride_type   = { pmi_size, 0, 1 };
+    world_pset_strided               = { pmi_size, 0, 1 };
+    dmapp_world_desc.u.stride_type   = world_pset_strided;
 #endif
 
     dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, A1D_Pset_world );
