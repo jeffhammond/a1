@@ -104,7 +104,7 @@ int A1D_Initialize()
      ***************************************************/
 
     /* initialize PMI (may not be necessary */
-    pmi_status = PMI_Init(&pmi_spawned));
+    pmi_status = PMI_Init(&pmi_spawned);
     assert(pmi_status==PMI_SUCCESS);
     if (pmi_spawned==PMI_TRUE)
         fprintf(stderr,"PMI says this process is spawned.  This is bad. \n");
@@ -148,7 +148,7 @@ int A1D_Initialize()
 
     dmapp_rank = dmapp_info.pe;
     dmapp_size = dmapp_info.npes;
-    memcpy( A1D_Sheap_desc, dmapp_info.sheap_seg, sizeof(dmapp_seg_desc_t) ); /* TODO: better to keep pointer instead? */
+    memcpy( &A1D_Sheap_desc, &(dmapp_info.sheap_seg), sizeof(dmapp_seg_desc_t) ); /* TODO: better to keep pointer instead? */
 
     /* make sure PMI and DMAPP agree */
     assert(pmi_rank==dmapp_rank);
@@ -164,20 +164,20 @@ int A1D_Initialize()
      *
      ***************************************************/
 
-    dmapp_result = dmapp_c_greduce_nelems_max(DMAPP_C_INT32, &dmapp_reduce_max_int32t);
-    dmapp_result = dmapp_c_greduce_nelems_max(DMAPP_C_INT64, &dmapp_reduce_max_int64t);
+    dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT32, &dmapp_reduce_max_int32t);
+    dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT64, &dmapp_reduce_max_int64t);
 
     /* allocate proportional to job size, since this is important for performance of concatenation */
     world_pset_concat_buf_size = 8 * pmi_size;
     world_pset_concat_buf = dmapp_sheap_malloc( world_pset_concat_buf_size );
 
-    dmapp_world_desc.concat_buf                    = world_pset_concat_buf;
-    dmapp_world_desc.concat_bufsize                = world_pset_concat_buf_size;
-    dmapp_world_desc.dmapp_c_pset_delimiter_type_t = DMAPP_C_PSET_DELIMITER_STRIDED; /* FYI: this is only documented in dmapp.h */
+    dmapp_world_desc.concat_buf      = world_pset_concat_buf;
+    dmapp_world_desc.concat_buf_size = world_pset_concat_buf_size;
+    dmapp_world_desc.type            = DMAPP_C_PSET_DELIMITER_STRIDED; /* FYI: this is only documented in dmapp.h */
 #ifdef A1D_C99_STRUCT_INIT
-    dmapp_world_desc.u.stride_type                 = { .n_pes = pmi_size, .base_pe = 0, .stride_pe = 1 };
+    dmapp_world_desc.u.stride_type   = { .n_pes = pmi_size, .base_pe = 0, .stride_pe = 1 };
 #else
-    dmapp_world_desc.u.stride_type                 = { pmi_size, 0, 1 };
+    dmapp_world_desc.u.stride_type   = { pmi_size, 0, 1 };
 #endif
 
     dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, A1D_Pset_world );
@@ -330,7 +330,7 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 
     /* preserve symmetric heap condition */
     max_bytes_in = bytes;
-    dmapp_status = dmapp_c_greduce_start( &A1D_Pset_world, max_bytes_in, max_bytes_out, 1, DMAPP_C_INT32, DMAPP_C_MAX );
+    dmapp_status = dmapp_c_greduce_start( &A1D_Pset_world, &max_bytes_in, &max_bytes_out, 1, DMAPP_C_INT32, DMAPP_C_MAX );
 
     /* wait for greduce to finish */
     dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
@@ -385,8 +385,16 @@ void A1D_Free_shared(void * ptr)
     pmi_status = PMI_Barrier();
     assert(pmi_status==0);
 
-    dmapp_sheap
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
+    if (ptr != NULL)
+    {
+        dmapp_sheap_free(ptr);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
+    }
+    else
+    {
+        fprintf(stderr, "You tried to free a NULL pointer.  Please check your code. \n");
+        fflush(stderr);
+    }
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
