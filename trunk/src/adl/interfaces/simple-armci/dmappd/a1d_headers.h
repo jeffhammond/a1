@@ -67,11 +67,8 @@
 #  include <complex.h>
 #endif
 
-#ifdef __bgp__
-#  include <bpcore/ppc450_inlines.h>
-#  include <dcmf.h>
-#  include <dcmf_globalcollectives.h>
-#  include <dcmf_collectives.h>
+#ifdef __CRAYXE
+#  include <pmi>
 #endif
 
 #include <mpi.h>

@@ -52,77 +52,16 @@
 
 #include "a1d_headers.h"
 
-typedef struct
-{
-    MPI_Comm comm;
-    void ** addr_list;
-#  ifndef NO_WINDOW_BOUNDS_CHECKING
-    int * size_list; /* for correctness checking, technically optional */
-#  endif
-}
-A1D_Window_t;
+extern int pmi_rank;
+extern int pmi_size;
 
-extern MPI_Comm A1D_COMM_WORLD;
-
-extern int mpi_rank;
-extern int mpi_size;
-
+#ifdef FLUSH_IMPLEMENTED
 extern int * A1D_Put_flush_list;
-extern int * A1D_Acc_flush_list;
+#endif
 
-extern void ** A1D_Baseptr_list;
-
-#  ifdef __bgp__
-
-extern DCMF_Memregion_t * A1D_Memregion_list;
-
-extern DCMF_Callback_t A1D_Nocallback;
-
-#define A1DI_Advance()                                             \
-        do {                                                              \
-            DCMF_Messager_advance(0);                                 \
-        } while(0)                                                     \
-
-#define A1DI_Conditional_advance(boolean)                           \
-        do {                                                            \
-            DCMF_Messager_advance(0);                                 \
-        } while(boolean)                                                \
-
-
-//static inline A1DI_Atomic_load(int32_t * ptr)
-//{
-//    int32_t val;
-//    __asm__ __volatile__ ("lwarx %[val],0,%[ptr]"
-//                              : [val] "=r" (val)
-//                              : [ptr] "r" (ptr)
-//                              : "cc");
-//    return val;
-//}
-//
-//static inline A1DI_Atomic_store(int32_t * ptr, int val)
-//{
-//    int ret = 1; /* init to non-zero, will be reset to 0 if SC was successful */
-//    __asm__ __volatile__ ("stwcx. %[val],0,%[ptr];\n"
-//            "beq 1f;\n"
-//            "li %[ret], 0;\n"
-//            "1: ;\n"
-//              : [ret] "=r" (ret)
-//              : [ptr] "r" (ptr), [val] "r" (val), "0" (ret)
-//              : "cc", "memory");
-//    return ret;
-//}
-//
-//static inline  A1DI_Atomic_increment(int32_t atomic)
-//{
-//    register int32_t _temp;
-//    _bgp_msync();
-//    do {
-//        _temp = _bgp_LoadReserved( integer );
-//        --(_temp);
-//    } while( !_bgp_StoreConditional( integer, _temp ) );
-//}
-
-/* __bgp__ */
-#  endif
+#ifdef __CRAYXE
+extern dmapp_seg_desc_t      A1D_Sheap_desc;
+extern dmapp_c_pset_handle_t A1D_Pset_world;
+#endif
 
 #endif

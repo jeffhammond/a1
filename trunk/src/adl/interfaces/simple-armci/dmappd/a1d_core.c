@@ -52,157 +52,145 @@
 #include "a1d_atomic.h"
 #include "a1d_stats.h"
 
-int mpi_rank;
-int mpi_size;
-
-MPI_Comm A1D_COMM_WORLD;
-void ** A1D_Baseptr_list;
-
-#ifdef __bgp__
-DCMF_Memregion_t * A1D_Memregion_list;
-DCMF_Callback_t A1D_Nocallback;
-#endif
-
-#ifdef FLUSH_IMPLEMENTED
-int* A1D_Put_flush_list;
-int* A1D_Send_flush_list;
-#endif
+int pmi_rank;
+int pmi_size;
 
 
 int A1D_Rank()
 {
-    return mpi_rank;
+    return pmi_rank;
 }
 
 int A1D_Size()
 {
-    return mpi_size;
+    return pmi_size;
 }
 
 int A1D_Initialize()
 {
-    int mpi_initialized, mpi_provided;
-    int mpi_status;
-    int i;
-    size_t bytes_in, bytes_out;
-#ifdef __bgp__
-    DCMF_Result dcmf_result;
-    DCMF_Configure_t dcmf_config;
-    DCMF_Memregion_t local_memregion;
+    int pmi_spawned = 0;
+
+#ifdef __CRAYXE
+    int                   pmi_status  = PMI_SUCCESS;
+    dmapp_return_t        dmapp_status = DMAPP_RC_SUCCESS;
+
+    dmapp_rma_attrs_ext_t dmapp_config_in, dmapp_config_out;
+
+    dmapp_jobinfo_t       dmapp_info;
+    dmapp_pe_t            dmapp_rank = -1;
+    int                   dmapp_size = -1;
+
+    uint64_t              world_pset_concat_buf_size = -1;
+    void *                world_pset_concat_buf = NULL;
+
+    dmapp_c_pset_desc_t   dmapp_world_desc;
+    uint64_t              dmapp_world_id = 1000;
+    uint64_t              dmapp_world_modes = DMAPP_C_PSET_MODE_CONCAT; /* TODO: do I need this bit set? */
+
+    uint32_t              dmapp_reduce_max_int32t = 0;
+    uint32_t              dmapp_reduce_max_int64t = 0;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Initialize() \n");
 #endif
 
-    /***************************************************
-     *
-     * configure MPI
-     *
-     ***************************************************/
-
-    /* MPI has to be Initialized for this implementation to work */
-    MPI_Initialized(&mpi_initialized);
-    assert(mpi_initialized==1);
-
-    /* MPI has to be thread-safe so that DCMF doesn't explode */
-    MPI_Query_thread(&mpi_provided);
-    assert(mpi_provided==MPI_THREAD_MULTIPLE);
-
-    /* have to use our own communicator for collectives to be proper */
-    mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,&A1D_COMM_WORLD);
-    assert(mpi_status==0);
-
-    /* get my MPI rank */
-    mpi_status = MPI_Comm_rank(A1D_COMM_WORLD,&mpi_rank);
-    assert(mpi_status==0);
-
-    /* get MPI world size */
-    mpi_status = MPI_Comm_size(A1D_COMM_WORLD,&mpi_size);
-    assert(mpi_status==0);
-
-    /* barrier before DCMF_Messager_configure to make sure MPI is ready everywhere */
-    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
-    assert(mpi_status==0);
+#ifdef __CRAYXE
 
     /***************************************************
      *
-     * configure DCMF
+     * configure PMI
      *
      ***************************************************/
 
-#ifdef __bgp__
-    DCMF_CriticalSection_enter(0);
+    /* initialize PMI (may not be necessary */
+    pmi_status = PMI_Init(&pmi_spawned));
+    assert(pmi_status==PMI_SUCCESS);
+    if (pmi_spawned==PMI_TRUE)
+        fprintf(stderr,"PMI says this process is spawned.  This is bad. \n");
+    assert(pmi_spawned==PMI_FALSE);
 
-    /* make sure MPI and DCMF agree */
-    assert(mpi_rank==(int)DCMF_Messager_rank());
-    assert(mpi_size==(int)DCMF_Messager_size());
+    /* get my PMI rank */
+    pmi_status = PMI_Get_rank(&pmi_rank);
+    assert(pmi_status==PMI_SUCCESS);
 
-    /* probably not necessary since we require MPI_THREAD_MULTIPLE. */
-    dcmf_config.thread_level = DCMF_THREAD_MULTIPLE;
-    /* interrupts required for accumulate only, Put/Get use DMA
-     * if accumulate not used, MPI will query environment for DCMF_INTERRUPTS */
-    dcmf_config.interrupts = DCMF_INTERRUPTS_ON;
+    /* get PMI world size */
+    pmi_status = PMI_Get_size(&pmi_size);
+    assert(pmi_status==PMI_SUCCESS);
 
-    /* reconfigure DCMF with interrupts on */
-    dcmf_result = DCMF_Messager_configure(&dcmf_config, &dcmf_config);
-    assert(dcmf_result==DCMF_SUCCESS);
+    /***************************************************
+     *
+     * configure DMAPP
+     *
+     ***************************************************/
 
-    DCMF_CriticalSection_exit(0);
+    dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB;
+    dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;
+    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+    dmapp_config_in.max_concurrency      = 1; /* not thread-safe */
+#ifdef FLUSH_IMPLEMENTED
+    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_RELAXED;
+#else
+    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_STRICT;
 #endif
 
-    /* barrier after DCMF_Messager_configure to make sure everyone has the new DCMF config */
-    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
-    assert(mpi_status==0);
+    dmapp_status = dmapp_init_ext( &dmapp_config_in, &dmapp_config_out );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+#ifndef FLUSH_IMPLEMENTED
+    /* without strict PI ordering, we have to flush remote stores with a get packet to force global visibility */
+    assert( dmapp_config_out.PI_ordering != DMAPP_PI_ORDERING_STRICT);
+#endif
+
+    dmapp_status = dmapp_get_jobinfo(&dmapp_info);
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    dmapp_rank = dmapp_info.pe;
+    dmapp_size = dmapp_info.npes;
+    memcpy( A1D_Sheap_desc, dmapp_info.sheap_seg, sizeof(dmapp_seg_desc_t) ); /* TODO: better to keep pointer instead? */
+
+    /* make sure PMI and DMAPP agree */
+    assert(pmi_rank==dmapp_rank);
+    assert(pmi_size==dmapp_size);
+
+    /* necessary? */
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==PMI_SUCCESS);
 
     /***************************************************
      *
-     * setup DCMF memregions
+     * setup DMAPP world pset
      *
      ***************************************************/
 
-#ifdef __bgp__
-    DCMF_CriticalSection_enter(0);
+    dmapp_result = dmapp_c_greduce_nelems_max(DMAPP_C_INT32, &dmapp_reduce_max_int32t);
+    dmapp_result = dmapp_c_greduce_nelems_max(DMAPP_C_INT64, &dmapp_reduce_max_int64t);
 
-    /* allocate memregion list */
-    A1D_Memregion_list = malloc( mpi_size * sizeof(DCMF_Memregion_t) );
-    assert(A1D_Memregion_list != NULL);
+    /* allocate proportional to job size, since this is important for performance of concatenation */
+    world_pset_concat_buf_size = 8 * pmi_size;
+    world_pset_concat_buf = dmapp_sheap_malloc( world_pset_concat_buf_size );
 
-    /* allocate base pointer list */
-    A1D_Baseptr_list = malloc( mpi_size * sizeof(void*) );
-    assert(A1D_Memregion_list != NULL);
+    dmapp_world_desc.concat_buf                    = world_pset_concat_buf;
+    dmapp_world_desc.concat_bufsize                = world_pset_concat_buf_size;
+    dmapp_world_desc.dmapp_c_pset_delimiter_type_t = DMAPP_C_PSET_DELIMITER_STRIDED; /* FYI: this is only documented in dmapp.h */
+    dmapp_world_desc.u.stride_type                 = {};
 
-    /* create memregions */
-    bytes_in = -1;
-    dcmf_result = DCMF_Memregion_create(&local_memregion,&bytes_out,bytes_in,NULL,0);
-    assert(dcmf_result==DCMF_SUCCESS);
+    dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, A1D_Pset_world );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 
-    DCMF_CriticalSection_exit(0);
+    /* out-of-band sync required between pset create and pset export */
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==PMI_SUCCESS);
 
-    /* exchange memregions because we don't use symmetry heap */
-    mpi_status = MPI_Allgather(&local_memregion,sizeof(DCMF_Memregion_t),MPI_BYTE,
-                               A1D_Memregion_list,sizeof(DCMF_Memregion_t),MPI_BYTE,
-                               A1D_COMM_WORLD);
-    assert(mpi_status==0);
+    dmapp_status = dmapp_c_pset_export( &A1D_Pset_world );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 
-    DCMF_CriticalSection_enter(0);
-
-    /* destroy temporary local memregion */
-    dcmf_result = DCMF_Memregion_destroy(&local_memregion);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    /* check for valid memregions */
-    for (i = 0; i < mpi_size; i++)
-    {
-        dcmf_result = DCMF_Memregion_query(&A1D_Memregion_list[i],
-                                           &bytes_out,
-                                           &A1D_Baseptr_list[i]);
-        assert(dcmf_result==DCMF_SUCCESS);
-    }
+#endif
 
     /***************************************************
      *
-     * setup protocols and flush list(s)
+     * setup protocols
      *
      ***************************************************/
 
@@ -213,29 +201,11 @@ int A1D_Initialize()
     A1DI_Put_Initialize();
 #  ifdef FLUSH_IMPLEMENTED
     /* allocate Put list */
-    A1D_Put_flush_list = malloc( mpi_size * sizeof(int) );
+    A1D_Put_flush_list = malloc( pmi_size * sizeof(int) );
     assert(A1D_Put_flush_list != NULL);
 #  endif
 
     A1DI_Acc_Initialize();
-#  ifdef FLUSH_IMPLEMENTED
-    /* allocate Acc list */
-    A1D_Send_flush_list = malloc( mpi_size * sizeof(int) );
-    assert(A1D_Send_flush_list != NULL);
-#  endif
-
-    /***************************************************
-     *
-     * define null callback
-     *
-     ***************************************************/
-
-    A1D_Nocallback.function = NULL;
-    A1D_Nocallback.clientdata = NULL;
-
-    DCMF_CriticalSection_exit(0);
-
-#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Initialize() \n");
@@ -246,11 +216,8 @@ int A1D_Initialize()
 
 int A1D_Finalize()
 {
-    int mpi_status;
+    int pmi_status;
     int i;
-#ifdef __bgp__
-    DCMF_Result dcmf_result;
-#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Finalize() \n");
@@ -259,38 +226,8 @@ int A1D_Finalize()
     A1D_Print_stats();
 
     /* barrier so that no one is able to access remote memregions after they are destroyed */
-    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
-    assert(mpi_status==0);
-
-#ifdef __bgp__
-    DCMF_CriticalSection_enter(0);
-
-#ifdef FLUSH_IMPLEMENTED
-    /* free Put list */
-    free(A1D_Put_flush_list);
-    /* free Acc list */
-    free(A1D_Send_flush_list);
-#endif
-
-    /* destroy all memregions - not absolutely unnecessary if memregion creation has no side effects */
-    for (i = 0; i < mpi_size; i++)
-    {
-        dcmf_result = DCMF_Memregion_destroy(&A1D_Memregion_list[i]);
-        assert(dcmf_result==DCMF_SUCCESS);
-    }
-
-    /* free memregion list */
-    free(A1D_Memregion_list);
-
-    /* free base pointer list */
-    free(A1D_Baseptr_list);
-
-    DCMF_CriticalSection_exit(0);
-#endif
-
-    /* free the A1D communicator */
-    mpi_status = MPI_Comm_free(&A1D_COMM_WORLD);
-    assert(mpi_status==0);
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==PMI_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Finalize() \n");
@@ -366,19 +303,46 @@ void A1D_Free_local(void * ptr)
 
 int A1D_Allocate_shared(void * ptrs[], int bytes)
 {
-    int mpi_status;
-    void * tmp_ptr;
+#ifdef __CRAYXE
+    int pmi_status = PMI_SUCCESS;
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+    void * tmp_ptr = NULL;
+    int max_bytes_in  = 0;
+    int max_bytes_out = 0;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Allocate_shared(void* ptrs[], int bytes) \n");
 #endif
 
-    tmp_ptr = A1D_Allocate_local(bytes);
+#ifdef __CRAYXE
 
-    mpi_status = MPI_Allgather(&tmp_ptr, sizeof(void *), MPI_BYTE,
-                               ptrs,     sizeof(void *), MPI_BYTE,
-                               A1D_COMM_WORLD);
-    assert(mpi_status==0);
+    /* barrier so that no one tries to access memory which is no longer allocated */
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==0);
+
+    /* preserve symmetric heap condition */
+    max_bytes_in = bytes;
+    dmapp_status = dmapp_c_greduce_start( &A1D_Pset_world, max_bytes_in, max_bytes_out, 1, DMAPP_C_INT32, DMAPP_C_MAX );
+
+    /* wait for greduce to finish */
+    dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
+
+    /* barrier because greduce semantics are not clear */
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==0);
+
+    /* finally allocate memory from symmetric heap */
+    tmp_ptr = dmapp_sheap_malloc( (size_t)max_bytes_out );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    /* barrier again for good measure */
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==0);
+
+    /* allgather addresses into pointer vector */
+
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allocate_shared(void* ptrs[], int bytes) \n");
@@ -390,17 +354,23 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 
 void A1D_Free_shared(void * ptr)
 {
-    int mpi_status;
+#ifdef __CRAYXE
+    int pmi_status = PMI_SUCCESS;
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Free_shared(void* ptr) \n");
 #endif
 
+#ifdef __CRAYXE
     /* barrier so that no one tries to access memory which is no longer allocated */
-    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
-    assert(mpi_status==0);
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==0);
 
-    A1D_Free_local(ptr);
+    dmapp_sheap
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Free_shared(void* ptr) \n");
@@ -408,108 +378,3 @@ void A1D_Free_shared(void * ptr)
 
     return;
 }
-
-/***************************************************
- *
- * communicator-based shared memory allocation
- *
- ***************************************************/
-
-int A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window)
-{
-    int mpi_status;
-    int mpi_size;
-    int mpi_rank;
-    void * tmp_ptr;
-    MPI_Comm newcomm;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window) \n");
-#endif
-
-    /* save (dup) the communicator into the window object */
-    mpi_status = MPI_Comm_dup(comm,&newcomm);
-    assert(mpi_status==0);
-
-    window->comm = newcomm;
-
-    /* need array sizeof(comm) for now */
-    mpi_status = MPI_Comm_size(window->comm,&mpi_size);
-    assert(mpi_status==0);
-
-    /* my rank in this communicator */
-    mpi_status = MPI_Comm_rank(window->comm,&mpi_rank);
-    assert(mpi_status==0);
-
-    /* allocate list of base pointers for this window */
-    window->addr_list = malloc( mpi_size * sizeof(void *) );
-    assert(window->addr_list != NULL);
-
-    /* allocate local memory for this window */
-    tmp_ptr = A1D_Allocate_local(bytes);
-
-    /* exchange base pointers */
-    mpi_status = MPI_Allgather(&tmp_ptr,          sizeof(void *), MPI_BYTE,
-                               window->addr_list, sizeof(void *), MPI_BYTE,
-                               window->comm);
-    assert(mpi_status==0);
-
-#ifndef NO_WINDOW_BOUNDS_CHECKING
-    /* allocate list of sizes */
-    window->addr_list = malloc(mpi_size*sizeof(int));
-    assert(window->size_list != NULL);
-
-    /* exchange sizes pointers */
-    mpi_status = MPI_Allgather(&bytes,            sizeof(int), MPI_BYTE,
-                               window->size_list, sizeof(int), MPI_BYTE,
-                               window->comm);
-    assert(mpi_status==0);
-
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Create_window(const MPI_Comm comm, int bytes, A1D_Window_t* window) \n");
-#endif
-
-    return(0);
-}
-
-int A1D_Destroy_window(A1D_Window_t* window)
-{
-    int mpi_status;
-    int mpi_rank;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Destroy_window(A1D_Window_t* window) \n");
-#endif
-
-    /* barrier so that no one is able to access remote window memory after it is free */
-    mpi_status = MPI_Barrier(window->comm);
-    assert(mpi_status==0);
-
-    /* my rank in this communicator */
-    mpi_status = MPI_Comm_rank(window->comm,&mpi_rank);
-    assert(mpi_status==0);
-
-    /* free the local memory */
-    A1D_Free_local(window->addr_list[mpi_rank]);
-
-    /* free the list of base pointers */
-    free(window->addr_list);
-
-#ifndef NO_WINDOW_BOUNDS_CHECKING
-    /* free list of sizes */
-    free(window->size_list);
-#endif
-
-    /* free the communicator */
-    mpi_status = MPI_Comm_free(&(window->comm));
-    assert(mpi_status==0);
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Destroy_window(A1D_Window_t* window) \n");
-#endif
-
-    return(0);
-}
-
