@@ -34,12 +34,12 @@ TEST_OBJECTS  := $(patsubst %.c,%.o,$(wildcard test*.c))
 OBJECTS       := parmci.o
 HEADERS       := parmci.h
 
-all: libparmci.a $(TEST_BINARIES)
+all: liba1d.a libparmci.a $(TEST_BINARIES)
 
-%.x: %.o libparmci.a
+%.x: %.o
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
 
-libparmci.a: parmci.o liba1d.a
+libparmci.a: parmci.o
 	$(AR) $(ARFLAGS) $@ $<
 
 liba1d.a:
