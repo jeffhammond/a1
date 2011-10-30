@@ -167,18 +167,20 @@ int A1D_Initialize()
 
     dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT32, &dmapp_reduce_max_int32t);
     dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT64, &dmapp_reduce_max_int64t);
+    assert(dmapp_reduce_max_int32t>1);
+    assert(dmapp_reduce_max_int64t>1);
 
     /* allocate proportional to job size, since this is important for performance of concatenation */
-    world_pset_concat_buf_size = 8 * pmi_size;
-    world_pset_concat_buf = dmapp_sheap_malloc( world_pset_concat_buf_size );
-
-    dmapp_world_desc.concat_buf      = world_pset_concat_buf;
-    dmapp_world_desc.concat_buf_size = world_pset_concat_buf_size;
-    dmapp_world_desc.type            = DMAPP_C_PSET_DELIMITER_STRIDED; /* FYI: this is only documented in dmapp.h */
+    world_pset_concat_buf_size       = 8 * pmi_size;
+    world_pset_concat_buf            = dmapp_sheap_malloc( world_pset_concat_buf_size );
 
     world_pset_strided.n_pes         = pmi_size;
     world_pset_strided.base_pe       = 0;
     world_pset_strided.stride_pe     = 1;
+
+    dmapp_world_desc.concat_buf      = world_pset_concat_buf;
+    dmapp_world_desc.concat_buf_size = world_pset_concat_buf_size;
+    dmapp_world_desc.type            = DMAPP_C_PSET_DELIMITER_STRIDED; /* FYI: this is only documented in dmapp.h */
     dmapp_world_desc.u.stride_type   = world_pset_strided;
 
     dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, &A1D_Pset_world );
@@ -205,11 +207,11 @@ int A1D_Initialize()
     A1DI_Get_Initialize();
 
     A1DI_Put_Initialize();
-#  ifdef FLUSH_IMPLEMENTED
+#ifdef FLUSH_IMPLEMENTED
     /* allocate Put list */
     A1D_Put_flush_list = malloc( pmi_size * sizeof(int) );
     assert(A1D_Put_flush_list != NULL);
-#  endif
+#endif
 
     A1DI_Acc_Initialize();
 
@@ -223,7 +225,8 @@ int A1D_Initialize()
 int A1D_Finalize()
 {
 #ifdef __CRAYXE
-    int pmi_status = PMI_SUCCESS;
+    int            pmi_status  = PMI_SUCCESS;
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -232,10 +235,18 @@ int A1D_Finalize()
 
     A1D_Print_stats();
 
+#ifdef FLUSH_IMPLEMENTED
+    free(A1D_Put_flush_list);
+#endif
+
 #ifdef __CRAYXE
     /* barrier so that no one is able to access remote memregions after they are destroyed */
     pmi_status = PMI_Barrier();
     assert(pmi_status==PMI_SUCCESS);
+
+    /* shut down DMAPP */
+    dmapp_status = dmapp_finalize();
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -330,18 +341,20 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 
     /* barrier so that no one tries to access memory which is no longer allocated */
     pmi_status = PMI_Barrier();
-    assert(pmi_status==0);
+    assert(pmi_status==PMI_SUCCESS);
 
     /* preserve symmetric heap condition */
     max_bytes_in = bytes;
     dmapp_status = dmapp_c_greduce_start( A1D_Pset_world, &max_bytes_in, &max_bytes_out, 1, DMAPP_C_INT32, DMAPP_C_MAX );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 
     /* wait for greduce to finish */
     dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 
     /* barrier because greduce semantics are not clear */
     pmi_status = PMI_Barrier();
-    assert(pmi_status==0);
+    assert(pmi_status==PMI_SUCCESS);
 
     /* finally allocate memory from symmetric heap */
     tmp_ptr = dmapp_sheap_malloc( (size_t)max_bytes_out );
@@ -349,16 +362,17 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 
     /* barrier again for good measure */
     pmi_status = PMI_Barrier();
-    assert(pmi_status==0);
+    assert(pmi_status==PMI_SUCCESS);
 
     /* allgather addresses into pointer vector */
     pe_list = (dmapp_pe_t *) malloc( pmi_size * sizeof(dmapp_pe_t) );
     for ( i=0; i<pmi_size; i++) pe_list[i] = i;
     dmapp_status = dmapp_gather_ixpe( &tmp_ptr, ptrs, &A1D_Sheap_desc, pe_list, pmi_size, 1, DMAPP_QW );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 
     /* barrier again for good measure */
     pmi_status = PMI_Barrier();
-    assert(pmi_status==0);
+    assert(pmi_status==PMI_SUCCESS);
 
     /* cleanup from allgather */
     free(pe_list);
