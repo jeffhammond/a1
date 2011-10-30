@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     int ** window;
     window  = (int **) PARMCI_Malloc_local( size * sizeof(int *) );
     PARMCI_Malloc( (void **) window, w * sizeof(int) );
-    for (int i = 0; i < w; i++) window[rank][i] = 0;
+    for (int i = 0; i < w; i++) window[rank][i] = rank*1000+i;
 
     int * buffer;
     buffer = (int *) PARMCI_Malloc_local(  w * sizeof(int) );
@@ -109,11 +109,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < w; i++) 
                 printf("rank %d (after get 1) buffer[%d] = %d \n", rank, i, buffer[i] );
 
-            for (int i = 0; i < w; i++) 
-                PARMCI_Rmw( ARMCI_FETCH_AND_ADD, &buffer[i], &window[t][i], 1000, t );
+            //for (int i = 0; i < w; i++) 
+            //    PARMCI_Rmw( ARMCI_FETCH_AND_ADD, &buffer[i], &window[t][i], 1000, t );
 
-            for (int i = 0; i < w; i++) 
-                printf("rank %d (after atomic fetch-and-add-1000) buffer[%d] = %d \n", rank, i, buffer[i] );
+            //for (int i = 0; i < w; i++) 
+            //    printf("rank %d (after atomic fetch-and-add-1000) buffer[%d] = %d \n", rank, i, buffer[i] );
 
             for (int i = 0; i < w; i++) buffer[i] = 55555;
 
