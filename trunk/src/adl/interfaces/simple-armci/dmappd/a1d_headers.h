@@ -69,9 +69,8 @@
 #endif
 
 #ifdef __CRAYXE
-#  include <pmi>
+#  include <pmi.h>
+#  include <dmapp.h>
 #endif
-
-#include <mpi.h>
 
 #endif

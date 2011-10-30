@@ -308,13 +308,15 @@ void A1D_Free_local(void * ptr)
 
 int A1D_Allocate_shared(void * ptrs[], int bytes)
 {
+    int i = 0;
 #ifdef __CRAYXE
-    int pmi_status = PMI_SUCCESS;
+    int            pmi_status   = PMI_SUCCESS;
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+    dmapp_pe_t *   pe_list      = NULL;
 #endif
-    void * tmp_ptr = NULL;
-    int max_bytes_in  = 0;
-    int max_bytes_out = 0;
+    void *  tmp_ptr       = NULL;
+    int     max_bytes_in  = 0;
+    int     max_bytes_out = 0;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Allocate_shared(void* ptrs[], int bytes) \n");
@@ -346,6 +348,16 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
     assert(pmi_status==0);
 
     /* allgather addresses into pointer vector */
+    pe_list = (dmapp_pe_t *) malloc( pmi_size * sizeof(dmapp_pe_t) );
+    for ( i=0; i<pmi_size; i++) pe_list[i] = i;
+    dmapp_status = dmapp_gather_ixpe( &tmp_ptr, ptrs, &A1D_Sheap_desc, pe_list, pmi_size, 1, DMAPP_QW );
+
+    /* barrier again for good measure */
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==0);
+
+    /* cleanup from allgather */
+    free(pe_list);
 
 #endif
 
