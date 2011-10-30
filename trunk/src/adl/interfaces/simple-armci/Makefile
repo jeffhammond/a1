@@ -3,35 +3,51 @@ COPT    = -g -O0 -std=c99
 #CC      = mpixlc_r
 #COPT    = -g -O3 -qstrict -qlanglvl=extc99
 
-INC     = -I. -I/bgsys/drivers/ppcfloor/arch/include/
-LIBS    = libarmci-bgp.a
+DEVICE = NONE
+
+ifeq ($(TARGET),BGP)
+INC     = -I. -DDCMFD
+DEVICE  = dcmfd
+endif
+
+ifeq ($(TARGET),XE)
+INC     = -I. -DDMAPPD
+DEVICE  = dmappd
+endif
+
+ifeq ($(DEVICE),NONE) 
+@ You need to set TARGET={BGP,XE}
+endif
+
+LIBS    = libparmci.a liba1d.a
 
 LD      = $(CC)
-CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
+CFLAGS  = $(COPT) $(INC)
 LDFLAGS = $(COPT)
 
 TEST_BINARIES := $(patsubst %.c,%.x,$(wildcard test*.c))
 TEST_OBJECTS  := $(patsubst %.c,%.o,$(wildcard test*.c))
-A1D_OBJECTS   := $(patsubst %.c,%.o,$(wildcard a1d*.c))
-A1D_HEADERS   := $(patsubst %.c,%.h,$(wildcard a1d*.c))
-OBJECTS       := parmci.o $(A1D_OBJECTS)
-HEADERS       := parmci.h $(A1D_HEADERS)
+OBJECTS       := parmci.o
+HEADERS       := parmci.h
 
-all: $(TEST_BINARIES)
-#all: test_rmw.x
+all: libparmci.a $(TEST_BINARIES)
 
-%.x: %.o libarmci-bgp.a
+%.x: %.o libparmci.a
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
 
-libarmci-bgp.a: $(OBJECTS)
-	$(AR) $(ARFLAGS) libarmci-bgp.a $(OBJECTS)
+libparmci.a: parmci.o liba1d.a
+	$(AR) $(ARFLAGS) $@ $<
 
-%.o: %.c $(HEADERS)
+liba1d.a:
+	make -C $(DEVICE)
+
+%.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(RMFLAGS) $(OBJECTS) $(TEST_OBJECTS)
 
 realclean: clean
-	$(RM) $(RMFLAGS) $(TEST_BINARIES) libarmci-bgp.a
+	$(RM) $(RMFLAGS) $(TEST_BINARIES) libparmci.a
+	make -C $(DEVICE) realclean
 

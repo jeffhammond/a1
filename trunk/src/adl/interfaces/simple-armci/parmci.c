@@ -48,7 +48,6 @@
  *********************************************************************/
 
 #include "parmci.h"
-#include "a1d_api.h"
 
 /* initialization and termination */
 
@@ -59,7 +58,7 @@ int PARMCI_Init()
 
 int PARMCI_Init_args(int *argc, char ***argv)
 {
-    //fprintf(stderr,"PARMCI_Init_args: argc/argv may not be setup properly by DCMF \n");
+    fprintf(stderr,"PARMCI_Init_args: argc/argv may not be setup properly by device \n");
     return A1D_Initialize();
 }
 
@@ -195,7 +194,6 @@ long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
             ival = (*iptr);
             return (long)ival;
 
-#ifdef SUPPORTS_64BIT_ATOMICS 
         case ARMCI_FETCH_LONG:
         case ARMCI_ADD_LONG:
         case ARMCI_FETCH_AND_ADD_LONG:
@@ -203,7 +201,7 @@ long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
             fprintf(stderr,"PARMCI_Rmw: operations on 64-bit integers (long) are not implemented on BGP. \n");
             assert(0);
             return (long)ival;
-#endif
+
         default:
             fprintf(stderr,"PARMCI_Rmw: unknown operation request! \n");
             assert(0);

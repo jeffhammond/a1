@@ -1,3 +1,14 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <assert.h>
+
+#if defined(DCMFD)
+#include "dcmfd/a1d_api.h"
+#elif defined(DMAPPD)
+#include "dmappd/a1d_api.h"
+#else
+#error No device defined!
+#endif
 
 /* to make sure I haven't broken the API */
 /* #include "parmci.h" */
@@ -9,14 +20,11 @@ typedef enum
     ARMCI_ADD,
     ARMCI_FETCH_AND_ADD,
     ARMCI_SWAP,
-#ifdef SUPPORTS_64BIT_ATOMICS 
+    /* the following are unsupported on BGP */
     ARMCI_FETCH_LONG,
     ARMCI_ADD_LONG,
     ARMCI_FETCH_AND_ADD_LONG,
     ARMCI_SWAP_LONG
-#else
-    #warning 64b atomics are not available on this architecture.
-#endif
 }
 armci_rmw_t;
 
@@ -84,7 +92,7 @@ int PARMCI_WaitAll();
 
 /* remote atomic update and mutexes */
 
-long PARMCI_Rmw(int op, void * ploc, void * prem, int extra, int proc);
+long PARMCI_Rmw(int op, void * local, void * remote, int incr, int proc);
 
 int PARMCI_Create_mutexes(int num);
 int PARMCI_Destroy_mutexes();
