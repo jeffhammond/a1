@@ -1,9 +1,16 @@
 CC      = mpicc
 COPT    = -g -O0 -std=c99
-#CC      = mpixlc_r
-#COPT    = -g -O3 -qstrict -qlanglvl=extc99
+#CC      = cc
+#COPT    = -g -O2
 
-INC     = -I. -I/bgsys/drivers/ppcfloor/arch/include/
+DMAPP_PATH=/opt/cray/dmapp/default
+GNIH_PATH=/opt/cray/gni-headers/default
+UGNI_PATH=/opt/cray/ugni/default
+UDREG_PATH=/opt/cray/udreg/default
+PMI_PATH=/opt/cray/pmi/default
+
+INC     = -I. -I$(DMAPP_PATH)/include -I$(UDREG_PATH)/include -I$(GNIH_PATH)/include -I$(PMI_PATH)/include
+LIBS    = -L$(DMAPP_PATH)/lib64   -L$(UDREG_PATH)/lib64   -L$(UGNI_PATH)/lib64   -L$(PMI_PATH)/lib64 -ldmapp -ludreg -lugni -lpmi
 
 LD      = $(CC)
 CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
