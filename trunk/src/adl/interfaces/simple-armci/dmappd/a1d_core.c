@@ -182,7 +182,7 @@ int A1D_Initialize()
     dmapp_world_desc.u.stride_type   = world_pset_strided;
 #endif
 
-    dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, A1D_Pset_world );
+    dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, &A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
     /* out-of-band sync required between pset create and pset export */
@@ -190,7 +190,7 @@ int A1D_Initialize()
     assert(pmi_status==PMI_SUCCESS);
 
     /* export pset after out-of-band sync */
-    dmapp_status = dmapp_c_pset_export( &A1D_Pset_world );
+    dmapp_status = dmapp_c_pset_export( A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
 #endif
@@ -223,8 +223,9 @@ int A1D_Initialize()
 
 int A1D_Finalize()
 {
-    int pmi_status;
-    int i;
+#ifdef __CRAYXE
+    int pmi_status = PMI_SUCCESS;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Finalize() \n");
@@ -232,9 +233,11 @@ int A1D_Finalize()
 
     A1D_Print_stats();
 
+#ifdef __CRAYXE
     /* barrier so that no one is able to access remote memregions after they are destroyed */
     pmi_status = PMI_Barrier();
     assert(pmi_status==PMI_SUCCESS);
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Finalize() \n");
@@ -332,7 +335,7 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 
     /* preserve symmetric heap condition */
     max_bytes_in = bytes;
-    dmapp_status = dmapp_c_greduce_start( &A1D_Pset_world, &max_bytes_in, &max_bytes_out, 1, DMAPP_C_INT32, DMAPP_C_MAX );
+    dmapp_status = dmapp_c_greduce_start( A1D_Pset_world, &max_bytes_in, &max_bytes_out, 1, DMAPP_C_INT32, DMAPP_C_MAX );
 
     /* wait for greduce to finish */
     dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
