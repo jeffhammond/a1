@@ -1,7 +1,5 @@
-CC      = mpicc
-COPT    = -g -O0 -std=c99
-#CC      = cc
-#COPT    = -g -O2
+CC      = cc
+COPT    = -g -O0
 
 DMAPP_PATH=/opt/cray/dmapp/default
 GNIH_PATH=/opt/cray/gni-headers/default

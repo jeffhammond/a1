@@ -7,7 +7,6 @@
 #include <math.h>
 #include "pmi.h"
 #include "dmapp.h"
-"
 
 #define MAX_NELEMS (128L*1024L)
 
