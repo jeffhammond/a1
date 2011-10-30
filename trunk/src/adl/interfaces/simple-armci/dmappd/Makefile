@@ -1,5 +1,5 @@
 CC      = cc
-COPT    = -g -O0 -Wall -Wextra
+COPT    = -g -O0 -Wall
 
 DMAPP_PATH=/opt/cray/dmapp/default
 GNIH_PATH=/opt/cray/gni-headers/default
