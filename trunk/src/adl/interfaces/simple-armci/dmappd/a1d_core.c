@@ -174,7 +174,11 @@ int A1D_Initialize()
     dmapp_world_desc.concat_buf                    = world_pset_concat_buf;
     dmapp_world_desc.concat_bufsize                = world_pset_concat_buf_size;
     dmapp_world_desc.dmapp_c_pset_delimiter_type_t = DMAPP_C_PSET_DELIMITER_STRIDED; /* FYI: this is only documented in dmapp.h */
-    dmapp_world_desc.u.stride_type                 = {};
+#ifdef A1D_C99_STRUCT_INIT
+    dmapp_world_desc.u.stride_type                 = { .n_pes = pmi_size, .base_pe = 0, .stride_pe = 1 };
+#else
+    dmapp_world_desc.u.stride_type                 = { pmi_size, 0, 1 };
+#endif
 
     dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
@@ -183,6 +187,7 @@ int A1D_Initialize()
     pmi_status = PMI_Barrier();
     assert(pmi_status==PMI_SUCCESS);
 
+    /* export pset after out-of-band sync */
     dmapp_status = dmapp_c_pset_export( &A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
