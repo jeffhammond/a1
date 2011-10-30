@@ -7,7 +7,7 @@ UGNI_PATH=/opt/cray/ugni/default
 UDREG_PATH=/opt/cray/udreg/default
 PMI_PATH=/opt/cray/pmi/default
 
-INC     = -I. -I$(DMAPP_PATH)/include -I$(UDREG_PATH)/include -I$(GNIH_PATH)/include -I$(PMI_PATH)/include
+INC     = -I$(DMAPP_PATH)/include -I$(UDREG_PATH)/include -I$(GNIH_PATH)/include -I$(PMI_PATH)/include -I.
 LIBS    = -L$(DMAPP_PATH)/lib64   -L$(UDREG_PATH)/lib64   -L$(UGNI_PATH)/lib64   -L$(PMI_PATH)/lib64 -ldmapp -ludreg -lugni -lpmi
 
 LD      = $(CC)
