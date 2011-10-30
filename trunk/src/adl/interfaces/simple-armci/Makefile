@@ -1,16 +1,19 @@
 CC      = mpicc
 COPT    = -g -O0 -std=c99
-#CC      = mpixlc_r
-#COPT    = -g -O3 -qstrict -qlanglvl=extc99
-
-DEVICE = NONE
+DEVICE  = NONE
 
 ifeq ($(TARGET),BGP)
+CC      = mpicc
+COPT    = -g -O0 -std=c99
+#CC      = mpixlc_r
+#COPT    = -g -O3 -qstrict -qlanglvl=extc99
 INC     = -I. -DDCMFD
 DEVICE  = dcmfd
 endif
 
 ifeq ($(TARGET),XE)
+CC      = cc
+COPT    = -g -O0
 INC     = -I. -DDMAPPD
 DEVICE  = dmappd
 endif
@@ -19,7 +22,7 @@ ifeq ($(DEVICE),NONE)
 @ You need to set TARGET={BGP,XE}
 endif
 
-LIBS    = libparmci.a liba1d.a
+LIBS    = libparmci.a $(DEVICE)/liba1d.a
 
 LD      = $(CC)
 CFLAGS  = $(COPT) $(INC)
