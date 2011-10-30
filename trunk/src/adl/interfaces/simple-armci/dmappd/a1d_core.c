@@ -175,12 +175,11 @@ int A1D_Initialize()
     dmapp_world_desc.concat_buf      = world_pset_concat_buf;
     dmapp_world_desc.concat_buf_size = world_pset_concat_buf_size;
     dmapp_world_desc.type            = DMAPP_C_PSET_DELIMITER_STRIDED; /* FYI: this is only documented in dmapp.h */
-#ifdef A1D_C99_STRUCT_INIT
-    dmapp_world_desc.u.stride_type   = { .n_pes = pmi_size, .base_pe = 0, .stride_pe = 1 };
-#else
-    world_pset_strided               = { pmi_size, 0, 1 };
+
+    world_pset_strided.n_pes         = pmi_size;
+    world_pset_strided.base_pe       = 0;
+    world_pset_strided.stride_pe     = 1;
     dmapp_world_desc.u.stride_type   = world_pset_strided;
-#endif
 
     dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, &A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);

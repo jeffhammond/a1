@@ -52,7 +52,6 @@
 
 #if __STDC_VERSION__ >= 199901L
 #  define A1D_USE_COMPLEX
-//#  define A1D_C99_STRUCT_INIT
 #endif
 
 #include <stdlib.h>
