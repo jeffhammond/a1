@@ -59,6 +59,8 @@ extern int pmi_size;
 extern int * A1D_Put_flush_list;
 #endif
 
+extern int * A1D_Put_flush_list;
+
 #ifdef __CRAYXE
 extern dmapp_seg_desc_t      A1D_Sheap_desc;
 extern dmapp_c_pset_handle_t A1D_Pset_world;

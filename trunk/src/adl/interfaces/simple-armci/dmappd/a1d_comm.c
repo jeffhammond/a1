@@ -51,13 +51,39 @@
 
 /*********************************************************************/
 
-int A1D_GetC(int target, int bytes, void* src, void* dst)
+int A1D_GetC(int target, int bytes, void * src, void * dst)
 {
+    uint64_t nelems = 0;
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_GetC(int target, int bytes, void* src, void* dst) \n");
 #endif
 
+#ifdef __CRAYXE
+    if (bytes%16 == 0)
+    {
+        nelems = bytes/16;
+        dmapp_status = dmapp_get( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DQW);
+    }
+    else if (bytes%8 == 0)
+    {
+        nelems = bytes/8;
+        dmapp_status = dmapp_get( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_QW);
+    }
+    else if (bytes%4 == 0)
+    {
+        nelems = bytes/4;
+        dmapp_status = dmapp_get( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
+    }
+    else
+    {
+        nelems = bytes;
+        dmapp_status = dmapp_get( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
+    }
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_GetC(int target, int bytes, void* src, void* dst) \n");
@@ -66,13 +92,43 @@ int A1D_GetC(int target, int bytes, void* src, void* dst)
     return(0);
 }
 
-int A1D_PutC(int target, int bytes, void* src, void* dst)
+int A1D_PutC(int target, int bytes, void * src, void * dst)
 {
+    uint64_t nelems = 0;
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_PutC(int target, int bytes, void* src, void* dst) \n");
 #endif
 
+#ifdef __CRAYXE
+    if (bytes%16 == 0)
+    {
+        nelems = bytes/16;
+        dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DQW);
+    }
+    else if (bytes%8 == 0)
+    {
+        nelems = bytes/8;
+        dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_QW);
+    }
+    else if (bytes%4 == 0)
+    {
+        nelems = bytes/4;
+        dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
+    }
+    else
+    {
+        nelems = bytes;
+        dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
+    }
+#endif
+
+#ifdef FLUSH_IMPLEMENTED
+    A1D_Put_flush_list[target]++;
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_PutC(int target, int bytes, void* src, void* dst) \n");
@@ -81,8 +137,13 @@ int A1D_PutC(int target, int bytes, void* src, void* dst)
     return(0);
 }
 
-int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale)
+int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale)
 {
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+
     return 0;
 }
 
@@ -94,6 +155,11 @@ int A1D_GetS(int proc, stride_levels, block_sizes,
              src_ptr, src_stride_arr,
              dst_ptr, dst_stride_arr)
 {
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+
     return 0;
 }
 
@@ -101,14 +167,24 @@ int A1D_PutS(int proc, stride_levels, block_sizes,
              src_ptr, src_stride_arr,
              dst_ptr, dst_stride_arr)
 {
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+
     return 0;
 }
 
 int A1D_AccS(int proc, stride_levels, block_sizes,
              src_ptr, src_stride_arr,
              dst_ptr, dst_stride_arr,
-             int type, void* scale)
+             int type, void * scale)
 {
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+
     return 0;
 }
 
