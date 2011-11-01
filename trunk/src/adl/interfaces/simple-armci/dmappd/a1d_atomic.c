@@ -65,6 +65,7 @@ void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
 
 #ifdef __CRAYXE
     dmapp_status = dmapp_afor_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, zero);
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -86,6 +87,7 @@ void A1D_Inc64(int proc, int64_t * remote, int64_t incr)
 
 #ifdef __CRAYXE
     dmapp_status = dmapp_aadd_qw( remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -107,6 +109,7 @@ void A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t in
 
 #ifdef __CRAYXE
     dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -146,6 +149,7 @@ void A1D_Compare_and_swap64(int proc, int64_t * remote, int64_t * local, int64_t
 
 #ifdef __CRAYXE
     dmapp_status = dmapp_acswap_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, comparand, swaperand);
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
