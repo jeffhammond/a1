@@ -3,10 +3,10 @@ COPT    = -g -O0 -std=c99
 DEVICE  = NONE
 
 ifeq ($(TARGET),BGP)
-CC      = mpicc
-COPT    = -g -O0 -std=c99
-#CC      = mpixlc_r
-#COPT    = -g -O3 -qstrict -qlanglvl=extc99
+#CC      = mpicc
+#COPT    = -g -O0 -std=c99
+CC      = mpixlc_r
+COPT    = -g -O3 -qstrict -qlanglvl=extc99
 # the last part is a hack and should not be necessary
 INC     = -I. -DDCMFD -I/bgsys/drivers/ppcfloor/arch/include/
 DEVICE  = dcmfd
