@@ -50,9 +50,6 @@
 #ifndef A1D_CORE_H
 #define A1D_CORE_H
 
-#include "a1d_headers.h"
-#include "a1d_globals.h"
-
 int A1D_Rank();
 int A1D_Size();
 

@@ -50,9 +50,6 @@
 #ifndef A1D_COMM_H
 #define A1D_COMM_H
 
-#include "a1d_headers.h"
-#include "a1d_globals.h"
-
 int A1D_Allreduce_issame32(int32_t value, int * flag);
 int A1D_Allreduce_issame64(int64_t value, int * flag);
 

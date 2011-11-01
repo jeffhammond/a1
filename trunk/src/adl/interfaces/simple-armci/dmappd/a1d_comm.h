@@ -50,9 +50,6 @@
 #ifndef A1D_COMM_H
 #define A1D_COMM_H
 
-#include "a1d_headers.h"
-#include "a1d_globals.h"
-
 typedef enum
 {
     A1D_DOUBLE,

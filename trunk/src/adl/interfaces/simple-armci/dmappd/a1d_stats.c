@@ -47,6 +47,9 @@
  *
  *********************************************************************/
 
+#include "a1d_headers.h"
+#include "a1d_globals.h"
+
 void A1D_Print_stats()
 {
 	return;
