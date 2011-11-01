@@ -63,7 +63,9 @@ void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
     fprintf(stderr,"entering A1D_Fetch64 \n");
 #endif
 
+#ifdef __CRAYXE
     dmapp_status = dmapp_afor_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, zero);
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Fetch64 \n");
@@ -78,12 +80,13 @@ void A1D_Inc64(int proc, int64_t * remote, int64_t incr)
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
-
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Inc64 \n");
 #endif
 
+#ifdef __CRAYXE
     dmapp_status = dmapp_aadd_qw( remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Inc64 \n");
@@ -102,7 +105,9 @@ void A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t in
     fprintf(stderr,"entering A1D_Fetch_and_inc64 \n");
 #endif
 
+#ifdef __CRAYXE
     dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Fetch_and_inc64 \n");
@@ -139,7 +144,9 @@ void A1D_Compare_and_swap64(int proc, int64_t * remote, int64_t * local, int64_t
     fprintf(stderr,"entering A1D_Swap64 \n");
 #endif
 
+#ifdef __CRAYXE
     dmapp_status = dmapp_acswap_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, comparand, swaperand);
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Swap64 \n");
