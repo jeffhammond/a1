@@ -7,14 +7,13 @@ ifeq ($(TARGET),BGP)
 #COPT    = -g -O0 -std=c99
 CC      = mpixlc_r
 COPT    = -g -O3 -qstrict -qlanglvl=extc99
-# the last part is a hack and should not be necessary
-INC     = -I. -DDCMFD -I/bgsys/drivers/ppcfloor/arch/include/
+INC     = -I. -DDCMFD
 DEVICE  = dcmfd
 endif
 
 ifeq ($(TARGET),XE)
 CC      = cc
-COPT    = -g -O0
+COPT    = -g -O0 -std=c99
 INC     = -I. -DDMAPPD
 DEVICE  = dmappd
 endif
