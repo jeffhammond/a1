@@ -166,46 +166,46 @@ int PARMCI_WaitAll()
 
 long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
 {
-    int32_t   ival = -1;
-    int32_t * iptr = NULL;
-
     switch (optype)
     {
+#ifdef USE_32B_ATOMICS
         case ARMCI_FETCH:
             A1D_Fetch32(proc, (int32_t*)remote, (int32_t*)local );
-            iptr = (int32_t*) local;
-            ival = (*iptr);
-            return (long)ival;
+            return (long)(*local);
 
         case ARMCI_ADD:
             A1D_Inc32(proc, (int32_t*)remote, (int32_t)incr );
-            ival = 0;
-            return (long)ival;
+            return (long)(0);
 
         case ARMCI_FETCH_AND_ADD:
             A1D_Fetch_and_inc32(proc, (int32_t*)remote, (int32_t*)local, (int32_t)incr );
-            iptr = (int32_t*)local;
-            ival = (*iptr);
-            return (long)ival;
+            return (long)(*local);
 
         case ARMCI_SWAP:
             A1D_Swap32(proc, (int32_t *)remote, (int32_t *)local );
-            iptr = (int32_t *) local;
-            ival = (*iptr);
-            return (long)ival;
-
+            return (long)(*local);
+#endif
+#ifdef USE_64B_ATOMICS
         case ARMCI_FETCH_LONG:
-        case ARMCI_ADD_LONG:
-        case ARMCI_FETCH_AND_ADD_LONG:
-        case ARMCI_SWAP_LONG:
-            fprintf(stderr,"PARMCI_Rmw: operations on 64-bit integers (long) are not implemented on BGP. \n");
-            assert(0);
-            return (long)ival;
+            A1D_Fetch64(proc, (int64_t*)remote, (int64_t*)local );
+            return (long)(*local);
 
+        case ARMCI_ADD_LONG:
+            A1D_Inc64(proc, (int64_t*)remote, (int64_t)incr );
+            return (long)(0);
+
+        case ARMCI_FETCH_AND_ADD_LONG:
+            A1D_Fetch_and_inc64(proc, (int64_t*)remote, (int64_t*)local, (int64_t)incr );
+            return (long)(*local);
+
+        case ARMCI_SWAP_LONG:
+            A1D_Swap64(proc, (int64_t*)remote, (int64_t*)local );
+            return (long)(*local);
+#endif
         default:
             fprintf(stderr,"PARMCI_Rmw: unknown operation request! \n");
             assert(0);
-            return (long)ival;
+            return (long)(-1);
     }
     return (long)(-1);
 }

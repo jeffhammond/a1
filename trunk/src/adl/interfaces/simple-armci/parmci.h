@@ -4,8 +4,10 @@
 
 #if defined(DCMFD)
 #include "dcmfd/a1d_api.h"
+#define USE_32B_ATOMICS
 #elif defined(DMAPPD)
 #include "dmappd/a1d_api.h"
+#define USE_64B_ATOMICS
 #else
 #error No device defined!
 #endif
@@ -16,11 +18,12 @@
 
 typedef enum
 {
+    /* the following 32-but atomics are not supported on XE */
     ARMCI_FETCH,
     ARMCI_ADD,
     ARMCI_FETCH_AND_ADD,
     ARMCI_SWAP,
-    /* the following are unsupported on BGP */
+    /* the following 64-bit atomics are not supported on BGP */
     ARMCI_FETCH_LONG,
     ARMCI_ADD_LONG,
     ARMCI_FETCH_AND_ADD_LONG,

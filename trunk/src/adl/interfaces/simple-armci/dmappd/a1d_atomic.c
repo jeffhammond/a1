@@ -28,10 +28,10 @@
  *
  * The copyright holders provide no reassurances that the source code
  * provided does not infringe any patent, copyright, or any other
- * int32_tellectual property rights of third parties.  The copyright holders
+ * int64_tellectual property rights of third parties.  The copyright holders
  * disclaim any liability to any recipient for claims brought against
  * recipient by any third party for infringement of that parties
- * int32_tellectual property rights.
+ * int64_tellectual property rights.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -50,63 +50,97 @@
 #include "a1d_atomic.h"
 #include "a1d_core.h"
 
-void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
+void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
 {
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Fetch32 \n");
+    int64_t zero = 0; /* fetch-and-or with zero should be the same as fetch */
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Fetch64 \n");
+#endif
+
+    dmapp_status = dmapp_afor_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, zero);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Fetch32 \n");
+    fprintf(stderr,"exiting A1D_Fetch64 \n");
 #endif
 
     return;
 }
 
-void A1D_Inc32(int proc, int32_t * remote, int32_t incr)
+void A1D_Inc64(int proc, int64_t * remote, int64_t incr)
 {
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Inc32 \n");
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Inc32 \n");
+    fprintf(stderr,"entering A1D_Inc64 \n");
+#endif
+
+    dmapp_status = dmapp_aadd_qw( remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Inc64 \n");
 #endif
 
     return;
 }
 
-void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t incr)
+void A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t incr)
 {
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Fetch_and_inc32 \n");
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Fetch_and_inc64 \n");
+#endif
+
+    dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Fetch_and_inc32 \n");
+    fprintf(stderr,"exiting A1D_Fetch_and_inc64 \n");
 #endif
     return;
 }
 
-void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
+void A1D_Swap64(int proc, int64_t * local, int64_t * remote)
 {
-
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Swap32 \n");
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Swap64 \n");
+#endif
 
+    fprintf(stderr,"A1D_Swap64 cannot be implemented properly on XE6.  You can use A1D_Compare_and_swap64 instead, if appropriate. \n");
+    assert(0);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Swap32 \n");
+    fprintf(stderr,"exiting A1D_Swap64 \n");
 #endif
     return;
 }
 
+void A1D_Compare_and_swap64(int proc, int64_t * remote, int64_t * local, int64_t comparand, int64_t swaperand);
+{
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Swap64 \n");
+#endif
+
+    dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, comperand, swaperand);
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Swap64 \n");
+#endif
+    return;
+}
