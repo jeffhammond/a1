@@ -162,7 +162,16 @@ int PARMCI_WaitAll(void)
 
 /* remote atomic update and mutexes */
 
-long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
+#if defined(USE_32B_ATOMICS) && defined(USE_64B_ATOMICS)
+#error The call syntax of (P)ARMCI_Rmw is stupid.  Use 32B or 64B atomics but not both.
+#endif
+
+#ifdef USE_32B_ATOMICS
+int32_t PARMCI_Rmw(int optype, int32_t * local, int32_t * remote, int32_t incr, int proc)
+#endif
+#ifdef USE_64B_ATOMICS
+int64_t PARMCI_Rmw(int optype, int64_t * local, int64_t * remote, int64_t incr, int proc)
+#endif
 {
     long temp;
 
@@ -170,45 +179,39 @@ long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
     {
 #ifdef USE_32B_ATOMICS
         case ARMCI_FETCH:
-            A1D_Fetch32(proc, (int32_t*)remote, (int32_t*)local );
-            temp = *local;
-            return temp;
+            A1D_Fetch32(proc, remote, local );
+            return *local;
 
         case ARMCI_ADD:
-            A1D_Inc32(proc, (int32_t*)remote, (int32_t)incr );
+            A1D_Inc32(proc, remote, incr );
             return 0;
 
         case ARMCI_FETCH_AND_ADD:
-            A1D_Fetch_and_inc32(proc, (int32_t*)remote, (int32_t*)local, (int32_t)incr );
-            temp = *local;
-            return temp;
+            A1D_Fetch_and_inc32(proc, remote, local, incr );
+            return *local;
 
         case ARMCI_SWAP:
-            A1D_Swap32(proc, (int32_t *)remote, (int32_t *)local );
-            temp = *local;
-            return temp;
+            A1D_Swap32(proc, remote, local );
+            return *local;
 
 #endif
+
 #ifdef USE_64B_ATOMICS
         case ARMCI_FETCH_LONG:
-            A1D_Fetch64(proc, (int64_t*)remote, (int64_t*)local );
-            temp = *local;
-            return temp;
+            A1D_Fetch64(proc, remote, local );
+            return *local;
 
         case ARMCI_ADD_LONG:
-            A1D_Inc64(proc, (int64_t*)remote, (int64_t)incr );
-            temp = *local;
+            A1D_Inc64(proc, remote, incr );
             return 0;
 
         case ARMCI_FETCH_AND_ADD_LONG:
-            A1D_Fetch_and_inc64(proc, (int64_t*)remote, (int64_t*)local, (int64_t)incr );
-            temp = *local;
-            return temp;
+            A1D_Fetch_and_inc64(proc, remote, local, incr );
+            return *local;
 
         case ARMCI_SWAP_LONG:
-            A1D_Swap64(proc, (int64_t*)remote, (int64_t*)local );
-            temp = *local;
-            return temp;
+            A1D_Swap64(proc, remote, local );
+            return *local;
 
 #endif
         default:

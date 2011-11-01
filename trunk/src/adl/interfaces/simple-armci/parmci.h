@@ -95,7 +95,16 @@ int PARMCI_WaitAll();
 
 /* remote atomic update and mutexes */
 
-long PARMCI_Rmw(int op, void * local, void * remote, int incr, int proc);
+#if defined(USE_32B_ATOMICS) && defined(USE_64B_ATOMICS)
+#error The call syntax of (P)ARMCI_Rmw is stupid.  Use 32B or 64B atomics but not both.
+#endif
+
+#ifdef USE_32B_ATOMICS
+int32_t PARMCI_Rmw(int optype, int32_t * local, int32_t * remote, int32_t incr, int proc);
+#endif
+#ifdef USE_64B_ATOMICS
+int64_t PARMCI_Rmw(int optype, int64_t * local, int64_t * remote, int64_t incr, int proc);
+#endif
 
 int PARMCI_Create_mutexes(int num);
 int PARMCI_Destroy_mutexes();
