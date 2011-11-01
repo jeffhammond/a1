@@ -50,8 +50,6 @@
 #ifndef A1D_GLOBALS_H
 #define A1D_GLOBALS_H
 
-#include "a1d_headers.h"
-
 extern int pmi_rank;
 extern int pmi_size;
 
