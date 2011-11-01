@@ -47,8 +47,10 @@
  *
  *********************************************************************/
 
-#include "a1d_atomic.h"
-#include "a1d_core.h"
+#include "a1d_headers.h"
+#include "a1d_globals.h"
+
+#include "a1d_api.h"
 
 #ifdef __bgp__
 
