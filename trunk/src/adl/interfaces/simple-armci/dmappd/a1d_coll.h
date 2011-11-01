@@ -47,9 +47,10 @@
  *
  *********************************************************************/
 
-#ifndef A1D_COMM_H
-#define A1D_COMM_H
+#ifndef A1D_COLL_H
+#define A1D_COLL_H
 
+int A1D_Barrier(void);
 int A1D_Allreduce_issame32(int32_t value, int * flag);
 int A1D_Allreduce_issame64(int64_t value, int * flag);
 

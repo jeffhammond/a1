@@ -54,6 +54,27 @@
 
 /*********************************************************************/
 
+int A1D_Barrier(void)
+{
+#ifdef __CRAYXE
+    int pmi_status = PMI_SUCCESS;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Barrier() \n");
+#endif
+
+    pmi_status = PMI_Barrier();
+    assert(pmi_status==PMI_SUCCESS);
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Barrier() \n");
+#endif
+
+    return(0);
+}
+
+
 int A1D_Allreduce_issame32(int32_t value, int * flag)
 {
 #ifdef __CRAYXE
