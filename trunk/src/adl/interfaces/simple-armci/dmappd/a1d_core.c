@@ -211,7 +211,7 @@ int A1D_Initialize()
 
     A1D_Acc_lock = dmapp_sheap_malloc( sizeof(int64_t) );
 
-    A1D_Allreduce_issame64(A1D_Acc_lock, sheapflag);
+    A1D_Allreduce_issame64((size_t)A1D_Acc_lock, &sheapflag);
     assert(sheapflag==1);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
