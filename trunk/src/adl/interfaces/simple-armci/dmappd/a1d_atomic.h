@@ -53,11 +53,11 @@
 #include "a1d_headers.h"
 #include "a1d_globals.h"
 
-void A1DI_Atomic_Initialize();
-
 void A1D_Fetch64(int proc, int64_t * remote, int64_t * local);
 void A1D_Inc64(int proc, int64_t * remote, int64_t incr);
 void A1D_Fetch_and_inc64(int proc, int64_t * remote, int64_t * local, int64_t incr);
 void A1D_Swap64(int proc, int64_t * remote, int64_t * local);
+
+void A1D_Compare_and_swap64(int proc, int64_t * remote, int64_t * local, int64_t comparand, int64_t swaperand);
 
 #endif

@@ -53,64 +53,7 @@
 #include "a1d_headers.h"
 #include "a1d_globals.h"
 
-typedef enum
-{
-    A1D_DOUBLE,
-    A1D_SINGLE,
-#ifdef A1D_USE_COMPLEX
-    A1D_DOUBLE_COMPLEX,
-    A1D_SINGLE_COMPLEX,
-#endif
-    A1D_INT32,
-    A1D_UINT32,
-    A1D_INT64,
-    A1D_UINT64
-}
-A1D_datatype_t;
-
-typedef struct
-{
-    void * remote_ptr;
-    A1D_datatype_t datatype;
-    union
-    {
-        double double_value;
-        float float_value;
-#ifdef A1D_USE_COMPLEX
-        double _Complex complex_double_value;
-        float _Complex complex_float_value;
-#endif
-        int32_t int32_value;
-        uint32_t uint32_value;
-        int64_t int64_value;
-        uint64_t uint64_value;
-    } scaling;
-}
-A1D_AccC_t;
-
-int A1D_GetC(int proc, int bytes, void* src, void* dst);
-int A1D_PutC(int proc, int bytes, void* src, void* dst);
-int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale);
-
-/*
-int A1D_GetS(int proc, int stride_levels, int block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr);
-int A1D_PutS(int proc, int stride_levels, int block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr);
-int A1D_AccS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr,
-                          int type, void* scale);
-*/
-
-//typedef struct
-//{
-//        int ptr_array_len;
-//        void** src_ptr_array;
-//        void** dst_ptr_array;
-//}
-//a1d_iovec_t;
+int A1D_Allreduce_issame32(int32_t value, int * flag);
+int A1D_Allreduce_issame64(int64_t value, int * flag);
 
 #endif

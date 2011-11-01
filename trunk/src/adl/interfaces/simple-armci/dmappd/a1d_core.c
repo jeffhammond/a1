@@ -71,25 +71,26 @@ int A1D_Initialize()
     int pmi_spawned = 0;
 
 #ifdef __CRAYXE
-    int                   pmi_status  = PMI_SUCCESS;
-    dmapp_return_t        dmapp_status = DMAPP_RC_SUCCESS;
+    int                                 pmi_status  = PMI_SUCCESS;
+    dmapp_return_t                      dmapp_status = DMAPP_RC_SUCCESS;
 
-    dmapp_rma_attrs_ext_t dmapp_config_in, dmapp_config_out;
+    dmapp_rma_attrs_ext_t               dmapp_config_in, dmapp_config_out;
 
-    dmapp_jobinfo_t       dmapp_info;
-    dmapp_pe_t            dmapp_rank = -1;
-    int                   dmapp_size = -1;
+    dmapp_jobinfo_t                     dmapp_info;
+    dmapp_pe_t                          dmapp_rank = -1;
+    int                                 dmapp_size = -1;
 
-    uint64_t              world_pset_concat_buf_size = -1;
-    void *                world_pset_concat_buf = NULL;
-    dmapp_c_pset_delimiter_strided_t world_pset_strided;
+    uint64_t                            world_pset_concat_buf_size = -1;
+    void *                              world_pset_concat_buf = NULL;
+    dmapp_c_pset_delimiter_strided_t    world_pset_strided;
+    dmapp_c_pset_desc_t                 dmapp_world_desc;
+    uint64_t                            dmapp_world_id = 1000;
+    uint64_t                            dmapp_world_modes = DMAPP_C_PSET_MODE_CONCAT; /* TODO: do I need this bit set? */
 
-    dmapp_c_pset_desc_t   dmapp_world_desc;
-    uint64_t              dmapp_world_id = 1000;
-    uint64_t              dmapp_world_modes = DMAPP_C_PSET_MODE_CONCAT; /* TODO: do I need this bit set? */
+    uint32_t                            dmapp_reduce_max_int32t = 0;
+    uint32_t                            dmapp_reduce_max_int64t = 0;
 
-    uint32_t              dmapp_reduce_max_int32t = 0;
-    uint32_t              dmapp_reduce_max_int64t = 0;
+    int                                 sheapflag = 0;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -167,8 +168,8 @@ int A1D_Initialize()
 
     dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT32, &dmapp_reduce_max_int32t);
     dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT64, &dmapp_reduce_max_int64t);
-    assert(dmapp_reduce_max_int32t>1);
-    assert(dmapp_reduce_max_int64t>1);
+    assert(dmapp_reduce_max_int32t>2);
+    assert(dmapp_reduce_max_int64t>2);
 
     /* allocate proportional to job size, since this is important for performance of concatenation */
     world_pset_concat_buf_size       = 8 * pmi_size;
@@ -202,18 +203,16 @@ int A1D_Initialize()
      *
      ***************************************************/
 
-    A1DI_Atomic_Initialize();
-
-    A1DI_Get_Initialize();
-
-    A1DI_Put_Initialize();
 #ifdef FLUSH_IMPLEMENTED
     /* allocate Put list */
-    A1D_Put_flush_list = malloc( pmi_size * sizeof(int) );
+    A1D_Put_flush_list = malloc( pmi_size * sizeof(uint32_t) );
     assert(A1D_Put_flush_list != NULL);
 #endif
 
-    A1DI_Acc_Initialize();
+    A1D_Acc_lock = dmapp_sheap_malloc( sizeof(int64_t) );
+
+    A1D_Allreduce_issame64(A1D_Acc_lock, sheapflag);
+    assert(sheapflag==1);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Initialize() \n");
@@ -254,65 +253,6 @@ int A1D_Finalize()
 #endif
 
     return(0);
-}
-
-/***************************************************
- *
- * local memory allocation
- *
- ***************************************************/
-
-void * A1D_Allocate_local(int bytes)
-{
-    void * tmp;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Allocate_local(void ** ptr, int bytes) \n");
-#endif
-
-    if (bytes>0) 
-    {
-        tmp = calloc(bytes,1);
-        assert( tmp != NULL );
-    }
-    else
-    {
-        if (bytes<0)
-        {
-            fprintf(stderr, "You requested %d bytes.  What kind of computer do you think I am? \n",bytes);
-            fflush(stderr);
-        }
-        tmp = NULL;
-    }
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Allocate_local(void ** ptr, int bytes) \n");
-#endif
-
-    return tmp;
-}
-
-void A1D_Free_local(void * ptr)
-{
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Free_local(void* ptr) \n");
-#endif
-
-    if (ptr != NULL)
-    {
-        free(ptr);
-    }
-    else
-    {
-        fprintf(stderr, "You tried to free a NULL pointer.  Please check your code. \n");
-        fflush(stderr);
-    }
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Free_local(void* ptr) \n");
-#endif
-
-    return;
 }
 
 /***************************************************
@@ -417,6 +357,65 @@ void A1D_Free_shared(void * ptr)
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Free_shared(void* ptr) \n");
+#endif
+
+    return;
+}
+
+/***************************************************
+ *
+ * local memory allocation
+ *
+ ***************************************************/
+
+void * A1D_Allocate_local(int bytes)
+{
+    void * tmp;
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Allocate_local(void ** ptr, int bytes) \n");
+#endif
+
+    if (bytes>0)
+    {
+        tmp = calloc(bytes,1);
+        assert( tmp != NULL );
+    }
+    else
+    {
+        if (bytes<0)
+        {
+            fprintf(stderr, "You requested %d bytes.  What kind of computer do you think I am? \n",bytes);
+            fflush(stderr);
+        }
+        tmp = NULL;
+    }
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Allocate_local(void ** ptr, int bytes) \n");
+#endif
+
+    return tmp;
+}
+
+void A1D_Free_local(void * ptr)
+{
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Free_local(void* ptr) \n");
+#endif
+
+    if (ptr != NULL)
+    {
+        free(ptr);
+    }
+    else
+    {
+        fprintf(stderr, "You tried to free a NULL pointer.  Please check your code. \n");
+        fflush(stderr);
+    }
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Free_local(void* ptr) \n");
 #endif
 
     return;

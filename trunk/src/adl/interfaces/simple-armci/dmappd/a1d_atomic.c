@@ -50,21 +50,6 @@
 #include "a1d_atomic.h"
 #include "a1d_core.h"
 
-void A1DI_Atomic_Initialize()
-{
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Atomic_Initialize \n");
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Atomic_Initialize \n");
-#endif
-
-    return;
-}
-
-/***********************************************************************/
-
 void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
 {
 

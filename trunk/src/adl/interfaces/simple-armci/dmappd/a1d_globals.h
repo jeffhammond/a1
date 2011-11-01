@@ -56,10 +56,10 @@ extern int pmi_rank;
 extern int pmi_size;
 
 #ifdef FLUSH_IMPLEMENTED
-extern int * A1D_Put_flush_list;
+extern uint32_t * A1D_Put_flush_list;
 #endif
 
-extern int * A1D_Put_flush_list;
+extern int64_t * A1D_Acc_lock;
 
 #ifdef __CRAYXE
 extern dmapp_seg_desc_t      A1D_Sheap_desc;

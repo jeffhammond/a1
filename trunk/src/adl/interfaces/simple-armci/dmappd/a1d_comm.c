@@ -143,6 +143,13 @@ int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_AccC(int target, int bytes, void* src, void* dst, void * scale) \n");
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_AccC(int target, int bytes, void* src, void* dst, void * scale) \n");
+#endif
 
     return 0;
 }

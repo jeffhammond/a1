@@ -47,70 +47,74 @@
  *
  *********************************************************************/
 
-#ifndef A1D_COMM_H
-#define A1D_COMM_H
+#include "a1d_comm.h"
 
-#include "a1d_headers.h"
-#include "a1d_globals.h"
+/*********************************************************************/
 
-typedef enum
+int A1D_Allreduce_issame32(int32_t value, int * flag)
 {
-    A1D_DOUBLE,
-    A1D_SINGLE,
-#ifdef A1D_USE_COMPLEX
-    A1D_DOUBLE_COMPLEX,
-    A1D_SINGLE_COMPLEX,
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
-    A1D_INT32,
-    A1D_UINT32,
-    A1D_INT64,
-    A1D_UINT64
-}
-A1D_datatype_t;
+    int32_t in[2], out[2];
 
-typedef struct
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Allreduce_issame32(int32_t value, int * flag) \n");
+#endif
+
+    *flag = 0;
+
+    in[0]  = value;
+    in[1]  = -value;
+    out[0] = 0;
+    out[1] = 0;
+#ifdef __CRAYXE
+    dmapp_status = dmapp_c_greduce_start( A1D_Pset_world, &in, &out, 2, DMAPP_C_INT32, DMAPP_C_MAX );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    /* wait for greduce to finish */
+    dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
+    if ( (out[0] == value) && (out[1] = -value) ) { (*flag) = 1 };
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Allreduce_issame32(int32_t value, int * flag) \n");
+#endif
+
+    return(0);
+}
+
+int A1D_Allreduce_issame64(int64_t value, int * flag)
 {
-    void * remote_ptr;
-    A1D_datatype_t datatype;
-    union
-    {
-        double double_value;
-        float float_value;
-#ifdef A1D_USE_COMPLEX
-        double _Complex complex_double_value;
-        float _Complex complex_float_value;
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
-        int32_t int32_value;
-        uint32_t uint32_value;
-        int64_t int64_value;
-        uint64_t uint64_value;
-    } scaling;
+    int64_t in[2], out[2];
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Allreduce_issame64(int64_t value, int * flag) \n");
+#endif
+
+    *flag = 0;
+
+    in[0]  = value;
+    in[1]  = -value;
+    out[0] = 0;
+    out[1] = 0;
+#ifdef __CRAYXE
+    dmapp_status = dmapp_c_greduce_start( A1D_Pset_world, &in, &out, 2, DMAPP_C_INT64, DMAPP_C_MAX );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    /* wait for greduce to finish */
+    dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
+    if ( (out[0] == value) && (out[1] = -value) ) { (*flag) = 1 };
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Allreduce_issame64(int64_t value, int * flag) \n");
+#endif
+
+    return(0);
 }
-A1D_AccC_t;
-
-int A1D_GetC(int proc, int bytes, void* src, void* dst);
-int A1D_PutC(int proc, int bytes, void* src, void* dst);
-int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale);
-
-/*
-int A1D_GetS(int proc, int stride_levels, int block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr);
-int A1D_PutS(int proc, int stride_levels, int block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr);
-int A1D_AccS(int proc, stride_levels, block_sizes,
-                          src_ptr, src_stride_arr,
-                          dst_ptr, dst_stride_arr,
-                          int type, void* scale);
-*/
-
-//typedef struct
-//{
-//        int ptr_array_len;
-//        void** src_ptr_array;
-//        void** dst_ptr_array;
-//}
-//a1d_iovec_t;
-
-#endif
