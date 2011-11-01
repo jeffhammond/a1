@@ -166,48 +166,59 @@ int PARMCI_WaitAll()
 
 long PARMCI_Rmw(int optype, void * local, void * remote, int incr, int proc)
 {
+    long temp;
+
     switch (optype)
     {
 #ifdef USE_32B_ATOMICS
         case ARMCI_FETCH:
             A1D_Fetch32(proc, (int32_t*)remote, (int32_t*)local );
-            return (long)(*local);
+            temp = *local;
+            return temp;
 
         case ARMCI_ADD:
             A1D_Inc32(proc, (int32_t*)remote, (int32_t)incr );
-            return (long)(0);
+            return 0;
 
         case ARMCI_FETCH_AND_ADD:
             A1D_Fetch_and_inc32(proc, (int32_t*)remote, (int32_t*)local, (int32_t)incr );
-            return (long)(*local);
+            temp = *local;
+            return temp;
 
         case ARMCI_SWAP:
             A1D_Swap32(proc, (int32_t *)remote, (int32_t *)local );
-            return (long)(*local);
+            temp = *local;
+            return temp;
+
 #endif
 #ifdef USE_64B_ATOMICS
         case ARMCI_FETCH_LONG:
             A1D_Fetch64(proc, (int64_t*)remote, (int64_t*)local );
-            return (long)(*local);
+            temp = *local;
+            return temp;
 
         case ARMCI_ADD_LONG:
             A1D_Inc64(proc, (int64_t*)remote, (int64_t)incr );
-            return (long)(0);
+            temp = *local;
+            return 0;
 
         case ARMCI_FETCH_AND_ADD_LONG:
             A1D_Fetch_and_inc64(proc, (int64_t*)remote, (int64_t*)local, (int64_t)incr );
-            return (long)(*local);
+            temp = *local;
+            return temp;
 
         case ARMCI_SWAP_LONG:
             A1D_Swap64(proc, (int64_t*)remote, (int64_t*)local );
-            return (long)(*local);
+            temp = *local;
+            return temp;
+
 #endif
         default:
             fprintf(stderr,"PARMCI_Rmw: unknown operation request! \n");
             assert(0);
-            return (long)(-1);
+            return -1;
     }
-    return (long)(-1);
+    return -1;
 }
 
 int PARMCI_Create_mutexes(int num)
