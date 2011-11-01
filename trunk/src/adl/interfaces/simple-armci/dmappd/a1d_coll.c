@@ -76,7 +76,8 @@ int A1D_Allreduce_issame32(int32_t value, int * flag)
     dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
-    if ( (out[0] == value) && (out[1] = -value) ) { (*flag) = 1 };
+    if ( (out[0] == value) && (out[1] = -value) ) 
+        (*flag)=1;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allreduce_issame32(int32_t value, int * flag) \n");
@@ -110,7 +111,8 @@ int A1D_Allreduce_issame64(int64_t value, int * flag)
     dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
-    if ( (out[0] == value) && (out[1] = -value) ) { (*flag) = 1 };
+    if ( (out[0] == value) && (out[1] = -value) ) 
+        (*flag)=1;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allreduce_issame64(int64_t value, int * flag) \n");

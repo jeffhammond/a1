@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     int i,j;
     int me = -1;
     int size = -1;
-    int fail_count = 0;
+    //int fail_count = 0;
 
     dmapp_return_t status;
     dmapp_rma_attrs_t actual_args = { 0 }, rma_args = { 0 };
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     {
         if (i==me)
         {
-            for (j = 0; j < size; j++) printf("me = %ld target[%ld] = %ld\n",me,i,target[i]);
+            for (j = 0; j < size; j++) printf("me = %d target[%d] = %ld\n", me, i, target[i] );
             printf("==========================================\n");
             fflush(stdout);
         }

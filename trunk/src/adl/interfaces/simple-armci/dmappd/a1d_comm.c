@@ -66,22 +66,22 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
     if (bytes%16 == 0)
     {
         nelems = bytes/16;
-        dmapp_status = dmapp_get( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DQW);
+        dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DQW);
     }
     else if (bytes%8 == 0)
     {
         nelems = bytes/8;
-        dmapp_status = dmapp_get( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_QW);
+        dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_QW);
     }
     else if (bytes%4 == 0)
     {
         nelems = bytes/4;
-        dmapp_status = dmapp_get( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
+        dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DW);
     }
     else
     {
         nelems = bytes;
-        dmapp_status = dmapp_get( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
+        dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_BYTE);
     }
 #endif
 

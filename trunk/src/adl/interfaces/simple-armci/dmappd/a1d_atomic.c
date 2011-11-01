@@ -111,7 +111,7 @@ void A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t in
 void A1D_Swap64(int proc, int64_t * local, int64_t * remote)
 {
 #ifdef __CRAYXE
-    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+    //dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -127,7 +127,7 @@ void A1D_Swap64(int proc, int64_t * local, int64_t * remote)
     return;
 }
 
-void A1D_Compare_and_swap64(int proc, int64_t * remote, int64_t * local, int64_t comparand, int64_t swaperand);
+void A1D_Compare_and_swap64(int proc, int64_t * remote, int64_t * local, int64_t comparand, int64_t swaperand)
 {
 #ifdef __CRAYXE
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
@@ -137,7 +137,7 @@ void A1D_Compare_and_swap64(int proc, int64_t * remote, int64_t * local, int64_t
     fprintf(stderr,"entering A1D_Swap64 \n");
 #endif
 
-    dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, comperand, swaperand);
+    dmapp_status = dmapp_acswap_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, comparand, swaperand);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Swap64 \n");
