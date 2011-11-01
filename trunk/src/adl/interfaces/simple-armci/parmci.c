@@ -51,7 +51,7 @@
 
 /* initialization and termination */
 
-int PARMCI_Init()
+int PARMCI_Init(void)
 {
     return A1D_Initialize();
 }
@@ -62,7 +62,7 @@ int PARMCI_Init_args(int *argc, char ***argv)
     return A1D_Initialize();
 }
 
-void PARMCI_Finalize()
+void PARMCI_Finalize(void)
 {
     A1D_Finalize();
     return;
@@ -110,12 +110,10 @@ void PARMCI_Memget(size_t bytes, armci_meminfo_t* meminfo, int memflg)
 
 /* synchronization */
 
-void PARMCI_Barrier()
+void PARMCI_Barrier(void)
 {
-    int mpi_status;
     /* no need to flush right now since Put/Acc wait on remote completion */
-    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
-    assert(mpi_status==0);
+    A1D_Barrier();
     return;
 }
 
@@ -128,7 +126,7 @@ void PARMCI_Fence(int proc)
     return;
 #endif
 }
-void PARMCI_AllFence()
+void PARMCI_AllFence(void)
 {
 #ifdef FLUSH_IMPLEMENTED
 #  error YOU HAVE TO IMPLEMENT A1D_Flush_all(..)!
@@ -156,7 +154,7 @@ int PARMCI_WaitProc(int proc)
     return(0);
 }
 
-int PARMCI_WaitAll()
+int PARMCI_WaitAll(void)
 {
     /* non-blocking calls aren't, hence no testing is required */
     return(0);
@@ -228,7 +226,7 @@ int PARMCI_Create_mutexes(int num)
     return(-1);
 }
 
-int PARMCI_Destroy_mutexes()
+int PARMCI_Destroy_mutexes(void)
 {
     fprintf(stderr,"PARMCI_Destroy_mutexes: not implemented \n");
     assert(0);
