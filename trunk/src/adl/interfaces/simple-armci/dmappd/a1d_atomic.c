@@ -50,8 +50,7 @@
 #include "a1d_headers.h"
 #include "a1d_globals.h"
 
-#include "a1d_atomic.h"
-#include "a1d_core.h"
+#include "a1d_api.h"
 
 void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
 {

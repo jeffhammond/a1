@@ -52,6 +52,7 @@
 
 #include "a1d_core.h"
 #include "a1d_comm.h"
+#include "a1d_coll.h"
 #include "a1d_atomic.h"
 #include "a1d_stats.h"
 
