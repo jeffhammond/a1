@@ -55,6 +55,10 @@
 int pmi_rank;
 int pmi_size;
 
+dmapp_seg_desc_t      A1D_Sheap_desc;
+dmapp_c_pset_handle_t A1D_Pset_world;
+
+int64_t * A1D_Acc_lock;
 
 int A1D_Rank()
 {

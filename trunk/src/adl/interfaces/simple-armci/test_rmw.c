@@ -70,13 +70,13 @@ int main(int argc, char *argv[])
 
     if ( rank == 0 ) printf( "testing RMW: %d ranks, %d integers\n", size, w );
 
-    int ** window;
-    window  = (int **) PARMCI_Malloc_local( size * sizeof(int *) );
-    PARMCI_Malloc( (void **) window, w * sizeof(int) );
+    size_t ** window;
+    window  = (size_t **) PARMCI_Malloc_local( size * sizeof(size_t *) );
+    PARMCI_Malloc( (void **) window, w * sizeof(size_t) );
     for (int i = 0; i < w; i++) window[rank][i] = rank*1000+i;
 
-    int * buffer;
-    buffer = (int *) PARMCI_Malloc_local(  w * sizeof(int) );
+    size_t * buffer;
+    buffer = (size_t *) PARMCI_Malloc_local(  w * sizeof(size_t) );
     for (int i = 0; i < w; i++) buffer[i] = -17037;
 
     PARMCI_Barrier();

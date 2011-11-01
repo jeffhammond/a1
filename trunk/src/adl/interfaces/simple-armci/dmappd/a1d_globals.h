@@ -64,6 +64,8 @@ extern int64_t * A1D_Acc_lock;
 #ifdef __CRAYXE
 extern dmapp_seg_desc_t      A1D_Sheap_desc;
 extern dmapp_c_pset_handle_t A1D_Pset_world;
+#else
+#warning Linking will fail.
 #endif
 
 #endif
