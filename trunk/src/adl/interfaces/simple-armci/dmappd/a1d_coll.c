@@ -64,8 +64,10 @@ int A1D_Barrier(void)
     fprintf(stderr,"entering A1D_Barrier() \n");
 #endif
 
+#ifdef __CRAYXE
     pmi_status = PMI_Barrier();
     assert(pmi_status==PMI_SUCCESS);
+#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Barrier() \n");
@@ -186,7 +188,7 @@ int A1D_Allreduce_issame32(int32_t value, int * flag)
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
     if ( (out[0] == value) && (out[1] = -value) )
-        (*flag)=1;
+        (*flag) = 1;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allreduce_issame32(int32_t value, int * flag) \n");
@@ -223,7 +225,7 @@ int A1D_Allreduce_issame64(int64_t value, int * flag)
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
     if ( (out[0] == value) && (out[1] = -value) )
-        (*flag)=1;
+        (*flag) = 1;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allreduce_issame64(int64_t value, int * flag) \n");
