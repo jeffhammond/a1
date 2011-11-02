@@ -51,6 +51,7 @@
 #define A1D_COLL_H
 
 int A1D_Barrier(void);
+int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
 int A1D_Allreduce_issame32(int32_t value, int * flag);
 int A1D_Allreduce_issame64(int64_t value, int * flag);
 

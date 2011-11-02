@@ -74,6 +74,55 @@ int A1D_Barrier(void)
     return(0);
 }
 
+int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
+{
+#ifdef __CRAYXE
+    int pmi_status = PMI_SUCCESS;
+#endif
+    int rank = -1, size = -1;
+    int * ordering = NULL;
+    int * temp = NULL;
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+#endif
+
+    /* get my PMI rank - this is redundant*/
+    pmi_status = PMI_Get_rank(&rank);
+    assert(pmi_status==PMI_SUCCESS);
+
+    /* get PMI world size - this is redundant*/
+    pmi_status = PMI_Get_size(&size);
+    assert(pmi_status==PMI_SUCCESS);
+
+    /* buffer for ranks in their PMI_Allgather order */
+    ordering = (int *) malloc( size * sizeof(int) );
+    assert(ordering!=NULL);
+
+    pmi_status = PMI_Allgather( &rank, ordering, sizeof(int) );
+    assert(pmi_status==PMI_SUCCESS);
+
+    /* buffer for local_in in their PMI_Allgather order */
+    temp = (int *) malloc( size * local_bytes );
+    assert(temp!=NULL);
+
+    /* finally allgather the actual data */
+    pmi_status = PMI_Allgather( local_in, temp, local_bytes);
+    assert(pmi_status==PMI_SUCCESS);
+
+    /* reorder the data properly */
+    for(int i=0 ; i<size ; i++)
+        memcpy( &global_out[local_bytes * ordering[i]], &temp[i * local_bytes], local_bytes );
+
+    free(temp);
+    free(ordering);
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+#endif
+
+    return(0);
+}
 
 int A1D_Allreduce_issame32(int32_t value, int * flag)
 {
@@ -100,7 +149,7 @@ int A1D_Allreduce_issame32(int32_t value, int * flag)
     dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
-    if ( (out[0] == value) && (out[1] = -value) ) 
+    if ( (out[0] == value) && (out[1] = -value) )
         (*flag)=1;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -135,7 +184,7 @@ int A1D_Allreduce_issame64(int64_t value, int * flag)
     dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
-    if ( (out[0] == value) && (out[1] = -value) ) 
+    if ( (out[0] == value) && (out[1] = -value) )
         (*flag)=1;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
