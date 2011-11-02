@@ -171,9 +171,11 @@ int A1D_Initialize()
      ***************************************************/
 
     dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT32, &dmapp_reduce_max_int32t);
+    fprintf(stderr, "dmapp_reduce_max_int32t = %d \n", dmapp_reduce_max_int32t );
     dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT64, &dmapp_reduce_max_int64t);
-    assert(dmapp_reduce_max_int32t>2);
-    assert(dmapp_reduce_max_int64t>2);
+    fprintf(stderr, "dmapp_reduce_max_int64t = %d \n", dmapp_reduce_max_int64t );
+    //assert(dmapp_reduce_max_int32t>2);
+    //assert(dmapp_reduce_max_int64t>2);
 
     /* allocate proportional to job size, since this is important for performance of concatenation */
     world_pset_concat_buf_size       = 8 * pmi_size;
