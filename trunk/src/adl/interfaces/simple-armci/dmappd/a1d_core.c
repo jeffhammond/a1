@@ -146,7 +146,7 @@ int A1D_Initialize()
 
 #ifndef FLUSH_IMPLEMENTED
     /* without strict PI ordering, we have to flush remote stores with a get packet to force global visibility */
-    assert( dmapp_config_out.PI_ordering != DMAPP_PI_ORDERING_STRICT);
+    assert( dmapp_config_out.PI_ordering == DMAPP_PI_ORDERING_STRICT);
 #endif
 
     dmapp_status = dmapp_get_jobinfo(&dmapp_info);
