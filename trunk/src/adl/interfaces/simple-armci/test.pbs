@@ -9,9 +9,9 @@
 
 export XT_SYMMETRIC_HEAP_SIZE=2000M
 
-cd ${SLURM_SUBMIT_DIR}
+cd ${PBS_O_WORKDIR}
 
-aprun -n 2 -N 2 test_hello.x
-aprun -n 2 -N 2 test_get.x
-aprun -n 2 -N 2 test_put.x
-aprun -n 2 -N 2 test_rmw.x
+aprun -n 2 -N 2 ./test_hello.x
+aprun -n 2 -N 2 ./test_get.x
+aprun -n 2 -N 2 ./test_put.x
+aprun -n 2 -N 2 ./test_rmw.x
