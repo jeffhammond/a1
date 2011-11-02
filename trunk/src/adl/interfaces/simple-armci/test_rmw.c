@@ -54,6 +54,14 @@
 #include <mpi.h>
 #include "parmci.h"
 
+#ifdef __bgp__
+typedef int32_t atomic_int_t;
+#endif
+
+#ifdef __CRAYXE
+typedef int64_t atomic_int_t;
+#endif
+
 int main(int argc, char *argv[])
 {
     int rank, size;
@@ -70,13 +78,13 @@ int main(int argc, char *argv[])
 
     if ( rank == 0 ) printf( "testing RMW: %d ranks, %d integers\n", size, w );
 
-    size_t ** window;
-    window  = (size_t **) PARMCI_Malloc_local( size * sizeof(size_t *) );
-    PARMCI_Malloc( (void **) window, w * sizeof(size_t) );
+    atomic_int_t ** window;
+    window  = (atomic_int_t **) PARMCI_Malloc_local( size * sizeof(atomic_int_t *) );
+    PARMCI_Malloc( (void **) window, w * sizeof(atomic_int_t) );
     for (int i = 0; i < w; i++) window[rank][i] = rank*1000+i;
 
-    size_t * buffer;
-    buffer = (size_t *) PARMCI_Malloc_local(  w * sizeof(size_t) );
+    atomic_int_t * buffer;
+    buffer = (atomic_int_t *) PARMCI_Malloc_local(  w * sizeof(atomic_int_t) );
     for (int i = 0; i < w; i++) buffer[i] = -17037;
 
     PARMCI_Barrier();
