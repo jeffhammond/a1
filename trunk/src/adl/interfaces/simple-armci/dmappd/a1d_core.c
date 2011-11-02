@@ -52,11 +52,14 @@
 
 #include "a1d_api.h"
 
-int pmi_rank;
-int pmi_size;
+int pmi_rank = -1;
+int pmi_size = -1;
 
+#ifdef __CRAYXE
 dmapp_seg_desc_t      A1D_Sheap_desc;
 dmapp_c_pset_handle_t A1D_Pset_world;
+#endif
+int A1D_Pset_world_exported = 0;
 
 int64_t * A1D_Acc_lock;
 
@@ -193,7 +196,8 @@ int A1D_Initialize()
     dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, &A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
-    /* out-of-band sync required between pset create and pset export */
+    /* out-of-band sync required between pset create and pset export
+     * not using A1D_Barrier because it might switch to using dmapp_barrier */
     pmi_status = PMI_Barrier();
     assert(pmi_status==PMI_SUCCESS);
 
@@ -201,6 +205,7 @@ int A1D_Initialize()
     dmapp_status = dmapp_c_pset_export( A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
+    A1D_Pset_world_exported = 1;
 #endif
 
     /***************************************************
@@ -275,55 +280,24 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
     dmapp_pe_t *   pe_list      = NULL;
 #endif
     void *  tmp_ptr       = NULL;
-    int     max_bytes_in  = 0;
-    int     max_bytes_out = 0;
+    int     max_bytes     = 0;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Allocate_shared(void* ptrs[], int bytes) \n");
 #endif
 
+    A1D_Barrier();
+
 #ifdef __CRAYXE
+    A1D_Allreduce_max32( bytes, &max_bytes );
 
-    /* barrier so that no one tries to access memory which is no longer allocated */
-    pmi_status = PMI_Barrier();
-    assert(pmi_status==PMI_SUCCESS);
-
-    /* preserve symmetric heap condition */
-    max_bytes_in = bytes;
-    dmapp_status = dmapp_c_greduce_start( A1D_Pset_world, &max_bytes_in, &max_bytes_out, 1, DMAPP_C_INT32, DMAPP_C_MAX );
+    /* allocate memory from symmetric heap */
+    tmp_ptr = dmapp_sheap_malloc( (size_t)max_bytes );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
-
-    /* wait for greduce to finish */
-    dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-
-    /* barrier because greduce semantics are not clear */
-    pmi_status = PMI_Barrier();
-    assert(pmi_status==PMI_SUCCESS);
-
-    /* finally allocate memory from symmetric heap */
-    tmp_ptr = dmapp_sheap_malloc( (size_t)max_bytes_out );
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-
-    /* barrier again for good measure */
-    pmi_status = PMI_Barrier();
-    assert(pmi_status==PMI_SUCCESS);
+#endif
 
     /* allgather addresses into pointer vector */
-    //pe_list = (dmapp_pe_t *) malloc( pmi_size * sizeof(dmapp_pe_t) );
-    //for (int i=0; i<pmi_size; i++) pe_list[i] = i;
-    //dmapp_status = dmapp_gather_ixpe( &tmp_ptr, ptrs, &A1D_Sheap_desc, pe_list, pmi_size, 1, DMAPP_QW );
     A1D_Allgather( &tmp_ptr, ptrs, sizeof(void*) );
-    //assert(dmapp_status==DMAPP_RC_SUCCESS);
-
-    /* barrier again for good measure */
-    pmi_status = PMI_Barrier();
-    assert(pmi_status==PMI_SUCCESS);
-
-    /* cleanup from allgather */
-    free(pe_list);
-
-#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Allocate_shared(void* ptrs[], int bytes) \n");
@@ -331,7 +305,6 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 
     return(0);
 }
-
 
 void A1D_Free_shared(void * ptr)
 {
@@ -344,11 +317,11 @@ void A1D_Free_shared(void * ptr)
     fprintf(stderr,"entering A1D_Free_shared(void* ptr) \n");
 #endif
 
-#ifdef __CRAYXE
-    /* barrier so that no one tries to access memory which is no longer allocated */
-    pmi_status = PMI_Barrier();
-    assert(pmi_status==0);
+    /* barrier so that no one tries to access memory which is no longer allocated
+     * and to ensure that the user calls this function collectively */
+    A1D_Barrier();
 
+#ifdef __CRAYXE
     if (ptr != NULL)
     {
         dmapp_sheap_free(ptr);

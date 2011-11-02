@@ -59,6 +59,8 @@ extern uint32_t * A1D_Put_flush_list;
 
 extern int64_t * A1D_Acc_lock;
 
+extern int A1D_Pset_world_exported;
+
 #ifdef __CRAYXE
 extern dmapp_seg_desc_t      A1D_Sheap_desc;
 extern dmapp_c_pset_handle_t A1D_Pset_world;
