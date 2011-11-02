@@ -78,6 +78,8 @@ int main(int argc, char *argv[])
 
     PARMCI_Barrier();
 
+    printf("%d: after PARMC_Barrier() \n",rank);
+
     PARMCI_Finalize();
 
     printf("%d: after PARMCI_Finalize()\n",rank);
