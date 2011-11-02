@@ -13,11 +13,15 @@
 #include <unistd.h>
 #include <assert.h>
 #include <math.h>
+
+#ifdef __CRAYXE
 #include "pmi.h"
 #include "dmapp.h"
+#endif
 
 int main(int argc, char **argv)
 {
+#ifdef __CRAYXE
     int i,j;
     int me = -1;
     int size = -1;
@@ -100,5 +104,6 @@ int main(int argc, char **argv)
     status = dmapp_finalize();
     assert(status==DMAPP_RC_SUCCESS);
 
+#endif
     return(0);
 }

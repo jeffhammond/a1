@@ -13,6 +13,7 @@
 #include <string.h>
 #include <assert.h>
 
+#ifdef __CRAYXE
 #include "gni_pub.h"
 #include "pmi.h"
 
@@ -166,11 +167,12 @@ static uint32_t get_cookie(void)
 
         return cookie;
 }
-
+#endif
 
 
 int main(int argc,char **argv)
 {
+#ifdef __CRAYXE
         register int          i;
         int                   rc;
         int                   inst_id, nranks;
@@ -384,6 +386,7 @@ int main(int argc,char **argv)
         fprintf(stderr, "Rank %d CQ events received, test passed\n", inst_id);
 
         PMI_Finalize();
+#endif
         return 0;
 }
 

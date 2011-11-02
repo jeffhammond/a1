@@ -50,7 +50,16 @@
 #ifndef A1D_COLL_H
 #define A1D_COLL_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <string.h>
+#include <assert.h>
+
 #include <mpi.h>
+
+extern MPI_Comm A1D_COMM_WORLD;
 
 int A1D_Barrier(void);
 int A1D_Allgather(void * local, void * gout, int local_bytes );

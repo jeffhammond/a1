@@ -5,8 +5,11 @@
 #include <unistd.h>
 #include <assert.h>
 #include <math.h>
+
+#ifdef __CRAYXE
 #include "pmi.h"
 #include "dmapp.h"
+#endif
 
 #define MAX_NELEMS (128L*1024L)
 
@@ -15,6 +18,7 @@
 
 int main(int argc, char **argv)
 {
+#ifdef __CRAYXE
     int pe = -1;
     int npes = -1;
     int target_pe;
@@ -92,5 +96,6 @@ int main(int argc, char **argv)
     status = dmapp_finalize();
     assert(status==DMAPP_RC_SUCCESS);
 
+#endif
     return(0);
 }

@@ -112,8 +112,8 @@ int A1D_Initialize()
     uint32_t                            dmapp_reduce_max_int64t = 0;
 #endif
 
-    int                                 sheapflag = 0;
 #endif
+    int                                 sheapflag = 0;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Initialize() \n");
@@ -274,7 +274,9 @@ int A1D_Initialize()
     assert(A1D_Put_flush_list != NULL);
 #endif
 
+#ifdef __CRAYXE
     A1D_Acc_lock = dmapp_sheap_malloc( sizeof(int64_t) );
+#endif
 
     A1D_Allreduce_issame64((size_t)A1D_Acc_lock, &sheapflag);
     assert(sheapflag==1);
@@ -302,10 +304,10 @@ int A1D_Finalize()
     free(A1D_Put_flush_list);
 #endif
 
-#ifdef __CRAYXE
     /* barrier so that no one is able to access remote memregions after they are destroyed */
     A1D_Barrier();
 
+#ifdef __CRAYXE
     /* shut down DMAPP */
     dmapp_status = dmapp_finalize();
     assert(dmapp_status==DMAPP_RC_SUCCESS);

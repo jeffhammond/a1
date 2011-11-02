@@ -14,12 +14,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef __CRAYXE
 #include "pmi.h"
 #include "dmapp.h"
-
+#endif
 
 int main(int argc,char **argv)
 {
+#ifdef __CRAYXE
         int               nelems = 128;
         int               i;
         int               pe = -1;
@@ -120,6 +123,7 @@ int main(int argc,char **argv)
                 fprintf(stderr,"\n dmapp_finalize FAILED: %d\n", status);
                 exit(1);
         }
+#endif
         return(0);
 }
 

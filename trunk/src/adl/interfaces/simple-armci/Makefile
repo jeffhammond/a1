@@ -25,7 +25,7 @@ endif
 LIBS    = libparmci.a $(DEVICE)/liba1d.a generic/liba1g.a
 
 LD      = $(CC)
-CFLAGS  = $(COPT) $(INC)
+CFLAGS  = $(COPT) $(INC) -I./generic
 LDFLAGS = $(COPT)
 
 TEST_BINARIES := $(patsubst %.c,%.x,$(wildcard test*.c))

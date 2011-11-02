@@ -54,11 +54,11 @@
 #include <mpi.h>
 #include "parmci.h"
 
-#ifdef __bgp__
+#if defined(__bgp__)
 typedef int32_t atomic_int_t;
-#endif
-
-#ifdef __CRAYXE
+#elif defined(__CRAYXE)
+typedef int64_t atomic_int_t;
+#else
 typedef int64_t atomic_int_t;
 #endif
 

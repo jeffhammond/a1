@@ -71,6 +71,8 @@ int A1D_Barrier(void)
 
 int A1D_Allgather(void * local, void * gout, int local_bytes )
 {
+    int mpi_status = MPI_SUCCESS;
+
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Allgather(void * local, void * gout, int local_bytes ) \n");
 #endif

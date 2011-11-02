@@ -14,7 +14,7 @@ A1G_HEADERS   := $(patsubst %.c,%.h,$(wildcard a1d*.c))
 OBJECTS       := $(A1G_OBJECTS)
 HEADERS       := $(A1G_HEADERS)
 
-all: $(TEST_BINARIES)
+all: liba1g.a
 
 %.x: %.o liba1g.a
 	$(LD) $(LDFLAGS) $< liba1g.a -o $@
