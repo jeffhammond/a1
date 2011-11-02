@@ -74,17 +74,17 @@ int A1D_Barrier(void)
     return(0);
 }
 
-int A1D_Allgather(void * local, void * gout, int local_bytes )
+int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
 {
 #ifdef __CRAYXE
     int pmi_status = PMI_SUCCESS;
 #endif
     int rank = -1, size = -1;
-    int * order = NULL;
+    int * ordering = NULL;
     int * temp = NULL;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Allgather(void * local, void * gout, int local_bytes ) \n");
+    fprintf(stderr,"entering A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
 #endif
 
     /* get my PMI rank - this is redundant*/
@@ -96,31 +96,59 @@ int A1D_Allgather(void * local, void * gout, int local_bytes )
     assert(pmi_status==PMI_SUCCESS);
 
     /* buffer for ranks in their PMI_Allgather order */
-    order = (int *) malloc( size * sizeof(int) );
-    assert(order!=NULL);
+    ordering = (int *) malloc( size * sizeof(int) );
+    assert(ordering!=NULL);
 
-    pmi_status = PMI_Allgather( &rank, order, sizeof(int) );
+    pmi_status = PMI_Allgather( &rank, ordering, sizeof(int) );
     assert(pmi_status==PMI_SUCCESS);
 
     /* buffer for local_in in their PMI_Allgather order */
-    temp = (void *) malloc( size * local_bytes );
+    temp = (int *) malloc( size * local_bytes );
     assert(temp!=NULL);
 
     /* finally allgather the actual data */
-    pmi_status = PMI_Allgather( local, temp, local_bytes);
+    pmi_status = PMI_Allgather( local_in, temp, local_bytes);
     assert(pmi_status==PMI_SUCCESS);
 
     /* reorder the data properly */
     for(int i=0 ; i<size ; i++)
         memcpy( &gout[ order[i] * local_bytes ], 
-                &temp[    i     * local_bytes ], 
-                local_bytes );
+                 &temp[    i     * local_bytes ],
+                 local_bytes );
 
     free(temp);
-    free(order);
+    free(ordering);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Allgather(void * local, void * g, int local_bytes ) \n");
+    fprintf(stderr,"exiting A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+#endif
+
+    return(0);
+}
+
+int A1D_Allreduce_max32(int32_t in, int32_t * out)
+{
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Allreduce_max32(int32_t in, int32_t * out) \n");
+#endif
+
+#ifdef __CRAYXE
+    assert(A1D_Pset_world_exported);
+
+    dmapp_status = dmapp_c_greduce_start( A1D_Pset_world, &in, out, 1, DMAPP_C_INT32, DMAPP_C_MAX );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    /* wait for greduce to finish */
+    dmapp_status = dmapp_c_pset_wait( A1D_Pset_world );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Allreduce_max32(int32_t in, int32_t * out) \n");
 #endif
 
     return(0);
@@ -144,6 +172,8 @@ int A1D_Allreduce_issame32(int32_t value, int * flag)
     out[0] = 0;
     out[1] = 0;
 #ifdef __CRAYXE
+    assert(A1D_Pset_world_exported);
+
     dmapp_status = dmapp_c_greduce_start( A1D_Pset_world, &in, &out, 2, DMAPP_C_INT32, DMAPP_C_MAX );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
@@ -179,6 +209,8 @@ int A1D_Allreduce_issame64(int64_t value, int * flag)
     out[0] = 0;
     out[1] = 0;
 #ifdef __CRAYXE
+    assert(A1D_Pset_world_exported);
+
     dmapp_status = dmapp_c_greduce_start( A1D_Pset_world, &in, &out, 2, DMAPP_C_INT64, DMAPP_C_MAX );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
