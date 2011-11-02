@@ -52,30 +52,42 @@
 
 #include "a1d_api.h"
 
-int pmi_rank = -1;
-int pmi_size = -1;
+int mpi_rank;
+int mpi_size;
+
+#ifdef DMAPPD_USES_MPI
+MPI_Comm A1D_COMM_WORLD;
+#else
+# ifdef __CRAYXE
+   dmapp_c_pset_handle_t A1D_Pset_world;
+# endif
+  int A1D_Pset_world_exported = 0;
+#endif
 
 #ifdef __CRAYXE
-dmapp_seg_desc_t      A1D_Sheap_desc;
-dmapp_c_pset_handle_t A1D_Pset_world;
+  dmapp_seg_desc_t      A1D_Sheap_desc;
 #endif
-int A1D_Pset_world_exported = 0;
 
 int64_t * A1D_Acc_lock;
 
 int A1D_Rank()
 {
-    return pmi_rank;
+    return mpi_rank;
 }
 
 int A1D_Size()
 {
-    return pmi_size;
+    return mpi_size;
 }
 
 int A1D_Initialize()
 {
     int pmi_spawned = 0;
+
+#ifdef DMAPPD_USES_MPI
+    int mpi_initialized, mpi_provided;
+    int mpi_status;
+#endif
 
 #ifdef __CRAYXE
     int                                 pmi_status  = PMI_SUCCESS;
@@ -104,7 +116,40 @@ int A1D_Initialize()
     fprintf(stderr,"entering A1D_Initialize() \n");
 #endif
 
-#ifdef __CRAYXE
+#ifdef DMAPPD_USES_MPI
+
+    /***************************************************
+     *
+     * configure MPI
+     *
+     ***************************************************/
+
+    /* MPI has to be Initialized for this implementation to work */
+    MPI_Initialized(&mpi_initialized);
+    assert(mpi_initialized==1);
+
+    /* MPI has to tolerate threads because A1 supports them */
+    MPI_Query_thread(&mpi_provided);
+    assert(mpi_provided==MPI_THREAD_FUNNELED);
+
+    /* have to use our own communicator for collectives to be proper */
+    mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,&A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
+    /* get my MPI rank */
+    mpi_status = MPI_Comm_rank(A1D_COMM_WORLD,&mpi_rank);
+    assert(mpi_status==0);
+
+    /* get MPI world size */
+    mpi_status = MPI_Comm_size(A1D_COMM_WORLD,&mpi_size);
+    assert(mpi_status==0);
+
+    /* barrier to make sure MPI is ready everywhere */
+    mpi_status = MPI_Barrier(A1D_COMM_WORLD);
+    assert(mpi_status==0);
+
+#else
+# ifdef __CRAYXE
 
     /***************************************************
      *
@@ -115,17 +160,23 @@ int A1D_Initialize()
     /* initialize PMI (may not be necessary */
     pmi_status = PMI_Init(&pmi_spawned);
     assert(pmi_status==PMI_SUCCESS);
+
     if (pmi_spawned==PMI_TRUE)
         fprintf(stderr,"PMI says this process is spawned.  This is bad. \n");
     assert(pmi_spawned==PMI_FALSE);
 
     /* get my PMI rank */
-    pmi_status = PMI_Get_rank(&pmi_rank);
+    pmi_status = PMI_Get_rank(&mpi_rank);
     assert(pmi_status==PMI_SUCCESS);
 
     /* get PMI world size */
-    pmi_status = PMI_Get_size(&pmi_size);
+    pmi_status = PMI_Get_size(&mpi_size);
     assert(pmi_status==PMI_SUCCESS);
+
+# endif
+#endif
+
+#ifdef __CRAYXE
 
     /***************************************************
      *
@@ -160,12 +211,10 @@ int A1D_Initialize()
     memcpy( &A1D_Sheap_desc, &(dmapp_info.sheap_seg), sizeof(dmapp_seg_desc_t) ); /* TODO: better to keep pointer instead? */
 
     /* make sure PMI and DMAPP agree */
-    assert(pmi_rank==dmapp_rank);
-    assert(pmi_size==dmapp_size);
+    assert(mpi_rank==dmapp_rank);
+    assert(mpi_size==dmapp_size);
 
-    /* necessary? */
-    pmi_status = PMI_Barrier();
-    assert(pmi_status==PMI_SUCCESS);
+#ifndef DMAPPD_USES_MPI
 
     /***************************************************
      *
@@ -181,10 +230,10 @@ int A1D_Initialize()
     //assert(dmapp_reduce_max_int64t>2);
 
     /* allocate proportional to job size, since this is important for performance of concatenation */
-    world_pset_concat_buf_size       = 8 * pmi_size;
+    world_pset_concat_buf_size       = 8 * mpi_size;
     world_pset_concat_buf            = dmapp_sheap_malloc( world_pset_concat_buf_size );
 
-    world_pset_strided.n_pes         = pmi_size;
+    world_pset_strided.n_pes         = mpi_size;
     world_pset_strided.base_pe       = 0;
     world_pset_strided.stride_pe     = 1;
 
@@ -196,8 +245,8 @@ int A1D_Initialize()
     dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, &A1D_Pset_world );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
-    /* out-of-band sync required between pset create and pset export
-     * not using A1D_Barrier because it might switch to using dmapp_barrier */
+    /* out-of-band sync required between pset create and pset export */
+    /* not using A1D_Barrier because that might switch to using dmapp_barrier */
     pmi_status = PMI_Barrier();
     assert(pmi_status==PMI_SUCCESS);
 
@@ -206,6 +255,8 @@ int A1D_Initialize()
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
     A1D_Pset_world_exported = 1;
+#endif
+
 #endif
 
     /***************************************************
@@ -235,7 +286,6 @@ int A1D_Initialize()
 int A1D_Finalize()
 {
 #ifdef __CRAYXE
-    int            pmi_status  = PMI_SUCCESS;
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
@@ -251,8 +301,7 @@ int A1D_Finalize()
 
 #ifdef __CRAYXE
     /* barrier so that no one is able to access remote memregions after they are destroyed */
-    pmi_status = PMI_Barrier();
-    assert(pmi_status==PMI_SUCCESS);
+    A1D_Barrier();
 
     /* shut down DMAPP */
     dmapp_status = dmapp_finalize();

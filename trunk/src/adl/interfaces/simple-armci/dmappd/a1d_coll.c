@@ -54,6 +54,12 @@
 
 /*********************************************************************/
 
+#ifdef DMAPPD_USES_MPI
+
+
+
+#else
+
 int A1D_Barrier(void)
 {
 #ifdef __CRAYXE
@@ -233,3 +239,5 @@ int A1D_Allreduce_issame64(int64_t value, int * flag)
 
     return(0);
 }
+
+#endif

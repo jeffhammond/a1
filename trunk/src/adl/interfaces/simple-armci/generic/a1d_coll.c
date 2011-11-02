@@ -56,9 +56,7 @@
 
 int A1D_Barrier(void)
 {
-#ifdef __bgp__
     int mpi_status = MPI_SUCCESS;
-#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"entering A1D_Barrier() \n");
@@ -74,11 +72,25 @@ int A1D_Barrier(void)
     return(0);
 }
 
+
+int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
+{
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+#endif
+
+    MPI_Allgather();
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+#endif
+
+    return(0);
+}
+
 int A1D_Allreduce_issame32(int32_t value, int * flag)
 {
-#ifdef __bgp__
     int mpi_status = MPI_SUCCESS;
-#endif
     int32_t in[2], out[2];
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -91,9 +103,7 @@ int A1D_Allreduce_issame32(int32_t value, int * flag)
     in[1]  = -value;
     out[0] = 0;
     out[1] = 0;
-#ifdef __bgp__
-
-#endif
+    MPI_Allreduce();
     if ( (out[0] == value) && (out[1] = -value) ) 
         (*flag)=1;
 
@@ -106,9 +116,7 @@ int A1D_Allreduce_issame32(int32_t value, int * flag)
 
 int A1D_Allreduce_issame64(int64_t value, int * flag)
 {
-#ifdef __bgp__
     int mpi_status = MPI_SUCCESS;
-#endif
     int64_t in[2], out[2];
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -121,9 +129,7 @@ int A1D_Allreduce_issame64(int64_t value, int * flag)
     in[1]  = -value;
     out[0] = 0;
     out[1] = 0;
-#ifdef __bgp__
-
-#endif
+    MPI_Allreduce();
     if ( (out[0] == value) && (out[1] = -value) ) 
         (*flag)=1;
 

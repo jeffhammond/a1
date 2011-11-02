@@ -11,7 +11,7 @@ INC     = -I$(DMAPP_PATH)/include -I$(UDREG_PATH)/include -I$(GNIH_PATH)/include
 LIBS    = -L$(DMAPP_PATH)/lib64   -L$(UDREG_PATH)/lib64   -L$(UGNI_PATH)/lib64   -L$(PMI_PATH)/lib64 -ldmapp -ludreg -lugni -lpmi
 
 LD      = $(CC)
-CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
+CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT -DDMAPPD_USES_MPI
 LDFLAGS = $(COPT)
 
 TEST_BINARIES := $(patsubst %.c,%.x,$(wildcard test*.c))

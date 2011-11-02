@@ -50,22 +50,28 @@
 #ifndef A1D_GLOBALS_H
 #define A1D_GLOBALS_H
 
-extern int pmi_rank;
-extern int pmi_size;
+extern int mpi_rank;
+extern int mpi_size;
+
+#ifdef DMAPPD_USES_MPI
+  extern MPI_Comm A1D_COMM_WORLD;
+#else
+  extern int A1D_Pset_world_exported;
+# ifdef __CRAYXE
+    extern dmapp_c_pset_handle_t A1D_Pset_world;
+# endif
+#endif
+
+#ifdef __CRAYXE
+  extern dmapp_seg_desc_t      A1D_Sheap_desc;
+#else
+#  warning Linking will fail.
+#endif
 
 #ifdef FLUSH_IMPLEMENTED
-extern uint32_t * A1D_Put_flush_list;
+  extern uint32_t * A1D_Put_flush_list;
 #endif
 
 extern int64_t * A1D_Acc_lock;
-
-extern int A1D_Pset_world_exported;
-
-#ifdef __CRAYXE
-extern dmapp_seg_desc_t      A1D_Sheap_desc;
-extern dmapp_c_pset_handle_t A1D_Pset_world;
-#else
-#warning Linking will fail.
-#endif
 
 #endif
