@@ -50,6 +50,8 @@
 #ifndef A1D_COLL_H
 #define A1D_COLL_H
 
+#include <mpi.h>
+
 int A1D_Barrier(void);
 int A1D_Allgather(void * local, void * gout, int local_bytes );
 

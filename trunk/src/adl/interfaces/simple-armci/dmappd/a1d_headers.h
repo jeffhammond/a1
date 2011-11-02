@@ -67,6 +67,10 @@
 #  include <complex.h>
 #endif
 
+#ifdef DMAPPD_USES_MPI
+#  include <mpi.h>
+#endif
+
 #ifdef __CRAYXE
 #  include <pmi.h>
 #  include <dmapp.h>

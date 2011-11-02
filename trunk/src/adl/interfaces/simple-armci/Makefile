@@ -22,7 +22,7 @@ ifeq ($(DEVICE),NONE)
 @ You need to set TARGET={BGP,XE}
 endif
 
-LIBS    = libparmci.a $(DEVICE)/liba1d.a
+LIBS    = libparmci.a $(DEVICE)/liba1d.a generic/liba1g.a
 
 LD      = $(CC)
 CFLAGS  = $(COPT) $(INC)
@@ -33,7 +33,7 @@ TEST_OBJECTS  := $(patsubst %.c,%.o,$(wildcard test*.c))
 OBJECTS       := parmci.o
 HEADERS       := parmci.h
 
-all: liba1d.a libparmci.a $(TEST_BINARIES)
+all: liba1g.a liba1d.a libparmci.a $(TEST_BINARIES)
 
 %.x: %.o
 	$(LD) $(LDFLAGS) $< $(LIBS) -o $@
@@ -43,6 +43,9 @@ libparmci.a: parmci.o
 
 liba1d.a:
 	make -C $(DEVICE)
+
+liba1g.a:
+	make -C generic
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@

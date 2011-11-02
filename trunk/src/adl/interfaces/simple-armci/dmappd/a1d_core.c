@@ -82,15 +82,16 @@ int A1D_Size()
 
 int A1D_Initialize()
 {
-    int pmi_spawned = 0;
 
 #ifdef DMAPPD_USES_MPI
     int mpi_initialized, mpi_provided;
     int mpi_status;
+#else
+    int pmi_spawned = 0;
+    int pmi_status  = PMI_SUCCESS;
 #endif
 
 #ifdef __CRAYXE
-    int                                 pmi_status  = PMI_SUCCESS;
     dmapp_return_t                      dmapp_status = DMAPP_RC_SUCCESS;
 
     dmapp_rma_attrs_ext_t               dmapp_config_in, dmapp_config_out;
@@ -99,6 +100,7 @@ int A1D_Initialize()
     dmapp_pe_t                          dmapp_rank = -1;
     int                                 dmapp_size = -1;
 
+#ifndef DMAPPD_USES_MPI
     uint64_t                            world_pset_concat_buf_size = -1;
     void *                              world_pset_concat_buf = NULL;
     dmapp_c_pset_delimiter_strided_t    world_pset_strided;
@@ -108,6 +110,7 @@ int A1D_Initialize()
 
     uint32_t                            dmapp_reduce_max_int32t = 0;
     uint32_t                            dmapp_reduce_max_int64t = 0;
+#endif
 
     int                                 sheapflag = 0;
 #endif
@@ -324,7 +327,6 @@ int A1D_Finalize()
 int A1D_Allocate_shared(void * ptrs[], int bytes)
 {
 #ifdef __CRAYXE
-    int            pmi_status   = PMI_SUCCESS;
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
     void *  tmp_ptr       = NULL;
@@ -357,7 +359,6 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 void A1D_Free_shared(void * ptr)
 {
 #ifdef __CRAYXE
-    int pmi_status = PMI_SUCCESS;
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
 
