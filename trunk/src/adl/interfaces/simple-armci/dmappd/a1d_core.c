@@ -269,7 +269,6 @@ int A1D_Finalize()
 
 int A1D_Allocate_shared(void * ptrs[], int bytes)
 {
-    int i = 0;
 #ifdef __CRAYXE
     int            pmi_status   = PMI_SUCCESS;
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
@@ -311,10 +310,11 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
     assert(pmi_status==PMI_SUCCESS);
 
     /* allgather addresses into pointer vector */
-    pe_list = (dmapp_pe_t *) malloc( pmi_size * sizeof(dmapp_pe_t) );
-    for ( i=0; i<pmi_size; i++) pe_list[i] = i;
-    dmapp_status = dmapp_gather_ixpe( &tmp_ptr, ptrs, &A1D_Sheap_desc, pe_list, pmi_size, 1, DMAPP_QW );
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
+    //pe_list = (dmapp_pe_t *) malloc( pmi_size * sizeof(dmapp_pe_t) );
+    //for (int i=0; i<pmi_size; i++) pe_list[i] = i;
+    //dmapp_status = dmapp_gather_ixpe( &tmp_ptr, ptrs, &A1D_Sheap_desc, pe_list, pmi_size, 1, DMAPP_QW );
+    A1D_Allgather( &tmp_ptr, ptrs, sizeof(void*) );
+    //assert(dmapp_status==DMAPP_RC_SUCCESS);
 
     /* barrier again for good measure */
     pmi_status = PMI_Barrier();
