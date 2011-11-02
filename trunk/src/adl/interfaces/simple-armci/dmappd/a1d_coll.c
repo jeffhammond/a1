@@ -76,17 +76,17 @@ int A1D_Barrier(void)
     return(0);
 }
 
-int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
+int A1D_Allgather(void * local, void * gout, int local_bytes )
 {
 #ifdef __CRAYXE
     int pmi_status = PMI_SUCCESS;
 #endif
     int rank = -1, size = -1;
-    int * ordering = NULL;
+    int * order = NULL;
     int * temp = NULL;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+    fprintf(stderr,"entering A1D_Allgather(void * local, void * gout, int local_size ) \n");
 #endif
 
 #ifdef __CRAYXE
@@ -100,33 +100,33 @@ int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
 #endif
 
     /* buffer for ranks in their PMI_Allgather order */
-    ordering = (int *) malloc( size * sizeof(int) );
-    assert(ordering!=NULL);
+    order = (int *) malloc( size * sizeof(int) );
+    assert(order!=NULL);
 
-    /* buffer for local_in in their PMI_Allgather order */
+    /* buffer for local in their PMI_Allgather order */
     temp = (int *) malloc( size * local_bytes );
     assert(temp!=NULL);
 
 #ifdef __CRAYXE
-    pmi_status = PMI_Allgather( &rank, ordering, sizeof(int) );
+    pmi_status = PMI_Allgather( &rank, order, sizeof(int) );
     assert(pmi_status==PMI_SUCCESS);
 
     /* finally allgather the actual data */
-    pmi_status = PMI_Allgather( local_in, temp, local_bytes);
+    pmi_status = PMI_Allgather( local, temp, local_bytes);
     assert(pmi_status==PMI_SUCCESS);
 #endif
 
     /* reorder the data properly */
     for(int i=0 ; i<size ; i++)
         memcpy( &gout[ order[i] * local_bytes ], 
-                 &temp[    i     * local_bytes ],
-                 local_bytes );
+                &temp[    i     * local_bytes ],
+                local_bytes );
 
     free(temp);
-    free(ordering);
+    free(order);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+    fprintf(stderr,"exiting A1D_Allgather(void * local, void * gout, int local_size ) \n");
 #endif
 
     return(0);

@@ -277,7 +277,6 @@ int A1D_Allocate_shared(void * ptrs[], int bytes)
 #ifdef __CRAYXE
     int            pmi_status   = PMI_SUCCESS;
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
-    dmapp_pe_t *   pe_list      = NULL;
 #endif
     void *  tmp_ptr       = NULL;
     int     max_bytes     = 0;

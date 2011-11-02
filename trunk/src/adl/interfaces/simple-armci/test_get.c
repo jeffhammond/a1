@@ -73,11 +73,14 @@ int main(int argc, char *argv[])
     for ( w=1 ; w<maxwinsize ; w*=2 )
     {
         float ** window = (float **) PARMCI_Malloc_local( size * sizeof(float *) );
+        printf( "after PARMCI_Malloc_local 1 \n" );
         PARMCI_Malloc( (void **) window, w * sizeof(float) );
+        printf( "PARMCI_Malloc \n" );
         for (int i = 0; i < w; i++) window[rank][i] = (float)(rank);
         //for (i = 0; i < w; i++) printf("window[%d][%d] = %lf \n", rank, i, window[rank][i] );
 
         float * buffer = (float *) PARMCI_Malloc_local(  w * sizeof(float) );
+        printf( "after PARMCI_Malloc_local 2 \n" );
         for (int i = 0; i < w; i++) buffer[i] = (float)(-rank);
         //for (i = 0; i < w; i++) printf("%d: buffer[%d] = %lf \n", rank, i, buffer[i] );
 
