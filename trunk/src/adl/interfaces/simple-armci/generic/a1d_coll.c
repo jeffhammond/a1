@@ -47,9 +47,6 @@
  *
  *********************************************************************/
 
-#include "a1d_headers.h"
-#include "a1d_globals.h"
-
 #include "a1d_coll.h"
 
 /*********************************************************************/
@@ -72,17 +69,35 @@ int A1D_Barrier(void)
     return(0);
 }
 
-
-int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
+int A1D_Allgather(void * local, void * gout, int local_bytes )
 {
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+    fprintf(stderr,"entering A1D_Allgather(void * local, void * gout, int local_bytes ) \n");
 #endif
 
-    MPI_Allgather();
+    mpi_status = MPI_Allgather( local, local_bytes, MPI_BYTE, gout, local_bytes, MPI_BYTE, A1D_COMM_WORLD );
+    assert(mpi_status==MPI_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
+    fprintf(stderr,"exiting A1D_Allgather(void * local, void * gout, int local_bytes ) \n");
+#endif
+
+    return(0);
+}
+
+int A1D_Allreduce_max32(int32_t in, int32_t * out)
+{
+    int mpi_status = MPI_SUCCESS;
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Allreduce_max32(int32_t in, int32_t * out) \n");
+#endif
+
+    mpi_status = MPI_Allreduce( &in, out, 1, MPI_INT32_T, MPI_MAX, A1D_COMM_WORLD );
+    assert(mpi_status==MPI_SUCCESS);
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Allreduce_max32(int32_t in, int32_t * out) \n");
 #endif
 
     return(0);
@@ -103,7 +118,10 @@ int A1D_Allreduce_issame32(int32_t value, int * flag)
     in[1]  = -value;
     out[0] = 0;
     out[1] = 0;
-    MPI_Allreduce();
+
+    mpi_status = MPI_Allreduce( in, out, 2, MPI_INT32_T, MPI_MAX, A1D_COMM_WORLD );
+    assert(mpi_status==MPI_SUCCESS);
+
     if ( (out[0] == value) && (out[1] = -value) ) 
         (*flag)=1;
 
@@ -129,7 +147,10 @@ int A1D_Allreduce_issame64(int64_t value, int * flag)
     in[1]  = -value;
     out[0] = 0;
     out[1] = 0;
-    MPI_Allreduce();
+
+    mpi_status = MPI_Allreduce( in, out, 2, MPI_INT64_T, MPI_MAX, A1D_COMM_WORLD );
+    assert(mpi_status==MPI_SUCCESS);
+
     if ( (out[0] == value) && (out[1] = -value) ) 
         (*flag)=1;
 
