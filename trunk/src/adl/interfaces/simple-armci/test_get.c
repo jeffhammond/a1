@@ -117,6 +117,9 @@ int main(int argc, char *argv[])
 
     PARMCI_Finalize();
 
+    printf("%d: all done \n", rank );
+    fflush(stdout);
+
     MPI_Finalize();
 
     return 0;
