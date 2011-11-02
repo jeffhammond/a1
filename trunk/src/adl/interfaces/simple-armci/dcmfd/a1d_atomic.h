@@ -50,9 +50,6 @@
 #ifndef A1D_ATOMIC_H
 #define A1D_ATOMIC_H
 
-#include "a1d_headers.h"
-#include "a1d_globals.h"
-
 typedef struct
 {
     int32_t   value;
