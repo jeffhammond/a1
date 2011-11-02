@@ -79,11 +79,14 @@ int main(int argc, char *argv[])
     if ( rank == 0 ) printf( "testing RMW: %d ranks, %d integers\n", size, w );
 
     atomic_int_t ** window;
+    if ( rank == 0 ) printf( "PARMCI_Malloc_local \n", size, w );
     window  = (atomic_int_t **) PARMCI_Malloc_local( size * sizeof(atomic_int_t *) );
+    if ( rank == 0 ) printf( "PARMCI_Malloc \n", size, w );
     PARMCI_Malloc( (void **) window, w * sizeof(atomic_int_t) );
     for (int i = 0; i < w; i++) window[rank][i] = rank*1000+i;
 
     atomic_int_t * buffer;
+    if ( rank == 0 ) printf( "PARMCI_Malloc_local \n", size, w );
     buffer = (atomic_int_t *) PARMCI_Malloc_local(  w * sizeof(atomic_int_t) );
     for (int i = 0; i < w; i++) buffer[i] = -17037;
 
