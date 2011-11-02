@@ -87,6 +87,7 @@ int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
     fprintf(stderr,"entering A1D_Allgather(void * local_in, void * global_out, int local_size ) \n");
 #endif
 
+#ifdef __CRAYXE
     /* get my PMI rank - this is redundant*/
     pmi_status = PMI_Get_rank(&rank);
     assert(pmi_status==PMI_SUCCESS);
@@ -94,21 +95,24 @@ int A1D_Allgather(void * local_in, void * global_out, int local_bytes )
     /* get PMI world size - this is redundant*/
     pmi_status = PMI_Get_size(&size);
     assert(pmi_status==PMI_SUCCESS);
+#endif
 
     /* buffer for ranks in their PMI_Allgather order */
     ordering = (int *) malloc( size * sizeof(int) );
     assert(ordering!=NULL);
 
-    pmi_status = PMI_Allgather( &rank, ordering, sizeof(int) );
-    assert(pmi_status==PMI_SUCCESS);
-
     /* buffer for local_in in their PMI_Allgather order */
     temp = (int *) malloc( size * local_bytes );
     assert(temp!=NULL);
 
+#ifdef __CRAYXE
+    pmi_status = PMI_Allgather( &rank, ordering, sizeof(int) );
+    assert(pmi_status==PMI_SUCCESS);
+
     /* finally allgather the actual data */
     pmi_status = PMI_Allgather( local_in, temp, local_bytes);
     assert(pmi_status==PMI_SUCCESS);
+#endif
 
     /* reorder the data properly */
     for(int i=0 ; i<size ; i++)
