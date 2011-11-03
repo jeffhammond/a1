@@ -50,6 +50,13 @@
 #ifndef A1D_COMM_H
 #define A1D_COMM_H
 
+int A1D_Flush(int target);
+int A1D_Flush_all(void);
+
+int A1D_GetC(int proc, int bytes, void* src, void* dst);
+int A1D_PutC(int proc, int bytes, void* src, void* dst);
+int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale);
+
 typedef enum
 {
     A1D_DOUBLE,
@@ -85,9 +92,13 @@ typedef struct
 }
 A1D_AccC_t;
 
-int A1D_GetC(int proc, int bytes, void* src, void* dst);
-int A1D_PutC(int proc, int bytes, void* src, void* dst);
-int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale);
+//typedef struct
+//{
+//        int ptr_array_len;
+//        void** src_ptr_array;
+//        void** dst_ptr_array;
+//}
+//a1d_iovec_t;
 
 /*
 int A1D_GetS(int proc, int stride_levels, int block_sizes,
@@ -101,13 +112,5 @@ int A1D_AccS(int proc, stride_levels, block_sizes,
                           dst_ptr, dst_stride_arr,
                           int type, void* scale);
 */
-
-//typedef struct
-//{
-//        int ptr_array_len;
-//        void** src_ptr_array;
-//        void** dst_ptr_array;
-//}
-//a1d_iovec_t;
 
 #endif

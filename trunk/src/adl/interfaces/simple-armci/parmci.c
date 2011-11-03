@@ -112,28 +112,20 @@ void PARMCI_Memget(size_t bytes, armci_meminfo_t* meminfo, int memflg)
 
 void PARMCI_Barrier(void)
 {
-    /* no need to flush right now since Put/Acc wait on remote completion */
+    A1D_Flush_all();
     A1D_Barrier();
     return;
 }
 
 void PARMCI_Fence(int proc)
 {
-#ifdef FLUSH_IMPLEMENTED
-#  warning YOU HAVE TO IMPLEMENT A1D_Flush(..)!
-#else
-    /* no need to flush right now since Put/Acc wait on remote completion */
+    A1D_Flush(proc);
     return;
-#endif
 }
 void PARMCI_AllFence(void)
 {
-#ifdef FLUSH_IMPLEMENTED
-#  warning YOU HAVE TO IMPLEMENT A1D_Flush_all(..)!
-#else
-    /* no need to flush right now since Put/Acc wait on remote completion */
+    A1D_Flush_all();
     return;
-#endif
 }
 
 int PARMCI_Test(armci_hdl_t * nb_handle)

@@ -130,11 +130,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < w; i++) 
                 printf("rank %d (after get 1) buffer[%d] = %d \n", rank, i, buffer[i] );
 
-            //for (int i = 0; i < w; i++) 
-            //    PARMCI_Rmw( ARMCI_FETCH_AND_ADD, &buffer[i], &window[t][i], 1000, t );
+            for (int i = 0; i < w; i++) 
+                PARMCI_Rmw( ARMCI_FETCH_AND_ADD, &buffer[i], &window[t][i], 1000, t );
 
-            //for (int i = 0; i < w; i++) 
-            //    printf("rank %d (after atomic fetch-and-add-1000) buffer[%d] = %d \n", rank, i, buffer[i] );
+            for (int i = 0; i < w; i++) 
+                printf("rank %d (after atomic fetch-and-add-1000) buffer[%d] = %d \n", rank, i, buffer[i] );
 
             for (int i = 0; i < w; i++) buffer[i] = 55555;
 
