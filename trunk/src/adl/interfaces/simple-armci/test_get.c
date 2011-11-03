@@ -95,10 +95,11 @@ int main(int argc, char *argv[])
         if (rank == 0)
             for (int t=1; t<size; t++)
             {
-                int bytes, repeat = 10;
+                int bytes, repeat;
                 double t0, t1, dt, bw;
 
-                bytes = w * sizeof(float);
+                bytes  = w * sizeof(float);
+                repeat = 10 * (maxwinsize/w);
 
                 PARMCI_Get( window[t], buffer, bytes, t );
                 for (int i = (w-1); i >=0 ; i--) assert( buffer[i] == (float)t );
