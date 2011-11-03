@@ -45,7 +45,7 @@ liba1d.a:
 	make -C $(DEVICE)
 
 liba1g.a:
-	make -C generic
+	make CC=$(CC) -C generic
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
