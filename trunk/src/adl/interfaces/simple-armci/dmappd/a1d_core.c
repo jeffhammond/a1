@@ -86,6 +86,9 @@ int A1D_Initialize()
 #ifdef DMAPPD_USES_MPI
     int mpi_initialized, mpi_provided;
     int mpi_status;
+
+    int namelen;
+    char procname[MPI_MAX_PROCESSOR_NAME];
 #else
     int pmi_spawned = 0;
     int pmi_status  = PMI_SUCCESS;
@@ -147,6 +150,11 @@ int A1D_Initialize()
     mpi_status = MPI_Comm_size(A1D_COMM_WORLD,&mpi_size);
     assert(mpi_status==0);
 
+    /* in a perfect world, this would provide topology information like BG */
+    MPI_Get_processor_name( procname, &namelen );
+    printf( "%d: MPI_Get_processor_name = %s\n" , mpi_rank, procname );
+    fflush( stdout );
+
     /* barrier to make sure MPI is ready everywhere */
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
@@ -189,8 +197,13 @@ int A1D_Initialize()
 
     dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB;
     dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;
+#ifdef DETERMINISTIC_ROUTING
     dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
     dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+#else
+    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
+    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
+#endif
     dmapp_config_in.max_concurrency      = 1; /* not thread-safe */
 #ifdef FLUSH_IMPLEMENTED
     dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_RELAXED;
