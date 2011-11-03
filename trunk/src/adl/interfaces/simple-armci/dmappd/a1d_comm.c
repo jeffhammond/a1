@@ -225,7 +225,7 @@ int A1D_Flush(int target)
     fprintf(stderr,"entering A1D_Flush(int target) \n");
 #endif
 
-#ifdef __CRAYXE
+#if defined(FLUSH_IMPLEMENTED) && defined(__CRAYXE)
     dmapp_status = dmapp_get( &temp, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)target, 1, DMAPP_QW );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
@@ -250,7 +250,7 @@ int A1D_Flush_all(void)
     fprintf(stderr,"entering A1D_Flush(int target) \n");
 #endif
 
-#ifdef __CRAYXE
+#if defined(FLUSH_IMPLEMENTED) && defined(__CRAYXE)
     /* this is not necessary until NB ops are implemented */
     dmapp_status = dmapp_gsync_wait();
     assert(dmapp_status==DMAPP_RC_SUCCESS);
@@ -282,6 +282,11 @@ int A1D_Flush_all(void)
         dmapp_status = dmapp_gsync_wait();
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
+#endif
+
+#ifdef FLUSH_IMPLEMENTED
+    /* we really shouldn't reset these to zero until we know that gsync has returned */
+    for ( int i=0 ; i<mpi_size ; i++) A1D_Put_flush_list[i] = 0;
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
