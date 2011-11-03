@@ -56,4 +56,5 @@ clean:
 realclean: clean
 	$(RM) $(RMFLAGS) $(TEST_BINARIES) libparmci.a
 	make -C $(DEVICE) realclean
+	make -C generic realclean
 
