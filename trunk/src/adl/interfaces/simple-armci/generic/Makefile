@@ -4,7 +4,7 @@ COPT    := -g -O0 -std=c99
 INC     = -I.
 
 LD      = $(CC)
-CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
+CFLAGS  = $(COPT) $(INC)
 LDFLAGS = $(COPT)
 
 TEST_BINARIES := $(patsubst %.c,%.x,$(wildcard test*.c))

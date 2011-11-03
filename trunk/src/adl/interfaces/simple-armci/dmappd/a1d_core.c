@@ -68,6 +68,10 @@ MPI_Comm A1D_COMM_WORLD;
   dmapp_seg_desc_t      A1D_Sheap_desc;
 #endif
 
+#ifdef FLUSH_IMPLEMENTED
+  int32_t *  A1D_Put_flush_list;
+#endif
+
 int64_t * A1D_Acc_lock;
 
 int A1D_Rank()
