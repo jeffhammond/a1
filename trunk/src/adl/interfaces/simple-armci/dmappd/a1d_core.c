@@ -133,7 +133,7 @@ int A1D_Initialize()
 
     /* MPI has to tolerate threads because A1 supports them */
     MPI_Query_thread(&mpi_provided);
-    assert(mpi_provided==MPI_THREAD_FUNNELED);
+    assert(mpi_provided>MPI_THREAD_SINGLE);
 
     /* have to use our own communicator for collectives to be proper */
     mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,&A1D_COMM_WORLD);
