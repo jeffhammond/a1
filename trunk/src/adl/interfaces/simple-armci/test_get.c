@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
             for (int t=1; t<size; t++)
             {
                 int bytes, repeat = 10;
-                float t0, t1, dt, bw;
+                double t0, t1, dt, bw;
 
                 bytes = w * sizeof(float);
 
@@ -109,10 +109,10 @@ int main(int argc, char *argv[])
                 for (int r=0; r<repeat; r++) PARMCI_Get( window[t], buffer, bytes, t );
                 t1 = MPI_Wtime();
 
-                dt =  ( t1 - t0 ) / repeat;
-                bw = (float)bytes / dt / 1000000;
-                printf("PARMCI_Get of from rank %d to rank %d of %d bytes took %f seconds (%f MB/s)\n",
-                       t, 0, bytes, dt, bw);
+                dt =  (t1-t0) / repeat;
+                bw = (bytes / dt);
+                bw /= 1000000.0;
+                printf("PARMCI_Get of from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n", t, 0, bytes, dt, bw);
                 fflush(stdout);
             }
 
