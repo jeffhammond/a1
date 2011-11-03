@@ -54,7 +54,7 @@
 
 void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
 {
-    int64_t zero = 0; /* fetch-and-or with zero should be the same as fetch */
+    const int64_t zero = 0;
 #ifdef __CRAYXE
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
@@ -64,7 +64,7 @@ void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
 #endif
 
 #ifdef __CRAYXE
-    dmapp_status = dmapp_afor_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, zero);
+    dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, zero);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 

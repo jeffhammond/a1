@@ -54,6 +54,10 @@
 
 /*********************************************************************/
 
+#define DMAPP_FLUSH_COUNT_MAX 100
+
+/*********************************************************************/
+
 int A1D_GetC(int target, int bytes, void * src, void * dst)
 {
     uint64_t nelems = 0;
@@ -70,21 +74,25 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
     {
         nelems = bytes/16;
         dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DQW);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
     else if (bytes%8 == 0)
     {
         nelems = bytes/8;
         dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_QW);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
     else if (bytes%4 == 0)
     {
         nelems = bytes/4;
         dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DW);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
     else
     {
         nelems = bytes;
         dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_BYTE);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
 #endif
 
@@ -111,21 +119,25 @@ int A1D_PutC(int target, int bytes, void * src, void * dst)
     {
         nelems = bytes/16;
         dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DQW);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
     else if (bytes%8 == 0)
     {
         nelems = bytes/8;
         dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_QW);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
     else if (bytes%4 == 0)
     {
         nelems = bytes/4;
         dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
     else
     {
         nelems = bytes;
         dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
 #endif
 
@@ -201,3 +213,80 @@ int A1D_AccS(int proc, stride_levels, block_sizes,
 #endif
 
 /*********************************************************************/
+
+int A1D_Flush(int target)
+{
+    int64_t temp = -1;
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Flush(int target) \n");
+#endif
+
+#ifdef __CRAYXE
+    dmapp_status = dmapp_get( &temp, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)target, 1, DMAPP_QW );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Flush(int target) \n");
+#endif
+
+    return(0);
+}
+
+int A1D_Flush_all(void)
+{
+    int     count = 0;
+    int     gsync = 0;
+    int64_t temp[DMAPP_FLUSH_COUNT_MAX+1];
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Flush(int target) \n");
+#endif
+
+#ifdef __CRAYXE
+    /* this is not necessary until NB ops are implemented */
+    dmapp_status = dmapp_gsync_wait();
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    for ( int i=0 ; i<mpi_size ; i++)
+    {
+        if ( A1D_Put_flush_list[i] > 0 )
+        {
+            dmapp_status = dmapp_get_nbi( &temp[count], A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)i, 1, DMAPP_QW );
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+            count++;
+
+            if ( count > DMAPP_FLUSH_COUNT_MAX )
+            {
+                dmapp_status = dmapp_gsync_wait();
+                assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+                count = 0;
+                gsync++;
+            }
+        }
+    }
+
+    /* in case we never reached count > DMAPP_FLUSH_COUNT_MAX, we must call gsync at least once 
+     * to ensure that implicit NB get ops complete remotely, thus ensuring global visability  */
+    if ( gsync == 0 )
+    {
+        dmapp_status = dmapp_gsync_wait();
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
+    }
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Flush(int target) \n");
+#endif
+
+    return(0);
+}
