@@ -89,7 +89,7 @@ int A1D_Initialize()
 
 #ifdef DMAPPD_USES_MPI
     int mpi_initialized, mpi_provided;
-    int mpi_status;
+    int mpi_status = MPI_SUCCESS;
 
     int namelen;
     char procname[MPI_MAX_PROCESSOR_NAME];
