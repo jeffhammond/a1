@@ -283,7 +283,7 @@ int A1D_Initialize()
 
 #ifdef FLUSH_IMPLEMENTED
     /* allocate Put list */
-    A1D_Put_flush_list = malloc( pmi_size * sizeof(uint32_t) );
+    A1D_Put_flush_list = malloc( mpi_size * sizeof(int32_t) );
     assert(A1D_Put_flush_list != NULL);
 #endif
 

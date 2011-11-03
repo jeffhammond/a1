@@ -69,7 +69,7 @@ extern int mpi_size;
 #endif
 
 #ifdef FLUSH_IMPLEMENTED
-  extern uint32_t * A1D_Put_flush_list;
+  extern int32_t * A1D_Put_flush_list;
 #endif
 
 extern int64_t * A1D_Acc_lock;

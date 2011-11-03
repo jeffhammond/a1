@@ -120,7 +120,7 @@ void PARMCI_Barrier(void)
 void PARMCI_Fence(int proc)
 {
 #ifdef FLUSH_IMPLEMENTED
-#  error YOU HAVE TO IMPLEMENT A1D_Flush(..)!
+#  warning YOU HAVE TO IMPLEMENT A1D_Flush(..)!
 #else
     /* no need to flush right now since Put/Acc wait on remote completion */
     return;
@@ -129,7 +129,7 @@ void PARMCI_Fence(int proc)
 void PARMCI_AllFence(void)
 {
 #ifdef FLUSH_IMPLEMENTED
-#  error YOU HAVE TO IMPLEMENT A1D_Flush_all(..)!
+#  warning YOU HAVE TO IMPLEMENT A1D_Flush_all(..)!
 #else
     /* no need to flush right now since Put/Acc wait on remote completion */
     return;
