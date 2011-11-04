@@ -70,17 +70,13 @@ int main(int argc, char *argv[])
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     assert( size > 1 );
 
-    printf("%d: before PARMCI_Init_args(..)\n",rank);
-
     PARMCI_Init_args(&argc, &argv);
 
     PARMCI_Barrier();
 
-    printf("%d: after PARMC_Barrier() \n",rank);
-
     PARMCI_Finalize();
 
-    printf("%d: after PARMCI_Finalize()\n",rank);
+    printf("%d: all done \n", rank );
     fflush(stdout);
 
     MPI_Finalize();

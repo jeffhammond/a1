@@ -143,11 +143,13 @@ int main(int argc, char *argv[])
                 PARMCI_Fence( t );
                 t2 = MPI_Wtime();
 
-                dt1 =  ( t1 - t0 );
-                dt2 =  ( t2 - t0 );
-                bw1 = (double)bytes / dt1 / 1000000;
-                bw2 = (double)bytes / dt2 / 1000000;
-                printf("PARMCI_Put of from rank %d to rank %d of %d bytes - local: %lf s (%lf MB/s) remote: %lf s (%lf MB/s) \n",
+                dt1  = t1 - t0;
+                dt2  = t2 - t0;
+                bw1  = bytes / dt1;
+                bw2  = bytes / dt2;
+                bw1 /= 1000000.0;
+                bw2 /= 1000000.0;
+                printf("PARMCI_Put of from rank %4d to rank %4d of %9d bytes - local: %lf s (%lf MB/s) remote: %lf s (%lf MB/s) \n",
                        t, 0, bytes, dt1, bw1, dt2, bw2);
                 fflush(stdout);
             }

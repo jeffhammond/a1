@@ -157,7 +157,9 @@ int main(int argc, char *argv[])
 
     PARMCI_Finalize();
 
-    if ( rank == 0 )  printf("the end \n");
+    printf("%d: all done \n", rank );
+    fflush(stdout);
+
 
     MPI_Finalize();
 

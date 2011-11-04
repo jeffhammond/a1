@@ -79,14 +79,11 @@ int main(int argc, char *argv[])
     for ( w=1 ; w<maxwinsize ; w*=2 )
     {
         float ** window = (float **) PARMCI_Malloc_local( size * sizeof(float *) );
-        printf( "after PARMCI_Malloc_local 1 \n" );
         PARMCI_Malloc( (void **) window, w * sizeof(float) );
-        printf( "PARMCI_Malloc \n" );
         for (int i = 0; i < w; i++) window[rank][i] = (float)(rank);
         //for (i = 0; i < w; i++) printf("window[%d][%d] = %lf \n", rank, i, window[rank][i] );
 
         float * buffer = (float *) PARMCI_Malloc_local(  w * sizeof(float) );
-        printf( "after PARMCI_Malloc_local 2 \n" );
         for (int i = 0; i < w; i++) buffer[i] = (float)(-rank);
         //for (i = 0; i < w; i++) printf("%d: buffer[%d] = %lf \n", rank, i, buffer[i] );
 
@@ -110,10 +107,10 @@ int main(int argc, char *argv[])
                 for (int r=0; r<repeat; r++) PARMCI_Get( window[t], buffer, bytes, t );
                 t1 = MPI_Wtime();
 
-                dt =  (t1-t0) / repeat;
-                bw = (bytes / dt);
+                dt  = (t1-t0) / repeat;
+                bw  = bytes / dt;
                 bw /= 1000000.0;
-                printf("PARMCI_Get of from rank %d to rank %d of %d bytes took %lf seconds (%lf MB/s)\n", t, 0, bytes, dt, bw);
+                printf("PARMCI_Get of from rank %4d to rank %4d of %9d bytes took %lf seconds (%lf MB/s)\n", t, 0, bytes, dt, bw);
                 fflush(stdout);
             }
 
