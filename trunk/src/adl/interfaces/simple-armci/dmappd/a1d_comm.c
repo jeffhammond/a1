@@ -335,7 +335,7 @@ int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale
     /* put local copy back into dst */
     A1D_PutC(proc, bytes, dst_local_copy, dst);
 
-    dmapp_status = dmapp_acswap_qw( local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, mpi_rank, -1);
+    dmapp_status = dmapp_acswap_qw( &local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, mpi_rank, -1);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
     /* the lock better have been held by mpi_rank */
