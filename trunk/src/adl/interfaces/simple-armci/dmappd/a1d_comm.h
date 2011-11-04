@@ -50,22 +50,6 @@
 #ifndef A1D_COMM_H
 #define A1D_COMM_H
 
-int A1D_Flush(int target);
-int A1D_Flush_all(void);
-
-int A1D_Wait(a1d_nbhandle_t nbhandle);
-int A1D_Wait_list(int count, a1d_nbhandle_t * nbhandle);
-
-int A1D_AccC_local(int bytes, void* src, void* dst, int type, void* scale);
-
-int A1D_GetC(int proc, int bytes, void * src, void * dst);
-int A1D_PutC(int proc, int bytes, void * src, void * dst);
-int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale);
-
-int A1D_iGetC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t nbhandle);
-int A1D_iPutC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t nbhandle);
-int A1D_iAccC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t nbhandle, int type, void * scale);
-
 typedef enum
 {
     A1D_DOUBLE,
@@ -108,7 +92,8 @@ typedef struct
     {
         dmapp_syncid_handle_t   handle;
         dmapp_syncid_handle_t * handles;
-    } nbh;
+    } 
+    nbh;
 }
 a1d_nbhandle_t;
 
@@ -119,6 +104,22 @@ a1d_nbhandle_t;
 //        void** dst_ptr_array;
 //}
 //a1d_iovec_t;
+
+int A1D_Flush(int target);
+int A1D_Flush_all(void);
+
+int A1D_Wait(a1d_nbhandle_t * nbhandle);
+int A1D_Wait_list(int count, a1d_nbhandle_t * nbhandle);
+
+int A1D_AccC_local(int bytes, void* src, void* dst, int type, void* scale);
+
+int A1D_GetC(int proc, int bytes, void * src, void * dst);
+int A1D_PutC(int proc, int bytes, void * src, void * dst);
+int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale);
+
+int A1D_iGetC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t * nbhandle);
+int A1D_iPutC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t * nbhandle);
+int A1D_iAccC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t * nbhandle, int type, void * scale);
 
 /*
 int A1D_GetS(int proc, int stride_levels, int block_sizes,

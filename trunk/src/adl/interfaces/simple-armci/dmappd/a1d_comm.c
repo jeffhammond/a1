@@ -142,7 +142,7 @@ int A1D_Flush_all(void)
 
 /*********************************************************************/
 
-int A1D_Wait(a1d_nbhandle_t nbhandle);
+int A1D_Wait(a1d_nbhandle_t * handle)
 {
 #ifdef __CRAYXE
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
@@ -152,11 +152,10 @@ int A1D_Wait(a1d_nbhandle_t nbhandle);
     fprintf(stderr,"entering A1D_Wait(a1d_nbhandle_t nbhandle) \n");
 #endif
 
-
     if ( handle->aggr_size == 0)
     { /* not an aggregrate handle, so use directly */
 #if defined(__CRAYXE)
-        dmapp_status = dmapp_syncid_wait( &(handle->nbh->handle) );
+        dmapp_status = dmapp_syncid_wait( &(handle->nbh.handle) );
         assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
     }
@@ -164,14 +163,12 @@ int A1D_Wait(a1d_nbhandle_t nbhandle);
     { /* aggregate handle */
         for ( int i=0 ; i<(handle->aggr_size) ; i++ )
         {
-            dmapp_status = dmapp_syncid_wait( &(handle->nbh->handles[i]) );
+#if defined(__CRAYXE)
+            dmapp_status = dmapp_syncid_wait( &(handle->nbh.handles[i]) );
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
         }
     }
-
-#if defined(__CRAYXE)
-    dmapp_status = dmapp_syncid_wait();
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-#endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Wait(a1d_nbhandle_t nbhandle) \n");
@@ -323,20 +320,20 @@ int A1D_iGetC(int target, int bytes, void * src, void * dst, a1d_nbhandle_t * ha
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
     }
-    else if
+    else
     {
         if ( handle->aggr_size == 0)
         { /* not an aggregrate handle, so use directly */
-            dmapp_nbhandle = handle->nbh->handle;
+            dmapp_nbhandle = handle->nbh.handle;
         }
         else
         { /* aggregate handle */
-            handle->nbh->handles = realloc ( handle->nbh->handles, ( ++(handle->aggr_size) )*sizeof(dmapp_nbhandle) );
-            assert(handle->nbh->handles!=NULL);
+            handle->nbh.handles = realloc ( handle->nbh.handles, ( ++(handle->aggr_size) )*sizeof(dmapp_nbhandle) );
+            assert(handle->nbh.handles!=NULL);
         }
 
         /* attach this nb op with the handle that was just added */
-        dmapp_nbhandle = handle->nbh->handles[handle->aggr_size];
+        dmapp_nbhandle = handle->nbh.handles[handle->aggr_size];
 
         if (bytes%16 == 0)
         {

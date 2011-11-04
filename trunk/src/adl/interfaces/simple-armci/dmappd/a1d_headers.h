@@ -59,6 +59,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
+#define __USE_XOPEN_EXTENDED
 #include <unistd.h>
 #include <math.h>
 #include <assert.h>
