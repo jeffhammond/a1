@@ -142,6 +142,62 @@ int A1D_Flush_all(void)
 
 /*********************************************************************/
 
+int A1D_AccC_local(int bytes, void * y, void * x, int type, void * a)
+{
+    int typesize  = 0;
+    int typecount = 0;
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_AccC_local(int bytes, void * src, void * dst, void * scale) \n");
+#endif
+
+    switch (type)
+    {
+        case A1D_DOUBLE:
+
+            typesize = sizeof(double);
+            assert( ( bytes % typesize )==0 );
+            typecount = bytes/typesize;
+
+            double * typed_a = (double)(*a);
+            double * typed_x = (double)(*x);
+            double * typed_y = (double)(*y);
+
+            for (int i = 0 ; i<typecount ; i++ )
+                typed_y[i] += typed_a * typed_x[i];
+
+            break;
+
+        case A1D_SINGLE:
+
+            typesize = sizeof(float);
+            assert( ( bytes % typesize )==0 );
+            typecount = bytes/typesize;
+
+            float * typed_a = (float)(*a);
+            float * typed_x = (float)(*x);
+            float * typed_y = (float)(*y);
+
+            for (int i = 0 ; i<typecount ; i++ )
+                typed_y[i] += typed_a * typed_x[i];
+
+            break;
+
+        default:
+            fprintf(stderr, "A1D_AccC_local does not support this type \n");
+            assert(0);
+            break;
+    }
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_AccC_local(int bytes, void * src, void * dst, void * scale) \n");
+#endif
+
+    return 0;
+}
+
+/*********************************************************************/
+
 int A1D_GetC(int target, int bytes, void * src, void * dst)
 {
     uint64_t nelems = 0;
@@ -150,7 +206,7 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_GetC(int target, int bytes, void* src, void* dst) \n");
+    fprintf(stderr,"entering A1D_GetC(int target, int bytes, void * src, void * dst) \n");
 #endif
 
 #ifdef __CRAYXE
@@ -181,7 +237,7 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_GetC(int target, int bytes, void* src, void* dst) \n");
+    fprintf(stderr,"exiting A1D_GetC(int target, int bytes, void * src, void * dst) \n");
 #endif
 
     return(0);
@@ -195,7 +251,7 @@ int A1D_PutC(int target, int bytes, void * src, void * dst)
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_PutC(int target, int bytes, void* src, void* dst) \n");
+    fprintf(stderr,"entering A1D_PutC(int target, int bytes, void * src, void * dst) \n");
 #endif
 
 #ifdef __CRAYXE
@@ -230,7 +286,7 @@ int A1D_PutC(int target, int bytes, void * src, void * dst)
 #endif
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_PutC(int target, int bytes, void* src, void* dst) \n");
+    fprintf(stderr,"exiting A1D_PutC(int target, int bytes, void * src, void * dst) \n");
 #endif
 
     return(0);
@@ -241,13 +297,54 @@ int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale
 #ifdef __CRAYXE
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
 #endif
+    int t = 0;
+    const int trymax = 1000;
+    int64_t local = -1;
+
+    void * dst_local_copy = NULL;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_AccC(int target, int bytes, void* src, void* dst, void * scale) \n");
+    fprintf(stderr,"entering A1D_AccC(int target, int bytes, void * src, void * dst, void * scale) \n");
 #endif
 
+    while ( (t<trymax) && (local<0) )
+    {
+        dmapp_status = dmapp_acswap_qw( local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, -1, mpi_rank);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+        usleep( (i<10) ? pow(2,t) : 1024 );
+
+        t++;
+    }
+
+    if ( t == trymax )
+    {
+        fprintf(stderr, "A1D_AccC could not acquire A1D_Acc_lock at rank %d in %d attempts \n", mpi_rank, trymax );
+        assert(0);
+    }
+
+    dst_local_copy = malloc(bytes);
+    assert(dst_local_copy!=NULL);
+
+    /* get remote dst buffer into a local copy */
+    A1D_GetC(proc, bytes, dst, dst_local_copy);
+
+    /* dst_local_copy += scale * src */
+    A1D_AccC_local(bytes, dst_local_copy, src, type, scale);
+
+    /* put local copy back into dst */
+    A1D_PutC(proc, bytes, dst_local_copy, dst)
+
+    dmapp_status = dmapp_acswap_qw( local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, mpi_rank, -1);
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    /* the lock better have been held by mpi_rank */
+    assert(local==mpi_rank);
+
+    free(dst_local_copy);
+
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_AccC(int target, int bytes, void* src, void* dst, void * scale) \n");
+    fprintf(stderr,"exiting A1D_AccC(int target, int bytes, void * src, void * dst, void * scale) \n");
 #endif
 
     return 0;

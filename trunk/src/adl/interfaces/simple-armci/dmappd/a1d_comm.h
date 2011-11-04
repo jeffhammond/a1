@@ -57,6 +57,8 @@ int A1D_GetC(int proc, int bytes, void* src, void* dst);
 int A1D_PutC(int proc, int bytes, void* src, void* dst);
 int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale);
 
+int A1D_AccC_local(int bytes, void* src, void* dst, int type, void* scale);
+
 typedef enum
 {
     A1D_DOUBLE,
