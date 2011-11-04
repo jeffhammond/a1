@@ -119,6 +119,7 @@ int main(int argc, char *argv[])
 #elif defined(__CRAYXE)
                 PARMCI_Rmw( ARMCI_FETCH_LONG, &buffer[i], &window[t][i], 0, t );
 #endif
+            PARMCI_Fence( t );
 
             for (int i = 0; i < w; i++) 
                 printf("rank %d (after atomic fetch) buffer[%d] = %d \n", rank, i, buffer[i] );
@@ -132,10 +133,11 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < w; i++) 
 #if defined(__bgp__)
-                PARMCI_Rmw( ARMCI_FETCH_AND_ADD,      &buffer[i], &window[t][i], 1000, t );
+                PARMCI_Rmw( ARMCI_FETCH_AND_ADD,      &buffer[i], &window[t][i], 1, t );
 #elif defined(__CRAYXE)
-                PARMCI_Rmw( ARMCI_FETCH_AND_ADD_LONG, &buffer[i], &window[t][i], 1000, t );
+                PARMCI_Rmw( ARMCI_FETCH_AND_ADD_LONG, &buffer[i], &window[t][i], 1, t );
 #endif
+            PARMCI_Fence( t );
 
             for (int i = 0; i < w; i++) 
                 printf("rank %d (after atomic fetch-and-add-1000) buffer[%d] = %d \n", rank, i, buffer[i] );

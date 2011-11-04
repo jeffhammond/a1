@@ -97,7 +97,7 @@ void A1D_Inc64(int proc, int64_t * remote, int64_t incr)
     return;
 }
 
-void A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t incr)
+void A1D_Fetch_and_inc64(int proc, int64_t * remote, int64_t * local, int64_t incr)
 {
 #ifdef __CRAYXE
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
@@ -108,6 +108,7 @@ void A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t in
 #endif
 
 #ifdef __CRAYXE
+    fprintf(stderr,"A1D_Fetch_and_inc64: incr = %ld \n", incr );
     dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
     switch (dmapp_status)
     {
@@ -140,7 +141,7 @@ void A1D_Fetch_and_inc64(int proc, int64_t * local, int64_t * remote, int64_t in
     return;
 }
 
-void A1D_Swap64(int proc, int64_t * local, int64_t * remote)
+void A1D_Swap64(int proc, int64_t * remote, int64_t * local)
 {
 #ifdef __CRAYXE
     //dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
