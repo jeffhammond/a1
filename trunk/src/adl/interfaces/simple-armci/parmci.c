@@ -58,7 +58,7 @@ int PARMCI_Init(void)
 
 int PARMCI_Init_args(int *argc, char ***argv)
 {
-    fprintf(stderr,"PARMCI_Init_args: argc/argv may not be setup properly by device \n");
+    //fprintf(stderr,"PARMCI_Init_args: argc/argv may not be setup properly by device \n");
     return A1D_Initialize();
 }
 
