@@ -142,6 +142,46 @@ int A1D_Flush_all(void)
 
 /*********************************************************************/
 
+int A1D_Wait(a1d_nbhandle_t nbhandle);
+{
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Wait(a1d_nbhandle_t nbhandle) \n");
+#endif
+
+
+    if ( handle->aggr_size == 0)
+    { /* not an aggregrate handle, so use directly */
+#if defined(__CRAYXE)
+        dmapp_status = dmapp_syncid_wait( &(handle->nbh->handle) );
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
+    }
+    else
+    { /* aggregate handle */
+        for ( int i=0 ; i<(handle->aggr_size) ; i++ )
+        {
+            dmapp_status = dmapp_syncid_wait( &(handle->nbh->handles[i]) );
+        }
+    }
+
+#if defined(__CRAYXE)
+    dmapp_status = dmapp_syncid_wait();
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Wait(a1d_nbhandle_t nbhandle) \n");
+#endif
+
+    return(0);
+}
+
+/*********************************************************************/
+
 int A1D_AccC_local(int bytes, void * y, void * x, int type, void * a)
 {
     int typesize  = 0;
@@ -161,7 +201,7 @@ int A1D_AccC_local(int bytes, void * y, void * x, int type, void * a)
 
             const double const * d_a = (double*)(a);
             const double const * d_x = (double*)(x);
-                  double       * d_y = (double*)(y);
+            double       * d_y = (double*)(y);
 
             for (int i = 0 ; i<typecount ; i++ )
                 d_y[i] += (*d_a) * d_x[i];
@@ -176,7 +216,7 @@ int A1D_AccC_local(int bytes, void * y, void * x, int type, void * a)
 
             const float const * f_a = (float*)(a);
             const float const * f_x = (float*)(x);
-                  float       * f_y = (float*)(y);
+            float       * f_y = (float*)(y);
 
             for (int i = 0 ; i<typecount ; i++ )
                 f_y[i] += (*f_a) * f_x[i];
@@ -243,6 +283,95 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
     return(0);
 }
 
+int A1D_iGetC(int target, int bytes, void * src, void * dst, a1d_nbhandle_t * handle)
+{
+    uint64_t nelems = 0;
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+    dmapp_syncid_handle_t dmapp_nbhandle;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_iGetC(int target, int bytes, void * src, void * dst, a1d_nbhandle_t * handle) \n");
+#endif
+
+#ifdef __CRAYXE
+    if(handle==NULL) /* implicit handle path */
+    {
+        if (bytes%16 == 0)
+        {
+            nelems = bytes/16;
+            dmapp_status = dmapp_get_nbi( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DQW);
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+        }
+        else if (bytes%8 == 0)
+        {
+            nelems = bytes/8;
+            dmapp_status = dmapp_get_nbi( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_QW);
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+        }
+        else if (bytes%4 == 0)
+        {
+            nelems = bytes/4;
+            dmapp_status = dmapp_get_nbi( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DW);
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+        }
+        else
+        {
+            nelems = bytes;
+            dmapp_status = dmapp_get_nbi( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_BYTE);
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+        }
+    }
+    else if
+    {
+        if ( handle->aggr_size == 0)
+        { /* not an aggregrate handle, so use directly */
+            dmapp_nbhandle = handle->nbh->handle;
+        }
+        else
+        { /* aggregate handle */
+            handle->nbh->handles = realloc ( handle->nbh->handles, ( ++(handle->aggr_size) )*sizeof(dmapp_nbhandle) );
+            assert(handle->nbh->handles!=NULL);
+        }
+
+        /* attach this nb op with the handle that was just added */
+        dmapp_nbhandle = handle->nbh->handles[handle->aggr_size];
+
+        if (bytes%16 == 0)
+        {
+            nelems = bytes/16;
+            dmapp_status = dmapp_get_nb( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DQW, &dmapp_nbhandle);
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+        }
+        else if (bytes%8 == 0)
+        {
+            nelems = bytes/8;
+            dmapp_status = dmapp_get_nb( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_QW, &dmapp_nbhandle);
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+        }
+        else if (bytes%4 == 0)
+        {
+            nelems = bytes/4;
+            dmapp_status = dmapp_get_nb( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DW, &dmapp_nbhandle);
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+        }
+        else
+        {
+            nelems = bytes;
+            dmapp_status = dmapp_get_nb( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_BYTE, &dmapp_nbhandle);
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+        }
+    }
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_iGetC(int target, int bytes, void * src, void * dst, a1d_nbhandle_t * handle) \n");
+#endif
+
+    return(0);
+}
+
 int A1D_PutC(int target, int bytes, void * src, void * dst)
 {
     uint64_t nelems = 0;
@@ -295,12 +424,11 @@ int A1D_PutC(int target, int bytes, void * src, void * dst)
 int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale)
 {
 #ifdef __CRAYXE
-    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+    dmapp_return_t        dmapp_status = DMAPP_RC_SUCCESS;
 #endif
     int t = 0;
     const int trymax = 1000;
     int64_t local = -1;
-
     void * dst_local_copy = NULL;
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -309,11 +437,11 @@ int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale
 
     while ( (t<trymax) && (local<0) )
     {
+#ifdef __CRAYXE
         dmapp_status = dmapp_acswap_qw( &local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, -1, mpi_rank);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
-
+#endif
         usleep( (t<10) ? pow(2,t) : 1024 );
-
         t++;
     }
 
@@ -335,8 +463,10 @@ int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale
     /* put local copy back into dst */
     A1D_PutC(proc, bytes, dst_local_copy, dst);
 
+#ifdef __CRAYXE
     dmapp_status = dmapp_acswap_qw( &local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, mpi_rank, -1);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
 
     /* the lock better have been held by mpi_rank */
     assert(local==mpi_rank);

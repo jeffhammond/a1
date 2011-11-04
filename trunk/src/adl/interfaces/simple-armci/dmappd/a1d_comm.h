@@ -53,11 +53,18 @@
 int A1D_Flush(int target);
 int A1D_Flush_all(void);
 
-int A1D_GetC(int proc, int bytes, void* src, void* dst);
-int A1D_PutC(int proc, int bytes, void* src, void* dst);
-int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale);
+int A1D_Wait(a1d_nbhandle_t nbhandle);
+int A1D_Wait_list(int count, a1d_nbhandle_t * nbhandle);
 
 int A1D_AccC_local(int bytes, void* src, void* dst, int type, void* scale);
+
+int A1D_GetC(int proc, int bytes, void * src, void * dst);
+int A1D_PutC(int proc, int bytes, void * src, void * dst);
+int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale);
+
+int A1D_iGetC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t nbhandle);
+int A1D_iPutC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t nbhandle);
+int A1D_iAccC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t nbhandle, int type, void * scale);
 
 typedef enum
 {
@@ -74,25 +81,36 @@ typedef enum
 }
 A1D_datatype_t;
 
+//typedef struct
+//{
+//    void * remote_ptr;
+//    A1D_datatype_t datatype;
+//    union
+//    {
+//        double double_value;
+//        float float_value;
+//#ifdef A1D_USE_COMPLEX
+//        double _Complex complex_double_value;
+//        float _Complex complex_float_value;
+//#endif
+//        int32_t int32_value;
+//        uint32_t uint32_value;
+//        int64_t int64_value;
+//        uint64_t uint64_value;
+//    } scaling;
+//}
+//a1d_acc_t;
+
 typedef struct
 {
-    void * remote_ptr;
-    A1D_datatype_t datatype;
+    uint32_t aggr_size; /* 0 means not aggregate handle */
     union
     {
-        double double_value;
-        float float_value;
-#ifdef A1D_USE_COMPLEX
-        double _Complex complex_double_value;
-        float _Complex complex_float_value;
-#endif
-        int32_t int32_value;
-        uint32_t uint32_value;
-        int64_t int64_value;
-        uint64_t uint64_value;
-    } scaling;
+        dmapp_syncid_handle_t   handle;
+        dmapp_syncid_handle_t * handles;
+    } nbh;
 }
-A1D_AccC_t;
+a1d_nbhandle_t;
 
 //typedef struct
 //{
