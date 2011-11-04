@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
                 bw2  = bytes / dt2;
                 bw1 /= 1000000.0;
                 bw2 /= 1000000.0;
-                printf("PARMCI_Put of from rank %4d to rank %4d of %9d bytes - local: %lf s (%lf MB/s) remote: %lf s (%lf MB/s) \n",
+                printf("PARMCI_Acc of from rank %4d to rank %4d of %9d bytes - local: %lf s (%lf MB/s) remote: %lf s (%lf MB/s) \n",
                        t, 0, bytes, dt1, bw1, dt2, bw2);
                 fflush(stdout);
             }
