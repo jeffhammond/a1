@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     int rank, size;
     int provided;
 
-    const double one = 1.0;
+    double one = 1.0;
 
 #if defined(__bgp__)
     MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
