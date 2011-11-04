@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
     atomic_int_t * buffer;
     buffer = (atomic_int_t *) PARMCI_Malloc_local(  w * sizeof(atomic_int_t) );
-    for (int i = 0; i < w; i++) buffer[i] = -17037;
+    for (int i = 0; i < w; i++) buffer[i] = -17037L;
 
     PARMCI_Barrier();
 
@@ -100,10 +100,10 @@ int main(int argc, char *argv[])
         {
             int bytes = w * sizeof(atomic_int_t);
 
-            for (int i = 0; i < w; i++) buffer[i] = 1000000+t;
+            for (int i = 0; i < w; i++) buffer[i] = (atomic_int_t)(1000000+t);
 
             for (int i = 0; i < w; i++) 
-                printf("rank %d (before put+fence) buffer[%d] = %d \n", rank, i, buffer[i] );
+                printf("rank %d (before put+fence) buffer[%d] = %ld \n", rank, i, (long)buffer[i] );
 
             PARMCI_Put( buffer, window[t], bytes, t );
             PARMCI_Fence( t );
@@ -112,14 +112,14 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < w; i++) 
 #if defined(__bgp__)
-                PARMCI_Rmw( ARMCI_FETCH,      &buffer[i], &window[t][i], 0, t );
+                PARMCI_Rmw( ARMCI_FETCH,      &buffer[i], &window[t][i], (atomic_int_t)0, t );
 #elif defined(__CRAYXE)
-                PARMCI_Rmw( ARMCI_FETCH_LONG, &buffer[i], &window[t][i], 0, t );
+                PARMCI_Rmw( ARMCI_FETCH_LONG, &buffer[i], &window[t][i], (atomic_int_t)0, t );
 #endif
             PARMCI_Fence( t );
 
             for (int i = 0; i < w; i++) 
-                printf("rank %d (after atomic fetch) buffer[%d] = %d \n", rank, i, buffer[i] );
+                printf("rank %d (after atomic fetch) buffer[%d] = %ld \n", rank, i, (long)buffer[i] );
 
             for (int i = 0; i < w; i++) buffer[i] = 33333;
 
@@ -130,21 +130,21 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < w; i++) 
 #if defined(__bgp__)
-                PARMCI_Rmw( ARMCI_FETCH_AND_ADD,      &buffer[i], &window[t][i], 1, t );
+                PARMCI_Rmw( ARMCI_FETCH_AND_ADD,      &buffer[i], &window[t][i], (atomic_int_t)1000, t );
 #elif defined(__CRAYXE)
-                PARMCI_Rmw( ARMCI_FETCH_AND_ADD_LONG, &buffer[i], &window[t][i], 1, t );
+                PARMCI_Rmw( ARMCI_FETCH_AND_ADD_LONG, &buffer[i], &window[t][i], (atomic_int_t)1000, t );
 #endif
             PARMCI_Fence( t );
 
             for (int i = 0; i < w; i++) 
-                printf("rank %d (after atomic fetch-and-add-1000) buffer[%d] = %d \n", rank, i, buffer[i] );
+                printf("rank %d (after atomic fetch-and-add-1000) buffer[%d] = %ld \n", rank, i, (long)buffer[i] );
 
             for (int i = 0; i < w; i++) buffer[i] = 55555;
 
             PARMCI_Get( window[t], buffer, bytes, t );
 
             for (int i = 0; i < w; i++) 
-                printf("rank %d (after get 2) buffer[%d] = %d \n", rank, i, buffer[i] );
+                printf("rank %d (after get 2) buffer[%d] = %ld \n", rank, i, (long)buffer[i] );
         }
 
     PARMCI_Barrier();

@@ -108,12 +108,11 @@ void A1D_Fetch_and_inc64(int proc, int64_t * remote, int64_t * local, int64_t in
 #endif
 
 #ifdef __CRAYXE
-    fprintf(stderr,"A1D_Fetch_and_inc64: incr = %ld \n", incr );
     dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
     switch (dmapp_status)
     {
         case DMAPP_RC_SUCCESS:
-            fprintf(stderr, "dmapp_afadd_qw returned DMAPP_RC_SUCCESS \n");
+            //fprintf(stderr, "dmapp_afadd_qw returned DMAPP_RC_SUCCESS \n");
             break;
         case DMAPP_RC_INVALID_PARAM:
             fprintf(stderr, "dmapp_afadd_qw returned DMAPP_RC_INVALID_PARAM \n");
@@ -131,6 +130,7 @@ void A1D_Fetch_and_inc64(int proc, int64_t * remote, int64_t * local, int64_t in
             fprintf(stderr, "dmapp_afadd_qw returned UNKNOWN ERROR CODE \n");
             break;
     }
+    fprintf(stderr,"A1D_Fetch_and_inc64: incr = %ld \n", incr );
     fflush(stderr);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
