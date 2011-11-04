@@ -59,6 +59,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 #include <math.h>
 #include <assert.h>
 #include <pthread.h>

@@ -31,6 +31,17 @@ typedef enum
 }
 armci_rmw_t;
 
+typedef enum
+{
+    ARMCI_ACC_DBL,
+    ARMCI_ACC_FLT,
+    ARMCI_ACC_CPL,
+    ARMCI_ACC_DCP,
+    ARMCI_ACC_INT,
+    ARMCI_ACC_LNG
+}
+armci_acc_t;
+
 /* for vector calls */
 typedef struct
 {
@@ -113,9 +124,9 @@ void PARMCI_Unlock(int mutex, int proc);
 
 /* blocking one-sided */
 
-int PARMCI_Acc(int optype, void *scale, void *src, void* dst, int bytes, int proc);
-int PARMCI_AccS(int optype, void *scale, void *src_ptr, int *src_stride_arr, void *dst_ptr, int *dst_stride_arr, int *count, int stride_levels, int proc);
-int PARMCI_AccV(int op, void *scale, armci_giov_t * darr, int len, int proc);
+int PARMCI_Acc(armci_acc_t optype, void *scale, void *src, void* dst, int bytes, int proc);
+int PARMCI_AccS(armci_acc_t optype, void *scale, void *src_ptr, int *src_stride_arr, void *dst_ptr, int *dst_stride_arr, int *count, int stride_levels, int proc);
+int PARMCI_AccV(armci_acc_t optype, void *scale, armci_giov_t * darr, int len, int proc);
 int PARMCI_Get(void *src, void *dst, int bytes, int proc);
 int PARMCI_GetS(void *src_ptr, int *src_stride_arr, void *dst_ptr, int *dst_stride_arr, int *count, int stride_levels, int proc);
 int PARMCI_GetV(armci_giov_t * darr, int len, int proc);

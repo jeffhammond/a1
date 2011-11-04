@@ -159,12 +159,12 @@ int A1D_AccC_local(int bytes, void * y, void * x, int type, void * a)
             assert( ( bytes % typesize )==0 );
             typecount = bytes/typesize;
 
-            double * typed_a = (double)(*a);
-            double * typed_x = (double)(*x);
-            double * typed_y = (double)(*y);
+            const double const * d_a = (double*)(a);
+            const double const * d_x = (double*)(x);
+                  double       * d_y = (double*)(y);
 
             for (int i = 0 ; i<typecount ; i++ )
-                typed_y[i] += typed_a * typed_x[i];
+                d_y[i] += (*d_a) * d_x[i];
 
             break;
 
@@ -174,12 +174,12 @@ int A1D_AccC_local(int bytes, void * y, void * x, int type, void * a)
             assert( ( bytes % typesize )==0 );
             typecount = bytes/typesize;
 
-            float * typed_a = (float)(*a);
-            float * typed_x = (float)(*x);
-            float * typed_y = (float)(*y);
+            const float const * f_a = (float*)(a);
+            const float const * f_x = (float*)(x);
+                  float       * f_y = (float*)(y);
 
             for (int i = 0 ; i<typecount ; i++ )
-                typed_y[i] += typed_a * typed_x[i];
+                f_y[i] += (*f_a) * f_x[i];
 
             break;
 
@@ -309,10 +309,10 @@ int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale
 
     while ( (t<trymax) && (local<0) )
     {
-        dmapp_status = dmapp_acswap_qw( local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, -1, mpi_rank);
+        dmapp_status = dmapp_acswap_qw( &local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, -1, mpi_rank);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
 
-        usleep( (i<10) ? pow(2,t) : 1024 );
+        usleep( (t<10) ? pow(2,t) : 1024 );
 
         t++;
     }
@@ -333,7 +333,7 @@ int A1D_AccC(int proc, int bytes, void * src, void * dst, int type, void * scale
     A1D_AccC_local(bytes, dst_local_copy, src, type, scale);
 
     /* put local copy back into dst */
-    A1D_PutC(proc, bytes, dst_local_copy, dst)
+    A1D_PutC(proc, bytes, dst_local_copy, dst);
 
     dmapp_status = dmapp_acswap_qw( local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)proc, mpi_rank, -1);
     assert(dmapp_status==DMAPP_RC_SUCCESS);

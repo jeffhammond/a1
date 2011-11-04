@@ -254,9 +254,36 @@ int PARMCI_Put(void *src, void *dst, int bytes, int proc)
     return A1D_PutC(proc, bytes, src, dst);
 }
 
-int PARMCI_Acc(int type, void *scale, void *src, void* dst, int bytes, int proc)
+int PARMCI_Acc(armci_acc_t type, void *scale, void *src, void* dst, int bytes, int proc)
 {
-    return A1D_AccC(proc, bytes, src, dst, type, scale);
+    switch(type)
+    {
+        case ARMCI_ACC_DBL:
+            return A1D_AccC(proc, bytes, src, dst, A1D_DOUBLE, scale);
+            break;
+
+        case ARMCI_ACC_FLT:
+            return A1D_AccC(proc, bytes, src, dst, A1D_SINGLE, scale);
+            break;
+
+#ifdef A1D_USE_COMPLEX
+        case ARMCI_ACC_DCP:
+            return A1D_AccC(proc, bytes, src, dst, A1D_DOUBLE_COMPLEX, scale);
+            break;
+
+        case ARMCI_ACC_CPL:
+            return A1D_AccC(proc, bytes, src, dst, A1D_SINGLE_COMPLEX, scale);
+            break;
+
+#endif
+        case ARMCI_ACC_INT:
+            return A1D_AccC(proc, bytes, src, dst, A1D_INT32, scale);
+            break;
+
+        case ARMCI_ACC_LNG:
+            return A1D_AccC(proc, bytes, src, dst, A1D_INT64, scale);
+            break;
+    }
 }
 
 int PARMCI_GetS(void *src_ptr, int *src_stride_arr,
@@ -285,7 +312,7 @@ int PARMCI_PutS(void *src_ptr, int *src_stride_arr,
     //                    dst_ptr, dst_stride_arr);
 }
 
-int PARMCI_AccS(int optype, void *scale,
+int PARMCI_AccS(armci_acc_t optype, void *scale,
                 void *src_ptr, int *src_stride_arr,
                 void *dst_ptr, int *dst_stride_arr,
                 int *count, int stride_levels, int proc)
@@ -315,7 +342,7 @@ int PARMCI_PutV(armci_giov_t * array_descr, int len, int proc)
     return(-1);
 }
 
-int PARMCI_AccV(int type, void *scale, armci_giov_t * array_descr, int len, int proc)
+int PARMCI_AccV(armci_acc_t type, void *scale, armci_giov_t * array_descr, int len, int proc)
 {
     fprintf(stderr,"PARMCI_AccV: not implemented \n");
     assert(0);
