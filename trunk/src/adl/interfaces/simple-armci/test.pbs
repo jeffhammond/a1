@@ -5,7 +5,7 @@
 #PBS -l walltime=0:30:00
 #PBS -joe
 #PBS -V
-#PBS -q debug
+####PBS -q debug
 
 export XT_SYMMETRIC_HEAP_SIZE=2000M
 

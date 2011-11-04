@@ -73,6 +73,7 @@
 
 #ifdef __CRAYXE
 #  include <pmi.h>
+#  include <rca_lib.h>
 #  include <dmapp.h>
 #endif
 

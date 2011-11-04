@@ -95,10 +95,13 @@ int A1D_Initialize()
     char procname[MPI_MAX_PROCESSOR_NAME];
 #else
     int pmi_spawned = 0;
-    int pmi_status  = PMI_SUCCESS;
 #endif
 
 #ifdef __CRAYXE
+    int                                 pmi_status  = PMI_SUCCESS;
+    int                                 nodeid = -1;
+    rca_mesh_coord_t                    rca_xyz;
+
     dmapp_return_t                      dmapp_status = DMAPP_RC_SUCCESS;
 
     dmapp_rma_attrs_ext_t               dmapp_config_in, dmapp_config_out;
@@ -189,6 +192,22 @@ int A1D_Initialize()
     assert(pmi_status==PMI_SUCCESS);
 
 # endif
+#endif
+
+#ifdef __CRAYXE
+
+    /***************************************************
+     *
+     * query topology
+     *
+     ***************************************************/
+
+    PMI_Get_nid( mpi_rank, &nodeid );
+    assert(pmi_status==PMI_SUCCESS);
+
+    rca_get_meshcoord((uint16_t)nodeid, &rca_xyz);
+    printf("%d: rca_get_meshcoord returns (%2u,%2u,%2u)\n", mpi_rank, rca_xyz.mesh_x, rca_xyz.mesh_y, rca_xyz.mesh_z );
+
 #endif
 
 #ifdef __CRAYXE
