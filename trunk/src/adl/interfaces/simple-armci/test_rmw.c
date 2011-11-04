@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     if (rank == 0)
         for (int t=1; t<size; t++)
         {
-            int bytes = w * sizeof(int);
+            int bytes = w * sizeof(atomic_int_t);
 
             for (int i = 0; i < w; i++) buffer[i] = 1000000+t;
 
