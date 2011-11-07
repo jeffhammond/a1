@@ -50,13 +50,10 @@
 #ifndef A1D_COMM_H
 #define A1D_COMM_H
 
-<<<<<<< .mine
 #ifdef __CRAYXE
 #include <dmapp.h>
 #endif
 
-=======
->>>>>>> .r953
 typedef enum
 {
     A1D_DOUBLE,
