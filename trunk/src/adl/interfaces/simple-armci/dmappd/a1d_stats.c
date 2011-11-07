@@ -50,9 +50,71 @@
 #include "a1d_headers.h"
 #include "a1d_globals.h"
 
+#ifdef __CRAYXE
+void A1D_Parse_error(dmapp_return_t rc)
+{
+    switch (rc)
+    {
+        case DMAPP_RC_SUCCESS:
+            //fprintf(stderr,"DMAPP_RC_SUCCESS\n");
+            break;
+
+        case DMAPP_RC_INVALID_PARAM:
+            fprintf(stderr,"DMAPP_RC_INVALID_PARAM\n");
+            break;
+
+        case DMAPP_RC_ALIGNMENT_ERROR:
+            fprintf(stderr,"DMAPP_RC_ALIGNMENT_ERROR\n");
+            break;
+
+        case DMAPP_RC_TRANSACTION_ERROR:
+            fprintf(stderr,"DMAPP_RC_TRANSACTION_ERROR\n");
+            break;
+
+        case DMAPP_RC_RESOURCE_ERROR:
+            fprintf(stderr,"DMAPP_RC_RESOURCE_ERROR\n");
+            break;
+
+        case DMAPP_RC_PERMISSION_ERROR:
+            fprintf(stderr,"DMAPP_RC_PERMISSION_ERROR\n");
+            break;
+
+        case DMAPP_RC_NO_SPACE:
+            fprintf(stderr,"DMAPP_RC_NO_SPACE\n");
+            break;
+
+        case DMAPP_RC_NOT_DONE:
+            fprintf(stderr,"DMAPP_RC_NOT_DONE\n");
+            break;
+
+        case DMAPP_RC_NOT_SUPPORTED:
+            fprintf(stderr,"DMAPP_RC_NOT_SUPPORTED\n");
+            break;
+
+        case DMAPP_RC_NOT_FOUND:
+            fprintf(stderr,"DMAPP_RC_NOT_FOUND\n");
+            break;
+
+        case DMAPP_RC_BUSY:
+            fprintf(stderr,"DMAPP_RC_BUSY\n");
+            break;
+
+        case DMAPP_RC_NOT_USED:
+            fprintf(stderr,"DMAPP_RC_NOT_USED\n");
+            break;
+
+        default:
+            fprintf(stderr,"Unknown DMAPP error code. \n");
+            break;
+    }
+    fflush(stderr);
+    return;
+}
+#endif
+
 void A1D_Print_stats()
 {
-	return;
+    return;
 }
 
 

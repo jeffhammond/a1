@@ -52,11 +52,9 @@ typedef struct
 }
 armci_giov_t;
 
-/* NOT USED */
 typedef struct
 {
-    int data[4];
-    double dummy[72];
+    void * a1d_handle;
 }
 armci_hdl_t;
 

@@ -59,17 +59,17 @@ int mpi_size;
 MPI_Comm A1D_COMM_WORLD;
 #else
 # ifdef __CRAYXE
-   dmapp_c_pset_handle_t A1D_Pset_world;
+dmapp_c_pset_handle_t A1D_Pset_world;
 # endif
-  int A1D_Pset_world_exported = 0;
+int A1D_Pset_world_exported = 0;
 #endif
 
 #ifdef __CRAYXE
-  dmapp_seg_desc_t      A1D_Sheap_desc;
+dmapp_seg_desc_t      A1D_Sheap_desc;
 #endif
 
 #ifdef FLUSH_IMPLEMENTED
-  int32_t *  A1D_Put_flush_list;
+int32_t *  A1D_Put_flush_list;
 #endif
 
 int64_t * A1D_Acc_lock;
@@ -109,19 +109,6 @@ int A1D_Initialize()
     dmapp_jobinfo_t                     dmapp_info;
     dmapp_pe_t                          dmapp_rank = -1;
     int                                 dmapp_size = -1;
-
-#ifndef DMAPPD_USES_MPI
-    uint64_t                            world_pset_concat_buf_size = -1;
-    void *                              world_pset_concat_buf = NULL;
-    dmapp_c_pset_delimiter_strided_t    world_pset_strided;
-    dmapp_c_pset_desc_t                 dmapp_world_desc;
-    uint64_t                            dmapp_world_id = 1000;
-    uint64_t                            dmapp_world_modes = DMAPP_C_PSET_MODE_CONCAT; /* TODO: do I need this bit set? */
-
-    uint32_t                            dmapp_reduce_max_int32t = 0;
-    uint32_t                            dmapp_reduce_max_int64t = 0;
-#endif
-
 #endif
     int                                 sheapflag = 0;
 
@@ -166,32 +153,6 @@ int A1D_Initialize()
     mpi_status = MPI_Barrier(A1D_COMM_WORLD);
     assert(mpi_status==0);
 
-#else
-# ifdef __CRAYXE
-
-    /***************************************************
-     *
-     * configure PMI
-     *
-     ***************************************************/
-
-    /* initialize PMI (may not be necessary */
-    pmi_status = PMI_Init(&pmi_spawned);
-    assert(pmi_status==PMI_SUCCESS);
-
-    if (pmi_spawned==PMI_TRUE)
-        fprintf(stderr,"PMI says this process is spawned.  This is bad. \n");
-    assert(pmi_spawned==PMI_FALSE);
-
-    /* get my PMI rank */
-    pmi_status = PMI_Get_rank(&mpi_rank);
-    assert(pmi_status==PMI_SUCCESS);
-
-    /* get PMI world size */
-    pmi_status = PMI_Get_size(&mpi_size);
-    assert(pmi_status==PMI_SUCCESS);
-
-# endif
 #endif
 
 #ifdef __CRAYXE
@@ -218,8 +179,8 @@ int A1D_Initialize()
      *
      ***************************************************/
 
-    dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB;
-    dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;
+    dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB; /*  512 */
+    dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;  /* 4096 */
 #ifdef DETERMINISTIC_ROUTING
     dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
     dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
@@ -252,49 +213,6 @@ int A1D_Initialize()
     /* make sure PMI and DMAPP agree */
     assert(mpi_rank==dmapp_rank);
     assert(mpi_size==dmapp_size);
-
-#ifndef DMAPPD_USES_MPI
-
-    /***************************************************
-     *
-     * setup DMAPP world pset
-     *
-     ***************************************************/
-
-    dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT32, &dmapp_reduce_max_int32t);
-    fprintf(stderr, "dmapp_reduce_max_int32t = %d \n", dmapp_reduce_max_int32t );
-    dmapp_status = dmapp_c_greduce_nelems_max(DMAPP_C_INT64, &dmapp_reduce_max_int64t);
-    fprintf(stderr, "dmapp_reduce_max_int64t = %d \n", dmapp_reduce_max_int64t );
-    //assert(dmapp_reduce_max_int32t>2);
-    //assert(dmapp_reduce_max_int64t>2);
-
-    /* allocate proportional to job size, since this is important for performance of concatenation */
-    world_pset_concat_buf_size       = 8 * mpi_size;
-    world_pset_concat_buf            = dmapp_sheap_malloc( world_pset_concat_buf_size );
-
-    world_pset_strided.n_pes         = mpi_size;
-    world_pset_strided.base_pe       = 0;
-    world_pset_strided.stride_pe     = 1;
-
-    dmapp_world_desc.concat_buf      = world_pset_concat_buf;
-    dmapp_world_desc.concat_buf_size = world_pset_concat_buf_size;
-    dmapp_world_desc.type            = DMAPP_C_PSET_DELIMITER_STRIDED; /* FYI: this is only documented in dmapp.h */
-    dmapp_world_desc.u.stride_type   = world_pset_strided;
-
-    dmapp_status = dmapp_c_pset_create( &dmapp_world_desc, dmapp_world_id, dmapp_world_modes, NULL, &A1D_Pset_world );
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-
-    /* out-of-band sync required between pset create and pset export */
-    /* not using A1D_Barrier because that might switch to using dmapp_barrier */
-    pmi_status = PMI_Barrier();
-    assert(pmi_status==PMI_SUCCESS);
-
-    /* export pset after out-of-band sync */
-    dmapp_status = dmapp_c_pset_export( A1D_Pset_world );
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-
-    A1D_Pset_world_exported = 1;
-#endif
 
 #endif
 

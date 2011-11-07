@@ -52,51 +52,6 @@
 
 #include "a1d_api.h"
 
-void A1D_Fetch64(int proc, int64_t * remote, int64_t * local)
-{
-    const int64_t zero = 0;
-#ifdef __CRAYXE
-    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Fetch64 \n");
-#endif
-
-#ifdef __CRAYXE
-    dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, zero);
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Fetch64 \n");
-#endif
-
-    return;
-}
-
-void A1D_Inc64(int proc, int64_t * remote, int64_t incr)
-{
-#ifdef __CRAYXE
-    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Inc64 \n");
-#endif
-
-#ifdef __CRAYXE
-    dmapp_status = dmapp_aadd_qw( remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Inc64 \n");
-#endif
-
-    return;
-}
-
 void A1D_Fetch_and_inc64(int proc, int64_t * remote, int64_t * local, int64_t incr)
 {
 #ifdef __CRAYXE
@@ -114,46 +69,6 @@ void A1D_Fetch_and_inc64(int proc, int64_t * remote, int64_t * local, int64_t in
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1D_Fetch_and_inc64 \n");
-#endif
-    return;
-}
-
-void A1D_Swap64(int proc, int64_t * remote, int64_t * local)
-{
-#ifdef __CRAYXE
-    //dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Swap64 \n");
-#endif
-
-    fprintf(stderr,"A1D_Swap64 cannot be implemented properly on XE6.  You can use A1D_Compare_and_swap64 instead, if appropriate. \n");
-    assert(0);
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Swap64 \n");
-#endif
-    return;
-}
-
-void A1D_Compare_and_swap64(int proc, int64_t * remote, int64_t * local, int64_t comparand, int64_t swaperand)
-{
-#ifdef __CRAYXE
-    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Swap64 \n");
-#endif
-
-#ifdef __CRAYXE
-    dmapp_status = dmapp_acswap_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, comparand, swaperand);
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Swap64 \n");
 #endif
     return;
 }

@@ -50,6 +50,10 @@
 #ifndef A1D_STATS_H
 #define A1D_STATS_H
 
+#ifdef __CRAYXE
+void A1D_Parse_error(dmapp_return_t rc);
+#endif
+
 void A1D_Print_stats();
 
 #endif

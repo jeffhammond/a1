@@ -130,25 +130,31 @@ void PARMCI_AllFence(void)
 
 int PARMCI_Test(armci_hdl_t * nb_handle)
 {
-    /* non-blocking calls aren't, hence no testing is required */
-    return(0);
+    int status = -1;
+    A1D_Test(nb_handle->a1d_handle,&status);
+    /* ARMCI: 0=complete, 1=in-progress */
+    /* A1D:   1=complete, 0=incomplete */
+    if      (status==1) return 0;
+    else if (status==0) return 1;
+    else                return -1;
 }
 
 int PARMCI_Wait(armci_hdl_t * nb_handle)
 {
-    /* non-blocking calls aren't, hence no testing is required */
-    return(0);
+    return A1D_Wait(nb_handle->a1d_handle);
 }
 
 int PARMCI_WaitProc(int proc)
 {
-    /* non-blocking calls aren't, hence no testing is required */
+    fprintf(stderr,"WARNING: PARMCI_WaitProc(int proc) only synchronizes implicit nonblocking operations! \n");
+    PARMCI_Fence(proc);
     return(0);
 }
 
 int PARMCI_WaitAll(void)
 {
-    /* non-blocking calls aren't, hence no testing is required */
+    fprintf(stderr,"WARNING: PARMCI_WaitAll() only synchronizes implicit nonblocking operations! \n");
+    A1D_Flush_all();
     return(0);
 }
 
@@ -158,53 +164,42 @@ int PARMCI_WaitAll(void)
 #error The call syntax of (P)ARMCI_Rmw is stupid.  Use 32B or 64B atomics but not both.
 #endif
 
-#ifdef USE_32B_ATOMICS
-int32_t PARMCI_Rmw(int optype, int32_t * local, int32_t * remote, int32_t incr, int proc)
+#if !defined(USE_32B_ATOMICS) && !defined(USE_64B_ATOMICS)
+#error You must define atomics to be 32B or 64B!
 #endif
-#ifdef USE_64B_ATOMICS
+
+#if defined(USE_32B_ATOMICS)
+int32_t PARMCI_Rmw(int optype, int32_t * local, int32_t * remote, int32_t incr, int proc)
+#elif defined(USE_64B_ATOMICS)
 int64_t PARMCI_Rmw(int optype, int64_t * local, int64_t * remote, int64_t incr, int proc)
 #endif
 {
     long temp;
 
+#if defined(USE_32B_ATOMICS)
+    int32_t copy;
+#elif defined(USE_64B_ATOMICS)
+    int64_t copy;
+#endif
+
     switch (optype)
     {
 #ifdef USE_32B_ATOMICS
         case ARMCI_FETCH:
-            A1D_Fetch32(proc, remote, local );
+            A1D_Fetch_and_inc32(proc, remote, local, (int32_t)0 );
             return *local;
-
-        case ARMCI_ADD:
-            A1D_Inc32(proc, remote, incr );
-            return 0;
 
         case ARMCI_FETCH_AND_ADD:
             A1D_Fetch_and_inc32(proc, remote, local, incr );
             return *local;
-
-        case ARMCI_SWAP:
-            A1D_Swap32(proc, remote, local );
-            return *local;
-
-#endif
-
-#ifdef USE_64B_ATOMICS
+#elif defined(USE_64B_ATOMICS)
         case ARMCI_FETCH_LONG:
-            A1D_Fetch64(proc, remote, local );
+            A1D_Fetch_and_inc64(proc, remote, local, (int64_t)0 );
             return *local;
-
-        case ARMCI_ADD_LONG:
-            A1D_Inc64(proc, remote, incr );
-            return 0;
 
         case ARMCI_FETCH_AND_ADD_LONG:
             A1D_Fetch_and_inc64(proc, remote, local, incr );
             return *local;
-
-        case ARMCI_SWAP_LONG:
-            A1D_Swap64(proc, remote, local );
-            return *local;
-
 #endif
         default:
             fprintf(stderr,"PARMCI_Rmw: unknown operation request! \n");

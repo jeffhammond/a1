@@ -56,7 +56,6 @@
 
 DCMF_Protocol_t A1D_Fetch32_protocol;
 DCMF_Protocol_t A1D_Inc32_protocol;
-DCMF_Protocol_t A1D_Swap32_protocol;
 
 /***********************************************************************/
 
@@ -177,65 +176,6 @@ void A1DI_Inc32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
     return;
 }
 
-void A1DI_Swap32_cb(void * clientdata, const DCMF_Control_t * info, size_t peer)
-{
-    int32_t   value;
-    int32_t * target_address = NULL;
-    int32_t * return_address = NULL;
-    int32_t   swap_temp;
-    volatile uint32_t * active_address = NULL;
-    A1D_Swap32_t data;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Swap32_cb \n");
-#endif
-
-    memcpy( &data, info, sizeof(A1D_Swap32_t) );
-    value          = data.value;
-    target_address = data.target_address;
-    return_address = data.return_address;
-    active_address = data.active_address;
-
-    fprintf(stderr,"A1DI_Swap32_cb rank = %d peer = %d, value = %d, target_address = %p return_address = %p active_address = %p \n", A1D_Rank(), peer, value, target_address, return_address, active_address );
-
-    if ( target_address == NULL || return_address == NULL || active_address == NULL )
-    {
-        if ( target_address == NULL ) fprintf(stderr,"A1DI_Swap32_cb: target_address is a NULL pointer. This is bad. \n");
-        if ( return_address == NULL ) fprintf(stderr,"A1DI_Swap32_cb: return_address is a NULL pointer. This is bad. \n");
-        if ( active_address == NULL ) fprintf(stderr,"A1DI_Swap32_cb: active_address is a NULL pointer. This is bad. \n");
-        assert( target_address != NULL && return_address != NULL && active_address != NULL );
-    }
-    else
-    {
-        DCMF_Result dcmf_result;
-        A1D_Swap32_t return_data;
-        DCMF_Control_t return_payload;
-
-        register int32_t swap_before, swap_after;
-        swap_before = (*target_address);
-        swap_after = value; /* TODO use atomic operation */
-        (*target_address) = swap_after;
-
-        return_data.value          = swap_before;
-        return_data.return_address = return_address;
-        return_data.active_address = active_address;
-
-        memcpy(&return_payload, &return_data, sizeof(A1D_Swap32_t));
-
-        dcmf_result =  DCMF_Control(&A1D_Swap32_protocol,
-                                    DCMF_SEQUENTIAL_CONSISTENCY,
-                                    peer,
-                                    &return_payload);
-        assert(dcmf_result==DCMF_SUCCESS);
-    }
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Swap32_cb \n");
-#endif
-
-    return;
-}
-
 /***********************************************************************/
 
 void A1DI_Fetch32_Initialize()
@@ -298,36 +238,6 @@ void A1DI_Inc32_Initialize()
     return;
 }
 
-void A1DI_Swap32_Initialize()
-{
-    DCMF_Result dcmf_result;
-    DCMF_Control_Configuration_t conf;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1DI_Swap32_Initialize \n");
-#endif
-
-    if ( sizeof(A1D_Swap32_t) > sizeof(DCMF_Control_t) )
-    {
-        fprintf(stderr,"A1D_Swap32_t requires more storage than DCMF_Control_t! \n");
-        assert( sizeof(A1D_Swap32_t) == sizeof(DCMF_Control_t) );
-    }
-
-    conf.protocol           = DCMF_DEFAULT_CONTROL_PROTOCOL;
-    conf.network            = DCMF_DEFAULT_NETWORK;
-    conf.cb_recv            = A1DI_Swap32_cb;
-    conf.cb_recv_clientdata = NULL;
-
-    dcmf_result = DCMF_Control_register(&A1D_Swap32_protocol, &conf);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1DI_Swap32_Initialize \n");
-#endif
-
-    return;
-}
-
 void A1DI_Atomic_Initialize()
 {
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -336,7 +246,6 @@ void A1DI_Atomic_Initialize()
 
     A1DI_Fetch32_Initialize();
     A1DI_Inc32_Initialize();
-    A1DI_Swap32_Initialize();
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
     fprintf(stderr,"exiting A1DI_Atomic_Initialize \n");
@@ -350,107 +259,6 @@ void A1DI_Atomic_Initialize()
 #endif
 
 /***********************************************************************/
-
-void A1D_Fetch32(int proc, int32_t * remote, int32_t * local)
-{
-#ifdef __bgp__
-    DCMF_Result dcmf_result;
-    A1D_Inc32_t data;
-    DCMF_Control_t payload;
-#endif
-    volatile uint32_t active = 0;
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Fetch32 \n");
-#endif
-
-    fprintf(stderr,"A1D_Fetch32 A rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
-
-    if ( ((unsigned long)remote & 0x07uL != 0) || ((unsigned long)local & 0x07uL != 0) )
-    {
-        printf("%d: remote = %p local = %p \n", A1D_Rank(), remote, local );
-        assert( ((unsigned long)remote & 0x07uL != 0) && ((unsigned long)local & 0x07uL != 0) );
-    }
-
-#ifdef __bgp__
-    DCMF_CriticalSection_enter(0);
-
-    data.incr           = 0;
-    data.incr_address   = remote;
-    data.return_address = local;
-    data.active_address = &active;
-
-    memcpy(&payload, &data, sizeof(A1D_Inc32_t));
-
-    active = 1;
-
-    fprintf(stderr,"A1D_Fetch32 B rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
-
-    dcmf_result = DCMF_Control(&A1D_Inc32_protocol,
-                               DCMF_SEQUENTIAL_CONSISTENCY,
-                               proc,
-                               &payload);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    fprintf(stderr,"A1D_Fetch32 C rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
-
-    A1DI_Conditional_advance(active);
-
-    fprintf(stderr,"A1D_Fetch32 D rank = %d target = %d, remote = %p, local = %p, *local = %d active = %u \n", A1D_Rank(), proc, remote, local, *local, active );
-
-    DCMF_CriticalSection_exit(0);
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Fetch32 \n");
-#endif
-
-    return;
-}
-
-void A1D_Inc32(int proc, int32_t * remote, int32_t incr)
-{
-#ifdef __bgp__
-    DCMF_Result dcmf_result;
-    A1D_Inc32_t data;
-    DCMF_Control_t payload;
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Inc32 \n");
-#endif
-
-    if ( (unsigned long)remote & 0x07uL != 0 )
-    {
-        printf("%d: remote = %p \n", A1D_Rank(), remote );
-        assert( (unsigned long)remote & 0x07uL != 0 );
-    }
-
-#ifdef __bgp__
-    DCMF_CriticalSection_enter(0);
-
-    data.incr           = incr;
-    data.incr_address   = remote;
-    data.return_address = NULL;
-    data.active_address = NULL;
-
-    memcpy(&payload, &data, sizeof(A1D_Inc32_t));
-
-    dcmf_result = DCMF_Control(&A1D_Inc32_protocol,
-                               DCMF_SEQUENTIAL_CONSISTENCY,
-                               proc,
-                               &payload);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    DCMF_CriticalSection_exit(0);
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Inc32 \n");
-#endif
-
-    return;
-}
 
 void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t incr)
 {
@@ -499,52 +307,3 @@ void A1D_Fetch_and_inc32(int proc, int32_t * local, int32_t * remote, int32_t in
 #endif
     return;
 }
-
-void A1D_Swap32(int proc, int32_t * local, int32_t * remote)
-{
-#ifdef __bgp__
-    DCMF_Result dcmf_result;
-    A1D_Swap32_t data;
-    DCMF_Control_t payload;
-    volatile uint32_t active = 0;
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"entering A1D_Swap32 \n");
-#endif
-
-    if ( ((unsigned long)remote & 0x07uL != 0) || ((unsigned long)local & 0x07uL != 0) )
-    {
-        printf("%d: remote = %p local = %p \n", A1D_Rank(), remote, local );
-        assert( ((unsigned long)remote & 0x07uL != 0) && ((unsigned long)local & 0x07uL != 0) );
-    }
-
-#ifdef __bgp__
-    DCMF_CriticalSection_enter(0);
-
-    data.value          = (*local);
-    data.target_address = remote;
-    data.return_address = local;
-    data.active_address = &active;
-
-    memcpy(&payload, &data, sizeof(A1D_Swap32_t));
-
-    active = 1;
-
-    dcmf_result = DCMF_Control(&A1D_Swap32_protocol,
-                               DCMF_SEQUENTIAL_CONSISTENCY,
-                               proc,
-                               &payload);
-    assert(dcmf_result==DCMF_SUCCESS);
-
-    A1DI_Conditional_advance(active);
-
-    DCMF_CriticalSection_exit(0);
-#endif
-
-#ifdef DEBUG_FUNCTION_ENTER_EXIT
-    fprintf(stderr,"exiting A1D_Swap32 \n");
-#endif
-    return;
-}
-

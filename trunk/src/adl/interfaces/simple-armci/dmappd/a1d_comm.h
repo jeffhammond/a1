@@ -50,6 +50,13 @@
 #ifndef A1D_COMM_H
 #define A1D_COMM_H
 
+<<<<<<< .mine
+#ifdef __CRAYXE
+#include <dmapp.h>
+#endif
+
+=======
+>>>>>>> .r953
 typedef enum
 {
     A1D_DOUBLE,
@@ -108,7 +115,12 @@ a1d_nbhandle_t;
 int A1D_Flush(int target);
 int A1D_Flush_all(void);
 
+int A1D_Reset(a1d_nbhandle_t * nbhandle);
+int A1D_Test(a1d_nbhandle_t * nbhandle, int * status);
 int A1D_Wait(a1d_nbhandle_t * nbhandle);
+
+int A1D_Reset_list(int count, a1d_nbhandle_t * nbhandle);
+int A1D_Test_list(int count, a1d_nbhandle_t * nbhandle, int * statuses);
 int A1D_Wait_list(int count, a1d_nbhandle_t * nbhandle);
 
 int A1D_AccC_local(int bytes, void* src, void* dst, int type, void* scale);
