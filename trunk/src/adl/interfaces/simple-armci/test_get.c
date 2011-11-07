@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
                 double t0, t1, dt, bw;
 
                 bytes  = w * sizeof(float);
-                repeat = 10 * (maxwinsize/w);
+                repeat = 100; //10 * (maxwinsize/w);
 
                 PARMCI_Get( window[t], buffer, bytes, t );
                 for (int i = (w-1); i >=0 ; i--) assert( buffer[i] == (float)t );
@@ -104,7 +104,8 @@ int main(int argc, char *argv[])
                 //    if ( buffer[i] != (float)i ) printf("rank %d buffer[%d] = %lf \n", rank, i, buffer[t] );
 
                 t0 = MPI_Wtime();
-                for (int r=0; r<repeat; r++) PARMCI_Get( window[t], buffer, bytes, t );
+                //for (int r=0; r<repeat; r++)
+                PARMCI_Get( window[t], buffer, bytes, t );
                 t1 = MPI_Wtime();
 
                 dt  = (t1-t0) / repeat;
