@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
                 double t0, t1, dt, bw;
 
                 bytes  = w * sizeof(float);
-                repeat = 100; //10 * (maxwinsize/w);
+                repeat = 1; //10 * (maxwinsize/w);
 
                 PARMCI_Get( window[t], buffer, bytes, t );
                 for (int i = (w-1); i >=0 ; i--) assert( buffer[i] == (float)t );
