@@ -310,7 +310,7 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
         dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DW);
         double t1 = MPI_Wtime();
         double dt = t1-t0;
-        double bw = (double)bytes/dt;
+        double bw = 1e-6*bytes/dt;
         fprintf(stderr,"%d: A1D_GetC A %d bytes %lf seconds = %lf MB/s \n", mpi_rank, bytes, dt, bw );
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
@@ -321,7 +321,7 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
         dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_BYTE);
         double t1 = MPI_Wtime();
         double dt = t1-t0;
-        double bw = (double)bytes/dt;
+        double bw = 1e-6*bytes/dt;
         fprintf(stderr,"%d: A1D_GetC B %d bytes %lf seconds = %lf MB/s \n", mpi_rank, bytes, dt, bw );
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
@@ -426,7 +426,7 @@ int A1D_PutC(int target, int bytes, void * src, void * dst)
         dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
         double t1 = MPI_Wtime();
         double dt = t1-t0;
-        double bw = (double)bytes/dt;
+        double bw = 1e-6*bytes/dt;
         fprintf(stderr,"%d: A1D_PutC A %d bytes %lf seconds = %lf MB/s \n", mpi_rank, bytes, dt, bw );
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
@@ -437,7 +437,7 @@ int A1D_PutC(int target, int bytes, void * src, void * dst)
         dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
         double t1 = MPI_Wtime();
         double dt = t1-t0;
-        double bw = (double)bytes/dt;
+        double bw = 1e-6*bytes/dt;
         fprintf(stderr,"%d: A1D_PutC B %d bytes %lf seconds = %lf MB/s \n", mpi_rank, bytes, dt, bw );
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
