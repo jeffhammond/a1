@@ -63,7 +63,7 @@ extern int mpi_size;
 #endif
 
 #ifdef __CRAYXE
-  extern dmapp_seg_desc_t      A1D_Sheap_desc;
+  extern dmapp_seg_desc_t * A1D_Sheap_ptr;
 #else
 #  warning Linking will fail.
 #endif

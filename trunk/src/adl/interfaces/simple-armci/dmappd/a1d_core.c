@@ -65,7 +65,7 @@ int A1D_Pset_world_exported = 0;
 #endif
 
 #ifdef __CRAYXE
-dmapp_seg_desc_t      A1D_Sheap_desc;
+dmapp_seg_desc_t * A1D_Sheap_ptr;
 #endif
 
 #ifdef FLUSH_IMPLEMENTED
@@ -208,7 +208,7 @@ int A1D_Initialize()
 
     dmapp_rank = dmapp_info.pe;
     dmapp_size = dmapp_info.npes;
-    memcpy( &A1D_Sheap_desc, &(dmapp_info.sheap_seg), sizeof(dmapp_seg_desc_t) ); /* TODO: better to keep pointer instead? */
+    A1D_Sheap_ptr = &(dmapp_info.sheap_seg);
 
     /* make sure PMI and DMAPP agree */
     assert(mpi_rank==dmapp_rank);

@@ -63,7 +63,7 @@ void A1D_Fetch_and_inc64(int proc, int64_t * remote, int64_t * local, int64_t in
 #endif
 
 #ifdef __CRAYXE
-    dmapp_status = dmapp_afadd_qw( local, remote, &A1D_Sheap_desc, (dmapp_pe_t)proc, incr);
+    dmapp_status = dmapp_afadd_qw( local, remote, A1D_Sheap_ptr, (dmapp_pe_t)proc, incr);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 

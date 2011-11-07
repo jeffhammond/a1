@@ -71,7 +71,7 @@ int A1D_Flush(int target)
 #endif
 
 #if defined(FLUSH_IMPLEMENTED) && defined(__CRAYXE)
-    dmapp_status = dmapp_get( &temp, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)target, 1, DMAPP_QW );
+    dmapp_status = dmapp_get( &temp, A1D_Acc_lock, A1D_Sheap_ptr, (dmapp_pe_t)target, 1, DMAPP_QW );
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
@@ -104,7 +104,7 @@ int A1D_Flush_all(void)
     {
         if ( A1D_Put_flush_list[i] > 0 )
         {
-            dmapp_status = dmapp_get_nbi( &temp[count], A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)i, 1, DMAPP_QW );
+            dmapp_status = dmapp_get_nbi( &temp[count], A1D_Acc_lock, A1D_Sheap_ptr, (dmapp_pe_t)i, 1, DMAPP_QW );
             assert(dmapp_status==DMAPP_RC_SUCCESS);
 
             count++;
@@ -307,7 +307,7 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
     {
         nelems = bytes/4;
         double t0 = MPI_Wtime();
-        dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DW);
+        dmapp_status = dmapp_get( dst, src, A1D_Sheap_ptr, (dmapp_pe_t)target, nelems, DMAPP_DW);
         double t1 = MPI_Wtime();
         double dt = t1-t0;
         double bw = 1e-6*bytes/dt;
@@ -318,7 +318,7 @@ int A1D_GetC(int target, int bytes, void * src, void * dst)
     {
         nelems = bytes;
         double t0 = MPI_Wtime();
-        dmapp_status = dmapp_get( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_BYTE);
+        dmapp_status = dmapp_get( dst, src, A1D_Sheap_ptr, (dmapp_pe_t)target, nelems, DMAPP_BYTE);
         double t1 = MPI_Wtime();
         double dt = t1-t0;
         double bw = 1e-6*bytes/dt;
@@ -354,13 +354,13 @@ int A1D_iGetC(int target, int bytes, void * src, void * dst, a1d_nbhandle_t * ha
         if (bytes%4 == 0)
         {
             nelems = bytes/4;
-            dmapp_status = dmapp_get_nbi( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DW);
+            dmapp_status = dmapp_get_nbi( dst, src, A1D_Sheap_ptr, (dmapp_pe_t)target, nelems, DMAPP_DW);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
         else
         {
             nelems = bytes;
-            dmapp_status = dmapp_get_nbi( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_BYTE);
+            dmapp_status = dmapp_get_nbi( dst, src, A1D_Sheap_ptr, (dmapp_pe_t)target, nelems, DMAPP_BYTE);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
     }
@@ -384,13 +384,13 @@ int A1D_iGetC(int target, int bytes, void * src, void * dst, a1d_nbhandle_t * ha
         if (bytes%4 == 0)
         {
             nelems = bytes/4;
-            dmapp_status = dmapp_get_nb( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_DW, &dmapp_nbhandle);
+            dmapp_status = dmapp_get_nb( dst, src, A1D_Sheap_ptr, (dmapp_pe_t)target, nelems, DMAPP_DW, &dmapp_nbhandle);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
         else
         {
             nelems = bytes;
-            dmapp_status = dmapp_get_nb( dst, src, &A1D_Sheap_desc, (dmapp_pe_t)target, nelems, DMAPP_BYTE, &dmapp_nbhandle);
+            dmapp_status = dmapp_get_nb( dst, src, A1D_Sheap_ptr, (dmapp_pe_t)target, nelems, DMAPP_BYTE, &dmapp_nbhandle);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
     }
@@ -423,7 +423,7 @@ int A1D_PutC(int target, int bytes, void * src, void * dst)
     {
         nelems = bytes/4;
         double t0 = MPI_Wtime();
-        dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
+        dmapp_status = dmapp_put( dst, A1D_Sheap_ptr, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
         double t1 = MPI_Wtime();
         double dt = t1-t0;
         double bw = 1e-6*bytes/dt;
@@ -434,7 +434,7 @@ int A1D_PutC(int target, int bytes, void * src, void * dst)
     {
         nelems = bytes;
         double t0 = MPI_Wtime();
-        dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
+        dmapp_status = dmapp_put( dst, A1D_Sheap_ptr, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
         double t1 = MPI_Wtime();
         double dt = t1-t0;
         double bw = 1e-6*bytes/dt;
@@ -474,13 +474,13 @@ int A1D_iPutC(int target, int bytes, void * src, void * dst, a1d_nbhandle_t * ha
         if (bytes%4 == 0)
         {
             nelems = bytes/4;
-            dmapp_status = dmapp_put_nbi( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
+            dmapp_status = dmapp_put_nbi( dst, A1D_Sheap_ptr, (dmapp_pe_t)target, src, nelems, DMAPP_DW);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
         else
         {
             nelems = bytes;
-            dmapp_status = dmapp_put_nbi( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
+            dmapp_status = dmapp_put_nbi( dst, A1D_Sheap_ptr, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
     }
@@ -504,13 +504,13 @@ int A1D_iPutC(int target, int bytes, void * src, void * dst, a1d_nbhandle_t * ha
         if (bytes%4 == 0)
         {
             nelems = bytes/4;
-            dmapp_status = dmapp_put_nb( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_DW, &dmapp_nbhandle);
+            dmapp_status = dmapp_put_nb( dst, A1D_Sheap_ptr, (dmapp_pe_t)target, src, nelems, DMAPP_DW, &dmapp_nbhandle);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
         else
         {
             nelems = bytes;
-            dmapp_status = dmapp_put_nb( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE, &dmapp_nbhandle);
+            dmapp_status = dmapp_put_nb( dst, A1D_Sheap_ptr, (dmapp_pe_t)target, src, nelems, DMAPP_BYTE, &dmapp_nbhandle);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
         }
     }
@@ -541,7 +541,7 @@ int A1D_Acquire_accumulate_lock(int target)
 
     do {
 #ifdef __CRAYXE
-        dmapp_status = dmapp_acswap_qw( &local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)target, -1, mpi_rank);
+        dmapp_status = dmapp_acswap_qw( &local, A1D_Acc_lock, A1D_Sheap_ptr, (dmapp_pe_t)target, -1, mpi_rank);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
         usleep( (t<10) ? pow(2,t) : 1024 );
@@ -574,7 +574,7 @@ int A1D_Release_accumulate_lock(int target)
 
 #ifdef __CRAYXE
     /* release the accumulate lock */
-    dmapp_status = dmapp_acswap_qw( &local, A1D_Acc_lock, &A1D_Sheap_desc, (dmapp_pe_t)target, mpi_rank, -1);
+    dmapp_status = dmapp_acswap_qw( &local, A1D_Acc_lock, A1D_Sheap_ptr, (dmapp_pe_t)target, mpi_rank, -1);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
@@ -665,7 +665,7 @@ int A1D_AccC_simple(int target, int bytes, void * src, void * dst, int type, voi
 
 #ifdef __CRAYXE
     /* get remote dst buffer into a local copy - use 4-byte granularity since this works for all accumulates */
-    dmapp_status = dmapp_get( dst_local_copy, dst, &A1D_Sheap_desc, (dmapp_pe_t)target, bytes/4, DMAPP_DW);
+    dmapp_status = dmapp_get( dst_local_copy, dst, A1D_Sheap_ptr, (dmapp_pe_t)target, bytes/4, DMAPP_DW);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
@@ -674,7 +674,7 @@ int A1D_AccC_simple(int target, int bytes, void * src, void * dst, int type, voi
 
 #ifdef __CRAYXE
     /* put local copy back into dst - use 4-byte granularity since this works for all accumulates */
-    dmapp_status = dmapp_put( dst, &A1D_Sheap_desc, (dmapp_pe_t)target, dst_local_copy, bytes/4, DMAPP_DW);
+    dmapp_status = dmapp_put( dst, A1D_Sheap_ptr, (dmapp_pe_t)target, dst_local_copy, bytes/4, DMAPP_DW);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
 
@@ -739,7 +739,7 @@ int A1D_AccC_pipelined(int target, int bytes, void * src, void * dst, int type, 
 
         /* get remote dst buffer into a local copy - use 4-byte granularity since this works for all accumulates */
         offset1 = (bufsize/4) * count;
-        dmapp_status = dmapp_get_nb( dst_local_copy1, &dst32[offset1], &A1D_Sheap_desc, (dmapp_pe_t)target, (uint64_t)bufsize/4, DMAPP_DW, &dmapp_nbh_get1 );
+        dmapp_status = dmapp_get_nb( dst_local_copy1, &dst32[offset1], A1D_Sheap_ptr, (dmapp_pe_t)target, (uint64_t)bufsize/4, DMAPP_DW, &dmapp_nbh_get1 );
         A1D_Parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
         count++;
@@ -754,7 +754,7 @@ int A1D_AccC_pipelined(int target, int bytes, void * src, void * dst, int type, 
 
         /* get remote dst buffer into a local copy - use 4-byte granularity since this works for all accumulates */
         offset2  = (bufsize/4) * count;
-        dmapp_status = dmapp_get_nb( dst_local_copy2, &dst32[offset2], &A1D_Sheap_desc, (dmapp_pe_t)target, (uint64_t)bufsize/4, DMAPP_DW, &dmapp_nbh_get2 );
+        dmapp_status = dmapp_get_nb( dst_local_copy2, &dst32[offset2], A1D_Sheap_ptr, (dmapp_pe_t)target, (uint64_t)bufsize/4, DMAPP_DW, &dmapp_nbh_get2 );
         A1D_Parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
         count++;
@@ -768,7 +768,7 @@ int A1D_AccC_pipelined(int target, int bytes, void * src, void * dst, int type, 
         A1D_AccC_local(bufsize, dst_local_copy1, &src32[offset1], type, scale );
 
         /* put local copy back into dst - use 4-byte granularity since this works for all accumulates */
-        dmapp_status = dmapp_put_nb( &dst32[offset1], &A1D_Sheap_desc, (dmapp_pe_t)target, dst_local_copy1, (uint64_t)bufsize/4, DMAPP_DW, &dmapp_nbh_put1);
+        dmapp_status = dmapp_put_nb( &dst32[offset1], A1D_Sheap_ptr, (dmapp_pe_t)target, dst_local_copy1, (uint64_t)bufsize/4, DMAPP_DW, &dmapp_nbh_put1);
         A1D_Parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
 
@@ -781,7 +781,7 @@ int A1D_AccC_pipelined(int target, int bytes, void * src, void * dst, int type, 
         A1D_AccC_local(bufsize, dst_local_copy2, &src32[offset2], type, scale );
 
         /* put local copy back into dst - use 4-byte granularity since this works for all accumulates */
-        dmapp_status = dmapp_put_nb( &dst32[offset2], &A1D_Sheap_desc, (dmapp_pe_t)target, dst_local_copy2, (uint64_t)bufsize/4, DMAPP_DW, &dmapp_nbh_put2);
+        dmapp_status = dmapp_put_nb( &dst32[offset2], A1D_Sheap_ptr, (dmapp_pe_t)target, dst_local_copy2, (uint64_t)bufsize/4, DMAPP_DW, &dmapp_nbh_put2);
         A1D_Parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
 #endif
@@ -798,7 +798,7 @@ int A1D_AccC_pipelined(int target, int bytes, void * src, void * dst, int type, 
     {
         /* get remote dst buffer into a local copy - use 4-byte granularity since this works for all accumulates */
         offset1 = (bufsize/4) * count;
-        dmapp_status = dmapp_get( dst_local_copy1, &dst32[offset1], &A1D_Sheap_desc, (dmapp_pe_t)target, (uint64_t)remainder/4, DMAPP_DW );
+        dmapp_status = dmapp_get( dst_local_copy1, &dst32[offset1], A1D_Sheap_ptr, (dmapp_pe_t)target, (uint64_t)remainder/4, DMAPP_DW );
         A1D_Parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
 
@@ -806,7 +806,7 @@ int A1D_AccC_pipelined(int target, int bytes, void * src, void * dst, int type, 
         A1D_AccC_local(remainder, dst_local_copy1, &src32[offset1], type, scale );
 
         /* put local copy back into dst - use 4-byte granularity since this works for all accumulates */
-        dmapp_status = dmapp_put( &dst32[offset1], &A1D_Sheap_desc, (dmapp_pe_t)target, dst_local_copy1, (uint64_t)remainder/4, DMAPP_DW );
+        dmapp_status = dmapp_put( &dst32[offset1], A1D_Sheap_ptr, (dmapp_pe_t)target, dst_local_copy1, (uint64_t)remainder/4, DMAPP_DW );
         A1D_Parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
