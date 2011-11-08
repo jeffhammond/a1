@@ -95,7 +95,11 @@ int A1D_Allreduce_max32(int32_t in, int32_t * out)
     fprintf(stderr,"entering A1D_Allreduce_max32(int32_t in, int32_t * out) \n");
 #endif
 
+#ifdef __bgp__
+    mpi_status = MPI_Allreduce( &in, out, 1, MPI_INT, MPI_MAX, A1D_COMM_WORLD );
+#else
     mpi_status = MPI_Allreduce( &in, out, 1, MPI_INT32_T, MPI_MAX, A1D_COMM_WORLD );
+#endif
     assert(mpi_status==MPI_SUCCESS);
 
 #ifdef DEBUG_FUNCTION_ENTER_EXIT
@@ -121,7 +125,11 @@ int A1D_Allreduce_issame32(int32_t value, int * flag)
     out[0] = 0;
     out[1] = 0;
 
+#ifdef __bgp__
+    mpi_status = MPI_Allreduce( in, out, 2, MPI_INT, MPI_MAX, A1D_COMM_WORLD );
+#else
     mpi_status = MPI_Allreduce( in, out, 2, MPI_INT32_T, MPI_MAX, A1D_COMM_WORLD );
+#endif
     assert(mpi_status==MPI_SUCCESS);
 
     if ( (out[0] == value) && (out[1] = -value) ) 
@@ -150,7 +158,11 @@ int A1D_Allreduce_issame64(int64_t value, int * flag)
     out[0] = 0;
     out[1] = 0;
 
+#ifdef __bgp__
+    mpi_status = MPI_Allreduce( in, out, 2, MPI_LONG, MPI_MAX, A1D_COMM_WORLD );
+#else
     mpi_status = MPI_Allreduce( in, out, 2, MPI_INT64_T, MPI_MAX, A1D_COMM_WORLD );
+#endif
     assert(mpi_status==MPI_SUCCESS);
 
     if ( (out[0] == value) && (out[1] = -value) ) 
