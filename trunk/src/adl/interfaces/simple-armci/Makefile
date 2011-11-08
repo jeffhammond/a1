@@ -1,14 +1,24 @@
-CC      = mpicc
-COPT    = -g -O0 -std=c99
 DEVICE  = NONE
 
+CC      = mpicc
+COPT    = -g -O0 -std=c99 -Wall
+
 ifeq ($(TARGET),BGP)
-#CC      = mpicc
-#COPT    = -g -O0 -std=c99
-CC      = mpixlc_r
-COPT    = -g -O3 -qstrict -qlanglvl=extc99
+CC      = mpicc
+COPT    = -g -O0 -std=c99 -Wall -D__bgp__
+#CC      = mpixlc_r
+#COPT    = -g -O3 -qstrict -qlanglvl=extc99 -D__bgp__
 INC     = -I. -DDCMFD
 DEVICE  = dcmfd
+endif
+
+ifeq ($(TARGET),BGQ)
+CC      = mpicc
+COPT    = -g -O0 -std=c99 -Wall -D__bgq__
+#CC      = mpixlc_r
+#COPT    = -g -O3 -qstrict -qlanglvl=extc99 -D__bgq__
+INC     = -I. -DPAMID
+DEVICE  = pamid
 endif
 
 ifeq ($(TARGET),XE)
@@ -19,7 +29,7 @@ DEVICE  = dmappd
 endif
 
 ifeq ($(DEVICE),NONE) 
-@ You need to set TARGET={BGP,XE}
+@ You need to set TARGET={BGP,BGQ,XE}
 endif
 
 LIBS    = libparmci.a $(DEVICE)/liba1d.a generic/liba1g.a
