@@ -63,35 +63,42 @@ typedef enum
     A1D_INT64,
     A1D_UINT64
 }
-A1D_datatype_t;
+a1d_datatype_t;
 
 typedef struct
 {
-    void * remote_ptr;
-    A1D_datatype_t datatype;
+    uint32_t aggr_size; /* 0 means not aggregate handle */
     union
     {
-        double double_value;
-        float float_value;
-#ifdef A1D_USE_COMPLEX
-        double _Complex complex_double_value;
-        float _Complex complex_float_value;
-#endif
-        int32_t int32_value;
-        uint32_t uint32_value;
-        int64_t int64_value;
-        uint64_t uint64_value;
-    } scaling;
+        void   handle;
+        void * handles;
+    }
+    nbh;
 }
-A1D_AccC_t;
+a1d_nbhandle_t;
 
 int A1DI_Put_Initialize();
 int A1DI_Get_Initialize();
 int A1DI_Acc_Initialize();
 
+int A1D_Flush(int target);
+int A1D_Flush_all(void);
+
+int A1D_Reset(a1d_nbhandle_t * nbhandle);
+int A1D_Test(a1d_nbhandle_t * nbhandle, int * status);
+int A1D_Wait(a1d_nbhandle_t * nbhandle);
+
+int A1D_Reset_list(int count, a1d_nbhandle_t * nbhandle);
+int A1D_Test_list(int count, a1d_nbhandle_t * nbhandle, int * statuses);
+int A1D_Wait_list(int count, a1d_nbhandle_t * nbhandle);
+
 int A1D_GetC(int proc, int bytes, void* src, void* dst);
 int A1D_PutC(int proc, int bytes, void* src, void* dst);
 int A1D_AccC(int proc, int bytes, void* src, void* dst, int type, void* scale);
+
+int A1D_iGetC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t * nbhandle);
+int A1D_iPutC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t * nbhandle);
+int A1D_iAccC(int proc, int bytes, void * src, void * dst, a1d_nbhandle_t * nbhandle, int type, void * scale);
 
 /*
 int A1D_GetS(int proc, int stride_levels, int block_sizes,
@@ -105,13 +112,5 @@ int A1D_AccS(int proc, stride_levels, block_sizes,
                           dst_ptr, dst_stride_arr,
                           int type, void* scale);
 */
-
-//typedef struct
-//{
-//        int ptr_array_len;
-//        void** src_ptr_array;
-//        void** dst_ptr_array;
-//}
-//a1d_iovec_t;
 
 #endif

@@ -255,6 +255,98 @@ int A1DI_Acc_Initialize()
 
 /*********************************************************************/
 
+#define DCMF_FLUSH_COUNT_MAX 100
+
+/*********************************************************************/
+
+int A1D_Flush(int target)
+{
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Flush(int target) \n");
+#endif
+
+#if defined(FLUSH_IMPLEMENTED)
+    /* inject put */
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Flush(int target) \n");
+#endif
+
+    return(0);
+}
+
+int A1D_Flush_all(void)
+{
+    int count = 0;
+    int temp[DCMF_FLUSH_COUNT_MAX+1];
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"entering A1D_Flush(int target) \n");
+#endif
+
+#if defined(FLUSH_IMPLEMENTED)
+    for ( int i=0 ; i<mpi_size ; i++)
+    {
+        if ( A1D_Put_flush_list[i] > 0 )
+        {
+            /* inject puts */
+
+            count++;
+
+            if ( count > DCMF_FLUSH_COUNT_MAX )
+            {
+                /* wait and advance */
+            }
+        }
+    }
+#endif
+
+#ifdef FLUSH_IMPLEMENTED
+    for ( int i=0 ; i<mpi_size ; i++) A1D_Put_flush_list[i] = 0;
+#endif
+
+#ifdef DEBUG_FUNCTION_ENTER_EXIT
+    fprintf(stderr,"exiting A1D_Flush(int target) \n");
+#endif
+
+    return(0);
+}
+
+/*********************************************************************/
+
+int A1D_Reset(a1d_nbhandle_t * nbhandle)
+{
+    return(0);
+}
+
+int A1D_Test(a1d_nbhandle_t * nbhandle, int * status)
+{
+    return(0);
+}
+
+int A1D_Wait(a1d_nbhandle_t * nbhandle)
+{
+    return(0);
+}
+
+int A1D_Reset_list(int count, a1d_nbhandle_t * nbhandle)
+{
+    return(0);
+}
+
+int A1D_Test_list(int count, a1d_nbhandle_t * nbhandle, int * statuses)
+{
+    return(0);
+}
+
+int A1D_Wait_list(int count, a1d_nbhandle_t * nbhandle)
+{
+    return(0);
+}
+
+/*********************************************************************/
+
 int A1D_GetC(int target, int bytes, void* src, void* dst)
 {
 #ifdef __bgp__
