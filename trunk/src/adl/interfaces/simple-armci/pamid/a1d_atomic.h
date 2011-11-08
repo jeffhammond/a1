@@ -28,10 +28,10 @@
  *
  * The copyright holders provide no reassurances that the source code
  * provided does not infringe any patent, copyright, or any other
- * int32_tellectual property rights of third parties.  The copyright holders
+ * int64_tellectual property rights of third parties.  The copyright holders
  * disclaim any liability to any recipient for claims brought against
  * recipient by any third party for infringement of that parties
- * int32_tellectual property rights.
+ * int64_tellectual property rights.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -52,23 +52,23 @@
 
 typedef struct
 {
-    int32_t   value;
-    int32_t * return_address;
-    volatile uint32_t * active_address;
+    int64_t   value;
+    int64_t * return_address;
+    volatile uint64_t * active_address;
 }
-A1D_Fetch32_t;
+A1D_Fetch64_t;
 
 typedef struct
 {
-    int32_t   incr;
-    int32_t * incr_address;
-    int32_t * return_address;
-    volatile uint32_t * active_address;
+    int64_t   incr;
+    int64_t * incr_address;
+    int64_t * return_address;
+    volatile uint64_t * active_address;
 }
-A1D_Inc32_t;
+A1D_Inc64_t;
 
 void A1DI_Atomic_Initialize();
 
-void A1D_Fetch_and_inc32(int proc, int32_t * remote, int32_t * local, int32_t incr);
+void A1D_Fetch_and_inc64(int proc, int64_t * remote, int64_t * local, int64_t incr);
 
 #endif
