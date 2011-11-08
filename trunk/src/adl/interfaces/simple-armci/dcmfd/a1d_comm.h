@@ -70,8 +70,8 @@ typedef struct
     uint32_t aggr_size; /* 0 means not aggregate handle */
     union
     {
-        void   handle;
-        void * handles;
+        int   handle;
+        int * handles;
     }
     nbh;
 }
