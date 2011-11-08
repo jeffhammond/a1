@@ -9,20 +9,34 @@
 
 int main(int argc, char **argv)
 {
-    int status   = MPI_SUCCESS;
-    int provided = MPI_THREAD_SINGLE;
-    status = MPI_Init_thread(&argc, &argv, MPI_THREAD_SINGLE, &provided);
-    assert( status == MPI_SUCCESS );
+    int status    = MPI_SUCCESS;
+    int provided  = MPI_THREAD_SINGLE;
+    int requested = MPI_THREAD_MULTIPLE;
+    status = MPI_Init_thread(&argc, &argv, requested, &provided);
+    assert( status == MPI_SUCCESS && provided == requested );
 
     int rank = -1;
     int size = -1;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&size);
+    if (rank==0) printf("hello from rank %d of %d \n", rank, size );
+    fflush(stdout);
 
     int max = -1, reps = -1;
     max  = ( argc>1 ? atoi(argv[1]) : 1000000 );
     reps = ( argc>2 ? atoi(argv[2]) : 100 );
     if (rank==0) printf("max = %d doubles, repetitions = %d \n", max, reps );
+    fflush(stdout);
+
+    int namelen = 0;
+    char procname[MPI_MAX_PROCESSOR_NAME];
+
+    MPI_Get_processor_name( procname, &namelen );
+    printf("%5d: MPI_Get_processor_name = %s \n", rank, procname );
+    fflush(stdout);
+
+    status = MPI_Barrier(MPI_COMM_WORLD);
+    assert( status == MPI_SUCCESS );
 
     for ( int s=1 ; size<max ; s*=2 )
     {
@@ -88,6 +102,7 @@ int main(int argc, char **argv)
              
                 printf( "target = %4d size = %10d put: %e sec %e MB/s acc: %e sec  %e MB/s\n", 
                          target, s, dt_put, 1e-6 * bytes/dt_put, dt_acc, 1e-6 * bytes/dt_acc );
+                fflush(stdout);
             }
         }
 
