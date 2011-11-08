@@ -3,7 +3,7 @@
 CC      = mpixlc_r
 COPT    = -g -O3 -qstrict -qlanglvl=extc99
 
-INC     = -I. -I/bgsys/drivers/ppcfloor/arch/include/
+INC     = -I. -I../generic -I/bgsys/drivers/ppcfloor/arch/include/
 
 LD      = $(CC)
 CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
