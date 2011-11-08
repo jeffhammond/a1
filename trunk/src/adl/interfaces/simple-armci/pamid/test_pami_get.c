@@ -4,12 +4,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+#include <string.h>
 #include <mpi.h>
 #include <pami.h>
 
 static size_t world_size, world_rank = -1;
 
-#define PRINT_SUCCESS 0
+#define PRINT_SUCCESS 1
 
 #define TEST_ASSERT(c,m) \
         do { \
@@ -37,13 +38,11 @@ void cb_done(pami_context_t context, void * cookie, pami_result_t result)
 
 int main(int argc, char *argv[])
 {
-    int provided;
-    int mpi_status;
+    int provided = MPI_THREAD_SINGLE;
+    int mpi_status = MPI_SUCCESS;
 
-    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    assert( size > 1 );
+    mpi_status = MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+    TEST_ASSERT( mpi_status==MPI_SUCCESS , "MPI_Init_thread" );
 
     /**********************************************************************/
 
@@ -63,6 +62,7 @@ int main(int argc, char *argv[])
     pami_result = PAMI_Client_query( &a1d_client, &config,1);
     TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Client_query");
     world_size = config.value.intval;
+    TEST_ASSERT( world_size > 1 , "world_size > 1" );
 
     config.name = PAMI_CLIENT_TASK_ID;
     pami_result = PAMI_Client_query( &a1d_client, &config,1);
@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
     contexts = (pami_context_t *) malloc( num_contexts * sizeof(pami_context_t) );
     assert( contexts!=NULL );
 
-    result = PAMI_Context_createv( client, &a1d_client, 0, contexts, num_contexts );
-    TEST_ASSERT(result == PAMI_SUCCESS,"PAMI_Context_createv");
+    pami_result = PAMI_Context_createv( &a1d_client, NULL, 0, contexts, num_contexts );
+    TEST_ASSERT( pami_result == PAMI_SUCCESS , "PAMI_Context_createv" );
 
     printf("%ld contexts were created by rank %ld \n", num_contexts, world_rank );
     fflush(stdout);
@@ -95,22 +95,21 @@ int main(int argc, char *argv[])
     size_t max_count   = (size_t) ( argc > 2 ? atoi(argv[2]) : 1024 );
     size_t repetitions = (size_t) ( argc > 3 ? atoi(argv[3]) : 10   );
 
-    if ( rank == 0 ) printf( "size = %ld max_count = %ld bytes \n", world_size, max_count );
+    if ( world_rank == 0 ) printf( "size = %ld max_count = %ld bytes \n", world_size, max_count );
 
     mpi_status = MPI_Barrier(MPI_COMM_WORLD);
-    assert(mpi_status==0);
+    TEST_ASSERT( mpi_status==MPI_SUCCESS , "MPI_Barrier" );
 
     //for ( int count = min_count ; count < max_count ; count*=2 )
     for ( size_t count = min_count ; count < max_count ; count++ )
     {
         size_t bytes = count * sizeof(char);
-        size_t bytes_out;
 
         char * shared_buffer = malloc( bytes );
         assert( shared_buffer!=NULL );
 
-        char correct = (char)( ((int)'0') + (rank%10) );
-        memset( shared_buffer[i], correct, count );
+        char correct = (char)( ((int)'0') + (world_rank%10) );
+        memset( shared_buffer, correct, count );
 
         char ** shared_buffer_list = malloc( world_size * sizeof(char *) );
         assert( shared_buffer_list!=NULL );
@@ -118,12 +117,12 @@ int main(int argc, char *argv[])
         mpi_status = MPI_Allgather(&shared_buffer,     sizeof(char *), MPI_BYTE,
                                    shared_buffer_list, sizeof(char *), MPI_BYTE,
                                    MPI_COMM_WORLD);
-        assert(mpi_status==0);
+        TEST_ASSERT( mpi_status==MPI_SUCCESS , "MPI_Allgather" );
 
         mpi_status = MPI_Barrier(MPI_COMM_WORLD);
-        assert(mpi_status==0);
+        TEST_ASSERT( mpi_status==MPI_SUCCESS , "MPI_Barrier" );
 
-        if (rank == 0)
+        if (world_rank == 0)
         {
             char * local_buffer = malloc( bytes );
             assert( local_buffer!=NULL );
@@ -139,13 +138,13 @@ int main(int argc, char *argv[])
                 size_t context_offset = 0;
                 pami_get_simple_t parameters;
 
-                pami_result_t = PAMI_Context_lock(contexts[0]);
+                pami_result = PAMI_Context_lock(contexts[0]);
                 TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Context_lock");
 
                 pami_result = PAMI_Endpoint_create( a1d_client, target_task, context_offset, &parameters.rma.dest );
                 TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Endpoint_create");
 
-                parameters.rma.hints   = null_send_hint;
+                //parameters.rma.hints   = NULL;
                 parameters.rma.bytes   = count;
                 parameters.rma.cookie  = (void *) &active;
                 parameters.rma.done_fn = cb_done;
@@ -165,10 +164,10 @@ int main(int argc, char *argv[])
                 }
                 t1 = PAMI_Wtime(a1d_client);
 
-                pami_result_t = PAMI_Context_unlock(contexts[0]);
+                pami_result = PAMI_Context_unlock(contexts[0]);
                 TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Context_unlock");
 
-                char correct = (char)( ((int)'0') + (target%10) );
+                char correct = (char)( ((int)'0') + (target_task%10) );
 
                 int errors = 0;
                 for ( size_t i = 0 ; i < count ; i++ )
@@ -176,33 +175,34 @@ int main(int argc, char *argv[])
 
                 if ( errors > 0 )
                     for ( size_t i = 0 ; i < count ; i++ )
-                        printf("%d: target %d local_buffer[%d] = %c (expected = %c) \n", rank, target, i, local_buffer[i], correct );
+                        printf("%ld: target %ld local_buffer[%ld] = %c (expected = %c) \n", world_rank, target_task, i, local_buffer[i], correct );
 
                 fflush(stdout);
 
                 dt =  ( t1 - t0 ) / repetitions;
                 bw = 1e-6 * bytes / dt;
-                printf("%ld: PAMI_Get of from rank %d to rank %ld of %ld bytes took %lf seconds (%lf MB/s)\n",
-                       world_rank, target, 0, bytes, dt, bw);
+                printf("%ld: PAMI_Get of from rank %ld to rank %ld of %ld bytes took %lf seconds (%lf MB/s)\n",
+                       world_rank, target_task, (long)0, bytes, dt, bw);
                 fflush(stdout);
             }
             free(local_buffer);
         }
         mpi_status = MPI_Barrier(MPI_COMM_WORLD);
-        assert(mpi_status==0);
+        TEST_ASSERT( mpi_status==MPI_SUCCESS , "MPI_Barrier" );
 
         free(shared_buffer_list);
         free(shared_buffer);
     }
 
     mpi_status = MPI_Barrier(MPI_COMM_WORLD);
-    assert(mpi_status==0);
+    TEST_ASSERT( mpi_status==MPI_SUCCESS , "MPI_Barrier" );
 
     MPI_Finalize();
 
     return(0);
 }
 #else
+#error WHAT THE FUCK?
 
 int main()
 {
