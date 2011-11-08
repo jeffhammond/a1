@@ -67,27 +67,7 @@ typedef enum
     A1D_INT64,
     A1D_UINT64
 }
-A1D_datatype_t;
-
-//typedef struct
-//{
-//    void * remote_ptr;
-//    A1D_datatype_t datatype;
-//    union
-//    {
-//        double double_value;
-//        float float_value;
-//#ifdef A1D_USE_COMPLEX
-//        double _Complex complex_double_value;
-//        float _Complex complex_float_value;
-//#endif
-//        int32_t int32_value;
-//        uint32_t uint32_value;
-//        int64_t int64_value;
-//        uint64_t uint64_value;
-//    } scaling;
-//}
-//a1d_acc_t;
+a1d_datatype_t;
 
 typedef struct
 {
@@ -100,14 +80,6 @@ typedef struct
     nbh;
 }
 a1d_nbhandle_t;
-
-//typedef struct
-//{
-//        int ptr_array_len;
-//        void** src_ptr_array;
-//        void** dst_ptr_array;
-//}
-//a1d_iovec_t;
 
 int A1D_Flush(int target);
 int A1D_Flush_all(void);

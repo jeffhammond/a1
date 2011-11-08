@@ -3,13 +3,16 @@
 #include <assert.h>
 
 #if defined(DCMFD)
-#include "dcmfd/a1d_api.h"
-#define USE_32B_ATOMICS
+#  include "dcmfd/a1d_api.h"
+#  define USE_32B_ATOMICS
+#elif defined(PAMID)
+#  include "pamid/a1d_api.h"
+#  define USE_64B_ATOMICS
 #elif defined(DMAPPD)
-#include "dmappd/a1d_api.h"
-#define USE_64B_ATOMICS
+#  include "dmappd/a1d_api.h"
+#  define USE_64B_ATOMICS
 #else
-#error No device defined!
+#  error No device defined!
 #endif
 
 /* to make sure I haven't broken the API */
