@@ -59,13 +59,13 @@ int main(int argc, char *argv[])
     size_t num_contexts;
 
     config.name = PAMI_CLIENT_NUM_TASKS;
-    pami_result = PAMI_Client_query( &a1d_client, &config,1);
+    pami_result = PAMI_Client_query( a1d_client, &config,1);
     TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Client_query");
     world_size = config.value.intval;
     TEST_ASSERT( world_size > 1 , "world_size > 1" );
 
     config.name = PAMI_CLIENT_TASK_ID;
-    pami_result = PAMI_Client_query( &a1d_client, &config,1);
+    pami_result = PAMI_Client_query( a1d_client, &config,1);
     TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Client_query");
     world_rank = config.value.intval;
     printf("hello world from rank %ld of %ld \n", world_rank, world_size );
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     //sleep(1);
 
     config.name = PAMI_CLIENT_NUM_CONTEXTS;
-    pami_result = PAMI_Client_query( &a1d_client, &config, 1);
+    pami_result = PAMI_Client_query( a1d_client, &config, 1);
     TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Client_query");
     num_contexts = config.value.intval;
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     contexts = (pami_context_t *) malloc( num_contexts * sizeof(pami_context_t) );
     assert( contexts!=NULL );
 
-    pami_result = PAMI_Context_createv( &a1d_client, NULL, 0, contexts, num_contexts );
+    pami_result = PAMI_Context_createv( a1d_client, NULL, 0, contexts, num_contexts );
     TEST_ASSERT( pami_result == PAMI_SUCCESS , "PAMI_Context_createv" );
 
     printf("%ld contexts were created by rank %ld \n", num_contexts, world_rank );

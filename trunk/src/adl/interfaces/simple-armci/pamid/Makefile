@@ -1,12 +1,19 @@
-CC      := mpicc
-COPT    := -g -O0 -std=c99 -Wall
+#CC      := mpicc
+#COPT    := -g -O0 -std=c99 -Wall
 #CC      := mpixlc_r
 #COPT    := -g -O3 -qstrict -qlanglvl=extc99
+CC      := /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc64-bgq-linux-gcc
+COPT    := -g -O0 -std=c99 -Wall
 
-INC     = -I. -I../generic -I/bgsys/drivers/ppcfloor/arch/include/
+SPI_DIR  = /bgsys/drivers/ppcfloor/spi
+#PAMI_DIR = /bgsys/drivers/ppcfloor/comm/sys
+PAMI_DIR = /home/xajhammond/PAMI/patch-9nov2011/sys
+MPI_DIR  = /bgsys/drivers/ppcfloor/comm/gcc
+INC      = -I$(MPI_DIR)/include -I$(PAMI_DIR)/include -I$(SPI_DIR)/include
+LIB      = -L$(MPI_DIR)/lib     -L$(PAMI_DIR)/lib     -L$(SPI_DIR)/lib     -lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt
 
 LD      = $(CC)
-CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT
+CFLAGS  = $(COPT) $(INC) -DDEBUG_FUNCTION_ENTER_EXIT -I. -I../generic
 LDFLAGS = $(COPT)
 
 TEST_BINARIES := $(patsubst %.c,%.x,$(wildcard test*.c))
@@ -19,7 +26,7 @@ HEADERS       := $(A1D_HEADERS)
 all: $(TEST_BINARIES)
 
 %.x: %.o liba1d.a
-	$(LD) $(LDFLAGS) $< liba1d.a -o $@
+	$(LD) $(LDFLAGS) $< liba1d.a $(LIB) -o $@
 
 liba1d.a: $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
