@@ -50,6 +50,10 @@
 #ifndef A1D_GLOBALS_H
 #define A1D_GLOBALS_H
 
+#define DMAPP_FLUSH_COUNT_MAX 100
+#define DMAPP_ACC_SEGMENT_SIZE 32768
+#define DMAPP_ALIGNMENT 128
+
 extern int mpi_rank;
 extern int mpi_size;
 
@@ -63,6 +67,8 @@ extern int mpi_size;
 #endif
 
 #ifdef __CRAYXE
+  extern int A1D_Memdesc_list_size;
+  extern dmapp_seg_desc_t * A1D_Memdesc_list;
   extern dmapp_seg_desc_t A1D_Sheap_desc;
 #else
 #  warning Linking will fail.
