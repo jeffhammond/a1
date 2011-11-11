@@ -1,0 +1,39 @@
+# This is a Makefile!
+
+#CC:=bgxlc
+#LD:=bgxlc
+#MPICC:=mpixlc
+#MPILD:=mpixlc
+#CC:=gcc
+#LD:=gcc
+#MPICC:=mpicc
+#MPILD:=mpicc
+CC:=cc
+LD:=cc
+MPICC:=cc
+MPILD:=cc
+
+#CFLAGS+=-DJUGENE -I/bgsys/drivers/ppcfloor/arch/include
+LDFLAGS+= -lm
+
+ifneq ($(DEBUG),)
+ CFLAGS+=-g -qfullpath -DDEBUG
+ LDFLAGS+=-g -qfullpath
+else
+ CFLAGS+=-g -O2
+ LDFLAGS+=-g -O2
+endif
+
+
+AR:=ar
+ARFLAGS:=-r
+CAT:=cat
+CP:=cp
+CPP:=cpp
+ECHO:=echo
+ECHO_N:=printf
+PRINTF:=printf
+GREP:=grep
+MKDIR_P:=mkdirhier
+RM:=rm -f
+

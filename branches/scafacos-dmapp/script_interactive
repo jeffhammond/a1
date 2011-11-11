@@ -1,0 +1,17 @@
+# @ job_name = LoadL_Small_XTERM
+# @ job_type = bluegene
+# @ comment = "BGL Job by Size"
+# @ error = $(job_name).$(jobid).out
+# @ output = $(job_name).$(jobid).out
+# @ environment = COPY_ALL;
+# @ requirements = (Machine == "jugene4" )
+# @ wall_clock_limit = 00:30:00
+# @ notification = never
+# @ notify_user = i.kabadshow@fz-juelich.de
+# @ bg_size = 32
+# @ bg_connection = PREFER_TORUS
+# @ executable = /usr/bin/xterm
+# @ arguments = -ls -sb -sl 10000 -bg black -fg lightgreen -geometry 160x75 -font 6x12
+## @ class = sysmall
+# @ queue
+

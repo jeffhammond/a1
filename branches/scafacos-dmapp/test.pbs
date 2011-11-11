@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -N test_fmm
+#PBS -l mppwidth=2
+#PBS -l mppnppn=1
+#PBS -l walltime=0:30:00
+#PBS -joe
+#PBS -V
+####PBS -q debug
+
+cd ${PBS_O_WORKDIR}
+
+aprun -n 2 -N 1 ./test_fmm_r32.x 100 2
