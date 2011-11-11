@@ -3,6 +3,7 @@ CC        = mpicc
 COPT      = -g -O0
 FC        = mpif90
 FOPT      = -g -O0
+MAKEJNUM  = 2
 # Megatron
 LIBARMCI  = -L/home/jeff/eclipse/ARMCI-MPI/trunk/install/lib -larmci
 endif
@@ -12,6 +13,7 @@ CC        = cc
 COPT      = -g -O0
 FC        = ftn
 FOPT      = -g -O0
+MAKEJNUM  = 12
 # Hopper
 LIBARMCI  = -L/global/homes/j/jhammond/ARMCI-MPI/armci-mpi/trunk/install/lib -larmci
 endif
@@ -59,7 +61,7 @@ test_fmm_r32.x: libfm_r32.a sl/libsl.a
 	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBS) -o $@
 
 sl/libsl.a:
-	make -C sl -j 12 CC="$(CC)" CFLAGS="$(CFLAGS)"
+	make -C sl -j $(MAKEJNUM) CC="$(CC)" CFLAGS="$(CFLAGS)"
 
 libfm_r32.a: $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
