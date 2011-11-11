@@ -33,6 +33,6 @@ ECHO:=echo
 ECHO_N:=printf
 PRINTF:=printf
 GREP:=grep
-MKDIR_P:=mkdirhier
+MKDIR_P:=mkdir -p
 RM:=rm -f
 
