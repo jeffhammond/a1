@@ -3,7 +3,7 @@ FOPT      = -g -O3
 
 ifeq ($(TARGET),)
 CC        = mpicc
-FC        = mpif
+FC        = mpif90
 MAKEJNUM  = 2
 # Megatron
 LIBARMCI  = -L/home/jeff/eclipse/ARMCI-MPI/trunk/install/lib -larmci
