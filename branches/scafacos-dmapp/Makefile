@@ -8,7 +8,7 @@ MAKEJNUM  = 2
 LIBARMCI  = -L/home/jeff/eclipse/ARMCI-MPI/trunk/install/lib -larmci
 endif
 
-ifeq ($(TARGET),CRAY)
+ifeq ($(TARGET),XE)
 CC        = cc
 COPT      = -g -O0
 FC        = ftn
