@@ -1,0 +1,28 @@
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+aprun: -N cannot exceed -n
+
+ + --------------------------------------------------------------------------
+ +        Job name: test_fmm
+ +          Job Id: 977402.sdb
+ +          System: hopper
+ +     Queued Time: Fri Nov 11 10:23:33 2011
+ +      Start Time: Fri Nov 11 10:29:17 2011
+ + Completion Time: Fri Nov 11 10:29:29 2011
+ +            User: jhammond
+ +        MOM Host: nid04748
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:23544:hopper04,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=0kb,vmem=0kb,walltime=00:00:02
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/j/jhammond/SCAFACOS/scafacos-dmapp
+ +     Submit Args: test.pbs
+ + --------------------------------------------------------------------------
+
