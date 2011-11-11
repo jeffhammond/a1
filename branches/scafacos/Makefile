@@ -23,7 +23,7 @@ CC        = mpixlc
 FC        = mpixlf90
 MAKEJNUM  = 4
 # Surveyor
-LIBARMCI  = -L/home/jhammond/ARMCI-MPI/armci-mpi/trunk/install -larmci
+LIBARMCI  = -L/home/jhammond/ARMCI-MPI/armci-mpi/trunk/install/lib -larmci
 INC       = -I/bgsys/drivers/ppcfloor/arch/include/
 endif
 
