@@ -1,15 +1,36 @@
-CC   = cc
-COPT = -g -O0
+ifeq ($(TARGET),)
+CC        = mpicc
+COPT      = -g -O0
+FC        = mpif90
+FOPT      = -g -O0
+# Megatron
+LIBARMCI  = -L/home/jeff/eclipse/ARMCI-MPI/trunk/install/lib -larmci
+endif
 
+ifeq ($(TARGET),CRAY)
+CC        = cc
+COPT      = -g -O0
 FC        = ftn
 FOPT      = -g -O0
+# Hopper
+LIBARMCI  = -L/global/homes/j/jhammond/ARMCI-MPI/armci-mpi/trunk/install/lib -larmci
+endif
 
-# GCC
+ifeq ($(COMPILER),)
 FPP       = -cpp
 FIXED     = -ffixed-form
 FREE      = -ffree-form
 FINT8     = -fdefault-integer-8
 FNORNGCHK = -fno-range-check
+endif
+
+ifeq ($(COMPILER),PGI)
+FPP       = -Mpreprocess
+FIXED     = -Mfixed
+FREE      = -Mfree
+FINT8     = -i8
+FNORNGCHK = 
+endif
 
 #DMAPP_PATH=/opt/cray/dmapp/default
 #GNIH_PATH=/opt/cray/gni-headers/default
@@ -28,8 +49,6 @@ FFLAGS   = $(FOPT) $(INC)
 LD       = $(FC)
 LDFLAGS  = $(FOPT)
 
-# ARMCI-MPI on Hopper
-LIBARMCI = -L/global/homes/j/jhammond/ARMCI-MPI/armci-mpi/trunk/install/lib -larmci
 LIBS     = $(LIBARMCI)
 
 OBJECTS = caladdr2.o cptrsize.o diffcpointers.o dummy_malloc.o fmm_full.o fmmgradt.o fmm_mods.o fmmmopn.o fmmoopn.o getcjpa.o getneighbors.o mp_constants.o mp_wrapper.o ptroffset.o pvlist2.o
@@ -40,7 +59,7 @@ test_fmm_r32.x: libfm_r32.a sl/libsl.a
 	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBS) -o $@
 
 sl/libsl.a:
-	#make -C sl -j 12
+	make -C sl -j 12
 
 libfm_r32.a: $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
@@ -86,6 +105,6 @@ clean:
 
 realclean: clean
 	$(RM) $(RMFLAGS) libfm_r32.a test_fmm_r32.x
-	#$(RM) $(RMFLAGS) sl/libsl.a
-	#make -C sl clean
+	$(RM) $(RMFLAGS) sl/libsl.a
+	make -C sl clean
 
