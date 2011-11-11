@@ -26,6 +26,15 @@ MAKEJNUM  = 4
 LIBARMCI  = -L/home/jhammond/ARMCI-MPI/armci-mpi/trunk/install -larmci
 endif
 
+ifeq ($(TARGET),BGQ)
+COMPILER  = 
+CC        = mpicc
+FC        = mpif90
+MAKEJNUM  = 8
+# EAS
+LIBARMCI  = -L/home/xajhammond/ARMCI-MPI/trunk/install-bgq-gcc/lib -larmci
+endif
+
 ifeq ($(COMPILER),)
 FPP       = -cpp
 FIXED     = -ffixed-form
