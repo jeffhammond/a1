@@ -24,6 +24,7 @@ FC        = mpixlf90
 MAKEJNUM  = 4
 # Surveyor
 LIBARMCI  = -L/home/jhammond/ARMCI-MPI/armci-mpi/trunk/install -larmci
+INC       = -I/bgsys/drivers/ppcfloor/arch/include/
 endif
 
 ifeq ($(TARGET),BGQ)
