@@ -59,7 +59,7 @@ test_fmm_r32.x: libfm_r32.a sl/libsl.a
 	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBS) -o $@
 
 sl/libsl.a:
-	make -C sl -j 12
+	make -C sl -j 12 CC=$(CC) CFLAGS=$(CFLAGS)
 
 libfm_r32.a: $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)

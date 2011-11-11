@@ -8,22 +8,21 @@
 #LD:=gcc
 #MPICC:=mpicc
 #MPILD:=mpicc
-CC:=cc
-LD:=cc
-MPICC:=cc
-MPILD:=cc
+CC:=mpicc
+LD=$(CC)
+MPICC=$(CC)
+MPILD=$(CC)
 
 #CFLAGS+=-DJUGENE -I/bgsys/drivers/ppcfloor/arch/include
 LDFLAGS+= -lm
 
 ifneq ($(DEBUG),)
- CFLAGS+=-g -qfullpath -DDEBUG
- LDFLAGS+=-g -qfullpath
+ CFLAGS+=-g -DDEBUG
+ LDFLAGS+=-g 
 else
- CFLAGS+=-g -O2
- LDFLAGS+=-g -O2
+ CFLAGS:=$(CFLAGS)
+ LDFLAGS:=$(CFLAGS)
 endif
-
 
 AR:=ar
 ARFLAGS:=-r
