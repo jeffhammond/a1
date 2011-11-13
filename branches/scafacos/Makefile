@@ -14,7 +14,8 @@ CC        = cc
 FC        = ftn
 MAKEJNUM  = 12
 # Hopper
-LIBARMCI  = -L/global/homes/j/jhammond/ARMCI-MPI/armci-mpi/trunk/install/lib -larmci
+#LIBARMCI  = -L/global/homes/j/jhammond/ARMCI-MPI/armci-mpi/trunk/install/lib -larmci
+#LIBARMCI  = armci-scafacos.o
 endif
 
 ifeq ($(TARGET),BGP)
@@ -79,7 +80,7 @@ LDFLAGS  = $(FOPT)
 
 LIBS     = $(LIBARMCI)
 
-OBJECTS = caladdr2.o cptrsize.o diffcpointers.o dummy_malloc.o fmm_full.o fmmgradt.o fmm_mods.o fmmmopn.o fmmoopn.o getcjpa.o getneighbors.o mp_constants.o mp_wrapper.o ptroffset.o pvlist2.o
+OBJECTS = armci-scafacos.o caladdr2.o cptrsize.o diffcpointers.o dummy_malloc.o fmm_full.o fmmgradt.o fmm_mods.o fmmmopn.o fmmoopn.o getcjpa.o getneighbors.o mp_constants.o mp_wrapper.o ptroffset.o pvlist2.o
 
 all: test_fmm_r32.x
 

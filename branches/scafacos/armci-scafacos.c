@@ -47,7 +47,17 @@
  *
  *********************************************************************/
 
-#include "armci.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <assert.h>
+
+#include <mpi.h>
+
+#ifdef __CRAYXE
+#include <dmapp.h>
+#endif
+
+//#include "armci.h"
 
 MPI_Comm A1_COMM_WORLD;
 
@@ -133,14 +143,15 @@ int ARMCI_Init(void)
     (*flush_bit) = mpi_rank;
 
     in[0]  = (int64_t) flush_bit;
-    in[1]  = (int64_t) -flush_bit;
+    in[1]  = (int64_t) flush_bit;
+    in[1] *= -1;
     out[0] = 0;
     out[1] = 0;
 
     mpi_status = MPI_Allreduce( in, out, 2, MPI_INT64_T, MPI_MAX, A1_COMM_WORLD );
     assert(mpi_status==MPI_SUCCESS);
 
-    if ( (out[0] != value) || (out[1] != -value) )
+    if ( (out[0] != in[0]) || (out[1] != in[1]) )
     {
         fprintf(stderr, "flush_bit address (%p) is not symmetric; program behavior is undefined. \n", flush_bit);
         fflush(stderr);
@@ -181,7 +192,7 @@ void ARMCI_Finalize(void)
 
 void ARMCI_Cleanup(void)
 {
-    ARMCI_Finalize(void);
+    ARMCI_Finalize();
 
     return;
 }
@@ -256,6 +267,7 @@ void ARMCI_Fence(int proc)
 }
 void ARMCI_AllFence(void)
 {
+    int i;
     int mpi_status = MPI_SUCCESS;
     int mpi_size = -1;
 
@@ -274,11 +286,12 @@ void ARMCI_AllFence(void)
     mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
     assert(mpi_status==0);
 
-#ifdef __CRAYXE
-    for ( int i=0 ; i<mpi_size ; i++)
+#ifdef FLUSH_IMPLEMENTED
+    for ( i=0 ; i<mpi_size ; i++)
     {
         if ( flush_list[i] > 0 )
         {
+#ifdef __CRAYXE
             dmapp_status = dmapp_get_nbi( &temp[count], flush_bit, &dmapp_sheap, (dmapp_pe_t)i, 1, DMAPP_DW );
             assert(dmapp_status==DMAPP_RC_SUCCESS);
 
@@ -292,9 +305,11 @@ void ARMCI_AllFence(void)
                 count = 0;
                 gsync++;
             }
+#endif
         }
     }
 
+#ifdef __CRAYXE
     /* in case we never reached count > DMAPP_FLUSH_COUNT_MAX, we must call gsync at least once
      * to ensure that implicit NB get ops complete remotely, thus ensuring global visability  */
     if ( gsync == 0 )
@@ -304,7 +319,6 @@ void ARMCI_AllFence(void)
     }
 #endif
 
-#ifdef FLUSH_IMPLEMENTED
     for ( int i=0 ; i<mpi_size ; i++) flush_list[i] = 0;
 #endif
 
@@ -318,7 +332,7 @@ void ARMCI_Barrier(void)
     mpi_status = MPI_Barrier(A1_COMM_WORLD);
     assert(mpi_status==MPI_SUCCESS);
 
-    ARMCI_AllFence(void);
+    ARMCI_AllFence();
 
     return;
 }

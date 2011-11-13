@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <assert.h>
-#include <mpi.h>
-
 int ARMCI_Init();
 void ARMCI_Finalize();
 void ARMCI_Cleanup();
