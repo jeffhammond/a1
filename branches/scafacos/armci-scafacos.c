@@ -49,21 +49,140 @@
 
 #include "armci.h"
 
-/* initialization and termination */
+MPI_Comm A1_COMM_WORLD;
+
+#ifdef __CRAYXE
+  dmapp_seg_desc_t dmapp_sheap;
+  int * flush_bit = NULL;
+  const int DMAPP_FLUSH_COUNT_MAX = 100;
+#endif
+
+#ifdef FLUSH_IMPLEMENTED
+  int * flush_list;
+#endif
 
 int ARMCI_Init(void)
 {
-    return A1D_Initialize();
+    int mpi_status = MPI_SUCCESS;
+    int mpi_rank = -1;
+    int mpi_size = -1;
+
+    int64_t in[2], out[2];
+
+#ifdef __CRAYXE
+    dmapp_return_t                      dmapp_status = DMAPP_RC_SUCCESS;
+    dmapp_rma_attrs_ext_t               dmapp_config_in, dmapp_config_out;
+    dmapp_jobinfo_t                     dmapp_info;
+    dmapp_pe_t                          dmapp_rank = -1;
+    int                                 dmapp_size = -1;
+#endif
+
+    /* have to use our own communicator for collectives to be proper */
+    mpi_status = MPI_Comm_dup(MPI_COMM_WORLD,&A1_COMM_WORLD);
+    assert(mpi_status==0);
+
+    /* get my MPI rank */
+    mpi_status = MPI_Comm_rank(A1_COMM_WORLD,&mpi_rank);
+    assert(mpi_status==0);
+
+    /* get MPI world size */
+    mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
+    assert(mpi_status==0);
+
+#ifdef __CRAYXE
+    dmapp_config_in.max_concurrency      = 1; /* not thread-safe */
+    dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB; /*  512 */
+    dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;  /* 4096 */
+
+#  ifdef DETERMINISTIC_ROUTING
+    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+#  else
+    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
+    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
+#  endif
+
+#  ifndef FLUSH_IMPLEMENTED
+    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_STRICT;
+#  else
+    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_RELAXED;
+#  endif
+
+    dmapp_status = dmapp_init_ext( &dmapp_config_in, &dmapp_config_out );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+#ifndef FLUSH_IMPLEMENTED
+    /* without strict PI ordering, we have to flush remote stores with a get packet to force global visibility */
+    assert( dmapp_config_out.PI_ordering == DMAPP_PI_ORDERING_STRICT);
+#endif
+
+    dmapp_status = dmapp_get_jobinfo(&dmapp_info);
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    dmapp_rank  = dmapp_info.pe;
+    dmapp_size  = dmapp_info.npes;
+    dmapp_sheap = dmapp_info.sheap_seg;
+
+    /* make sure PMI and DMAPP agree */
+    assert(mpi_rank==(int)dmapp_rank);
+    assert(mpi_size==dmapp_size);
+
+    flush_bit = dmapp_sheap_malloc( sizeof(int) );
+    assert(flush_bit!=NULL);
+
+    (*flush_bit) = mpi_rank;
+
+    in[0]  = (int64_t) flush_bit;
+    in[1]  = (int64_t) -flush_bit;
+    out[0] = 0;
+    out[1] = 0;
+
+    mpi_status = MPI_Allreduce( in, out, 2, MPI_INT64_T, MPI_MAX, A1_COMM_WORLD );
+    assert(mpi_status==MPI_SUCCESS);
+
+    if ( (out[0] != value) || (out[1] != -value) )
+    {
+        fprintf(stderr, "flush_bit address (%p) is not symmetric; program behavior is undefined. \n", flush_bit);
+        fflush(stderr);
+    }
+#endif
+
+#ifdef FLUSH_IMPLEMENTED
+    flush_list = malloc( mpi_size * sizeof(int) );
+    assert(flush_list != NULL);
+#endif
+
+    mpi_status = MPI_Barrier(A1_COMM_WORLD);
+    assert(mpi_status==MPI_SUCCESS);
+
+    return(0);
 }
 
 void ARMCI_Finalize(void)
 {
-    A1D_Finalize();
+    int mpi_status = MPI_SUCCESS;
+
+    mpi_status = MPI_Barrier(A1_COMM_WORLD);
+    assert(mpi_status==MPI_SUCCESS);
+
+#ifdef FLUSH_IMPLEMENTED
+    free(flush_list);
+#endif
+
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+
+    dmapp_status = dmapp_finalize();
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+#endif
+
     return;
 }
 
 void ARMCI_Cleanup(void)
 {
+    ARMCI_Finalize(void);
+
     return;
 }
 
@@ -71,40 +190,168 @@ void ARMCI_Error(char *msg, int code)
 {
     fprintf(stderr,"%s",msg);
     MPI_Abort(MPI_COMM_WORLD,code);
+
     return;
 }
 
 int ARMCI_Malloc(void * ptr_arr[], int bytes)
 {
-    return A1D_Allocate_shared(ptr_arr, bytes);
+    int mpi_status = MPI_SUCCESS;
+    void * tmp_ptr = NULL;
+
+#ifdef __CRAYXE
+    tmp_ptr = dmapp_sheap_malloc( (size_t)bytes );
+    assert(tmp_ptr!=NULL);
+#endif
+
+    mpi_status = MPI_Allgather( &tmp_ptr, sizeof(void*), MPI_BYTE,
+                                ptr_arr, sizeof(void*), MPI_BYTE,
+                                A1_COMM_WORLD );
+    assert(mpi_status==MPI_SUCCESS);
+
+    return(0);
 }
 
 int ARMCI_Free(void * ptr)
 {
-    A1D_Free_shared(ptr);
-    return(0);
-}
+    if (ptr != NULL)
+    {
+        dmapp_sheap_free(ptr);
+    }
+    else
+    {
+        fprintf(stderr, "You tried to free a NULL pointer.  Please check your code. \n");
+        fflush(stderr);
+    }
 
-void ARMCI_Barrier(void)
-{
-    A1D_Flush_all();
-    A1D_Barrier();
-    return;
+    return(0);
 }
 
 void ARMCI_Fence(int proc)
 {
-    A1D_Flush(proc);
+    int mpi_status = MPI_SUCCESS;
+
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+    int mpi_rank = -1;
+    int temp = -1;
+
+#if defined(FLUSH_IMPLEMENTED) && defined(__CRAYXE)
+    dmapp_status = dmapp_get( &temp, flush_bit, &dmapp_sheap, (dmapp_pe_t)proc, 1, DMAPP_DW );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+    if (flush_bit != proc)
+    {
+        mpi_status = MPI_Comm_rank(A1_COMM_WORLD,&mpi_rank);
+        assert(mpi_status==0);
+
+        fprintf(stderr, "flush_bit: expected %d, got %d \n", mpi_rank, flush_bit);
+        fflush(stderr);
+    }
+#endif
+
     return;
 }
 void ARMCI_AllFence(void)
 {
-    A1D_Flush_all();
+    int mpi_status = MPI_SUCCESS;
+    int mpi_size = -1;
+
+    mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
+    assert(mpi_status==0);
+
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+
+    int count = 0;
+    int gsync = 0;
+
+    int temp[DMAPP_FLUSH_COUNT_MAX+1];
+#endif
+
+    mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
+    assert(mpi_status==0);
+
+#ifdef __CRAYXE
+    for ( int i=0 ; i<mpi_size ; i++)
+    {
+        if ( flush_list[i] > 0 )
+        {
+            dmapp_status = dmapp_get_nbi( &temp[count], flush_bit, &dmapp_sheap, (dmapp_pe_t)i, 1, DMAPP_DW );
+            assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+            count++;
+
+            if ( count > DMAPP_FLUSH_COUNT_MAX )
+            {
+                dmapp_status = dmapp_gsync_wait();
+                assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+                count = 0;
+                gsync++;
+            }
+        }
+    }
+
+    /* in case we never reached count > DMAPP_FLUSH_COUNT_MAX, we must call gsync at least once
+     * to ensure that implicit NB get ops complete remotely, thus ensuring global visability  */
+    if ( gsync == 0 )
+    {
+        dmapp_status = dmapp_gsync_wait();
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
+    }
+#endif
+
+#ifdef FLUSH_IMPLEMENTED
+    for ( int i=0 ; i<mpi_size ; i++) flush_list[i] = 0;
+#endif
+
+    return;
+}
+
+void ARMCI_Barrier(void)
+{
+    int mpi_status = MPI_SUCCESS;
+
+    mpi_status = MPI_Barrier(A1_COMM_WORLD);
+    assert(mpi_status==MPI_SUCCESS);
+
+    ARMCI_AllFence(void);
+
     return;
 }
 
 int ARMCI_Put(void *src, void *dst, int bytes, int proc)
 {
-    return A1D_PutC(proc, bytes, src, dst);
+#ifdef __CRAYXE
+    dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
+#endif
+
+    uint64_t nelems = 0;
+
+#ifdef __CRAYXE
+    /* empirically, DMAPP_DW delivers the best performance.
+     * no benefit was observed with DMAPP_QW or DMAPP_DQW; in fact, performance was worse */
+    if (bytes%4 == 0)
+    {
+        nelems = bytes/4;
+        dmapp_status = dmapp_put( dst, &dmapp_sheap, (dmapp_pe_t)proc, src, nelems, DMAPP_DW);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
+    }
+    else
+    {
+        nelems = bytes;
+        dmapp_status = dmapp_put( dst, &dmapp_sheap, (dmapp_pe_t)proc, src, nelems, DMAPP_BYTE);
+        assert(dmapp_status==DMAPP_RC_SUCCESS);
+    }
+#endif
+
+#ifdef FLUSH_IMPLEMENTED
+    flush_list[proc]++;
+#endif
+
+    return(0);
 }
 
