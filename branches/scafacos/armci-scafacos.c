@@ -48,6 +48,7 @@
  *********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
 
@@ -168,7 +169,7 @@ int ARMCI_Init(void)
 
     if (use_dmapp_sheap_list)
     {
-        dmapp_sheap_list = (dmapp_seg_desc_t) malloc( mpi_size * sizeof(dmapp_seg_desc_t) );
+        dmapp_sheap_list = (dmapp_seg_desc_t*) malloc( mpi_size * sizeof(dmapp_seg_desc_t) );
 
         mpi_status = MPI_Allgather( &dmapp_sheap,     sizeof(dmapp_seg_desc_t), MPI_BYTE,
                                     dmapp_sheap_list, sizeof(dmapp_seg_desc_t), MPI_BYTE,
@@ -314,11 +315,6 @@ void ARMCI_AllFence(void)
     int gsync = 0;
 
     int temp[DMAPP_FLUSH_COUNT_MAX+1];
-
-    if (use_dmapp_sheap_list)
-        remote_sheap_ptr = &(dmapp_sheap_list[proc]);
-    else
-        remote_sheap_ptr = &dmapp_sheap;
 #endif
 
     mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
@@ -330,6 +326,11 @@ void ARMCI_AllFence(void)
         if ( flush_list[i] > 0 )
         {
 #ifdef __CRAYXE
+            if (use_dmapp_sheap_list)
+                remote_sheap_ptr = &(dmapp_sheap_list[i]);
+            else
+                remote_sheap_ptr = &dmapp_sheap;
+
             dmapp_status = dmapp_get_nbi( &temp[count], flush_bit, remote_sheap_ptr, (dmapp_pe_t)i, 1, DMAPP_DW );
             assert(dmapp_status==DMAPP_RC_SUCCESS);
 

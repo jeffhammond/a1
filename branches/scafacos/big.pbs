@@ -1,14 +1,15 @@
 #!/bin/bash
-#PBS -N fmm_4032
+#PBS -N fmm_big
 #PBS -l mppwidth=4032
-#PBS -l walltime=0:60:00
+#PBS -l walltime=0:30:00
 #PBS -joe
 #PBS -V
 #PBS -q regular
 
-export XT_SYMMETRIC_HEAP_SIZE=1000M
+export XT_SYMMETRIC_HEAP_SIZE=500M
+export NPROC=4032
 
 cd ${PBS_O_WORKDIR}
 
-aprun -n 4032 ./fmm_dmapp.x  1024 1 > fmm_dmapp_${PBS_NNODES}nodes_1073741824particles.${PBS_JOBID}.output
-aprun -n 4032 ./fmm_armpi.x  1024 1 > fmm_armpi_${PBS_NNODES}nodes_1073741824particles.${PBS_JOBID}.output
+aprun -n ${NPROC} ./fmm_dmapp.x  1024 1 > fmm_dmapp_${NPROC}nodes_1073741824particles.${PBS_JOBID}.output
+#aprun -n ${NPROC} ./fmm_armpi.x  1024 1 > fmm_armpi_${NPROC}nodes_1073741824particles.${PBS_JOBID}.output

@@ -10,5 +10,7 @@ export XT_SYMMETRIC_HEAP_SIZE=1000M
 
 cd ${PBS_O_WORKDIR}
 
-aprun -n 24 ./fmm_dmapp.x 128 1 > fmm_dmapp_${PBS_NNODES}nodes_2097152particles.${PBS_JOBID}.output
-aprun -n 24 ./fmm_armpi.x 128 1 > fmm_armpi_${PBS_NNODES}nodes_2097152particles.${PBS_JOBID}.output
+#aprun -n 24 ./fmm_dmapp.x 128 1 > fmm_dmapp_${PBS_NNODES}nodes_2097152particles.${PBS_JOBID}.output
+#aprun -n 24 ./fmm_armpi.x 128 1 > fmm_armpi_${PBS_NNODES}nodes_2097152particles.${PBS_JOBID}.output
+
+env > pbs_env.txt
