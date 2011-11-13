@@ -1,0 +1,54 @@
+Jeff,
+
+ i do not have the figures for ARMCI, but I found an email (mine)
+stating that we have improvement of a factor of 4 compared to ARMCI.
+Additionally the largest partition I used with ARMCI was 4096. With 8096
+CPUs the runtime was the same as for 4096 CPUs.
+
+Some fragments: ARMCI
+cores particles  particles/s/core  runtime
+1024  1073741824 2907              360
+4096  1073741824 2438              107.5
+
+Another example. Only "-O0" but the scaling is very bad, if you want to
+go to a full maschine. Therefore I stopped at 32 cores.
+262144 particles
+cores           time
+1               52,30s
+2               27,87s
+4               14,57s
+8                7,76s
+16               4,18s
+32               2,27s
+
+Maybe you can extrapolate the ARMCI values. A factor of four was there
+all the time. Scaling stopped at 4096 for ARMCI
+
+A1 1024^3 particles, unsorted data
+128 537.98
+256 272.34
+512 142.95266
+1024 73.037121
+2048 38.36275
+4096 21.325257
+8192 12.339107
+16384 8.8236
+32768 8.595988
+
+A1 1024^3 particles, sorted data
+128 457.7
+256 230.78
+512 114.7338
+1024 57.754463
+2048 29.470272
+4096 15.198222
+8192 8.2867026
+16384 6.750144
+32768 5.945618
+
+Limited by globals and "too much allocation"
+
+Sufficient?
+
+Ivo
+

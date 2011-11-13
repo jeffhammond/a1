@@ -10,12 +10,13 @@ LIBARMCI  = -L/home/jeff/eclipse/ARMCI-MPI/trunk/install/lib -larmci
 endif
 
 ifeq ($(TARGET),XE)
+COMPILER  =
 CC        = cc
 FC        = ftn
 MAKEJNUM  = 12
 # Hopper
-#LIBARMCI  = -L/global/homes/j/jhammond/ARMCI-MPI/armci-mpi/trunk/install/lib -larmci
-#LIBARMCI  = armci-scafacos.o
+LIBARMPI  = -L/global/homes/j/jhammond/ARMCI-MPI/armci-mpi/trunk/install/lib -larmci
+LIBARMCI  = -L/opt/cray/ga/default/gem/lib -larmci -L/opt/cray/onesided/default/gem/lib -lonesided -L/opt/cray/ntk/default/gem/lib -lnumatoolkit #-L/opt/pgi/default/linux86-64/default/libso -lpgf90 -lpghpf -lpghpf2 -lpghpf_smp -lpgf90rtl
 endif
 
 ifeq ($(TARGET),BGP)
@@ -38,6 +39,7 @@ LIBARMCI  = -L/home/xajhammond/ARMCI-MPI/trunk/install-bgq-gcc/lib -larmci
 endif
 
 ifeq ($(COMPILER),)
+FOPT     += -ffast-math -funroll-loops -ftree-vectorize -msse -msse2 -msse3 -mfpmath=sse 
 FPP       = -cpp
 FIXED     = -ffixed-form
 FREE      = -ffree-form
@@ -46,6 +48,7 @@ FNORNGCHK = -fno-range-check
 endif
 
 ifeq ($(COMPILER),PGI)
+FOPT     += -fast -fastsse
 FPP       = -Mpreprocess
 FIXED     = -Mfixed
 FREE      = -Mfree
@@ -76,16 +79,20 @@ CFLAGS   = $(COPT) $(INC)
 FFLAGS   = $(FOPT) $(INC)
 
 LD       = $(FC)
-LDFLAGS  = $(FOPT)
+LDFLAGS  = -g -O3
 
-LIBS     = $(LIBARMCI)
+OBJECTS = caladdr2.o cptrsize.o diffcpointers.o dummy_malloc.o fmm_full.o fmmgradt.o fmm_mods.o fmmmopn.o fmmoopn.o getcjpa.o getneighbors.o mp_constants.o mp_wrapper.o ptroffset.o pvlist2.o
 
-OBJECTS = armci-scafacos.o caladdr2.o cptrsize.o diffcpointers.o dummy_malloc.o fmm_full.o fmmgradt.o fmm_mods.o fmmmopn.o fmmoopn.o getcjpa.o getneighbors.o mp_constants.o mp_wrapper.o ptroffset.o pvlist2.o
+all: fmm_dmapp.x fmm_armpi.x
 
-all: test_fmm_r32.x
+fmm_dmapp.x: libfm_r32.a sl/libsl.a armci-scafacos.o
+	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a armci-scafacos.o -o $@
 
-test_fmm_r32.x: libfm_r32.a sl/libsl.a
-	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBS) -o $@
+fmm_armpi.x: libfm_r32.a sl/libsl.a 
+	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBARMPI) -o $@
+
+fmm_armci.x: libfm_r32.a sl/libsl.a 
+	/opt/pgi/default/linux86-64/default/bin/pgf90 -rpath /opt/pgi/default/linux86-64/default/libso $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBARMCI) -o $@
 
 sl/libsl.a:
 	make -C sl -j $(MAKEJNUM) CC="$(CC)" CFLAGS="$(CFLAGS)"

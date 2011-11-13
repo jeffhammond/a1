@@ -1,0 +1,36 @@
+gzip: ./test_fmm_r32.x: No such file or directory
+[NID 01290] 2011-11-13 10:40:28 Apid 4453425: pclose "gunzip > /var/spool/alps/4453425/test_fmm_r32.x" exit value 1
+aprun: file ./test_fmm_r32.x not found
+aprun: Exiting due to errors. Application aborted
+aprun: file ./test_fmm_r32.x not found
+aprun: Exiting due to errors. Application aborted
+aprun: file ./test_fmm_r32.x not found
+aprun: Exiting due to errors. Application aborted
+aprun: file ./test_fmm_r32.x not found
+aprun: Exiting due to errors. Application aborted
+aprun: file ./test_fmm_r32.x not found
+aprun: Exiting due to errors. Application aborted
+aprun: file ./test_fmm_r32.x not found
+aprun: Exiting due to errors. Application aborted
+aprun: file ./test_fmm_r32.x not found
+aprun: Exiting due to errors. Application aborted
+aprun: file ./test_fmm_r32.x not found
+aprun: Exiting due to errors. Application aborted
+
+ + --------------------------------------------------------------------------
+ +        Job name: test_fmm
+ +          Job Id: 980355.sdb
+ +          System: hopper
+ +     Queued Time: Sun Nov 13 10:34:32 2011
+ +      Start Time: Sun Nov 13 10:37:06 2011
+ + Completion Time: Sun Nov 13 10:40:53 2011
+ +            User: jhammond
+ +        MOM Host: nid04132
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:21182:hopper02,walltime=00:30:00
+ +  Used Resources: cput=00:00:01,mem=4648kb,vmem=36072kb,walltime=00:03:15
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/j/jhammond/A1/a1/branches/scafacos
+ +     Submit Args: test.pbs
+ + --------------------------------------------------------------------------
+

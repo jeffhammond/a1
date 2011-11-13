@@ -1,0 +1,28 @@
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+apsched: claim exceeds reservation's memory
+
+ + --------------------------------------------------------------------------
+ +        Job name: test_fmm
+ +          Job Id: 978425.sdb
+ +          System: hopper
+ +     Queued Time: Fri Nov 11 18:10:50 2011
+ +      Start Time: Fri Nov 11 18:14:20 2011
+ + Completion Time: Fri Nov 11 18:15:55 2011
+ +            User: jhammond
+ +        MOM Host: nid04754
+ +           Queue: debug
+ +  Req. Resources: other=QSUBPID:16915:hopper02,walltime=00:30:00
+ +  Used Resources: cput=00:00:00,mem=5556kb,vmem=50928kb,walltime=00:00:41
+ +     Acct String: m888
+ +   PBS_O_WORKDIR: /global/homes/j/jhammond/A1/a1/branches/scafacos
+ +     Submit Args: test.pbs
+ + --------------------------------------------------------------------------
+
