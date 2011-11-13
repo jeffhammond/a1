@@ -1,13 +1,13 @@
 #!/bin/bash
 #PBS -N fmm_big
-#PBS -l mppwidth=4032
+#PBS -l mppwidth=1008
 #PBS -l walltime=0:30:00
 #PBS -joe
 #PBS -V
 #PBS -q regular
 
-export XT_SYMMETRIC_HEAP_SIZE=500M
-export NPROC=4032
+export XT_SYMMETRIC_HEAP_SIZE=200M
+export NPROC=1008
 
 cd ${PBS_O_WORKDIR}
 

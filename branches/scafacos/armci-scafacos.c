@@ -393,7 +393,7 @@ int ARMCI_Put(void *src, void *dst, int bytes, int proc)
 
     /* empirically, DMAPP_DW delivers the best performance.
      * no benefit was observed with DMAPP_QW or DMAPP_DQW; in fact, performance was worse */
-    if (bytes%4 == 0)
+    if (0) //bytes%4 == 0)
     {
         nelems = bytes/4;
         dmapp_status = dmapp_put( dst, remote_sheap_ptr, (dmapp_pe_t)proc, src, nelems, DMAPP_DW);

@@ -1,0 +1,2204 @@
+  nnodes:                  1008
+  sortmemory =                     1
+ start of cfmm (alloc & mp_alloc):               34087072               34087072
+          ws =             1
+    ncharges =    1073741824
+                    3   1548.0000      1.31730289E+17  9.00719872E+15
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     3  de =   1.07765461E+15  1.08507946E+15
+  1   0.317053413766882918D+20   0.000000000000000000D+00   0.317053413766882918D+20   0
+  2   0.774056185954304000D+19   0.512176521216000000D+12   0.774056240929885389D+19   3
+                    4   26676.000      2.22892997E+16  1.12589937E+15
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     4  de =   1.07765461E+15  1.08507946E+15
+  1   0.317053413766882918D+20   0.000000000000000000D+00   0.317053413766882918D+20   0
+  2   0.774056185954304000D+19   0.512176521216000000D+12   0.774056240929885389D+19   3
+  3   0.128783597938147328D+19   0.512205160448000000D+12   0.128783652913728717D+19   3
+                    5   292068.00      3.20370201E+15  1.40736951E+14
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     5  de =   1.07765461E+15  1.08507946E+15
+  1   0.317053413766882918D+20   0.000000000000000000D+00   0.317053413766882918D+20   0
+  2   0.774056185954304000D+19   0.512176521216000000D+12   0.774056240929885389D+19   3
+  3   0.128783597938147328D+19   0.512205160448000000D+12   0.128783652913728717D+19   3
+  4   0.183944137798582272D+18   0.512518848512000000D+12   0.183944653194657792D+18   3
+                    6   2699460.0      4.28324204E+14  1.75916492E+13
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     6  de =   1.07765461E+15  1.08507946E+15
+  2   0.774056185954304000D+19   0.512176521216000000D+12   0.774056240929885389D+19   3
+  3   0.128783597938147328D+19   0.512205160448000000D+12   0.128783652913728717D+19   3
+  4   0.183944137798582272D+18   0.512518848512000000D+12   0.183944653194657792D+18   3
+  5   0.245253713617223680D+17   0.515418062848000000D+12   0.245258867577978880D+17   3
+                    7   23149188.      5.53384390E+13  2.19848638E+12
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     7  de =   1.07765461E+15  1.08507946E+15
+  3   0.128783597938147328D+19   0.512205160448000000D+12   0.128783652913728717D+19   3
+  4   0.183944137798582272D+18   0.512518848512000000D+12   0.183944653194657792D+18   3
+  5   0.245253713617223680D+17   0.515418062848000000D+12   0.245258867577978880D+17   3
+  6   0.316453082995097600D+16   0.540280291328000000D+12   0.316507119052390400D+16   3
+                    8  1.91616512E+08  7.03146439E+12  2.74341036E+11
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     8  de =   1.07765461E+15  1.08507946E+15
+  4   0.183944137798582272D+18   0.512518848512000000D+12   0.183944653194657792D+18   3
+  5   0.245253713617223680D+17   0.515418062848000000D+12   0.245258867577978880D+17   3
+  6   0.316453082995097600D+16   0.540280291328000000D+12   0.316507119052390400D+16   3
+  7   0.401819289255936000D+15   0.746076438528000000D+12   0.402565372051456000D+15   3
+                    9  1.55904742E+09  8.86124315E+11  3.38228675E+10
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     9  de =   1.07765461E+15  1.08507946E+15
+  5   0.245253713617223680D+17   0.515418062848000000D+12   0.245258867577978880D+17   3
+  6   0.316453082995097600D+16   0.540280291328000000D+12   0.316507119052390400D+16   3
+  7   0.401819289255936000D+15   0.746076438528000000D+12   0.402565372051456000D+15   3
+  8   0.505970971115520000D+14   0.242049351680000000D+13   0.530175922012160000D+14   3
+                   10  1.25776927E+10  1.11216755E+11  3.75809638E+09
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                    10  de =   1.07765461E+15  1.08507946E+15
+  6   0.316453082995097600D+16   0.540280291328000000D+12   0.316507119052390400D+16   3
+  7   0.401819289255936000D+15   0.746076438528000000D+12   0.402565372051456000D+15   3
+  8   0.505970971115520000D+14   0.242049351680000000D+13   0.530175922012160000D+14   3
+  9   0.632361687449600000D+13   0.159289347932160000D+14   0.222525527162880000D+14   3
+  xe =    8.7918253      ye =   2.05101717E+13
+  fracdepth =    8.7918253      depth =                     9
+  sh  =   0.13436824    
+  sortmemory =             63945068 nalloc =             63935228 mem_size =                 9225
+  additional memory in fmmsort:              12782652                 9225             12791877
+ fmmsort:    2.6241639999999999       seconds
+  emptyboxes = T             85184000 occupied boxes,             49033728 empty boxes, depth =                    9
+                    1                    1
+                    2                    1
+                    3                    1
+                    4                    1
+                    5                    3
+                    6                    4
+                    7                   29
+                    8                  230
+                    9                 1325
+                   10                10594
+ start of pass5 (alloc & mp_alloc):               63935228               63945068
+ start of pass5 (        mp_alloc):                      0                      0
+ start of pass5bibj (alloc & mp_alloc):               63935228               63945068
+ start of pass5bibj (        mp_alloc):                      0                    128
+   end of pass5bibj (alloc & mp_alloc):               63935228               75685404
+   end of pass5bibj (        mp_alloc):                      0                4751160
+ pass5bibj:    29.465841000000001       seconds
+   end of pass5 (alloc & mp_alloc):               63935228               75685404
+   end of pass5 (        mp_alloc):                      0                4751160
+ pass5:    29.881867000000000       seconds
+ scalecoordinates:    32.746046000000000       seconds
+  parabola =                     1
+  nmultipoles =                     3
+  sh  =   0.13436824    
+                    1                    1                    1
+                    2                    1                    2
+                    3                    1                    3
+                    4                    3                    6
+                    5                    4                   10
+                    6                   29                   39
+                    7                  230                  269
+                    8                 1325                 1594
+                    9                10594                12188
+                   10                84748                96936
+ sortcharges:   0.14400999999999442       seconds
+ nmultipoles =             3
+ start of pass1 (alloc & mp_alloc):               71693068               75685404
+ start of pass1 (        mp_alloc):                      0                4751160
+   end of pass1 (alloc & mp_alloc):               71693068               75685404
+   end of pass1 (        mp_alloc):                      0                4751160
+ pass1:   0.98806100000000185       seconds
+ start of pass2 (alloc & mp_alloc):               79450108               79450108
+ start of pass2 (        mp_alloc):                      0                4751160
+   end of pass2 (alloc & mp_alloc):               79450108               88407816
+   end of pass2 (        mp_alloc):                      0                4751160
+ pass2:    40.914556999999995       seconds
+ start of pass3 (alloc & mp_alloc):               79447984               88407816
+ start of pass4 (alloc & mp_alloc):               79448548               88407816
+ start of pass4 (        mp_alloc):                      0                4751160
+   end of pass4 (alloc & mp_alloc):               79448548               88407816
+   end of pass4 (        mp_alloc):                      0                4751160
+ pass4:   0.18001100000000747       seconds
+   end of pass3 (alloc & mp_alloc):               79447984               88407816
+ pass3:   0.37202400000001035       seconds
+  sortmemory =             88407816 nalloc =             55409156 mem_size =             30936240
+  additional memory in sortback:              30936240
+ sortback:    4.8563029999999969       seconds
+ virial tensor:
+   0.361907207219970048D+18   0.849256611840000000D+11  -0.738484019200000000D+10
+  -0.756946124800000000D+11   0.361907447738138624D+18  -0.923105034240000000D+11
+   0.166158909440000000D+11   0.756946124800000000D+11   0.361909337523748864D+18
+ trace of the virial tensor:   0.108572402684159590D+19
+ symmetry deviation of the virial tensor (absolute):
+   0.000000000000000000D+00   0.160620281856000000D+12   0.240007311360000000D+11
+   0.160620281856000000D+12   0.000000000000000000D+00   0.168005107712000000D+12
+   0.240007311360000000D+11   0.168005107712000000D+12   0.000000000000000000D+00
+ symmetry deviation of the virial tensor (relative):
+   0.000000000000000000D+00   0.443816190909274155D-06   0.663173622683643771D-07
+   0.443816190909274155D-06   0.000000000000000000D+00   0.464221187712610117D-06
+   0.663173622683643771D-07   0.464221187712610117D-06   0.000000000000000000D+00
+  efarfield     =   1.08516321E+18
+  efarfieldpot  =   1.08516306939285299E+018
+  enearfield    =   6.02670440E+13
+  utilization of precision:  99.6204223633%
+  energy        =   1.08522347E+18
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  energypot     =   1.08522334E+18
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  efarfield          =   1.08516321E+18
+  enearfield         =   6.02670440E+13
+  utilization of precision:  99.6204223633%
+  enfinbox           =   4.92027039E+12
+  utilization of precision:  99.6204223633%
+  enfbibj            =   5.53467731E+13
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  energy             =   1.08522347E+18
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+   gradx =  -0.104605171200000000D+10
+  utilization of precision:  99.6204223633%
+   grady =  -0.104605337600000000D+10
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+   gradz =  -0.104605708800000000D+10
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+     pot =  -0.127936780800000000D+10
+  energy =   0.108522347417305088D+19
+   end of cfmm (alloc & mp_alloc):               34087072               88407816
+     cputime:    80.313019000000011      seconds
+    walltime:    80.324916839599609      seconds
+  difference:   1.18978395995981145E-002 seconds
+  difference:    0.0148143349%
+  utilization of precision:  99.6204223633%
+  bytes/pt.                =    81.523377478122711     
+  fmm_runtime(sequential)  =    80971.128404999996      seconds
+  pt./second(sequential)   =    13260.798572910786     
+  fmm_runtime(parallel)    =    80.328500401785703      seconds
+  pt./second(parallel)     =    13366884.961494071     
+  bytes/pt.(minimum)       =    79.006909370834194     
+  bytes/pt.(maximum)       =    84.448706888054218     
+  pt./second(minimum)      =    13259.391333417754     
+  pt./second(maximum)      =    13278.565638674176     
+  fmm_runtime(minimum)     =    80.221013999999997      seconds
+  fmm_runtime(maximum)     =    80.337020999999993      seconds
+  pt./second(par.,minimum) =    13365467.260729024     
+  pt./second(par.,maximum) =    13384794.961579518     
+  parallel efficiency      =  99.9893939330731740%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+  utilization of precision:  99.6204223633%
+  utilization of precision:  99.6204223633%
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+     nalloc =                     0
+  maxnalloc =              88407816
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+Application 4453663 resources: utime ~81031s, stime ~757s

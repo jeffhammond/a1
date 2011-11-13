@@ -1,0 +1,668 @@
+  nnodes:                   240
+  sortmemory =                     1
+ start of cfmm (alloc & mp_alloc):              143165600              143165600
+          ws =             1
+    ncharges =    1073741824
+                    3   1548.0000      1.31730289E+17  9.00719872E+15
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     3  de =   1.07765461E+15  1.08507946E+15
+  1   0.317053413766882918D+20   0.000000000000000000D+00   0.317053413766882918D+20   0
+  2   0.774056185954304000D+19   0.512176521216000000D+12   0.774056240929885389D+19   3
+                    4   26676.000      2.22892997E+16  1.12589937E+15
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     4  de =   1.07765461E+15  1.08507946E+15
+  1   0.317053413766882918D+20   0.000000000000000000D+00   0.317053413766882918D+20   0
+  2   0.774056185954304000D+19   0.512176521216000000D+12   0.774056240929885389D+19   3
+  3   0.128783597938147328D+19   0.512205160448000000D+12   0.128783652913728717D+19   3
+                    5   292068.00      3.20370201E+15  1.40736951E+14
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     5  de =   1.07765461E+15  1.08507946E+15
+  1   0.317053413766882918D+20   0.000000000000000000D+00   0.317053413766882918D+20   0
+  2   0.774056185954304000D+19   0.512176521216000000D+12   0.774056240929885389D+19   3
+  3   0.128783597938147328D+19   0.512205160448000000D+12   0.128783652913728717D+19   3
+  4   0.183944137798582272D+18   0.512518848512000000D+12   0.183944653194657792D+18   3
+                    6   2699460.0      4.28324204E+14  1.75916492E+13
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     6  de =   1.07765461E+15  1.08507946E+15
+  2   0.774056185954304000D+19   0.512176521216000000D+12   0.774056240929885389D+19   3
+  3   0.128783597938147328D+19   0.512205160448000000D+12   0.128783652913728717D+19   3
+  4   0.183944137798582272D+18   0.512518848512000000D+12   0.183944653194657792D+18   3
+  5   0.245253713617223680D+17   0.515418062848000000D+12   0.245258867577978880D+17   3
+                    7   23149188.      5.53384390E+13  2.19848638E+12
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     7  de =   1.07765461E+15  1.08507946E+15
+  3   0.128783597938147328D+19   0.512205160448000000D+12   0.128783652913728717D+19   3
+  4   0.183944137798582272D+18   0.512518848512000000D+12   0.183944653194657792D+18   3
+  5   0.245253713617223680D+17   0.515418062848000000D+12   0.245258867577978880D+17   3
+  6   0.316453082995097600D+16   0.540280291328000000D+12   0.316507119052390400D+16   3
+                    8  1.91616512E+08  7.03146439E+12  2.74341036E+11
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     8  de =   1.07765461E+15  1.08507946E+15
+  4   0.183944137798582272D+18   0.512518848512000000D+12   0.183944653194657792D+18   3
+  5   0.245253713617223680D+17   0.515418062848000000D+12   0.245258867577978880D+17   3
+  6   0.316453082995097600D+16   0.540280291328000000D+12   0.316507119052390400D+16   3
+  7   0.401819289255936000D+15   0.746076438528000000D+12   0.402565372051456000D+15   3
+                    9  1.55904742E+09  8.86124315E+11  3.38228675E+10
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                     9  de =   1.07765461E+15  1.08507946E+15
+  5   0.245253713617223680D+17   0.515418062848000000D+12   0.245258867577978880D+17   3
+  6   0.316453082995097600D+16   0.540280291328000000D+12   0.316507119052390400D+16   3
+  7   0.401819289255936000D+15   0.746076438528000000D+12   0.402565372051456000D+15   3
+  8   0.505970971115520000D+14   0.242049351680000000D+13   0.530175922012160000D+14   3
+                   10  1.25776927E+10  1.11216755E+11  3.75809638E+09
+     energy(scaled) =           1077654573566394368.000000000000000000
+     energy         =           1085079438149812224.000000000000000000
+  err:                     2   1.0068898      1.00000005E-03  1.08507946E+15
+  ilevel =                    10  de =   1.07765461E+15  1.08507946E+15
+  6   0.316453082995097600D+16   0.540280291328000000D+12   0.316507119052390400D+16   3
+  7   0.401819289255936000D+15   0.746076438528000000D+12   0.402565372051456000D+15   3
+  8   0.505970971115520000D+14   0.242049351680000000D+13   0.530175922012160000D+14   3
+  9   0.632361687449600000D+13   0.159289347932160000D+14   0.222525527162880000D+14   3
+  xe =    8.7918253      ye =   2.05101717E+13
+  fracdepth =    8.7918253      depth =                     9
+  sh  =   0.13436824    
+  sortmemory =            268455020 nalloc =            268445180 mem_size =                 9225
+  additional memory in fmmsort:              53687100                 9225             53696325
+ fmmsort:    6.8804309999999997       seconds
+  emptyboxes = T             85184000 occupied boxes,             49033728 empty boxes, depth =                    9
+                    1                    1
+                    2                    1
+                    3                    1
+                    4                    1
+                    5                    6
+                    6                   14
+                    7                  108
+                    8                  858
+                    9                 5558
+                   10                44462
+ start of pass5 (alloc & mp_alloc):              268445180              268455020
+ start of pass5 (        mp_alloc):                      0                      0
+ start of pass5bibj (alloc & mp_alloc):              268445180              268455020
+ start of pass5bibj (        mp_alloc):                      0                    128
+   end of pass5bibj (alloc & mp_alloc):              268445180              300103388
+   end of pass5bibj (        mp_alloc):                      0               12795288
+ pass5bibj:    160.89805600000000       seconds
+   end of pass5 (alloc & mp_alloc):              268445180              300103388
+   end of pass5 (        mp_alloc):                      0               12795288
+ pass5:    162.57015999999999       seconds
+ scalecoordinates:    170.41465099999999       seconds
+  parabola =                     1
+  nmultipoles =                     3
+  sh  =   0.13436824    
+                    1                    1                    1
+                    2                    1                    2
+                    3                    1                    3
+                    4                    6                    9
+                    5                   14                   23
+                    6                  108                  131
+                    7                  858                  989
+                    8                 5558                 6547
+                    9                44462                51009
+                   10               355695               406704
+ sortcharges:   0.60803799999999342       seconds
+ nmultipoles =             3
+ start of pass1 (alloc & mp_alloc):              300984460              300984460
+ start of pass1 (        mp_alloc):                      0               12795288
+   end of pass1 (alloc & mp_alloc):              300984460              301009628
+   end of pass1 (        mp_alloc):                      0               12795288
+ pass1:    4.0242509999999925       seconds
+ start of pass2 (alloc & mp_alloc):              333522940              333522940
+ start of pass2 (        mp_alloc):                      0               12795288
+   end of pass2 (alloc & mp_alloc):              333522940              357217800
+   end of pass2 (        mp_alloc):                      0               12795288
+ pass2:    166.44240299999998       seconds
+ start of pass3 (alloc & mp_alloc):              333520816              357217800
+ start of pass4 (alloc & mp_alloc):              333521380              357217800
+ start of pass4 (        mp_alloc):                      0               12795288
+   end of pass4 (alloc & mp_alloc):              333521380              357217800
+   end of pass4 (        mp_alloc):                      0               12795288
+ pass4:   0.72404599999998709       seconds
+   end of pass3 (alloc & mp_alloc):              333520816              357217800
+ pass3:    1.5040940000000091       seconds
+  sortmemory =            357217800 nalloc =            232649476 mem_size =            116782800
+  additional memory in sortback:             116782800
+ sortback:    9.8206139999999778       seconds
+ virial tensor:
+   0.361926036356595712D+18   0.107080179712000000D+12  -0.122403723673600000D+13
+   0.439398006784000000D+12   0.361923321937264640D+18  -0.139942717030400000D+13
+   0.115941992038400000D+13   0.137358029619200000D+13   0.361924352729415680D+18
+ trace of the virial tensor:   0.108577364230379930D+19
+ symmetry deviation of the virial tensor (absolute):
+   0.000000000000000000D+00   0.332317818880000000D+12   0.238345728819200000D+13
+   0.332317818880000000D+12   0.000000000000000000D+00   0.277300746649600000D+13
+   0.238345728819200000D+13   0.277300746649600000D+13   0.000000000000000000D+00
+ symmetry deviation of the virial tensor (relative):
+   0.000000000000000000D+00   0.918199532407015795D-06   0.658551243759575300D-05
+   0.918199532407015795D-06   0.000000000000000000D+00   0.766186440159799531D-05
+   0.658551243759575300D-05   0.766186440159799531D-05   0.000000000000000000D+00
+  efarfield     =   1.08518492E+18
+  efarfieldpot  =   1.08518499136205709E+018
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  enearfield    =   6.02670440E+13
+  utilization of precision: 100.0000000000%
+  energy        =   1.08524526E+18
+  energypot     =   1.08524526E+18
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  efarfield          =   1.08518492E+18
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  utilization of precision: 100.0000000000%
+  enearfield         =   6.02670440E+13
+  enfinbox           =   4.92027039E+12
+  enfbibj            =   5.53467731E+13
+  energy             =   1.08524526E+18
+   gradx =  -0.104608025600000000D+10
+   grady =  -0.104607820800000000D+10
+   gradz =  -0.104608307200000000D+10
+     pot =  -0.127938393600000000D+10
+  energy =   0.108524525824717619D+19
+   end of cfmm (alloc & mp_alloc):              143165600              357217800
+     cputime:    354.11413000000005      seconds
+    walltime:    354.16145801544189      seconds
+  difference:   4.73280154418489474E-002 seconds
+  difference:    0.0133651869%
+  utilization of precision: 100.0000000000%
+  bytes/pt.                =    78.959533430635929     
+  fmm_runtime(sequential)  =    85003.232384000003      seconds
+  pt./second(sequential)   =    12631.776391154137     
+  fmm_runtime(parallel)    =    354.18013493333336      seconds
+  pt./second(parallel)     =    3031626.3338769930     
+  bytes/pt.(minimum)       =    77.676555077824304     
+  bytes/pt.(maximum)       =    80.345944109478808     
+  pt./second(minimum)      =    12631.561614822776     
+  pt./second(maximum)      =    12634.132955948409     
+  fmm_runtime(minimum)     =    354.11412999999999      seconds
+  fmm_runtime(maximum)     =    354.18613600000003      seconds
+  pt./second(par.,minimum) =    3031574.9682534155     
+  pt./second(par.,maximum) =    3032191.4124127156     
+  parallel efficiency      =  99.9983056743173364%
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+     nalloc =                     0
+  maxnalloc =             357217800
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+ mp_finalize() - THE END :-)
+Application 4454532 resources: utime ~84543s, stime ~665s
