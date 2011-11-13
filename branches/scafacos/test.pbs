@@ -6,6 +6,8 @@
 #PBS -V
 ####PBS -q debug
 
+export XT_SYMMETRIC_HEAP_SIZE=1000M
+
 cd ${PBS_O_WORKDIR}
 
 aprun -n 24 ./test_fmm_r32.x  100 2
