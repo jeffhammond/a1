@@ -57,7 +57,7 @@
 #include <dmapp.h>
 #endif
 
-//#include "armci.h"
+#include "armci.h"
 
 MPI_Comm A1_COMM_WORLD;
 
