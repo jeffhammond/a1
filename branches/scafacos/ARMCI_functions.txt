@@ -1,0 +1,25 @@
+mp_wrapper.f:    integer (c_int) function armci_init() bind(c,Name='ARMCI_Init')
+mp_wrapper.f:    subroutine armci_finalize() bind(c,Name='ARMCI_Finalize')
+mp_wrapper.f:    integer (c_int) function armci_malloc(ptr,bsize) bind(c,Name='ARMCI_Malloc')
+mp_wrapper.f:    integer (c_int) function armci_free(ptr) bind(c,Name='ARMCI_Free')
+mp_wrapper.f:    integer (c_int) function armci_put(src,dst,bsize,proc) bind(c,name='ARMCI_Put')
+mp_wrapper.f:    subroutine armci_fence(proc) bind(c,name='ARMCI_Fence')
+mp_wrapper.f:    subroutine armci_allfence() bind(c,name='ARMCI_AllFence')
+mp_wrapper.f:    subroutine armci_barrier() bind(c,name='ARMCI_Barrier')
+mp_wrapper.f:    subroutine armci_cleanup() bind(c,name='ARMCI_Cleanup')
+mp_wrapper.f:    subroutine armci_error(msg,ierr) bind(c,name='ARMCI_Error')
+
+ARMCI_Init
+ARMCI_Finalize
+ARMCI_Cleanup
+ARMCI_Error
+
+ARMCI_Malloc
+ARMCI_Free
+
+ARMCI_Put
+
+ARMCI_Fence
+ARMCI_AllFence
+ARMCI_Barrier
+
