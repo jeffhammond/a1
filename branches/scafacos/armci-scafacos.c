@@ -54,11 +54,73 @@
 
 #include <mpi.h>
 
+#include "armci.h"
+
 #ifdef __CRAYXE
 #include <dmapp.h>
+void parse_error(dmapp_return_t rc)
+{
+    switch (rc)
+    {
+        case DMAPP_RC_SUCCESS:
+            //fprintf(stderr,"DMAPP_RC_SUCCESS\n");
+            break;
+
+        case DMAPP_RC_INVALID_PARAM:
+            fprintf(stderr,"DMAPP_RC_INVALID_PARAM\n");
+            break;
+
+        case DMAPP_RC_ALIGNMENT_ERROR:
+            fprintf(stderr,"DMAPP_RC_ALIGNMENT_ERROR\n");
+            break;
+
+        case DMAPP_RC_TRANSACTION_ERROR:
+            fprintf(stderr,"DMAPP_RC_TRANSACTION_ERROR\n");
+            break;
+
+        case DMAPP_RC_RESOURCE_ERROR:
+            fprintf(stderr,"DMAPP_RC_RESOURCE_ERROR\n");
+            break;
+
+        case DMAPP_RC_PERMISSION_ERROR:
+            fprintf(stderr,"DMAPP_RC_PERMISSION_ERROR\n");
+            break;
+
+        case DMAPP_RC_NO_SPACE:
+            fprintf(stderr,"DMAPP_RC_NO_SPACE\n");
+            break;
+
+        case DMAPP_RC_NOT_DONE:
+            fprintf(stderr,"DMAPP_RC_NOT_DONE\n");
+            break;
+
+        case DMAPP_RC_NOT_SUPPORTED:
+            fprintf(stderr,"DMAPP_RC_NOT_SUPPORTED\n");
+            break;
+
+        case DMAPP_RC_NOT_FOUND:
+            fprintf(stderr,"DMAPP_RC_NOT_FOUND\n");
+            break;
+
+        case DMAPP_RC_BUSY:
+            fprintf(stderr,"DMAPP_RC_BUSY\n");
+            break;
+
+        case DMAPP_RC_NOT_USED:
+            fprintf(stderr,"DMAPP_RC_NOT_USED\n");
+            break;
+
+        default:
+            fprintf(stderr,"Unknown DMAPP error code. \n");
+            break;
+    }
+    fflush(stderr);
+    return;
+}
+
 #endif
 
-#include "armci.h"
+#define FLUSH_IMPLEMENTED
 
 MPI_Comm A1_COMM_WORLD;
 
@@ -66,7 +128,7 @@ MPI_Comm A1_COMM_WORLD;
 dmapp_seg_desc_t dmapp_sheap;
 dmapp_seg_desc_t * dmapp_sheap_list = NULL;
 int use_dmapp_sheap_list = 0;
-int * flush_bit = NULL;
+int64_t * flush_qword = NULL;
 const int DMAPP_FLUSH_COUNT_MAX = 100;
 #endif
 
@@ -140,13 +202,13 @@ int ARMCI_Init(void)
     assert(mpi_rank==(int)dmapp_rank);
     assert(mpi_size==dmapp_size);
 
-    flush_bit = dmapp_sheap_malloc( sizeof(int) );
-    assert(flush_bit!=NULL);
+    flush_qword = dmapp_sheap_malloc( sizeof(int64_t) );
+    assert(flush_qword!=NULL);
 
-    (*flush_bit) = mpi_rank;
+    (*flush_qword) = mpi_rank;
 
-    in[0]  = (int64_t) flush_bit;
-    in[1]  = (int64_t) flush_bit;
+    in[0]  = (int64_t) flush_qword;
+    in[1]  = (int64_t) flush_qword;
     in[1] *= -1;
     out[0] = 0;
     out[1] = 0;
@@ -154,15 +216,15 @@ int ARMCI_Init(void)
     mpi_status = MPI_Allreduce( in, out, 2, MPI_INT64_T, MPI_MAX, A1_COMM_WORLD );
     assert(mpi_status==MPI_SUCCESS);
 
-    if ( (out[0] == in[0]) && (out[1] == in[1]) )
+    if ( (out[0]==in[0]) && (out[1]==in[1]) )
     {
         if (mpi_rank==0)
-            fprintf(stderr, "flush_bit address (%p) is symmetric, O(1) storage required for sheap. \n", flush_bit);
+            fprintf(stderr, "flush_qword address (%p) is symmetric, O(1) storage required for sheap. \n", flush_qword);
         use_dmapp_sheap_list = 0;
     }
     else
     {
-        fprintf(stderr, "flush_bit address (%p) is symmetric, O(N) storage required for sheap. \n", flush_bit);
+        fprintf(stderr, "flush_qword address (%p) is symmetric, O(N) storage required for sheap. \n", flush_qword);
         use_dmapp_sheap_list = 1;
     }
     fflush(stderr);
@@ -268,14 +330,13 @@ int ARMCI_Free(void * ptr)
 void ARMCI_Fence(int proc)
 {
     int mpi_status = MPI_SUCCESS;
+    int mpi_rank = -1;
 
 #ifdef __CRAYXE
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
     dmapp_seg_desc_t * remote_sheap_ptr = NULL;
+    int64_t temp = -1;
 #endif
-
-    int mpi_rank = -1;
-    int temp = -1;
 
 #if defined(FLUSH_IMPLEMENTED) && defined(__CRAYXE)
     if (use_dmapp_sheap_list)
@@ -283,15 +344,16 @@ void ARMCI_Fence(int proc)
     else
         remote_sheap_ptr = &dmapp_sheap;
 
-    dmapp_status = dmapp_get( &temp, flush_bit, &dmapp_sheap, (dmapp_pe_t)proc, 1, DMAPP_DW );
+    dmapp_status = dmapp_get( &temp, flush_qword, &dmapp_sheap, (dmapp_pe_t)proc, 1, DMAPP_QW );
+    parse_error(dmapp_status);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
-    if (flush_bit != proc)
+    if (flush_qword != proc)
     {
         mpi_status = MPI_Comm_rank(A1_COMM_WORLD,&mpi_rank);
         assert(mpi_status==0);
 
-        fprintf(stderr, "flush_bit: expected %d, got %d \n", mpi_rank, flush_bit);
+        fprintf(stderr, "flush_qword: expected %d, got %ld \n", mpi_rank, *flush_qword);
         fflush(stderr);
     }
 #endif
@@ -303,9 +365,6 @@ void ARMCI_AllFence(void)
     int i;
     int mpi_status = MPI_SUCCESS;
     int mpi_size = -1;
-
-    mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
-    assert(mpi_status==0);
 
 #ifdef __CRAYXE
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
@@ -331,7 +390,8 @@ void ARMCI_AllFence(void)
             else
                 remote_sheap_ptr = &dmapp_sheap;
 
-            dmapp_status = dmapp_get_nbi( &temp[count], flush_bit, remote_sheap_ptr, (dmapp_pe_t)i, 1, DMAPP_DW );
+            dmapp_status = dmapp_get_nbi( &temp[count], flush_qword, remote_sheap_ptr, (dmapp_pe_t)i, 1, DMAPP_QW );
+            parse_error(dmapp_status);
             assert(dmapp_status==DMAPP_RC_SUCCESS);
 
             count++;
@@ -339,6 +399,7 @@ void ARMCI_AllFence(void)
             if ( count > DMAPP_FLUSH_COUNT_MAX )
             {
                 dmapp_status = dmapp_gsync_wait();
+                parse_error(dmapp_status);
                 assert(dmapp_status==DMAPP_RC_SUCCESS);
 
                 count = 0;
@@ -354,11 +415,12 @@ void ARMCI_AllFence(void)
     if ( gsync == 0 )
     {
         dmapp_status = dmapp_gsync_wait();
+        parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
 #endif
 
-    for ( int i=0 ; i<mpi_size ; i++) flush_list[i] = 0;
+    for ( i=0 ; i<mpi_size ; i++) flush_list[i] = 0;
 #endif
 
     return;
@@ -381,11 +443,7 @@ int ARMCI_Put(void *src, void *dst, int bytes, int proc)
 #ifdef __CRAYXE
     dmapp_return_t dmapp_status = DMAPP_RC_SUCCESS;
     dmapp_seg_desc_t * remote_sheap_ptr = NULL;
-#endif
 
-    uint64_t nelems = 0;
-
-#ifdef __CRAYXE
     if (use_dmapp_sheap_list)
         remote_sheap_ptr = &(dmapp_sheap_list[proc]);
     else
@@ -393,16 +451,17 @@ int ARMCI_Put(void *src, void *dst, int bytes, int proc)
 
     /* empirically, DMAPP_DW delivers the best performance.
      * no benefit was observed with DMAPP_QW or DMAPP_DQW; in fact, performance was worse */
-    if (0) //bytes%4 == 0)
+    if (bytes%4 == 0)
     {
-        nelems = bytes/4;
-        dmapp_status = dmapp_put( dst, remote_sheap_ptr, (dmapp_pe_t)proc, src, nelems, DMAPP_DW);
+        dmapp_status = dmapp_put( dst, remote_sheap_ptr, (dmapp_pe_t)proc, src, bytes/4, DMAPP_DW);
+        parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
     else
     {
         nelems = bytes;
-        dmapp_status = dmapp_put( dst, remote_sheap_ptr, (dmapp_pe_t)proc, src, nelems, DMAPP_BYTE);
+        dmapp_status = dmapp_put( dst, remote_sheap_ptr, (dmapp_pe_t)proc, src, bytes, DMAPP_BYTE);
+        parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
 #endif
