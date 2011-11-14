@@ -120,7 +120,7 @@ void parse_error(dmapp_return_t rc)
 
 #endif
 
-#define FLUSH_IMPLEMENTED
+//#define FLUSH_IMPLEMENTED
 
 MPI_Comm A1_COMM_WORLD;
 
@@ -128,12 +128,12 @@ MPI_Comm A1_COMM_WORLD;
 dmapp_seg_desc_t dmapp_sheap;
 dmapp_seg_desc_t * dmapp_sheap_list = NULL;
 int use_dmapp_sheap_list = 0;
-int64_t * flush_qword = NULL;
-const int DMAPP_FLUSH_COUNT_MAX = 100;
 #endif
 
 #ifdef FLUSH_IMPLEMENTED
 int * flush_list;
+int64_t * flush_qword = NULL;
+const int DMAPP_FLUSH_COUNT_MAX = 100;
 #endif
 
 int ARMCI_Init(void)
@@ -202,6 +202,7 @@ int ARMCI_Init(void)
     assert(mpi_rank==(int)dmapp_rank);
     assert(mpi_size==dmapp_size);
 
+#ifdef FLUSH_IMPLEMENTED
     flush_qword = dmapp_sheap_malloc( sizeof(int64_t) );
     assert(flush_qword!=NULL);
 
@@ -228,6 +229,7 @@ int ARMCI_Init(void)
         use_dmapp_sheap_list = 1;
     }
     fflush(stderr);
+#endif
 
     if (use_dmapp_sheap_list)
     {
@@ -348,12 +350,12 @@ void ARMCI_Fence(int proc)
     parse_error(dmapp_status);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
-    if (flush_qword != proc)
+    if (temp != proc)
     {
-        mpi_status = MPI_Comm_rank(A1_COMM_WORLD,&mpi_rank);
+        mpi_status = MPI_Comm_rank(A1_COMM_WORLD, &mpi_rank);
         assert(mpi_status==0);
 
-        fprintf(stderr, "flush_qword: expected %d, got %ld \n", mpi_rank, *flush_qword);
+        fprintf(stderr, "flush_qword: expected %d, got %ld \n", mpi_rank, temp);
         fflush(stderr);
     }
 #endif
@@ -373,7 +375,9 @@ void ARMCI_AllFence(void)
     int count = 0;
     int gsync = 0;
 
+#ifdef FLUSH_IMPLEMENTED
     int temp[DMAPP_FLUSH_COUNT_MAX+1];
+#endif
 #endif
 
     mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
@@ -384,6 +388,8 @@ void ARMCI_AllFence(void)
     {
         if ( flush_list[i] > 0 )
         {
+            ARMCI_Fence(i);
+#if 0
 #ifdef __CRAYXE
             if (use_dmapp_sheap_list)
                 remote_sheap_ptr = &(dmapp_sheap_list[i]);
@@ -406,9 +412,11 @@ void ARMCI_AllFence(void)
                 gsync++;
             }
 #endif
+#endif
         }
     }
 
+#if 0
 #ifdef __CRAYXE
     /* in case we never reached count > DMAPP_FLUSH_COUNT_MAX, we must call gsync at least once
      * to ensure that implicit NB get ops complete remotely, thus ensuring global visability  */
@@ -418,6 +426,7 @@ void ARMCI_AllFence(void)
         parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
     }
+#endif
 #endif
 
     for ( i=0 ; i<mpi_size ; i++) flush_list[i] = 0;
@@ -459,7 +468,6 @@ int ARMCI_Put(void *src, void *dst, int bytes, int proc)
     }
     else
     {
-        nelems = bytes;
         dmapp_status = dmapp_put( dst, remote_sheap_ptr, (dmapp_pe_t)proc, src, bytes, DMAPP_BYTE);
         parse_error(dmapp_status);
         assert(dmapp_status==DMAPP_RC_SUCCESS);
