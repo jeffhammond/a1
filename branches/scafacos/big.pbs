@@ -1,15 +1,22 @@
 #!/bin/bash
 #PBS -N fmm_big
 #PBS -l mppwidth=1008
-#PBS -l walltime=0:30:00
+#PBS -l walltime=0:60:00
 #PBS -joe
 #PBS -V
 #PBS -q regular
 
-export XT_SYMMETRIC_HEAP_SIZE=200M
+export XT_SYMMETRIC_HEAP_SIZE=500M
 export NPROC=1008
 
 cd ${PBS_O_WORKDIR}
 
-aprun -n ${NPROC} ./fmm_dmapp.x  1024 1 > fmm_dmapp_${NPROC}nodes_1073741824particles.${PBS_JOBID}.output
-#aprun -n ${NPROC} ./fmm_armpi.x  1024 1 > fmm_armpi_${NPROC}nodes_1073741824particles.${PBS_JOBID}.output
+#aprun -n ${NPROC} ./fmm_dmapp.x  1024 1 > fmm_dmapp_${NPROC}procs_1073741824particles.${PBS_JOBID}.output
+#aprun -n ${NPROC} ./fmm_armpi.x  1024 1 > fmm_armpi_${NPROC}procs_1073741824particles.${PBS_JOBID}.output
+
+aprun -n ${NPROC} ./fmm_dmapp.x  4096 1 > fmm_dmapp_${NPROC}procs_68719476736particles.${PBS_JOBID}.output
+aprun -n ${NPROC} ./fmm_armpi.x  4096 1 > fmm_armpi_${NPROC}procs_68719476736particles.${PBS_JOBID}.output
+
+aprun -n ${NPROC} ./fmm_dmapp.x  16384 1 > fmm_dmapp_${NPROC}procs_4398046511104particles.${PBS_JOBID}.output
+aprun -n ${NPROC} ./fmm_armpi.x  16384 1 > fmm_armpi_${NPROC}procs_4398046511104particles.${PBS_JOBID}.output
+

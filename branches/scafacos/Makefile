@@ -1,5 +1,5 @@
-COPT      = -g -O0
-FOPT      = -g -O0
+COPT      = -g -O3
+FOPT      = -g -O3
 
 ifeq ($(TARGET),)
 CC        = mpicc
@@ -39,7 +39,7 @@ LIBARMCI  = -L/home/xajhammond/ARMCI-MPI/trunk/install-bgq-gcc/lib -larmci
 endif
 
 ifeq ($(COMPILER),)
-#FOPT     += -ffast-math -funroll-loops -ftree-vectorize -msse -msse2 -msse3 -mfpmath=sse 
+FOPT     += -ffast-math -funroll-loops -ftree-vectorize -msse -msse2 -msse3 -mfpmath=sse 
 FPP       = -cpp
 FIXED     = -ffixed-form
 FREE      = -ffree-form
