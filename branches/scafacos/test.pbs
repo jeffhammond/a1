@@ -1,16 +1,14 @@
 #!/bin/bash
 #PBS -N test_fmm
-#PBS -l mppwidth=24
+#PBS -l mppwidth=48
 #PBS -l walltime=0:30:00
 #PBS -joe
 #PBS -V
 ####PBS -q debug
 
-export XT_SYMMETRIC_HEAP_SIZE=1000M
+export XT_SYMMETRIC_HEAP_SIZE=500M
 
 cd ${PBS_O_WORKDIR}
 
-#aprun -n 24 ./fmm_dmapp.x 128 1 > fmm_dmapp_${PBS_NNODES}nodes_2097152particles.${PBS_JOBID}.output
-#aprun -n 24 ./fmm_armpi.x 128 1 > fmm_armpi_${PBS_NNODES}nodes_2097152particles.${PBS_JOBID}.output
-
-env > pbs_env.txt
+aprun -n 48 ./fmm_dmapp.x 128 1 > fmm_dmapp_48procs_2097152particles.${PBS_JOBID}.output
+aprun -n 48 ./fmm_armpi.x 128 1 > fmm_armpi_48procs_2097152particles.${PBS_JOBID}.output
