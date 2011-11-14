@@ -42,10 +42,9 @@ implicit none
     type(c_ptr), value :: ptr
     end subroutine dummy_free
     
-    integer (c_int) function armci_boot() bind(c,Name='ARMCI_Boot')
-    use iso_c_binding, only : c_int
+    subroutine armci_boot() bind(c,Name='ARMCI_Boot')
     implicit none
-    end function armci_boot
+    end subroutine armci_boot
 
     integer (c_int) function armci_init() bind(c,Name='ARMCI_Init')
     use iso_c_binding, only : c_int

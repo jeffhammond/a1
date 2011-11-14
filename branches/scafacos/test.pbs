@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -N test_fmm
-#PBS -l mppwidth=48
+#PBS -l mppwidth=96
 #PBS -l walltime=0:30:00
 #PBS -joe
 #PBS -V
@@ -10,5 +10,5 @@ export XT_SYMMETRIC_HEAP_SIZE=500M
 
 cd ${PBS_O_WORKDIR}
 
-aprun -n 48 ./fmm_dmapp.x 128 1 > fmm_dmapp_48procs_2097152particles.${PBS_JOBID}.output
-aprun -n 48 ./fmm_armpi.x 128 1 > fmm_armpi_48procs_2097152particles.${PBS_JOBID}.output
+aprun -n 96 ./fmm_dmapp.x 128 1 > fmm_dmapp_48procs_2097152particles.${PBS_JOBID}.output
+aprun -n 96 ./fmm_armpi.x 128 1 > fmm_armpi_48procs_2097152particles.${PBS_JOBID}.output

@@ -1,5 +1,5 @@
-COPT      = -g -O3
-FOPT      = -g -O3
+COPT      = -g -O0
+FOPT      = -g -O0
 
 ifeq ($(TARGET),)
 CC        = mpicc
@@ -39,7 +39,7 @@ LIBARMCI  = -L/home/xajhammond/ARMCI-MPI/trunk/install-bgq-gcc/lib -larmci
 endif
 
 ifeq ($(COMPILER),)
-FOPT     += -ffast-math -funroll-loops -ftree-vectorize -msse -msse2 -msse3 -mfpmath=sse 
+#FOPT     += -ffast-math -funroll-loops -ftree-vectorize -msse -msse2 -msse3 -mfpmath=sse 
 FPP       = -cpp
 FIXED     = -ffixed-form
 FREE      = -ffree-form
@@ -88,11 +88,11 @@ all: fmm_dmapp.x fmm_armpi.x
 fmm_dmapp.x: libfm_r32.a sl/libsl.a armci-scafacos.o
 	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a armci-scafacos.o -o $@
 
-fmm_armpi.x: libfm_r32.a sl/libsl.a 
-	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBARMPI) -o $@
+fmm_armpi.x: libfm_r32.a sl/libsl.a armci-boot-only.o
+	$(LD) $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBARMPI) armci-boot-only.o -o $@
 
-fmm_armci.x: libfm_r32.a sl/libsl.a 
-	/opt/pgi/default/linux86-64/default/bin/pgf90 -rpath /opt/pgi/default/linux86-64/default/libso $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBARMCI) -o $@
+fmm_armci.x: libfm_r32.a sl/libsl.a armci-boot-only.o
+	/opt/pgi/default/linux86-64/default/bin/pgf90 -rpath /opt/pgi/default/linux86-64/default/libso $(LDFLAGS) libfm_r32.a sl/libsl.a $(LIBARMCI) armci-boot-only.o -o $@
 
 sl/libsl.a:
 	make -C sl -j $(MAKEJNUM) CC="$(CC)" CFLAGS="$(CFLAGS)"

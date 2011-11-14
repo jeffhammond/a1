@@ -135,7 +135,7 @@ int * flush_list;
 const int DMAPP_FLUSH_COUNT_MAX = 100;
 #endif
 
-int ARMCI_Boot(void)
+void ARMCI_Boot(void)
 {
 #ifdef __CRAYXE
     dmapp_return_t                      dmapp_status = DMAPP_RC_SUCCESS;
@@ -169,7 +169,7 @@ int ARMCI_Boot(void)
 
 #endif
 
-    return(0);
+    return;
 }
 
 int ARMCI_Init(void)
@@ -199,7 +199,7 @@ int ARMCI_Init(void)
     mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
     assert(mpi_status==0);
 
-//#ifdef __CRAYXE
+#ifdef __CRAYXE
 //    dmapp_config_in.max_concurrency      = 1; /* not thread-safe */
 //    dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB; /*  512 */
 //    dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;  /* 4096 */
@@ -464,8 +464,6 @@ int ARMCI_Put(void *src, void *dst, int bytes, int proc)
     assert(dmapp_status==DMAPP_RC_SUCCESS);
 
     seg = &(job.sheap_seg);
-
-    fprintf(stderr,"dmapp_sheap_ptr = %p seg = %p \n", dmapp_sheap_ptr, seg );
 #endif
 
     /* empirically, DMAPP_DW delivers the best performance.
