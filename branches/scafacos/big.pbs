@@ -6,13 +6,13 @@
 #PBS -V
 #PBS -q regular
 
-export XT_SYMMETRIC_HEAP_SIZE=500M
+export XT_SYMMETRIC_HEAP_SIZE=300M
 export NPROC=1008
 
 cd ${PBS_O_WORKDIR}
 
-#aprun -n ${NPROC} ./fmm_dmapp.x  1024 1 > fmm_dmapp_${NPROC}procs_1073741824particles.${PBS_JOBID}.output
-#aprun -n ${NPROC} ./fmm_armpi.x  1024 1 > fmm_armpi_${NPROC}procs_1073741824particles.${PBS_JOBID}.output
+aprun -n ${NPROC} ./fmm_dmapp.x  1024 1 > fmm_dmapp_${NPROC}procs_1073741824particles.${PBS_JOBID}.output
+#DONE#aprun -n ${NPROC} ./fmm_armpi.x  1024 1 > fmm_armpi_${NPROC}procs_1073741824particles.${PBS_JOBID}.output
 
 aprun -n ${NPROC} ./fmm_dmapp.x  4096 1 > fmm_dmapp_${NPROC}procs_68719476736particles.${PBS_JOBID}.output
 aprun -n ${NPROC} ./fmm_armpi.x  4096 1 > fmm_armpi_${NPROC}procs_68719476736particles.${PBS_JOBID}.output
