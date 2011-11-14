@@ -135,6 +135,43 @@ int * flush_list;
 const int DMAPP_FLUSH_COUNT_MAX = 100;
 #endif
 
+int ARMCI_Boot(void)
+{
+#ifdef __CRAYXE
+    dmapp_return_t                      dmapp_status = DMAPP_RC_SUCCESS;
+    dmapp_rma_attrs_ext_t               dmapp_config_in, dmapp_config_out;
+
+    dmapp_config_in.max_concurrency      = 1; /* not thread-safe */
+    dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB; /*  512 */
+    dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;  /* 4096 */
+
+#  ifdef DETERMINISTIC_ROUTING
+    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+#  else
+    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
+    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
+#  endif
+
+#  ifndef FLUSH_IMPLEMENTED
+    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_STRICT;
+#  else
+    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_RELAXED;
+#  endif
+
+    dmapp_status = dmapp_init_ext( &dmapp_config_in, &dmapp_config_out );
+    assert(dmapp_status==DMAPP_RC_SUCCESS);
+
+#ifndef FLUSH_IMPLEMENTED
+    /* without strict PI ordering, we have to flush remote stores with a get packet to force global visibility */
+    assert( dmapp_config_out.PI_ordering == DMAPP_PI_ORDERING_STRICT);
+#endif
+
+#endif
+
+    return(0);
+}
+
 int ARMCI_Init(void)
 {
     int mpi_status = MPI_SUCCESS;
@@ -162,32 +199,32 @@ int ARMCI_Init(void)
     mpi_status = MPI_Comm_size(A1_COMM_WORLD,&mpi_size);
     assert(mpi_status==0);
 
-#ifdef __CRAYXE
-    dmapp_config_in.max_concurrency      = 1; /* not thread-safe */
-    dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB; /*  512 */
-    dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;  /* 4096 */
-
-#  ifdef DETERMINISTIC_ROUTING
-    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
-    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
-#  else
-    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
-    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
-#  endif
-
-#  ifndef FLUSH_IMPLEMENTED
-    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_STRICT;
-#  else
-    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_RELAXED;
-#  endif
-
-    dmapp_status = dmapp_init_ext( &dmapp_config_in, &dmapp_config_out );
-    assert(dmapp_status==DMAPP_RC_SUCCESS);
-
-#ifndef FLUSH_IMPLEMENTED
-    /* without strict PI ordering, we have to flush remote stores with a get packet to force global visibility */
-    assert( dmapp_config_out.PI_ordering == DMAPP_PI_ORDERING_STRICT);
-#endif
+//#ifdef __CRAYXE
+//    dmapp_config_in.max_concurrency      = 1; /* not thread-safe */
+//    dmapp_config_in.max_outstanding_nb   = DMAPP_DEF_OUTSTANDING_NB; /*  512 */
+//    dmapp_config_in.offload_threshold    = DMAPP_OFFLOAD_THRESHOLD;  /* 4096 */
+//
+//#  ifdef DETERMINISTIC_ROUTING
+//    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+//    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_DETERMINISTIC;
+//#  else
+//    dmapp_config_in.put_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
+//    dmapp_config_in.get_relaxed_ordering = DMAPP_ROUTING_ADAPTIVE;
+//#  endif
+//
+//#  ifndef FLUSH_IMPLEMENTED
+//    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_STRICT;
+//#  else
+//    dmapp_config_in.PI_ordering          = DMAPP_PI_ORDERING_RELAXED;
+//#  endif
+//
+//    dmapp_status = dmapp_init_ext( &dmapp_config_in, &dmapp_config_out );
+//    assert(dmapp_status==DMAPP_RC_SUCCESS);
+//
+//#ifndef FLUSH_IMPLEMENTED
+//    /* without strict PI ordering, we have to flush remote stores with a get packet to force global visibility */
+//    assert( dmapp_config_out.PI_ordering == DMAPP_PI_ORDERING_STRICT);
+//#endif
 
     dmapp_status = dmapp_get_jobinfo(&dmapp_info);
     assert(dmapp_status==DMAPP_RC_SUCCESS);
