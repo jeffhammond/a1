@@ -54,7 +54,6 @@ int main()
     pthread_create(&pt[0], NULL, &execute, NULL);
     pthread_create(&pt[1], NULL, &execute, NULL);
     pthread_create(&pt[2], NULL, &execute, NULL);
-
     execute(NULL);
 
     pthread_mutex_destroy(&mutex);
