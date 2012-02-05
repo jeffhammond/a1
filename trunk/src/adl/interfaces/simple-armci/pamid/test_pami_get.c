@@ -8,7 +8,7 @@
 #include <mpi.h>
 #include <pami.h>
 
-static size_t world_size, world_rank = -1;
+static size_t world_size = -1, world_rank = -1;
 
 #define PRINT_SUCCESS 1
 
@@ -31,7 +31,15 @@ void cb_done(pami_context_t context, void * cookie, pami_result_t result)
 {
   int * active = (int *) cookie;
 
+  printf("cb_done before decrement on rank %ld \n", world_rank );
+  fflush(stdout);
+  sleep(1);
+
   (*active)--;
+
+  printf("cb_done after decrement on rank %ld \n", world_rank );
+  fflush(stdout);
+  sleep(1);
 
   return;
 }
@@ -93,7 +101,7 @@ int main(int argc, char *argv[])
 
     size_t min_count   = (size_t) ( argc > 1 ? atoi(argv[1]) : 1    );
     size_t max_count   = (size_t) ( argc > 2 ? atoi(argv[2]) : 1024 );
-    size_t repetitions = (size_t) ( argc > 3 ? atoi(argv[3]) : 10   );
+    size_t repetitions = (size_t) ( argc > 3 ? atoi(argv[3]) : 1    );
 
     if ( world_rank == 0 ) printf( "size = %ld max_count = %ld bytes \n", world_size, max_count );
 
@@ -159,8 +167,12 @@ int main(int argc, char *argv[])
                     pami_result = PAMI_Get(contexts[context_offset], &parameters);
                     TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Get");
 
-                    while (active > 0) pami_result = PAMI_Context_advance(contexts[0], 1000);
-                    TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Context_advance");
+                    while (active > 0) 
+                    {
+                        printf("attempting PAMI_Context_advance \n");
+                        pami_result = PAMI_Context_advance(contexts[0], 1);
+                        TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Context_advance");
+                    }
                 }
                 t1 = PAMI_Wtime(a1d_client);
 
@@ -186,6 +198,17 @@ int main(int argc, char *argv[])
                 fflush(stdout);
             }
             free(local_buffer);
+        }
+        else /* not rank 0 */
+        {
+                pami_result = PAMI_Context_lock(contexts[0]);
+                TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Context_lock");
+
+                pami_result = PAMI_Context_advance(contexts[0], 1000);
+                TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Context_advance");
+
+                pami_result = PAMI_Context_unlock(contexts[0]);
+                TEST_ASSERT(pami_result == PAMI_SUCCESS,"PAMI_Context_unlock");
         }
         mpi_status = MPI_Barrier(MPI_COMM_WORLD);
         TEST_ASSERT( mpi_status==MPI_SUCCESS , "MPI_Barrier" );

@@ -1156,7 +1156,7 @@ int ARMCI_Rmw(int op, void *ploc, void *prem, int value, int proc)
     }
     else if (op == ARMCI_SWAP || op == ARMCI_SWAP_LONG)
     {
-        a1_op = ARMCI_SWAP;
+        a1_op = A1_SWAP;
     }
     else
     {

@@ -406,7 +406,7 @@ typedef union
     struct
     {
         void* target_ptr;
-        A1_datatype_t datatype;
+        A1D_datatype_t datatype;
         union
         {
             int32_t int32_value;
