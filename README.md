@@ -1,4 +1,5 @@
-A1 stands for Argonne 1-sided.
+Argonne 1-sided (A1)
+==============
 
 # Summary
 
