@@ -10,10 +10,10 @@ i.e. an alternative runtime system for Global Arrays.
 * low-latency/high-bandwidth
 * scalability to at least one million processes
 * thread-safety
-* modular design ala [http://www.mcs.anl.gov/research/projects/mpich2/ MPICH2]
-* interoperability with [http://www.mpi-forum.org/ MPI]
+* modular design ala MPICH
+* interoperability with MPI
 * software quality (readable, documented source code and robust build system)
-* productive interaction with vendors (e.g. [http://www.cray.com Cray] and [http://www.ibm.com IBM])
+* productive interaction with vendors
 
 # Progress
 
